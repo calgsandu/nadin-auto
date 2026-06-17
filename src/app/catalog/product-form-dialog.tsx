@@ -1,0 +1,357 @@
+"use client";
+
+import { useActionState, useMemo, useState, type ReactNode } from "react";
+import { useFormStatus } from "react-dom";
+import type { Brand, CarModel, ProductType } from "@/generated/prisma/client";
+import {
+  createProductAction,
+  updateProductAction,
+  type CatalogActionState,
+} from "@/app/catalog/actions";
+import { DrawerPortal } from "@/app/components/drawer-portal";
+
+type ProductFormDialogProps = {
+  brands: Brand[];
+  models: CarModel[];
+  types: ProductType[];
+  product?: ProductFormValue;
+  triggerLabel: string;
+  triggerKind?: "primary" | "row";
+};
+
+export type ProductFormValue = {
+  id: string;
+  externalCode: string;
+  brandId: string;
+  modelId: string;
+  typeId: string;
+  description: string;
+  yearStart: string;
+  yearEnd: string;
+  yearOpenEnded: boolean;
+  stock: string;
+  priceEuro: string;
+  costLei: string;
+  salePriceLei: string;
+};
+
+const initialState: CatalogActionState = {
+  ok: false,
+  message: "",
+};
+
+export function ProductFormDialog({
+  brands,
+  models,
+  types,
+  product,
+  triggerLabel,
+  triggerKind = "primary",
+}: ProductFormDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [brandId, setBrandId] = useState(product?.brandId ?? "");
+  const [modelId, setModelId] = useState(product?.modelId ?? "");
+  const [newBrandName, setNewBrandName] = useState("");
+  const [yearOpenEnded, setYearOpenEnded] = useState(
+    product?.yearOpenEnded ?? false,
+  );
+  const action = product ? updateProductAction : createProductAction;
+  const [state, formAction] = useActionState(action, initialState);
+  const filteredModels = useMemo(() => {
+    if (!brandId || newBrandName.trim()) {
+      return [];
+    }
+
+    return models.filter((model) => model.brandId === brandId);
+  }, [brandId, models, newBrandName]);
+
+  function openDialog() {
+    setBrandId(product?.brandId ?? "");
+    setModelId(product?.modelId ?? "");
+    setNewBrandName("");
+    setYearOpenEnded(product?.yearOpenEnded ?? false);
+    setOpen(true);
+  }
+
+  return (
+    <>
+      <button
+        className={
+          triggerKind === "row"
+            ? "button-secondary rounded-md border border-[#d8d2c6] px-3 py-1.5 text-xs font-semibold text-[#1d2521] hover:bg-[#f4f2ec]"
+            : "button-primary rounded-md bg-[#202d27] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#2c3a33]"
+        }
+        type="button"
+        onClick={openDialog}
+      >
+        {triggerLabel}
+      </button>
+
+      {open ? (
+        <DrawerPortal>
+          <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
+          <button
+            className="absolute inset-0 cursor-default"
+            type="button"
+            aria-label="Închide formularul"
+            onClick={() => setOpen(false)}
+          />
+          <aside className="motion-drawer-panel relative flex h-full w-full max-w-2xl flex-col overflow-y-auto bg-[#f8f6f1] shadow-xl">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#d8d2c6] bg-[#f8f6f1] px-6 py-5">
+              <div>
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#68746d]">
+                  Catalog
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-[#1d2521]">
+                  {product ? "Editează produs" : "Adaugă produs"}
+                </h2>
+              </div>
+              <button
+                className="button-secondary rounded-md border border-[#d8d2c6] bg-white px-3 py-2 text-sm font-medium text-[#1d2521] hover:bg-[#f4f2ec]"
+                type="button"
+                onClick={() => setOpen(false)}
+              >
+                Închide
+              </button>
+            </div>
+
+            <form action={formAction} className="grid gap-5 px-6 py-6">
+              {product ? (
+                <input name="productId" type="hidden" value={product.id} />
+              ) : null}
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Cod">
+                  <input
+                    className={inputClassName}
+                    name="externalCode"
+                    defaultValue={product?.externalCode ?? ""}
+                    placeholder="ex. P12013 1"
+                  />
+                </Field>
+                <Field label="Tip produs">
+                  <select
+                    className={inputClassName}
+                    name="typeId"
+                    defaultValue={product?.typeId ?? ""}
+                  >
+                    <option value="">Alege tipul</option>
+                    {types.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Brand existent">
+                  <select
+                    className={inputClassName}
+                    name="brandId"
+                    value={newBrandName.trim() ? "" : brandId}
+                    disabled={Boolean(newBrandName.trim())}
+                    onChange={(event) => {
+                      setBrandId(event.target.value);
+                      setModelId("");
+                    }}
+                  >
+                    <option value="">Alege brandul</option>
+                    {brands.map((brand) => (
+                      <option key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Brand nou">
+                  <input
+                    className={inputClassName}
+                    name="newBrandName"
+                    value={newBrandName}
+                    onChange={(event) => {
+                      setNewBrandName(event.target.value);
+                      setModelId("");
+                    }}
+                    placeholder="Completează doar dacă nu există"
+                  />
+                </Field>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Model existent">
+                  <select
+                    className={inputClassName}
+                    name="modelId"
+                    value={newBrandName.trim() ? "" : modelId}
+                    disabled={Boolean(newBrandName.trim())}
+                    onChange={(event) => setModelId(event.target.value)}
+                  >
+                    <option value="">
+                      {brandId ? "Alege modelul" : "Alege întâi brandul"}
+                    </option>
+                    {filteredModels.map((model) => (
+                      <option key={model.id} value={model.id}>
+                        {model.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Model nou">
+                  <input
+                    className={inputClassName}
+                    name="newModelName"
+                    placeholder="Completează doar dacă nu există"
+                  />
+                </Field>
+              </div>
+
+              <Field label="Tip produs nou">
+                <input
+                  className={inputClassName}
+                  name="newTypeName"
+                  placeholder="Completează doar dacă nu există în listă"
+                />
+              </Field>
+
+              <Field label="Descriere">
+                <textarea
+                  className={`${inputClassName} min-h-24 resize-y py-3`}
+                  name="description"
+                  defaultValue={product?.description ?? ""}
+                  placeholder="ex. Prag 4/5uși L"
+                  required
+                />
+              </Field>
+
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field label="Ani de la">
+                  <input
+                    className={inputClassName}
+                    name="yearStart"
+                    defaultValue={product?.yearStart ?? ""}
+                    inputMode="numeric"
+                    placeholder="1995"
+                  />
+                </Field>
+                <Field label="Ani până la">
+                  <input
+                    className={inputClassName}
+                    name="yearEnd"
+                    defaultValue={product?.yearEnd ?? ""}
+                    disabled={yearOpenEnded}
+                    inputMode="numeric"
+                    placeholder="2006"
+                  />
+                </Field>
+                <label className="field-control flex items-center gap-2 self-end rounded-md border border-[#d8d2c6] bg-white px-3 py-3 text-sm text-[#2f3a34]">
+                  <input
+                    name="yearOpenEnded"
+                    type="checkbox"
+                    checked={yearOpenEnded}
+                    onChange={(event) => setYearOpenEnded(event.target.checked)}
+                  />
+                  În continuare
+                </label>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field label="Stoc">
+                  <input
+                    className={inputClassName}
+                    name="stock"
+                    defaultValue={product?.stock ?? ""}
+                    inputMode="numeric"
+                  />
+                </Field>
+                <Field label="Preț EUR">
+                  <input
+                    className={inputClassName}
+                    name="priceEuro"
+                    defaultValue={product?.priceEuro ?? ""}
+                    inputMode="decimal"
+                  />
+                </Field>
+                <Field label="Cost aducere (lei)">
+                  <input
+                    className={inputClassName}
+                    name="costLei"
+                    defaultValue={product?.costLei ?? ""}
+                    inputMode="decimal"
+                  />
+                </Field>
+              </div>
+
+              <Field label="Preț vânzare (lei) — gol = automat (2× cost, rotunjit la 50)">
+                <input
+                  className={inputClassName}
+                  name="salePriceLei"
+                  defaultValue={product?.salePriceLei ?? ""}
+                  inputMode="decimal"
+                  placeholder="se calculează automat din cost"
+                />
+              </Field>
+
+              {state.message ? (
+                <div
+                  className={`rounded-md border px-3 py-2 text-sm ${
+                    state.ok
+                      ? "border-[#9fbc84] bg-[#eef6e6] text-[#334719]"
+                      : "border-[#d6a28b] bg-[#fff1eb] text-[#7a2f13]"
+                  }`}
+                >
+                  {state.message}
+                </div>
+              ) : null}
+
+              <div className="flex items-center justify-end gap-3 border-t border-[#d8d2c6] pt-5">
+                <button
+                  className="button-secondary rounded-md border border-[#d8d2c6] bg-white px-4 py-2.5 text-sm font-semibold text-[#1d2521] hover:bg-[#f4f2ec]"
+                  type="button"
+                  onClick={() => setOpen(false)}
+                >
+                  Anulează
+                </button>
+                <SubmitButton label={product ? "Salvează" : "Adaugă"} />
+              </div>
+            </form>
+          </aside>
+          </div>
+        </DrawerPortal>
+      ) : null}
+    </>
+  );
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <label className="grid gap-1.5 text-sm font-medium text-[#2f3a34]">
+      {label}
+      {children}
+    </label>
+  );
+}
+
+function SubmitButton({ label }: { label: string }) {
+  const status = useFormStatus();
+
+  return (
+    <button
+      className="button-primary rounded-md bg-[#202d27] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#2c3a33] disabled:cursor-not-allowed disabled:opacity-60"
+      disabled={status.pending}
+      type="submit"
+    >
+      {status.pending ? "Se salvează..." : label}
+    </button>
+  );
+}
+
+const inputClassName =
+  "field-control h-11 w-full rounded-md border border-[#d8d2c6] bg-white px-3 text-sm outline-none placeholder:text-[#8a918d] disabled:bg-[#eeeae1]";

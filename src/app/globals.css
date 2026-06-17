@@ -1,0 +1,237 @@
+@import "tailwindcss";
+@import "@neondatabase/auth/ui/tailwind";
+
+:root {
+  --background: #f4f2ec;
+  --foreground: #1d2521;
+  --accent: #c6a635;
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-fast: 140ms;
+  --duration-base: 210ms;
+  --duration-drawer: 280ms;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
+::selection {
+  background: var(--accent);
+  color: #18211d;
+}
+
+.motion-nav-link {
+  transition:
+    transform var(--duration-base) var(--ease-out-soft),
+    background-color var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.motion-nav-link:active {
+  transform: scale(0.985);
+}
+
+.mobile-nav-scroll {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.motion-page {
+  animation: content-enter var(--duration-base) var(--ease-out-soft) both;
+}
+
+.motion-card {
+  transition:
+    transform var(--duration-base) var(--ease-out-soft),
+    border-color var(--duration-base) ease,
+    box-shadow var(--duration-base) ease,
+    background-color var(--duration-base) ease;
+}
+
+.motion-table-row {
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.motion-drawer-backdrop {
+  animation: backdrop-enter 180ms ease-out both;
+}
+
+.motion-drawer-panel {
+  animation: drawer-enter var(--duration-drawer) var(--ease-drawer) both;
+  will-change: transform;
+}
+
+.motion-line-item {
+  animation: line-enter 190ms var(--ease-out-soft) both;
+  transition:
+    transform var(--duration-base) var(--ease-out-soft),
+    border-color var(--duration-base) ease,
+    background-color var(--duration-base) ease;
+}
+
+.motion-popover {
+  animation: popover-enter 160ms var(--ease-out-soft) both;
+  transform-origin: top center;
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.field-control {
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+}
+
+.field-control:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgb(198 166 53 / 18%);
+}
+
+.button-primary,
+.button-secondary,
+.button-danger {
+  transition:
+    transform var(--duration-fast) var(--ease-out-soft),
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+}
+
+.button-primary:active:not(:disabled),
+.button-secondary:active:not(:disabled),
+.button-danger:active:not(:disabled) {
+  transform: scale(0.975);
+}
+
+.button-primary:focus-visible,
+.button-secondary:focus-visible,
+.button-danger:focus-visible,
+.motion-nav-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .motion-card:hover {
+    border-color: #c8beae;
+    box-shadow: 0 8px 22px rgb(29 37 33 / 6%);
+    transform: translateY(-1px);
+  }
+
+  .motion-line-item:hover {
+    border-color: #d2cabb;
+    background-color: #fff;
+  }
+}
+
+@keyframes content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes backdrop-enter {
+  from {
+    background-color: rgb(0 0 0 / 0%);
+  }
+
+  to {
+    background-color: rgb(0 0 0 / 30%);
+  }
+}
+
+@keyframes drawer-enter {
+  from {
+    opacity: 0.96;
+    transform: translateX(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes line-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.995);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popover-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}

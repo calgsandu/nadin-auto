@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AppRole {
+  ADMIN
+  DIRECTOR
+  ANGAJAT
+}
+
+enum ProductSource {
+  EXCEL
+  MANUAL
+}
+
+enum PartnerKind {
+  SUPPLIER
+  CUSTOMER
+  BOTH
+}
+
+enum StockDocumentType {
+  RECEIPT
+  SALE
+  RETURN
+  ADJUSTMENT
+}
+
+model AppUser {
+  id         String   @id @default(cuid())
+  authUserId String   @unique
+  email      String?
+  name       String?
+  role       AppRole  @default(ANGAJAT)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Brand {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  models    CarModel[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CarModel {
+  id        String            @id @default(cuid())
+  brandId   String
+  name      String
+  brand     Brand             @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  fitments  VehicleFitment[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([brandId, name])
+  @@index([name])
+}
+
+model VehicleFitment {
+  id            String    @id @default(cuid())
+  carModelId    String
+  label         String
+  yearStart     Int?
+  yearEnd       Int?
+  yearOpenEnded Boolean   @default(false)
+  carModel      CarModel  @relation(fields: [carModelId], references: [id], onDelete: Cascade)
+  products      Product[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([carModelId, label])
+  @@index([yearStart, yearEnd])
+}
+
+model ProductType {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id          String         @id @default(cuid())
+  importKey   String         @unique
+  source      ProductSource  @default(EXCEL)
+  manuallyEdited Boolean     @default(false)
+  sourceRow   Int
+  sourceItem  String?
+  externalCode String?
+  description String
+  notes       String?
+  stock       Int?
+  priceEuro     Decimal?     @db.Decimal(10, 2)
+  costLei       Decimal?     @db.Decimal(10, 2)
+  salePriceLei  Decimal?     @db.Decimal(10, 2)
+  fitmentId   String
+  typeId      String
+  fitment     VehicleFitment @relation(fields: [fitmentId], references: [id], onDelete: Restrict)
+  type        ProductType    @relation(fields: [typeId], references: [id], onDelete: Restrict)
+  warehouseStocks WarehouseStock[]
+  stockLines   StockDocumentLine[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([sourceRow])
+  @@index([externalCode])
+  @@index([description])
+  @@index([typeId])
+  @@index([fitmentId])
+}
+
+model Warehouse {
+  id        String            @id @default(cuid())
+  name      String            @unique
+  isDefault Boolean           @default(false)
+  active    Boolean           @default(true)
+  stocks    WarehouseStock[]
+  documents StockDocument[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model WarehouseStock {
+  id          String    @id @default(cuid())
+  productId   String
+  warehouseId String
+  quantity    Int       @default(0)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([productId, warehouseId])
+  @@index([warehouseId])
+  @@index([productId])
+}
+
+model Partner {
+  id        String          @id @default(cuid())
+  name      String          @unique
+  kind      PartnerKind     @default(BOTH)
+  phone     String?
+  notes     String?
+  documents StockDocument[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model StockDocument {
+  id          String              @id @default(cuid())
+  type        StockDocumentType
+  number      Int
+  documentDate DateTime           @default(now())
+  warehouseId String
+  partnerId   String?
+  notes       String?
+  totalEuro   Decimal?            @db.Decimal(10, 2)
+  totalLei    Decimal?            @db.Decimal(10, 2)
+  warehouse   Warehouse           @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  partner     Partner?            @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  lines       StockDocumentLine[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@unique([type, number])
+  @@index([documentDate])
+  @@index([warehouseId])
+  @@index([partnerId])
+}
+
+model StockDocumentLine {
+  id          String        @id @default(cuid())
+  documentId String
+  productId  String
+  quantity   Int
+  unitPriceEuro Decimal?    @db.Decimal(10, 2)
+  unitCostLei   Decimal?    @db.Decimal(10, 2)
+  document   StockDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  product    Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([documentId])
+  @@index([productId])
+}
