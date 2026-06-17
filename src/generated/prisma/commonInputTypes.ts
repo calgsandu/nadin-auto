@@ -272,6 +272,48 @@ export type EnumStockDocumentTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumStockDocumentTypeFilter<$PrismaModel>
 }
 
+export type EnumRestockTaskStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestockTaskStatus | Prisma.EnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RestockTaskStatus[] | Prisma.ListEnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestockTaskStatus[] | Prisma.ListEnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestockTaskStatusFilter<$PrismaModel> | $Enums.RestockTaskStatus
+}
+
+export type DateTimeNullableFilter<$PrismaModel = never> = {
+  equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
+  in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  notIn?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  lt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  lte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+}
+
+export type EnumRestockTaskStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestockTaskStatus | Prisma.EnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RestockTaskStatus[] | Prisma.ListEnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestockTaskStatus[] | Prisma.ListEnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestockTaskStatusWithAggregatesFilter<$PrismaModel> | $Enums.RestockTaskStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRestockTaskStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRestockTaskStatusFilter<$PrismaModel>
+}
+
+export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
+  in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  notIn?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  lt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  lte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -541,6 +583,48 @@ export type NestedEnumStockDocumentTypeWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumStockDocumentTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumStockDocumentTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumRestockTaskStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestockTaskStatus | Prisma.EnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RestockTaskStatus[] | Prisma.ListEnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestockTaskStatus[] | Prisma.ListEnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestockTaskStatusFilter<$PrismaModel> | $Enums.RestockTaskStatus
+}
+
+export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+  equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
+  in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  notIn?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  lt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  lte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+}
+
+export type NestedEnumRestockTaskStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestockTaskStatus | Prisma.EnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RestockTaskStatus[] | Prisma.ListEnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestockTaskStatus[] | Prisma.ListEnumRestockTaskStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestockTaskStatusWithAggregatesFilter<$PrismaModel> | $Enums.RestockTaskStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRestockTaskStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRestockTaskStatusFilter<$PrismaModel>
+}
+
+export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
+  in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  notIn?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
+  lt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  lte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
 

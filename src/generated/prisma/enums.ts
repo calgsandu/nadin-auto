@@ -43,3 +43,12 @@ export const StockDocumentType = {
 } as const
 
 export type StockDocumentType = (typeof StockDocumentType)[keyof typeof StockDocumentType]
+
+
+export const RestockTaskStatus = {
+  PENDING: 'PENDING',
+  DELIVERED: 'DELIVERED',
+  UNAVAILABLE: 'UNAVAILABLE'
+} as const
+
+export type RestockTaskStatus = (typeof RestockTaskStatus)[keyof typeof RestockTaskStatus]

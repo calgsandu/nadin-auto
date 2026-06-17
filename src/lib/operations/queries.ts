@@ -1,22 +1,28 @@
 import { prisma } from "@/lib/prisma";
-import { aggregateSoldProducts } from "@/lib/operations/sales";
+import { aggregateSoldProducts, groupSalesByPeriod } from "@/lib/operations/sales";
+import {
+  aggregateRestockRequests,
+  splitRestockTasksByStatus,
+} from "@/lib/operations/restock";
 
 export async function getOperationsData() {
   await ensureDefaultWarehouses();
   const today = getTodayRange();
 
-  const [warehouses, recentDocuments, salesToday] = await Promise.all([
-    prisma.warehouse.findMany({
-      where: { active: true },
-      include: {
-        stocks: {
-          select: {
-            quantity: true,
-          },
+  const warehouses = await prisma.warehouse.findMany({
+    where: { active: true },
+    include: {
+      stocks: {
+        select: {
+          quantity: true,
         },
       },
-      orderBy: [{ isDefault: "desc" }, { name: "asc" }],
-    }),
+    },
+    orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+  });
+  const restockWarehouse = warehouses.find((warehouse) => warehouse.name === "Pavilion 110A");
+
+  const [recentDocuments, salesToday, salesArchive, restockTasks] = await Promise.all([
     prisma.stockDocument.findMany({
       where: {
         type: {
@@ -54,6 +60,35 @@ export async function getOperationsData() {
       },
       orderBy: [{ documentDate: "desc" }, { number: "desc" }],
     }),
+    prisma.stockDocument.findMany({
+      where: {
+        type: "SALE",
+      },
+      include: {
+        warehouse: true,
+        partner: true,
+        lines: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: [{ documentDate: "desc" }, { number: "desc" }],
+    }),
+    restockWarehouse
+      ? prisma.restockTask.findMany({
+          where: {
+            warehouseId: restockWarehouse.id,
+            status: {
+              in: ["PENDING", "UNAVAILABLE"],
+            },
+          },
+          include: {
+            product: true,
+          },
+          orderBy: [{ requestedAt: "asc" }, { createdAt: "asc" }],
+        })
+      : Promise.resolve([]),
   ]);
 
   const salesFrom110AToday = salesToday.filter(
@@ -67,16 +102,58 @@ export async function getOperationsData() {
       .flatMap((sale) => sale.lines)
       .map((line) => [line.productId, line.product]),
   );
+  const restockByStatus = splitRestockTasksByStatus(restockTasks);
 
   return {
     warehouses,
     recentDocuments,
     salesToday,
+    salesArchive,
+    salesByDay: groupSalesByPeriod(salesArchive, "day"),
+    salesByMonth: groupSalesByPeriod(salesArchive, "month"),
+    salesByYear: groupSalesByPeriod(salesArchive, "year"),
     soldToday: soldToday.map((line) => ({
       ...line,
       product: soldProductById.get(line.productId)!,
     })),
+    restockPending: summarizeRestockTasks(restockByStatus.pending),
+    restockUnavailable: summarizeRestockTasks(restockByStatus.unavailable),
   };
+}
+
+function summarizeRestockTasks<
+  T extends {
+    productId: string;
+    warehouseId: string;
+    quantity: number;
+    requestedAt: Date;
+    product: { externalCode: string | null; description: string };
+  },
+>(tasks: T[]) {
+  const productById = new Map(tasks.map((task) => [task.productId, task.product]));
+  const tasksByProduct = new Map<string, T[]>();
+
+  for (const task of tasks) {
+    tasksByProduct.set(task.productId, [
+      ...(tasksByProduct.get(task.productId) ?? []),
+      task,
+    ]);
+  }
+
+  return aggregateRestockRequests(tasks).map((line) => {
+    const productTasks = tasksByProduct.get(line.productId) ?? [];
+    const timestamps = productTasks.map((task) => task.requestedAt.getTime());
+
+    return {
+      productId: line.productId,
+      warehouseId: productTasks[0]?.warehouseId ?? "",
+      quantity: line.quantity,
+      taskCount: productTasks.length,
+      oldestRequestedAt: new Date(Math.min(...timestamps)),
+      latestRequestedAt: new Date(Math.max(...timestamps)),
+      product: productById.get(line.productId)!,
+    };
+  });
 }
 
 async function ensureDefaultWarehouses() {

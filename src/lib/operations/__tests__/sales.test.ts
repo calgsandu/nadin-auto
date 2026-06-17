@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {
   aggregateSoldProducts,
   calculateSaleTotalEuro,
+  groupSalesByPeriod,
   parseSaleLines,
 } from "@/lib/operations/sales";
 
@@ -42,6 +43,52 @@ assert.throws(
       unitPricesEuro: ["", ""],
     }),
   /Produsul de pe poziția 2 este adăugat de mai multe ori/,
+);
+
+assert.deepEqual(
+  groupSalesByPeriod(
+    [
+      { id: "sale-1", documentDate: new Date("2026-06-18T12:00:00") },
+      { id: "sale-2", documentDate: new Date("2026-06-02T12:00:00") },
+      { id: "sale-3", documentDate: new Date("2025-12-31T12:00:00") },
+    ],
+    "day",
+  ),
+  [
+    { key: "2026-06-18", label: "18.06.2026", sales: [{ id: "sale-1", documentDate: new Date("2026-06-18T12:00:00") }] },
+    { key: "2026-06-02", label: "02.06.2026", sales: [{ id: "sale-2", documentDate: new Date("2026-06-02T12:00:00") }] },
+    { key: "2025-12-31", label: "31.12.2025", sales: [{ id: "sale-3", documentDate: new Date("2025-12-31T12:00:00") }] },
+  ],
+);
+
+assert.deepEqual(
+  groupSalesByPeriod(
+    [
+      { id: "sale-1", documentDate: new Date("2026-06-18T12:00:00") },
+      { id: "sale-2", documentDate: new Date("2026-06-02T12:00:00") },
+      { id: "sale-3", documentDate: new Date("2025-12-31T12:00:00") },
+    ],
+    "month",
+  ).map((group) => ({ key: group.key, count: group.sales.length })),
+  [
+    { key: "2026-06", count: 2 },
+    { key: "2025-12", count: 1 },
+  ],
+);
+
+assert.deepEqual(
+  groupSalesByPeriod(
+    [
+      { id: "sale-1", documentDate: new Date("2026-06-18T12:00:00") },
+      { id: "sale-2", documentDate: new Date("2026-06-02T12:00:00") },
+      { id: "sale-3", documentDate: new Date("2025-12-31T12:00:00") },
+    ],
+    "year",
+  ).map((group) => ({ key: group.key, count: group.sales.length })),
+  [
+    { key: "2026", count: 2 },
+    { key: "2025", count: 1 },
+  ],
 );
 
 console.log("sales tests passed");

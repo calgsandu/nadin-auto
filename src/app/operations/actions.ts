@@ -18,6 +18,7 @@ import {
   calculateSaleTotalEuro,
   parseSaleLines,
 } from "@/lib/operations/sales";
+import { aggregateRestockRequests } from "@/lib/operations/restock";
 
 export type OperationActionState = {
   ok: boolean;
@@ -201,12 +202,21 @@ export async function createSaleAction(
     }
 
     await prisma.$transaction(async (tx) => {
+      const warehouse = await tx.warehouse.findUnique({
+        where: { id: warehouseId },
+        select: { name: true },
+      });
+
+      if (!warehouse) {
+        throw new Error("Locația aleasă nu există.");
+      }
+
       for (const line of lines) {
         const stock = await ensureWarehouseStockRow(tx, line.productId, warehouseId);
         validateSaleAvailability(stock.quantity, line.quantity);
       }
 
-      await tx.stockDocument.create({
+      const document = await tx.stockDocument.create({
         data: {
           type: "SALE",
           number: await nextDocumentNumber(tx, "SALE"),
@@ -220,6 +230,18 @@ export async function createSaleAction(
           },
         },
       });
+
+      if (warehouse.name === RESTOCK_WAREHOUSE_NAME) {
+        await tx.restockTask.createMany({
+          data: aggregateRestockRequests(lines).map((line) => ({
+            productId: line.productId,
+            warehouseId,
+            sourceDocumentId: document.id,
+            quantity: line.quantity,
+            requestedAt: documentDate,
+          })),
+        });
+      }
 
       for (const line of lines) {
         await updateWarehouseStock(tx, {
@@ -242,6 +264,61 @@ export async function createSaleAction(
   }
 }
 
+export async function markRestockDeliveredAction(
+  _state: OperationActionState,
+  formData: FormData,
+): Promise<OperationActionState> {
+  return markRestockTasks(formData, "DELIVERED", "Produsele au fost marcate ca aduse.");
+}
+
+export async function markRestockUnavailableAction(
+  _state: OperationActionState,
+  formData: FormData,
+): Promise<OperationActionState> {
+  return markRestockTasks(
+    formData,
+    "UNAVAILABLE",
+    "Produsele au fost mutate la indisponibile.",
+  );
+}
+
+async function markRestockTasks(
+  formData: FormData,
+  status: "DELIVERED" | "UNAVAILABLE",
+  successMessage: string,
+): Promise<OperationActionState> {
+  try {
+    await requireOperationsWrite();
+    const productId = readString(formData, "productId");
+    const warehouseId = readString(formData, "warehouseId");
+
+    if (!productId || !warehouseId) {
+      throw new Error("Produs sau locație lipsă.");
+    }
+
+    const result = await prisma.restockTask.updateMany({
+      where: {
+        productId,
+        warehouseId,
+        status: "PENDING",
+      },
+      data: {
+        status,
+        resolvedAt: new Date(),
+      },
+    });
+
+    if (result.count === 0) {
+      throw new Error("Nu mai există produse active pentru această poziție.");
+    }
+
+    revalidatePath("/");
+    return { ok: true, message: successMessage };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
 async function requireOperationsWrite() {
   const appUser = await requireCurrentAppUser();
 
@@ -251,6 +328,7 @@ async function requireOperationsWrite() {
 }
 
 type StockDocumentKind = "RECEIPT" | "ADJUSTMENT" | "SALE";
+const RESTOCK_WAREHOUSE_NAME = "Pavilion 110A";
 
 async function nextDocumentNumber(tx: TransactionClient, type: StockDocumentKind) {
   const last = await tx.stockDocument.findFirst({

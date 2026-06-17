@@ -12,6 +12,7 @@ import {
 } from "@/app/operations/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
+import { formatDateInputValue } from "@/lib/operations/date-input";
 
 export type WarehouseOption = {
   id: string;
@@ -35,7 +36,7 @@ export function StockDocumentDialog({ warehouses }: StockDocumentDialogProps) {
     { id: 1, qty: "", price: "" },
   ]);
   const defaultWarehouse = warehouses[0]?.id ?? "";
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const today = useMemo(() => formatDateInputValue(new Date()), []);
 
   function addLine() {
     const id = nextLineId.current;
@@ -272,7 +273,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   const defaultSourceWarehouse = warehouses[0]?.id ?? "";
   const defaultDestinationWarehouse =
     warehouses.find((warehouse) => warehouse.id !== defaultSourceWarehouse)?.id ?? "";
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const today = useMemo(() => formatDateInputValue(new Date()), []);
 
   function addLine() {
     const id = nextLineId.current;
@@ -458,16 +459,28 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
 
 export function StockSaleDialog({ warehouses }: { warehouses: WarehouseOption[] }) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(createSaleAction, initialState);
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<{ id: number; qty: string; price: string }[]>([
     { id: 1, qty: "", price: "" },
   ]);
+  async function saleAction(previousState: OperationActionState, formData: FormData) {
+    const nextState = await createSaleAction(previousState, formData);
+
+    if (nextState.ok) {
+      setOpen(false);
+      nextLineId.current = 2;
+      setLines([{ id: 1, qty: "", price: "" }]);
+    }
+
+    return nextState;
+  }
+
+  const [state, formAction] = useActionState(saleAction, initialState);
   const defaultWarehouse =
     warehouses.find((warehouse) => warehouse.name === "Pavilion 110A")?.id ??
     warehouses[0]?.id ??
     "";
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const today = useMemo(() => formatDateInputValue(new Date()), []);
 
   function addLine() {
     const id = nextLineId.current;

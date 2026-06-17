@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
+import { aggregateRestockRequests } from "@/lib/operations/restock";
 
 export type DocumentActionState = { ok: boolean; message: string };
 
@@ -65,6 +66,7 @@ export async function deleteDocumentAction(
         });
       }
 
+      await tx.restockTask.deleteMany({ where: { sourceDocumentId: id } });
       await tx.stockDocument.delete({ where: { id } });
     });
 
@@ -122,7 +124,10 @@ export async function updateDocumentLinesAction(
     if (formLines.length === 0) throw new Error("Documentul trebuie să aibă cel puțin un produs.");
 
     await prisma.$transaction(async (tx) => {
-      const doc = await tx.stockDocument.findUnique({ where: { id }, include: { lines: true } });
+      const doc = await tx.stockDocument.findUnique({
+        where: { id },
+        include: { lines: true, warehouse: { select: { name: true } } },
+      });
       if (!doc) throw new Error("Document inexistent.");
       const isSale = doc.type === "SALE";
       const adjustmentSign =
@@ -191,6 +196,27 @@ export async function updateDocumentLinesAction(
         where: { id },
         data: { documentDate, notes, totalLei: total, totalEuro: null, ...(partnerId ? { partnerId } : {}) },
       });
+
+      if (isSale && doc.warehouse.name === "Pavilion 110A") {
+        const existingRestockTasks = await tx.restockTask.count({
+          where: { sourceDocumentId: id },
+        });
+        const removedPendingTasks = await tx.restockTask.deleteMany({
+          where: { sourceDocumentId: id, status: "PENDING" },
+        });
+
+        if (existingRestockTasks === 0 || removedPendingTasks.count > 0) {
+          await tx.restockTask.createMany({
+            data: aggregateRestockRequests(newLines).map((line) => ({
+              productId: line.productId,
+              warehouseId: doc.warehouseId,
+              sourceDocumentId: id,
+              quantity: line.quantity,
+              requestedAt: documentDate ?? doc.documentDate,
+            })),
+          });
+        }
+      }
     });
 
     revalidatePath("/");

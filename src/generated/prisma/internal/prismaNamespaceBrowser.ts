@@ -61,7 +61,8 @@ export const ModelName = {
   WarehouseStock: 'WarehouseStock',
   Partner: 'Partner',
   StockDocument: 'StockDocument',
-  StockDocumentLine: 'StockDocumentLine'
+  StockDocumentLine: 'StockDocumentLine',
+  RestockTask: 'RestockTask'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -227,6 +228,22 @@ export const StockDocumentLineScalarFieldEnum = {
 } as const
 
 export type StockDocumentLineScalarFieldEnum = (typeof StockDocumentLineScalarFieldEnum)[keyof typeof StockDocumentLineScalarFieldEnum]
+
+
+export const RestockTaskScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  warehouseId: 'warehouseId',
+  sourceDocumentId: 'sourceDocumentId',
+  quantity: 'quantity',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RestockTaskScalarFieldEnum = (typeof RestockTaskScalarFieldEnum)[keyof typeof RestockTaskScalarFieldEnum]
 
 
 export const SortOrder = {

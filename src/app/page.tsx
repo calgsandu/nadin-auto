@@ -40,6 +40,7 @@ import {
 } from "@/app/partners/partner-form-dialog";
 import { PartnerDeleteButton } from "@/app/partners/partner-delete-button";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
+import { RestockCheckbox } from "@/app/operations/restock-checkbox";
 import { RoleForm, StaffDeleteButton } from "@/app/staff/role-form";
 import {
   AdminDeleteButton,
@@ -101,6 +102,7 @@ const OPERATIONS_SECTIONS = new Set<WorkspaceSectionId>([
   "transferuri",
   "vanzari",
   "de-adus",
+  "fara-stoc",
 ]);
 
 const CATALOG_ADMIN_SECTIONS = new Set<WorkspaceSectionId>([
@@ -491,6 +493,10 @@ async function WorkspaceLoader({
     return <RestockWorkspace canModify={canModify} operations={operations} />;
   }
 
+  if (activeSectionId === "fara-stoc") {
+    return <UnavailableRestockWorkspace operations={operations} />;
+  }
+
   return (
     <StockWorkspace
       activeSectionId={activeSectionId}
@@ -582,21 +588,148 @@ function SalesWorkspace({
     (total, document) => total + Number(document.totalLei ?? document.totalEuro ?? 0),
     0,
   );
+  const totalArchivedLei = operations.salesArchive.reduce(
+    (total, document) => total + documentTotalLei(document),
+    0,
+  );
 
   return (
     <section className="motion-page grid gap-4 p-4 lg:p-5">
       <div className="grid gap-3 sm:grid-cols-3">
         <DailyMetric label="Vânzări azi" value={formatNumber(operations.salesToday.length)} />
         <DailyMetric label="Produse vândute" value={formatNumber(totalProducts)} />
-        <DailyMetric label="Total azi" value={`${formatMoney(totalLei)} lei`} />
+        <DailyMetric label="Total arhivă" value={`${formatMoney(totalArchivedLei)} lei`} />
       </div>
       {canModify ? (
         <div className="flex justify-end">
           <StockSaleDialog warehouses={toWarehouseOptions(operations.warehouses)} />
         </div>
       ) : null}
-      <RecentDocumentsTable documents={operations.salesToday} canModify={canModify} />
+      <div className="grid gap-3">
+        <div>
+          <h2 className="font-semibold text-[#1d2521]">Vânzări de azi</h2>
+          <p className="mt-1 text-sm text-[#68746d]">{formatMoney(totalLei)} lei înregistrat azi.</p>
+        </div>
+        <RecentDocumentsTable documents={operations.salesToday} canModify={canModify} />
+      </div>
+      <div className="grid gap-4 xl:grid-cols-2">
+        <SalesPeriodSummary title="Pe luni" groups={operations.salesByMonth} />
+        <SalesPeriodSummary title="Pe ani" groups={operations.salesByYear} />
+      </div>
+      <SalesArchiveTable groups={operations.salesByDay} />
     </section>
+  );
+}
+
+function SalesPeriodSummary({
+  groups,
+  title,
+}: {
+  groups: OperationsData["salesByMonth"];
+  title: string;
+}) {
+  return (
+    <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+      <div className="border-b border-[#d8d2c6] px-4 py-3">
+        <h2 className="font-semibold text-[#1d2521]">{title}</h2>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[420px] border-collapse text-left text-sm">
+          <thead className="bg-[#202d27] text-white">
+            <tr>
+              <TableHead>Perioadă</TableHead>
+              <TableHead align="right">Vânzări</TableHead>
+              <TableHead align="right">Total</TableHead>
+            </tr>
+          </thead>
+          <tbody>
+            {groups.length > 0 ? (
+              groups.map((group) => (
+                <tr key={group.key} className="motion-table-row border-t border-[#e7e2d8] odd:bg-white even:bg-[#fbfaf7]">
+                  <TableCell className="font-semibold capitalize">{group.label}</TableCell>
+                  <TableCell align="right" className="font-mono">{formatNumber(group.sales.length)}</TableCell>
+                  <TableCell align="right" className="font-mono font-semibold">
+                    {formatMoney(group.sales.reduce((sum, sale) => sum + documentTotalLei(sale), 0))} lei
+                  </TableCell>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="px-3 py-8 text-center text-[#68746d]" colSpan={3}>
+                  Nu există vânzări.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function SalesArchiveTable({ groups }: { groups: OperationsData["salesByDay"] }) {
+  return (
+    <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+      <div className="border-b border-[#d8d2c6] px-4 py-3">
+        <h2 className="font-semibold text-[#1d2521]">Vânzări catalogate pe zile</h2>
+      </div>
+      <div className="grid gap-0">
+        {groups.length > 0 ? (
+          groups.map((group) => (
+            <section key={group.key} className="border-b border-[#e7e2d8] last:border-b-0">
+              <div className="flex items-center justify-between gap-3 bg-[#f4f2ec] px-4 py-2">
+                <h3 className="font-semibold text-[#1d2521]">{group.label}</h3>
+                <span className="font-mono text-sm text-[#68746d]">
+                  {formatNumber(group.sales.length)} vânzări
+                </span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+                  <thead className="bg-[#202d27] text-white">
+                    <tr>
+                      <TableHead>Document</TableHead>
+                      <TableHead>Depozit</TableHead>
+                      <TableHead>Produse</TableHead>
+                      <TableHead align="right">Cantitate</TableHead>
+                      <TableHead align="right">Total</TableHead>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group.sales.map((sale) => (
+                      <tr key={sale.id} className="motion-table-row border-t border-[#e7e2d8] odd:bg-white even:bg-[#fbfaf7] hover:bg-[#f4f2ec]">
+                        <TableCell className="font-semibold">Vânzare #{sale.number}</TableCell>
+                        <TableCell>{sale.warehouse.name}</TableCell>
+                        <TableCell>
+                          <div className="grid gap-1">
+                            {sale.lines.map((line) => (
+                              <span key={line.id}>
+                                {line.product.externalCode ? `${line.product.externalCode} · ` : ""}
+                                {line.product.description}
+                                <span className="font-mono text-[#68746d]"> x{line.quantity}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell align="right" className="font-mono">
+                          {formatNumber(sale.lines.reduce((sum, line) => sum + line.quantity, 0))}
+                        </TableCell>
+                        <TableCell align="right" className="font-mono font-semibold">
+                          {formatMoney(documentTotalLei(sale))} lei
+                        </TableCell>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          ))
+        ) : (
+          <div className="px-4 py-12 text-center text-sm text-[#68746d]">
+            Nu există vânzări în arhivă.
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -613,40 +746,118 @@ function RestockWorkspace({
         <div>
           <h2 className="font-semibold text-[#1d2521]">Reaprovizionare Pavilion 110A</h2>
           <p className="text-sm text-[#68746d]">
-            Lista conține exact cantitățile vândute azi din Pavilion 110A.
+            Produsele vândute din 110A rămân aici până sunt bifate ca aduse.
           </p>
         </div>
         {canModify ? (
           <StockTransferDialog warehouses={toWarehouseOptions(operations.warehouses)} />
         ) : null}
       </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <DailyMetric label="Poziții active" value={formatNumber(operations.restockPending.length)} />
+        <DailyMetric label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
+      </div>
       <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[980px] border-collapse text-left text-sm">
             <thead className="bg-[#202d27] text-white">
               <tr>
                 <TableHead>Cod</TableHead>
                 <TableHead>Produs</TableHead>
-                <TableHead align="right">Vândut azi</TableHead>
+                <TableHead align="right">Solicitări</TableHead>
                 <TableHead align="right">De adus în 110A</TableHead>
+                <TableHead>Prima vânzare</TableHead>
+                {canModify ? <TableHead align="right">Bifează</TableHead> : null}
               </tr>
             </thead>
             <tbody>
-              {operations.soldToday.length > 0 ? (
-                operations.soldToday.map((line) => (
+              {operations.restockPending.length > 0 ? (
+                operations.restockPending.map((line) => (
                   <tr key={line.productId} className="motion-table-row border-t border-[#e7e2d8] odd:bg-white even:bg-[#fbfaf7] hover:bg-[#f4f2ec]">
                     <TableCell className="font-mono text-xs font-semibold">
                       {formatText(line.product.externalCode)}
                     </TableCell>
                     <TableCell className="font-medium">{line.product.description}</TableCell>
-                    <TableCell align="right" className="font-mono">{formatNumber(line.quantity)}</TableCell>
+                    <TableCell align="right" className="font-mono">{formatNumber(line.taskCount)}</TableCell>
                     <TableCell align="right" className="font-mono font-semibold">{formatNumber(line.quantity)}</TableCell>
+                    <TableCell>{formatDate(line.oldestRequestedAt)}</TableCell>
+                    {canModify ? (
+                      <TableCell align="right">
+                        <div className="flex flex-wrap justify-end gap-3">
+                          <RestockCheckbox
+                            kind="delivered"
+                            label="Adus"
+                            productId={line.productId}
+                            warehouseId={line.warehouseId}
+                          />
+                          <RestockCheckbox
+                            kind="unavailable"
+                            label="Nu mai este"
+                            productId={line.productId}
+                            warehouseId={line.warehouseId}
+                          />
+                        </div>
+                      </TableCell>
+                    ) : null}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="px-3 py-10 text-center text-[#68746d]" colSpan={canModify ? 6 : 5}>
+                    Nu sunt produse de adus în Pavilion 110A.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function UnavailableRestockWorkspace({ operations }: { operations: OperationsData }) {
+  return (
+    <section className="motion-page grid gap-4 p-4 lg:p-5">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <DailyMetric label="Poziții fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
+        <DailyMetric
+          label="Cantitate totală"
+          value={formatNumber(
+            operations.restockUnavailable.reduce((sum, line) => sum + line.quantity, 0),
+          )}
+        />
+      </div>
+      <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+        <div className="border-b border-[#d8d2c6] px-4 py-3">
+          <h2 className="font-semibold text-[#1d2521]">Marcate fără stoc</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+            <thead className="bg-[#202d27] text-white">
+              <tr>
+                <TableHead>Cod</TableHead>
+                <TableHead>Produs</TableHead>
+                <TableHead align="right">Cantitate</TableHead>
+                <TableHead>Ultima vânzare</TableHead>
+              </tr>
+            </thead>
+            <tbody>
+              {operations.restockUnavailable.length > 0 ? (
+                operations.restockUnavailable.map((line) => (
+                  <tr key={line.productId} className="motion-table-row border-t border-[#e7e2d8] odd:bg-white even:bg-[#fbfaf7]">
+                    <TableCell className="font-mono text-xs font-semibold">
+                      {formatText(line.product.externalCode)}
+                    </TableCell>
+                    <TableCell className="font-medium">{line.product.description}</TableCell>
+                    <TableCell align="right" className="font-mono font-semibold">{formatNumber(line.quantity)}</TableCell>
+                    <TableCell>{formatDate(line.latestRequestedAt)}</TableCell>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td className="px-3 py-10 text-center text-[#68746d]" colSpan={4}>
-                    Nu sunt produse vândute azi din Pavilion 110A.
+                    Nu sunt produse marcate fără stoc.
                   </td>
                 </tr>
               )}

@@ -4,6 +4,7 @@ export type WorkspaceSectionId =
   | "transferuri"
   | "vanzari"
   | "de-adus"
+  | "fara-stoc"
   | "depozite"
   | "furnizori"
   | "personal"
@@ -61,13 +62,18 @@ export const workspaceSections: WorkspaceSection[] = [
   },
   {
     id: "vanzari",
-    title: "Vânzări azi",
-    description: "Vânzările din ziua curentă, în principal din Pavilion 110A.",
+    title: "Vânzări",
+    description: "Vânzări catalogate pe zile, luni și ani.",
   },
   {
     id: "de-adus",
     title: "De adus în 110A",
-    description: "Cantitățile vândute azi din 110A care trebuie reaprovizionate.",
+    description: "Cantitățile vândute din 110A care trebuie reaprovizionate.",
+  },
+  {
+    id: "fara-stoc",
+    title: "Fără stoc 110A",
+    description: "Produsele din coada 110A marcate ca indisponibile.",
   },
   {
     id: "depozite",
@@ -137,14 +143,20 @@ export const navigationEntries: NavigationEntry[] = [
   },
   {
     section: "vanzari",
-    label: "Vânzări azi",
-    description: "Ieșiri din Pavilion 110A",
+    label: "Vânzări",
+    description: "Istoric vânzări",
     icon: "ShoppingCart",
   },
   {
     section: "de-adus",
     label: "De adus în 110A",
-    description: "Produsele vândute azi",
+    description: "Produse de reaprovizionat",
+    icon: "ClipboardList",
+  },
+  {
+    section: "fara-stoc",
+    label: "Fără stoc 110A",
+    description: "Indisponibile",
     icon: "ClipboardList",
   },
   {
@@ -235,7 +247,7 @@ export const navigationGroups: NavGroup[] = [
     label: "Operațiuni",
     description: "Mișcări de stoc",
     icon: "ArrowRightLeft",
-    sections: ["receptii", "transferuri", "vanzari", "de-adus", "documente"],
+    sections: ["receptii", "transferuri", "vanzari", "de-adus", "fara-stoc", "documente"],
   },
   {
     id: "nomenclatoare",

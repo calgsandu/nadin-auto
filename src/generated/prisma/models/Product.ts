@@ -332,6 +332,7 @@ export type ProductWhereInput = {
   type?: Prisma.XOR<Prisma.ProductTypeScalarRelationFilter, Prisma.ProductTypeWhereInput>
   warehouseStocks?: Prisma.WarehouseStockListRelationFilter
   stockLines?: Prisma.StockDocumentLineListRelationFilter
+  restockTasks?: Prisma.RestockTaskListRelationFilter
 }
 
 export type ProductOrderByWithRelationInput = {
@@ -356,6 +357,7 @@ export type ProductOrderByWithRelationInput = {
   type?: Prisma.ProductTypeOrderByWithRelationInput
   warehouseStocks?: Prisma.WarehouseStockOrderByRelationAggregateInput
   stockLines?: Prisma.StockDocumentLineOrderByRelationAggregateInput
+  restockTasks?: Prisma.RestockTaskOrderByRelationAggregateInput
 }
 
 export type ProductWhereUniqueInput = Prisma.AtLeast<{
@@ -383,6 +385,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.XOR<Prisma.ProductTypeScalarRelationFilter, Prisma.ProductTypeWhereInput>
   warehouseStocks?: Prisma.WarehouseStockListRelationFilter
   stockLines?: Prisma.StockDocumentLineListRelationFilter
+  restockTasks?: Prisma.RestockTaskListRelationFilter
 }, "id" | "importKey">
 
 export type ProductOrderByWithAggregationInput = {
@@ -453,6 +456,7 @@ export type ProductCreateInput = {
   type: Prisma.ProductTypeCreateNestedOneWithoutProductsInput
   warehouseStocks?: Prisma.WarehouseStockCreateNestedManyWithoutProductInput
   stockLines?: Prisma.StockDocumentLineCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateInput = {
@@ -475,6 +479,7 @@ export type ProductUncheckedCreateInput = {
   updatedAt?: Date | string
   warehouseStocks?: Prisma.WarehouseStockUncheckedCreateNestedManyWithoutProductInput
   stockLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductUpdateInput = {
@@ -497,6 +502,7 @@ export type ProductUpdateInput = {
   type?: Prisma.ProductTypeUpdateOneRequiredWithoutProductsNestedInput
   warehouseStocks?: Prisma.WarehouseStockUpdateManyWithoutProductNestedInput
   stockLines?: Prisma.StockDocumentLineUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateInput = {
@@ -519,6 +525,7 @@ export type ProductUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouseStocks?: Prisma.WarehouseStockUncheckedUpdateManyWithoutProductNestedInput
   stockLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyInput = {
@@ -802,6 +809,20 @@ export type ProductUpdateOneRequiredWithoutStockLinesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutStockLinesInput, Prisma.ProductUpdateWithoutStockLinesInput>, Prisma.ProductUncheckedUpdateWithoutStockLinesInput>
 }
 
+export type ProductCreateNestedOneWithoutRestockTasksInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutRestockTasksInput, Prisma.ProductUncheckedCreateWithoutRestockTasksInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutRestockTasksInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutRestockTasksNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutRestockTasksInput, Prisma.ProductUncheckedCreateWithoutRestockTasksInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutRestockTasksInput
+  upsert?: Prisma.ProductUpsertWithoutRestockTasksInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutRestockTasksInput, Prisma.ProductUpdateWithoutRestockTasksInput>, Prisma.ProductUncheckedUpdateWithoutRestockTasksInput>
+}
+
 export type ProductCreateWithoutFitmentInput = {
   id?: string
   importKey: string
@@ -821,6 +842,7 @@ export type ProductCreateWithoutFitmentInput = {
   type: Prisma.ProductTypeCreateNestedOneWithoutProductsInput
   warehouseStocks?: Prisma.WarehouseStockCreateNestedManyWithoutProductInput
   stockLines?: Prisma.StockDocumentLineCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutFitmentInput = {
@@ -842,6 +864,7 @@ export type ProductUncheckedCreateWithoutFitmentInput = {
   updatedAt?: Date | string
   warehouseStocks?: Prisma.WarehouseStockUncheckedCreateNestedManyWithoutProductInput
   stockLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutFitmentInput = {
@@ -912,6 +935,7 @@ export type ProductCreateWithoutTypeInput = {
   fitment: Prisma.VehicleFitmentCreateNestedOneWithoutProductsInput
   warehouseStocks?: Prisma.WarehouseStockCreateNestedManyWithoutProductInput
   stockLines?: Prisma.StockDocumentLineCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTypeInput = {
@@ -933,6 +957,7 @@ export type ProductUncheckedCreateWithoutTypeInput = {
   updatedAt?: Date | string
   warehouseStocks?: Prisma.WarehouseStockUncheckedCreateNestedManyWithoutProductInput
   stockLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTypeInput = {
@@ -980,6 +1005,7 @@ export type ProductCreateWithoutWarehouseStocksInput = {
   fitment: Prisma.VehicleFitmentCreateNestedOneWithoutProductsInput
   type: Prisma.ProductTypeCreateNestedOneWithoutProductsInput
   stockLines?: Prisma.StockDocumentLineCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutWarehouseStocksInput = {
@@ -1001,6 +1027,7 @@ export type ProductUncheckedCreateWithoutWarehouseStocksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   stockLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutWarehouseStocksInput = {
@@ -1038,6 +1065,7 @@ export type ProductUpdateWithoutWarehouseStocksInput = {
   fitment?: Prisma.VehicleFitmentUpdateOneRequiredWithoutProductsNestedInput
   type?: Prisma.ProductTypeUpdateOneRequiredWithoutProductsNestedInput
   stockLines?: Prisma.StockDocumentLineUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutWarehouseStocksInput = {
@@ -1059,6 +1087,7 @@ export type ProductUncheckedUpdateWithoutWarehouseStocksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stockLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutStockLinesInput = {
@@ -1080,6 +1109,7 @@ export type ProductCreateWithoutStockLinesInput = {
   fitment: Prisma.VehicleFitmentCreateNestedOneWithoutProductsInput
   type: Prisma.ProductTypeCreateNestedOneWithoutProductsInput
   warehouseStocks?: Prisma.WarehouseStockCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutStockLinesInput = {
@@ -1101,6 +1131,7 @@ export type ProductUncheckedCreateWithoutStockLinesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouseStocks?: Prisma.WarehouseStockUncheckedCreateNestedManyWithoutProductInput
+  restockTasks?: Prisma.RestockTaskUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutStockLinesInput = {
@@ -1138,6 +1169,7 @@ export type ProductUpdateWithoutStockLinesInput = {
   fitment?: Prisma.VehicleFitmentUpdateOneRequiredWithoutProductsNestedInput
   type?: Prisma.ProductTypeUpdateOneRequiredWithoutProductsNestedInput
   warehouseStocks?: Prisma.WarehouseStockUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutStockLinesInput = {
@@ -1159,6 +1191,111 @@ export type ProductUncheckedUpdateWithoutStockLinesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouseStocks?: Prisma.WarehouseStockUncheckedUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutRestockTasksInput = {
+  id?: string
+  importKey: string
+  source?: $Enums.ProductSource
+  manuallyEdited?: boolean
+  sourceRow: number
+  sourceItem?: string | null
+  externalCode?: string | null
+  description: string
+  notes?: string | null
+  stock?: number | null
+  priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salePriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fitment: Prisma.VehicleFitmentCreateNestedOneWithoutProductsInput
+  type: Prisma.ProductTypeCreateNestedOneWithoutProductsInput
+  warehouseStocks?: Prisma.WarehouseStockCreateNestedManyWithoutProductInput
+  stockLines?: Prisma.StockDocumentLineCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutRestockTasksInput = {
+  id?: string
+  importKey: string
+  source?: $Enums.ProductSource
+  manuallyEdited?: boolean
+  sourceRow: number
+  sourceItem?: string | null
+  externalCode?: string | null
+  description: string
+  notes?: string | null
+  stock?: number | null
+  priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salePriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fitmentId: string
+  typeId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  warehouseStocks?: Prisma.WarehouseStockUncheckedCreateNestedManyWithoutProductInput
+  stockLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutRestockTasksInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutRestockTasksInput, Prisma.ProductUncheckedCreateWithoutRestockTasksInput>
+}
+
+export type ProductUpsertWithoutRestockTasksInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutRestockTasksInput, Prisma.ProductUncheckedUpdateWithoutRestockTasksInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutRestockTasksInput, Prisma.ProductUncheckedCreateWithoutRestockTasksInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutRestockTasksInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutRestockTasksInput, Prisma.ProductUncheckedUpdateWithoutRestockTasksInput>
+}
+
+export type ProductUpdateWithoutRestockTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  importKey?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
+  manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salePriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fitment?: Prisma.VehicleFitmentUpdateOneRequiredWithoutProductsNestedInput
+  type?: Prisma.ProductTypeUpdateOneRequiredWithoutProductsNestedInput
+  warehouseStocks?: Prisma.WarehouseStockUpdateManyWithoutProductNestedInput
+  stockLines?: Prisma.StockDocumentLineUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutRestockTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  importKey?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
+  manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salePriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fitmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  typeId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  warehouseStocks?: Prisma.WarehouseStockUncheckedUpdateManyWithoutProductNestedInput
+  stockLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyFitmentInput = {
@@ -1199,6 +1336,7 @@ export type ProductUpdateWithoutFitmentInput = {
   type?: Prisma.ProductTypeUpdateOneRequiredWithoutProductsNestedInput
   warehouseStocks?: Prisma.WarehouseStockUpdateManyWithoutProductNestedInput
   stockLines?: Prisma.StockDocumentLineUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutFitmentInput = {
@@ -1220,6 +1358,7 @@ export type ProductUncheckedUpdateWithoutFitmentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouseStocks?: Prisma.WarehouseStockUncheckedUpdateManyWithoutProductNestedInput
   stockLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutFitmentInput = {
@@ -1279,6 +1418,7 @@ export type ProductUpdateWithoutTypeInput = {
   fitment?: Prisma.VehicleFitmentUpdateOneRequiredWithoutProductsNestedInput
   warehouseStocks?: Prisma.WarehouseStockUpdateManyWithoutProductNestedInput
   stockLines?: Prisma.StockDocumentLineUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTypeInput = {
@@ -1300,6 +1440,7 @@ export type ProductUncheckedUpdateWithoutTypeInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouseStocks?: Prisma.WarehouseStockUncheckedUpdateManyWithoutProductNestedInput
   stockLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutProductNestedInput
+  restockTasks?: Prisma.RestockTaskUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutTypeInput = {
@@ -1329,11 +1470,13 @@ export type ProductUncheckedUpdateManyWithoutTypeInput = {
 export type ProductCountOutputType = {
   warehouseStocks: number
   stockLines: number
+  restockTasks: number
 }
 
 export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouseStocks?: boolean | ProductCountOutputTypeCountWarehouseStocksArgs
   stockLines?: boolean | ProductCountOutputTypeCountStockLinesArgs
+  restockTasks?: boolean | ProductCountOutputTypeCountRestockTasksArgs
 }
 
 /**
@@ -1360,6 +1503,13 @@ export type ProductCountOutputTypeCountStockLinesArgs<ExtArgs extends runtime.Ty
   where?: Prisma.StockDocumentLineWhereInput
 }
 
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountRestockTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RestockTaskWhereInput
+}
+
 
 export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1383,6 +1533,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   type?: boolean | Prisma.ProductTypeDefaultArgs<ExtArgs>
   warehouseStocks?: boolean | Prisma.Product$warehouseStocksArgs<ExtArgs>
   stockLines?: boolean | Prisma.Product$stockLinesArgs<ExtArgs>
+  restockTasks?: boolean | Prisma.Product$restockTasksArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -1456,6 +1607,7 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   type?: boolean | Prisma.ProductTypeDefaultArgs<ExtArgs>
   warehouseStocks?: boolean | Prisma.Product$warehouseStocksArgs<ExtArgs>
   stockLines?: boolean | Prisma.Product$stockLinesArgs<ExtArgs>
+  restockTasks?: boolean | Prisma.Product$restockTasksArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1474,6 +1626,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     type: Prisma.$ProductTypePayload<ExtArgs>
     warehouseStocks: Prisma.$WarehouseStockPayload<ExtArgs>[]
     stockLines: Prisma.$StockDocumentLinePayload<ExtArgs>[]
+    restockTasks: Prisma.$RestockTaskPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1891,6 +2044,7 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   type<T extends Prisma.ProductTypeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductTypeDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductTypeClient<runtime.Types.Result.GetResult<Prisma.$ProductTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   warehouseStocks<T extends Prisma.Product$warehouseStocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$warehouseStocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WarehouseStockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stockLines<T extends Prisma.Product$stockLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$stockLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockDocumentLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  restockTasks<T extends Prisma.Product$restockTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$restockTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RestockTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2383,6 +2537,30 @@ export type Product$stockLinesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.StockDocumentLineScalarFieldEnum | Prisma.StockDocumentLineScalarFieldEnum[]
+}
+
+/**
+ * Product.restockTasks
+ */
+export type Product$restockTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RestockTask
+   */
+  select?: Prisma.RestockTaskSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RestockTask
+   */
+  omit?: Prisma.RestockTaskOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RestockTaskInclude<ExtArgs> | null
+  where?: Prisma.RestockTaskWhereInput
+  orderBy?: Prisma.RestockTaskOrderByWithRelationInput | Prisma.RestockTaskOrderByWithRelationInput[]
+  cursor?: Prisma.RestockTaskWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RestockTaskScalarFieldEnum | Prisma.RestockTaskScalarFieldEnum[]
 }
 
 /**

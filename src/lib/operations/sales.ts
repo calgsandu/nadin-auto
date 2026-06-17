@@ -67,3 +67,58 @@ export function aggregateSoldProducts(lines: Array<{ productId: string; quantity
 
   return [...totals].map(([productId, quantity]) => ({ productId, quantity }));
 }
+
+export type SalesPeriod = "day" | "month" | "year";
+
+export function groupSalesByPeriod<T extends { documentDate: Date }>(
+  sales: T[],
+  period: SalesPeriod,
+) {
+  const groups = new Map<string, { key: string; label: string; sales: T[] }>();
+
+  for (const sale of sales) {
+    const key = formatPeriodKey(sale.documentDate, period);
+    const group = groups.get(key);
+
+    if (group) {
+      group.sales.push(sale);
+    } else {
+      groups.set(key, {
+        key,
+        label: formatPeriodLabel(sale.documentDate, period),
+        sales: [sale],
+      });
+    }
+  }
+
+  return [...groups.values()].sort((a, b) => b.key.localeCompare(a.key));
+}
+
+function formatPeriodKey(date: Date, period: SalesPeriod) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  if (period === "year") return String(year);
+  if (period === "month") return `${year}-${month}`;
+  return `${year}-${month}-${day}`;
+}
+
+function formatPeriodLabel(date: Date, period: SalesPeriod) {
+  if (period === "year") {
+    return String(date.getFullYear());
+  }
+
+  if (period === "month") {
+    return new Intl.DateTimeFormat("ro-MD", {
+      month: "long",
+      year: "numeric",
+    }).format(date);
+  }
+
+  return new Intl.DateTimeFormat("ro-MD", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
