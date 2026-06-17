@@ -91,10 +91,16 @@ a {
 
 .motion-line-item {
   animation: line-enter 190ms var(--ease-out-soft) both;
+  position: relative;
   transition:
     transform var(--duration-base) var(--ease-out-soft),
     border-color var(--duration-base) ease,
     background-color var(--duration-base) ease;
+  z-index: 0;
+}
+
+.motion-line-item:focus-within {
+  z-index: 30;
 }
 
 .motion-popover {
