@@ -5,6 +5,10 @@ import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { aggregateRestockRequests } from "@/lib/operations/restock";
+import {
+  ensureSupplierPartner,
+  normalizeOptionalPartnerId,
+} from "@/lib/operations/supplier-selection";
 
 export type DocumentActionState = { ok: boolean; message: string };
 
@@ -98,6 +102,7 @@ export async function updateDocumentLinesAction(
     const dateRaw = readString(formData, "documentDate");
     const notes = readString(formData, "notes") || null;
     const partnerName = readString(formData, "partnerName");
+    const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
     const documentDate = dateRaw ? new Date(`${dateRaw}T12:00:00`) : undefined;
     if (documentDate && Number.isNaN(documentDate.getTime())) {
       throw new Error("Data documentului nu este validă.");
@@ -187,14 +192,22 @@ export async function updateDocumentLinesAction(
       }
 
       // 5. Header + total (lei).
-      let partnerId: string | undefined = undefined;
-      if (partnerName) {
+      let partnerId: string | null | undefined = undefined;
+      if (doc.type === "RECEIPT") {
+        const partner = selectedPartnerId
+          ? await tx.partner.findUnique({
+              where: { id: selectedPartnerId },
+              select: { id: true, kind: true },
+            })
+          : null;
+        partnerId = ensureSupplierPartner(partner, selectedPartnerId);
+      } else if (partnerName) {
         const partner = await tx.partner.upsert({ where: { name: partnerName }, create: { name: partnerName }, update: {} });
         partnerId = partner.id;
       }
       await tx.stockDocument.update({
         where: { id },
-        data: { documentDate, notes, totalLei: total, totalEuro: null, ...(partnerId ? { partnerId } : {}) },
+        data: { documentDate, notes, totalLei: total, totalEuro: null, ...(partnerId !== undefined ? { partnerId } : {}) },
       });
 
       if (isSale && doc.warehouse.name === "Pavilion 110A") {

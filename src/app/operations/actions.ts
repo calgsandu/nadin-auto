@@ -19,6 +19,10 @@ import {
   parseSaleLines,
 } from "@/lib/operations/sales";
 import { aggregateRestockRequests } from "@/lib/operations/restock";
+import {
+  ensureSupplierPartner,
+  normalizeOptionalPartnerId,
+} from "@/lib/operations/supplier-selection";
 
 export type OperationActionState = {
   ok: boolean;
@@ -38,7 +42,7 @@ export async function createReceiptAction(
     await requireOperationsWrite();
     const warehouseId = readString(formData, "warehouseId");
     const documentDate = readDate(formData, "documentDate");
-    const partnerName = readString(formData, "partnerName");
+    const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
     const notes = readString(formData, "notes");
     const lines = parseReceiptLines({
       productIds: readStrings(formData, "productId"),
@@ -51,13 +55,13 @@ export async function createReceiptAction(
     }
 
     await prisma.$transaction(async (tx) => {
-      const partner = partnerName
-        ? await tx.partner.upsert({
-            where: { name: partnerName },
-            create: { name: partnerName, kind: "SUPPLIER" },
-            update: { kind: "SUPPLIER" },
+      const partner = selectedPartnerId
+        ? await tx.partner.findUnique({
+            where: { id: selectedPartnerId },
+            select: { id: true, kind: true },
           })
         : null;
+      const partnerId = ensureSupplierPartner(partner, selectedPartnerId);
       const number = await nextDocumentNumber(tx, "RECEIPT");
       const document = await tx.stockDocument.create({
         data: {
@@ -65,7 +69,7 @@ export async function createReceiptAction(
           number,
           documentDate,
           warehouseId,
-          partnerId: partner?.id,
+          partnerId,
           notes,
           totalLei: calculateReceiptTotalLei(lines),
           lines: {

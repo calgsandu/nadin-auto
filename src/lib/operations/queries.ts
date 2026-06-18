@@ -22,7 +22,7 @@ export async function getOperationsData() {
   });
   const restockWarehouse = warehouses.find((warehouse) => warehouse.name === "Pavilion 110A");
 
-  const [recentDocuments, salesToday, salesArchive, restockTasks] = await Promise.all([
+  const [recentDocuments, salesToday, salesArchive, restockTasks, suppliers] = await Promise.all([
     prisma.stockDocument.findMany({
       where: {
         type: {
@@ -89,6 +89,11 @@ export async function getOperationsData() {
           orderBy: [{ requestedAt: "asc" }, { createdAt: "asc" }],
         })
       : Promise.resolve([]),
+    prisma.partner.findMany({
+      where: { kind: { in: ["SUPPLIER", "BOTH"] } },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
   ]);
 
   const salesFrom110AToday = salesToday.filter(
@@ -118,6 +123,7 @@ export async function getOperationsData() {
     })),
     restockPending: summarizeRestockTasks(restockByStatus.pending),
     restockUnavailable: summarizeRestockTasks(restockByStatus.unavailable),
+    suppliers,
   };
 }
 

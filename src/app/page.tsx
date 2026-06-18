@@ -32,6 +32,7 @@ import {
   StockDocumentDialog,
   StockSaleDialog,
   StockTransferDialog,
+  type SupplierOption,
   type WarehouseOption,
 } from "@/app/operations/stock-document-dialog";
 import {
@@ -1022,6 +1023,7 @@ function StockWorkspace({
   operations: OperationsData;
 }) {
   const warehouses = toWarehouseOptions(operations.warehouses);
+  const suppliers = toSupplierOptions(operations.suppliers);
   const documents = operations.recentDocuments.filter((document) =>
     activeSectionId === "receptii" ? document.type === "RECEIPT" : document.type === "ADJUSTMENT",
   );
@@ -1031,13 +1033,13 @@ function StockWorkspace({
       {canModify ? (
         <div className="flex justify-end">
           {activeSectionId === "receptii" ? (
-            <StockDocumentDialog warehouses={warehouses} />
+            <StockDocumentDialog suppliers={suppliers} warehouses={warehouses} />
           ) : (
             <StockTransferDialog warehouses={warehouses} />
           )}
         </div>
       ) : null}
-      <RecentDocumentsTable documents={documents} canModify={canModify} />
+      <RecentDocumentsTable documents={documents} canModify={canModify} suppliers={suppliers} />
     </section>
   );
 }
@@ -1080,9 +1082,11 @@ function toDocLines(doc: {
 function RecentDocumentsTable({
   documents,
   canModify = false,
+  suppliers = [],
 }: {
   documents: OperationsData["recentDocuments"];
   canModify?: boolean;
+  suppliers?: SupplierOption[];
 }) {
   return (
     <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
@@ -1120,8 +1124,11 @@ function RecentDocumentsTable({
                       id={document.id}
                       title={`${formatDocumentType(document.type)} #${document.number}`}
                       documentDate={document.documentDate.toISOString().slice(0, 10)}
+                      documentType={document.type}
                       notes={document.notes ?? ""}
+                      partnerId={document.partner?.id ?? ""}
                       partnerName={document.partner?.name ?? ""}
+                      suppliers={suppliers}
                       lines={toDocLines(document)}
                     />
                   </TableCell>
@@ -1356,7 +1363,9 @@ function DocumentsWorkspace({ documents, canModify }: { documents: DocumentRow[]
                         id={d.id}
                         title={`${formatDocType(d.type)} #${d.number}`}
                         documentDate={d.documentDate.toISOString().slice(0, 10)}
+                        documentType={d.type}
                         notes={d.notes ?? ""}
+                        partnerId={d.partner?.id ?? ""}
                         partnerName={d.partner?.name ?? ""}
                         lines={toDocLines(d)}
                       />
@@ -1658,6 +1667,10 @@ function catalogPageHref(params: CatalogData["params"], page: number) {
 
 function toWarehouseOptions(warehouses: OperationsData["warehouses"]): WarehouseOption[] {
   return warehouses.map((warehouse) => ({ id: warehouse.id, name: warehouse.name }));
+}
+
+function toSupplierOptions(suppliers: OperationsData["suppliers"]): SupplierOption[] {
+  return suppliers.map((supplier) => ({ id: supplier.id, name: supplier.name }));
 }
 
 function formatDocumentType(type: string) {

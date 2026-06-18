@@ -10,6 +10,7 @@ import {
   updateDocumentLinesAction,
   type DocumentActionState,
 } from "@/app/operations/document-actions";
+import type { SupplierOption } from "@/app/operations/stock-document-dialog";
 
 const initial: DocumentActionState = { ok: false, message: "" };
 const inputClassName =
@@ -27,26 +28,52 @@ export function DocumentRowActions({
   id,
   title,
   documentDate,
+  documentType,
   notes,
+  partnerId,
   partnerName,
+  suppliers = [],
   lines = [],
 }: {
   id: string;
   title: string;
   documentDate: string;
+  documentType: string;
   notes: string;
+  partnerId: string;
   partnerName: string;
+  suppliers?: SupplierOption[];
   lines?: DocLine[];
 }) {
   return (
     <div className="flex justify-end gap-2">
-      <EditDrawer id={id} title={title} documentDate={documentDate} notes={notes} partnerName={partnerName} lines={lines} />
+      <EditDrawer
+        id={id}
+        documentDate={documentDate}
+        documentType={documentType}
+        lines={lines}
+        notes={notes}
+        partnerId={partnerId}
+        partnerName={partnerName}
+        suppliers={suppliers}
+        title={title}
+      />
       <DeleteForm id={id} title={title} />
     </div>
   );
 }
 
-type EditProps = { id: string; title: string; documentDate: string; notes: string; partnerName: string; lines: DocLine[] };
+type EditProps = {
+  id: string;
+  title: string;
+  documentDate: string;
+  documentType: string;
+  notes: string;
+  partnerId: string;
+  partnerName: string;
+  suppliers: SupplierOption[];
+  lines: DocLine[];
+};
 
 function EditDrawer(props: EditProps) {
   const [open, setOpen] = useState(false);
@@ -68,8 +95,11 @@ function EditPanel({
   id,
   title,
   documentDate,
+  documentType,
   notes,
+  partnerId,
   partnerName,
+  suppliers,
   lines,
   setOpen,
 }: EditProps & { setOpen: (v: boolean) => void }) {
@@ -128,10 +158,31 @@ function EditPanel({
                   Data
                   <input className={inputClassName} name="documentDate" type="date" defaultValue={documentDate} />
                 </label>
-                <label className="grid gap-1.5 text-sm font-medium text-[#2f3a34]">
-                  Partener
-                  <input className={inputClassName} name="partnerName" defaultValue={partnerName} placeholder="opțional" />
-                </label>
+                {documentType === "RECEIPT" ? (
+                  <label className="grid gap-1.5 text-sm font-medium text-[#2f3a34]">
+                    Furnizor
+                    <select
+                      className={inputClassName}
+                      defaultValue={partnerId}
+                      disabled={suppliers.length === 0}
+                      name="partnerId"
+                    >
+                      <option value="">
+                        {suppliers.length > 0 ? "Alege furnizorul" : "Nu există furnizori"}
+                      </option>
+                      {suppliers.map((supplier) => (
+                        <option key={supplier.id} value={supplier.id}>
+                          {supplier.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : (
+                  <label className="grid gap-1.5 text-sm font-medium text-[#2f3a34]">
+                    Partener
+                    <input className={inputClassName} name="partnerName" defaultValue={partnerName} placeholder="opțional" />
+                  </label>
+                )}
                 <label className="grid gap-1.5 text-sm font-medium text-[#2f3a34]">
                   Note
                   <textarea className={`${inputClassName} min-h-20 resize-y py-3`} name="notes" defaultValue={notes} />

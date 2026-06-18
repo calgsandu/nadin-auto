@@ -19,8 +19,14 @@ export type WarehouseOption = {
   name: string;
 };
 
+export type SupplierOption = {
+  id: string;
+  name: string;
+};
+
 type StockDocumentDialogProps = {
   warehouses: WarehouseOption[];
+  suppliers: SupplierOption[];
 };
 
 const initialState: OperationActionState = {
@@ -28,7 +34,7 @@ const initialState: OperationActionState = {
   message: "",
 };
 
-export function StockDocumentDialog({ warehouses }: StockDocumentDialogProps) {
+export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(createReceiptAction, initialState);
   const nextLineId = useRef(2);
@@ -120,11 +126,20 @@ export function StockDocumentDialog({ warehouses }: StockDocumentDialogProps) {
                   </select>
                 </Field>
                 <Field label="Furnizor">
-                  <input
+                  <select
                     className={inputClassName}
-                    name="partnerName"
-                    placeholder="opțional"
-                  />
+                    disabled={suppliers.length === 0}
+                    name="partnerId"
+                  >
+                    <option value="">
+                      {suppliers.length > 0 ? "Alege furnizorul" : "Nu există furnizori"}
+                    </option>
+                    {suppliers.map((supplier) => (
+                      <option key={supplier.id} value={supplier.id}>
+                        {supplier.name}
+                      </option>
+                    ))}
+                  </select>
                 </Field>
               </div>
 
