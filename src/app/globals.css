@@ -246,3 +246,9 @@ a {
     transition-duration: 1ms !important;
   }
 }
+
+@keyframes vitrina-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
