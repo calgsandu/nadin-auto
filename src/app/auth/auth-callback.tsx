@@ -46,10 +46,10 @@ export function AuthCallback() {
     <div className="flex flex-col items-center gap-4 text-center">
       {failed ? (
         <>
-          <p className="text-sm text-[#7a2f13]">Autentificarea nu s-a finalizat.</p>
+          <p className="text-sm text-[#b91c1c]">Autentificarea nu s-a finalizat.</p>
           <Link
             href="/auth/sign-in"
-            className="text-sm font-semibold text-[#1d2521] underline decoration-[#c6a635] underline-offset-4"
+            className="text-sm font-semibold text-[#1b1a17] underline decoration-[#d97706] underline-offset-4"
           >
             Înapoi la autentificare
           </Link>
@@ -58,9 +58,9 @@ export function AuthCallback() {
         <>
           <span
             aria-hidden
-            className="size-8 animate-spin rounded-full border-2 border-[#d8d2c6] border-t-[#c6a635]"
+            className="size-8 animate-spin rounded-full border-2 border-[#e8e7e3] border-t-[#d97706]"
           />
-          <p className="text-sm text-[#68746d]">Te conectăm...</p>
+          <p className="text-sm text-[#6f6b63]">Te conectăm...</p>
         </>
       )}
     </div>

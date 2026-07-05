@@ -30,7 +30,7 @@ export function RoleForm({
     <form action={formAction} className="flex items-center gap-2">
       <input name="userId" type="hidden" value={userId} />
       <select
-        className="field-control h-9 rounded-md border border-[#d8d2c6] bg-white px-2 text-sm outline-none"
+        className="field-control h-9 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm outline-none"
         name="role"
         defaultValue={currentRole}
       >
@@ -43,7 +43,7 @@ export function RoleForm({
       <SaveButton />
       {state.message ? (
         <span
-          className={`text-xs ${state.ok ? "text-[#334719]" : "text-[#7a2f13]"}`}
+          className={`text-xs ${state.ok ? "text-[#166534]" : "text-[#b91c1c]"}`}
         >
           {state.message}
         </span>
@@ -56,7 +56,7 @@ function SaveButton() {
   const status = useFormStatus();
   return (
     <button
-      className="button-secondary rounded-md border border-[#d8d2c6] bg-white px-3 py-1.5 text-xs font-semibold text-[#1d2521] hover:bg-[#f4f2ec] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={status.pending}
       type="submit"
     >
@@ -97,7 +97,7 @@ function DeleteButton() {
   const status = useFormStatus();
   return (
     <button
-      className="button-secondary rounded-md border border-[#d6a28b] bg-white px-3 py-1.5 text-xs font-semibold text-[#7a2f13] hover:bg-[#fff1eb] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-secondary rounded-md border border-[#fca5a5] bg-white px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={status.pending}
       type="submit"
     >

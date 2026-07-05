@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 
 export type CatalogActionState = {
   ok: boolean;
@@ -21,12 +22,12 @@ export async function createProductAction(
   formData: FormData,
 ): Promise<CatalogActionState> {
   try {
-    await requireCatalogWrite();
+    const user = await requireCatalogWrite();
     const input = await parseProductForm(formData);
     const fitment = await findOrCreateFitment(input);
     const type = await findOrCreateType(input.typeId, input.newTypeName);
 
-    await prisma.product.create({
+    const created = await prisma.product.create({
       data: {
         importKey: `manual:${randomUUID()}`,
         source: "MANUAL",
@@ -37,12 +38,21 @@ export async function createProductAction(
         description: input.description,
         notes: null,
         stock: input.stock,
+        minStock: input.minStock,
         priceEuro: input.priceEuro,
         costLei: input.costLei,
         salePriceLei: input.salePriceLei,
         fitmentId: fitment.id,
         typeId: type.id,
       },
+    });
+
+    await logAudit(prisma, user, {
+      action: "CREATE",
+      entity: "Product",
+      entityId: created.id,
+      summary: `Produs adăugat: ${created.externalCode ? `${created.externalCode} · ` : ""}${created.description}`,
+      details: { after: productAuditSnapshot(created) },
     });
 
     revalidatePath("/");
@@ -57,7 +67,7 @@ export async function updateProductAction(
   formData: FormData,
 ): Promise<CatalogActionState> {
   try {
-    await requireCatalogWrite();
+    const user = await requireCatalogWrite();
     const productId = readString(formData, "productId");
 
     if (!productId) {
@@ -68,19 +78,32 @@ export async function updateProductAction(
     const fitment = await findOrCreateFitment(input);
     const type = await findOrCreateType(input.typeId, input.newTypeName);
 
-    await prisma.product.update({
+    const before = await prisma.product.findUnique({ where: { id: productId } });
+    if (!before) throw new Error("Produsul nu există.");
+
+    const updated = await prisma.product.update({
       where: { id: productId },
       data: {
         manuallyEdited: true,
         externalCode: input.externalCode,
         description: input.description,
         stock: input.stock,
+        minStock: input.minStock,
         priceEuro: input.priceEuro,
         costLei: input.costLei,
         salePriceLei: input.salePriceLei,
         fitmentId: fitment.id,
         typeId: type.id,
       },
+    });
+    await reconcileManualStock(productId, input.stock);
+
+    await logAudit(prisma, user, {
+      action: "UPDATE",
+      entity: "Product",
+      entityId: productId,
+      summary: `Produs editat: ${updated.externalCode ? `${updated.externalCode} · ` : ""}${updated.description}`,
+      details: { before: productAuditSnapshot(before), after: productAuditSnapshot(updated) },
     });
 
     revalidatePath("/");
@@ -95,7 +118,7 @@ export async function deleteProductAction(
   formData: FormData,
 ): Promise<CatalogActionState> {
   try {
-    await requireCatalogWrite();
+    const user = await requireCatalogWrite();
     const productId = readString(formData, "productId");
     if (!productId) throw new Error("Lipsește produsul pentru ștergere.");
 
@@ -105,12 +128,65 @@ export async function deleteProductAction(
     }
 
     // WarehouseStock rows cascade-delete with the product.
-    await prisma.product.delete({ where: { id: productId } });
+    const deleted = await prisma.product.delete({ where: { id: productId } });
+
+    await logAudit(prisma, user, {
+      action: "DELETE",
+      entity: "Product",
+      entityId: productId,
+      summary: `Produs șters: ${deleted.externalCode ? `${deleted.externalCode} · ` : ""}${deleted.description}`,
+      details: { deleted: productAuditSnapshot(deleted) },
+    });
+
     revalidatePath("/");
     return { ok: true, message: "Produsul a fost șters." };
   } catch (error) {
     return toActionError(error);
   }
+}
+
+/**
+ * Keep per-warehouse rows in sync with a manually edited product stock.
+ * Without this, the next stock movement recomputes product.stock from the
+ * warehouse rows and silently reverts the manual correction.
+ * Increases go to the default warehouse row (or the largest one); decreases
+ * are taken from the largest rows first, never below zero.
+ */
+async function reconcileManualStock(productId: string, stock: number | null) {
+  if (stock == null) return;
+
+  await prisma.$transaction(async (tx) => {
+    const rows = await tx.warehouseStock.findMany({
+      where: { productId },
+      orderBy: { quantity: "desc" },
+    });
+    if (rows.length === 0) return; // product.stock is the source of truth until the first movement
+
+    let diff = stock - rows.reduce((sum, row) => sum + row.quantity, 0);
+    if (diff === 0) return;
+
+    if (diff > 0) {
+      const defaultWarehouse = await tx.warehouse.findFirst({ where: { isDefault: true } });
+      const target = rows.find((row) => row.warehouseId === defaultWarehouse?.id) ?? rows[0];
+      await tx.warehouseStock.update({
+        where: { id: target.id },
+        data: { quantity: target.quantity + diff },
+      });
+      return;
+    }
+
+    for (const row of rows) {
+      if (diff === 0) break;
+      const take = Math.min(row.quantity, -diff);
+      if (take > 0) {
+        await tx.warehouseStock.update({
+          where: { id: row.id },
+          data: { quantity: row.quantity - take },
+        });
+        diff += take;
+      }
+    }
+  });
 }
 
 async function requireCatalogWrite() {
@@ -119,6 +195,25 @@ async function requireCatalogWrite() {
   if (!canWriteCatalog(appUser.role)) {
     throw new Error("Nu ai drepturi pentru modificarea catalogului.");
   }
+  return appUser;
+}
+
+function productAuditSnapshot(product: {
+  externalCode: string | null;
+  description: string;
+  stock: number | null;
+  priceEuro: { toString(): string } | number | null;
+  costLei: { toString(): string } | number | null;
+  salePriceLei: { toString(): string } | number | null;
+}) {
+  return {
+    externalCode: product.externalCode,
+    description: product.description,
+    stock: product.stock,
+    priceEuro: product.priceEuro != null ? Number(product.priceEuro) : null,
+    costLei: product.costLei != null ? Number(product.costLei) : null,
+    salePriceLei: product.salePriceLei != null ? Number(product.salePriceLei) : null,
+  };
 }
 
 async function parseProductForm(formData: FormData) {
@@ -136,6 +231,7 @@ async function parseProductForm(formData: FormData) {
     : readOptionalInteger(formData, "yearEnd");
   const yearOpenEnded = Boolean(formData.get("yearOpenEnded"));
   const stock = readOptionalInteger(formData, "stock");
+  const minStock = readOptionalInteger(formData, "minStock");
   const priceEuro = readOptionalDecimal(formData, "priceEuro");
   const costLei = readOptionalDecimal(formData, "costLei");
   const salePriceRaw = readOptionalDecimal(formData, "salePriceLei");
@@ -176,6 +272,7 @@ async function parseProductForm(formData: FormData) {
     yearOpenEnded,
     salePriceLei,
     stock,
+    minStock,
     priceEuro,
     costLei,
   };

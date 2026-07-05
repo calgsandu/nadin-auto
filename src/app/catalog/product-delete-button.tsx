@@ -32,7 +32,7 @@ function DeleteButton() {
     <button
       type="submit"
       disabled={status.pending}
-      className="button-secondary rounded-md border border-[#d6a28b] px-3 py-1.5 text-xs font-semibold text-[#7a2f13] hover:bg-[#fff1eb] disabled:opacity-60"
+      className="button-secondary rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:opacity-60"
     >
       {status.pending ? "..." : "Șterge"}
     </button>

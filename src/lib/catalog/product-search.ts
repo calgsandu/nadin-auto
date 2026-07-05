@@ -55,21 +55,28 @@ export function buildProductSearchWhere(query: string): Prisma.ProductWhereInput
   };
 }
 
-export function formatProductSearchLabel(product: ProductSearchLabelInput) {
+export function formatProductSearchLabel(
+  product: ProductSearchLabelInput,
+  includeCosts = true,
+) {
   const model = product.fitment.carModel;
   const code = product.externalCode?.trim() || "-";
-  const price = formatFormValue(product.priceEuro);
+  const price = includeCosts ? formatFormValue(product.priceEuro) : "";
   const pricePart = price ? ` · ${price} EUR` : "";
 
   return `${code} · ${model.brand.name} ${model.name} · ${product.type.name} · ${product.description}${pricePart}`;
 }
 
-export function toProductSearchResult(product: ProductSearchLabelInput & { id: string }) {
+/** `includeCosts=false` (ANGAJAT): costurile de aducere nu pleacă din API. */
+export function toProductSearchResult(
+  product: ProductSearchLabelInput & { id: string },
+  includeCosts = true,
+) {
   return {
     id: product.id,
-    label: formatProductSearchLabel(product),
-    defaultPriceEuro: formatFormValue(product.priceEuro),
-    defaultCostLei: formatFormValue(product.costLei),
+    label: formatProductSearchLabel(product, includeCosts),
+    defaultPriceEuro: includeCosts ? formatFormValue(product.priceEuro) : "",
+    defaultCostLei: includeCosts ? formatFormValue(product.costLei) : "",
     salePriceLei: formatFormValue(product.salePriceLei),
     stock: product.stock ?? 0,
   };

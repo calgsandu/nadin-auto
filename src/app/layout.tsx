@@ -30,7 +30,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[#f4f2ec] text-[#1d2521]">
+      <body className="min-h-full bg-[#f6f6f4] text-[#1b1a17]">
         <NeonAuthUIProvider authClient={authClient} redirectTo="/">
           {children}
         </NeonAuthUIProvider>

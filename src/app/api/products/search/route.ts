@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentAppUser } from "@/lib/auth/access";
+import { canWriteCatalog } from "@/lib/roles";
 import {
   buildProductSearchWhere,
   normalizeProductSearchQuery,
@@ -8,6 +10,12 @@ import {
 } from "@/lib/catalog/product-search";
 
 export async function GET(request: NextRequest) {
+  const user = await getCurrentAppUser();
+  if (!user) {
+    return new Response("Neautentificat", { status: 401 });
+  }
+  const includeCosts = canWriteCatalog(user.role);
+
   const query = normalizeProductSearchQuery(
     request.nextUrl.searchParams.get("q") ?? "",
   );
@@ -30,6 +38,6 @@ export async function GET(request: NextRequest) {
   });
 
   return Response.json({
-    products: products.map(toProductSearchResult),
+    products: products.map((product) => toProductSearchResult(product, includeCosts)),
   });
 }

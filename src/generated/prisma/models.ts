@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/AuditLog'
 export type * from './models/AppUser'
 export type * from './models/Brand'
 export type * from './models/CarModel'

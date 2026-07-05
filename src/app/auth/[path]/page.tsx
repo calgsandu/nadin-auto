@@ -17,7 +17,7 @@ export default async function AuthPage({
   const mode = CUSTOM_PATHS[path];
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f4f2ec] px-4 py-10">
+    <main className="flex min-h-screen items-center justify-center bg-[#f6f6f4] px-4 py-10">
       {mode ? (
         <LoginForm mode={mode} />
       ) : (

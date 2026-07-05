@@ -9,12 +9,35 @@ export type CatalogSearchParams = {
   year?: string;
   page?: string;
   section?: string;
+  /** Selected warehouse for the inventory section. */
+  wh?: string;
+  /** Audit history: filter by document id. */
+  doc?: string;
+  /** Audit history: filter by action (CREATE/UPDATE/DELETE). */
+  act?: string;
+  /** Documents section: type / partner / date range / page. */
+  dtype?: string;
+  partner?: string;
+  from?: string;
+  to?: string;
+  dpage?: string;
 };
 
 const PAGE_SIZE = 50;
 
-export async function getCatalogData(params: CatalogSearchParams) {
-  const where = buildProductWhere(params);
+export type CatalogOptions = {
+  /** ANGAJAT vede doar produsele cu stoc pozitiv. */
+  onlyInStock?: boolean;
+};
+
+export async function getCatalogData(
+  params: CatalogSearchParams,
+  options: CatalogOptions = {},
+) {
+  const baseWhere = buildProductWhere(params);
+  const where: Prisma.ProductWhereInput = options.onlyInStock
+    ? { AND: [baseWhere, { stock: { gt: 0 } }] }
+    : baseWhere;
   const page = normalizePage(params.page);
   const skip = (page - 1) * PAGE_SIZE;
 
@@ -40,6 +63,11 @@ export async function getCatalogData(params: CatalogSearchParams) {
             },
           },
         },
+        warehouseStocks: {
+          where: { quantity: { not: 0 } },
+          select: { quantity: true, warehouse: { select: { name: true } } },
+          orderBy: { warehouse: { name: "asc" } },
+        },
       },
       orderBy: [{ fitment: { carModel: { brand: { name: "asc" } } } }, { sourceRow: "asc" }],
       skip,
@@ -47,9 +75,19 @@ export async function getCatalogData(params: CatalogSearchParams) {
     }),
     prisma.product.count({ where }),
     prisma.product.count({ where: { AND: [where, { manuallyEdited: true }] } }),
+    // Sub pragul de alertă per produs (minStock, implicit 3).
     prisma.product.count({
       where: {
-        AND: [where, { OR: [{ stock: null }, { stock: { lte: 3 } }] }],
+        AND: [
+          where,
+          {
+            OR: [
+              { stock: null },
+              { AND: [{ minStock: null }, { stock: { lte: 3 } }] },
+              { stock: { lte: prisma.product.fields.minStock } },
+            ],
+          },
+        ],
       },
     }),
     prisma.brand.findMany({ orderBy: { name: "asc" } }),

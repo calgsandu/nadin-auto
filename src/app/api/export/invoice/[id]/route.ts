@@ -1,5 +1,7 @@
 import { requireCurrentAppUser } from "@/lib/auth/access";
+import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
+import { COMPANY } from "@/lib/company";
 import { XLSX, xlsxResponse } from "@/lib/export/xlsx";
 
 export const dynamic = "force-dynamic";
@@ -11,11 +13,13 @@ const TYPE_LABEL: Record<string, string> = {
   ADJUSTMENT: "Ajustare",
 };
 
+const MONEY_FORMAT = "#,##0.00";
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  await requireCurrentAppUser();
+  const user = await requireCurrentAppUser();
   const { id } = await params;
 
   const doc = await prisma.stockDocument.findUnique({
@@ -24,41 +28,90 @@ export async function GET(
   });
   if (!doc) return new Response("Document inexistent", { status: 404 });
 
-  const isSale = doc.type === "SALE";
-  const currency = "lei"; // both sales and receipts are tracked in lei (MDL)
-  const date = new Intl.DateTimeFormat("ro-MD", { day: "2-digit", month: "2-digit", year: "numeric" }).format(doc.documentDate);
+  const isOutgoing = doc.type === "SALE" || doc.type === "RETURN";
 
-  const lineRows = doc.lines.map((line) => {
-    const unit = Number((isSale ? line.unitPriceEuro : line.unitCostLei) ?? 0);
-    return [line.product.externalCode ?? "", line.product.description, line.quantity, unit, unit * line.quantity];
+  // Recepțiile/ajustările conțin costuri de aducere — doar ADMIN/DIRECTOR.
+  if (!isOutgoing && !canWriteCatalog(user.role)) {
+    return new Response("Acces interzis", { status: 403 });
+  }
+  const date = new Intl.DateTimeFormat("ro-MD", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(doc.documentDate);
+
+  const lineRows = doc.lines.map((line, index) => {
+    const unit = Number((isOutgoing ? line.unitPriceEuro : line.unitCostLei) ?? 0);
+    return [
+      index + 1,
+      line.product.externalCode ?? "",
+      line.product.description,
+      line.quantity,
+      unit,
+      unit * line.quantity,
+    ];
   });
-  const subtotal = lineRows.reduce((sum, r) => sum + (r[4] as number), 0);
-  const TVA_RATE = 0.06; // 6%
-  const tva = Math.round(subtotal * TVA_RATE * 100) / 100;
-  const total = Math.round((subtotal + tva) * 100) / 100;
 
+  // Prices are VAT-inclusive: TVA = total ÷ 6, "fără TVA" = total − TVA.
+  const total = lineRows.reduce((sum, r) => sum + (r[5] as number), 0);
+  const tva = Math.round((total / 6) * 100) / 100;
+  const faraTva = Math.round((total - tva) * 100) / 100;
+
+  const headerRow = ["Nr.", "Cod", "Produs", "Cantitate", "Preț unitar (lei)", "Valoare (lei)"];
+  const vatRows: (string | number)[][] = COMPANY.vatPayer
+    ? [
+        ["", "", "", "", "Fără TVA (lei)", faraTva],
+        ["", "", "", "", "TVA (lei)", tva],
+      ]
+    : [];
   const aoa: (string | number)[][] = [
-    ["Nadin Auto"],
-    ["Depozit și piese auto"],
+    ["NADIN AUTO — Depozit și piese auto"],
     [],
-    [`Factură ${TYPE_LABEL[doc.type] ?? doc.type} #${doc.number}`],
-    ["Data", date],
-    ["Depozit", doc.warehouse.name],
-    [isSale ? "Client" : "Furnizor", doc.partner?.name ?? "—"],
+    [`${TYPE_LABEL[doc.type] ?? doc.type} nr. ${doc.number} din ${date}`],
     [],
-    // Compatibility/product order kept consistent with the app tables.
-    ["Cod", "Produs", "Cantitate", `Preț unitar (${currency})`, `Total (${currency})`],
+    ["Depozit:", doc.warehouse.name],
+    [isOutgoing ? "Client:" : "Furnizor:", doc.partner?.name ?? "Consumator final"],
+    ["Telefon:", doc.partner?.phone ?? "—"],
+    ["Notițe:", doc.notes || "—"],
+    [],
+    headerRow,
     ...lineRows,
     [],
-    ["", "", "", `Subtotal fără TVA (${currency})`, subtotal],
-    ["", "", "", `TVA 6% (${currency})`, tva],
-    ["", "", "", `TOTAL cu TVA (${currency})`, total],
+    ...vatRows,
+    ["", "", "", "", "TOTAL (lei)", total],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
-  ws["!cols"] = [{ wch: 14 }, { wch: 40 }, { wch: 12 }, { wch: 18 }, { wch: 16 }];
+  ws["!cols"] = [
+    { wch: 5 },
+    { wch: 16 },
+    { wch: 46 },
+    { wch: 10 },
+    { wch: 16 },
+    { wch: 14 },
+  ];
+  ws["!merges"] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } },
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 5 } },
+  ];
+
+  // Number formats on money cells (prices, values, totals).
+  const firstLineRow = 10; // 0-indexed row of the first product line
+  for (let r = firstLineRow; r < firstLineRow + lineRows.length; r += 1) {
+    for (const c of [4, 5]) {
+      const cell = ws[XLSX.utils.encode_cell({ r, c })];
+      if (cell) cell.z = MONEY_FORMAT;
+    }
+  }
+  const totalsRowCount = vatRows.length + 1;
+  for (let r = firstLineRow + lineRows.length + 1; r <= firstLineRow + lineRows.length + totalsRowCount; r += 1) {
+    const cell = ws[XLSX.utils.encode_cell({ r, c: 5 })];
+    if (cell) cell.z = MONEY_FORMAT;
+  }
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Factură");
 
-  return xlsxResponse(wb, `factura-${doc.type.toLowerCase()}-${doc.number}.xlsx`);
+  const stamp = doc.documentDate.toISOString().slice(0, 10);
+  return xlsxResponse(wb, `factura-${doc.type.toLowerCase()}-${doc.number}-${stamp}.xlsx`);
 }

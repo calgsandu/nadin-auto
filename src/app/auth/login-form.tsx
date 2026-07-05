@@ -78,29 +78,29 @@ export function LoginForm({ mode }: { mode: AuthMode }) {
   }
 
   return (
-    <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-[#e3ddd0] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.35)] md:grid-cols-2">
+    <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-[#e3e1dc] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.35)] md:grid-cols-2">
       {/* Brand panel */}
-      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#18211d] p-10 text-white md:flex">
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#1b1a17] p-10 text-white md:flex">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#c6a635]/20 blur-2xl"
+          className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#d97706]/20 blur-2xl"
         />
         <div className="relative">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.3em] text-[#c6a635]">
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.3em] text-[#d97706]">
             Depozit · Produse auto
           </p>
           <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight">
             Nadin Auto
           </h1>
-          <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#aab4ad]">
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#a8a49b]">
             Catalog, stoc și operațiuni de depozit într-un singur loc.
           </p>
         </div>
-        <ul className="relative space-y-3 text-sm text-[#c9d1ca]">
+        <ul className="relative space-y-3 text-sm text-[#d6d3cd]">
           {["Catalog cu 1.900+ produse", "Recepții, vânzări și transferuri", "Furnizori și roluri de personal"].map(
             (item) => (
               <li key={item} className="flex items-center gap-3">
-                <span className="size-1.5 shrink-0 rounded-full bg-[#c6a635]" />
+                <span className="size-1.5 shrink-0 rounded-full bg-[#d97706]" />
                 {item}
               </li>
             ),
@@ -109,14 +109,14 @@ export function LoginForm({ mode }: { mode: AuthMode }) {
       </aside>
 
       {/* Form panel */}
-      <section className="bg-[#f8f6f1] p-8 sm:p-10">
+      <section className="bg-[#fafaf9] p-8 sm:p-10">
         <div className="md:hidden">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#9a7d1f]">
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#92400e]">
             Nadin Auto
           </p>
         </div>
-        <h2 className="mt-2 text-2xl font-semibold text-[#1d2521]">{copy.title}</h2>
-        <p className="mt-1 text-sm text-[#68746d]">{copy.subtitle}</p>
+        <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">{copy.title}</h2>
+        <p className="mt-1 text-sm text-[#6f6b63]">{copy.subtitle}</p>
 
         <form action={formAction} onSubmit={handleEmailSubmit} noValidate className="mt-7 grid gap-4">
           {mode === "sign-up" ? (
@@ -148,7 +148,7 @@ export function LoginForm({ mode }: { mode: AuthMode }) {
           </Field>
 
           {error ? (
-            <div className="rounded-md border border-[#d6a28b] bg-[#fff1eb] px-3 py-2 text-sm text-[#7a2f13]">
+            <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]">
               {error}
             </div>
           ) : null}
@@ -156,33 +156,33 @@ export function LoginForm({ mode }: { mode: AuthMode }) {
           <button
             type="submit"
             disabled={isPending}
-            className="mt-1 h-11 rounded-md bg-[#202d27] text-sm font-semibold text-white transition-colors hover:bg-[#2c3a33] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-1 h-11 rounded-md bg-[#1b1a17] text-sm font-semibold text-white transition-colors hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending ? "Se procesează..." : copy.submit}
           </button>
         </form>
 
-        <div className="my-6 flex items-center gap-3 text-xs text-[#9aa39c]">
-          <span className="h-px flex-1 bg-[#e0dacc]" />
+        <div className="my-6 flex items-center gap-3 text-xs text-[#98948b]">
+          <span className="h-px flex-1 bg-[#e3e1dc]" />
           sau
-          <span className="h-px flex-1 bg-[#e0dacc]" />
+          <span className="h-px flex-1 bg-[#e3e1dc]" />
         </div>
 
         <button
           type="button"
           onClick={handleGoogle}
           disabled={googleLoading}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#d8d2c6] bg-white text-sm font-semibold text-[#1d2521] transition-colors hover:bg-[#f4f2ec] disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#e8e7e3] bg-white text-sm font-semibold text-[#1b1a17] transition-colors hover:bg-[#f6f6f4] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <GoogleIcon />
           {googleLoading ? "Se conectează..." : "Continuă cu Google"}
         </button>
 
-        <p className="mt-6 text-center text-sm text-[#68746d]">
+        <p className="mt-6 text-center text-sm text-[#6f6b63]">
           {copy.switchText}{" "}
           <a
             href={copy.switchHref}
-            className="font-semibold text-[#1d2521] underline decoration-[#c6a635] underline-offset-4 hover:text-[#9a7d1f]"
+            className="font-semibold text-[#1b1a17] underline decoration-[#d97706] underline-offset-4 hover:text-[#92400e]"
           >
             {copy.switchCta}
           </a>
@@ -194,7 +194,7 @@ export function LoginForm({ mode }: { mode: AuthMode }) {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#2f3a34]">
+    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
       {label}
       {children}
     </label>
@@ -202,7 +202,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const inputClassName =
-  "h-11 w-full rounded-md border border-[#d8d2c6] bg-white px-3 text-sm text-[#1d2521] outline-none transition focus:border-[#c6a635] focus:ring-2 focus:ring-[#c6a635]/30 placeholder:text-[#9aa39c]";
+  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/30 placeholder:text-[#98948b]";
 
 function GoogleIcon() {
   return (

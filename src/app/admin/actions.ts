@@ -264,13 +264,17 @@ export async function deleteWarehouseAction(_s: AdminActionState, fd: FormData):
     await requireWrite();
     const warehouseId = id(fd);
     if (!warehouseId) throw new Error("Depozit lipsă.");
+    // Rows with quantity 0 are just seeded placeholders — they don't block deletion.
     const [stocks, documents] = await Promise.all([
-      prisma.warehouseStock.count({ where: { warehouseId } }),
+      prisma.warehouseStock.count({ where: { warehouseId, quantity: { not: 0 } } }),
       prisma.stockDocument.count({ where: { warehouseId } }),
     ]);
     if (stocks > 0 || documents > 0)
       throw new Error("Depozitul are stoc sau documente legate și nu poate fi șters.");
-    await prisma.warehouse.delete({ where: { id: warehouseId } });
+    await prisma.$transaction([
+      prisma.warehouseStock.deleteMany({ where: { warehouseId } }),
+      prisma.warehouse.delete({ where: { id: warehouseId } }),
+    ]);
     return done("Depozit șters.");
   } catch (e) {
     return fail(e);

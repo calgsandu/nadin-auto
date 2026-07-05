@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import {
+  canCreateSales,
   canManageStaff,
+  canViewSection,
   canWriteCatalog,
   wouldDeleteLastAdmin,
   wouldRemoveLastAdmin,
@@ -62,5 +64,23 @@ assert.equal(
   false,
   "Cu doi admini, unul poate fi șters.",
 );
+
+// canCreateSales: toate rolurile autentificate pot vinde.
+assert.equal(canCreateSales("ANGAJAT"), true);
+assert.equal(canCreateSales("ADMIN"), true);
+assert.equal(canCreateSales(null), false);
+
+// canViewSection: ANGAJAT vede doar produse + vânzări.
+assert.equal(canViewSection("ANGAJAT", "produse"), true);
+assert.equal(canViewSection("ANGAJAT", "vanzari"), true);
+assert.equal(canViewSection("ANGAJAT", "receptii"), false);
+assert.equal(canViewSection("ANGAJAT", "statistici"), false);
+assert.equal(canViewSection("ANGAJAT", "istoric"), false);
+// Istoric: doar ADMIN/DIRECTOR; Personal: doar ADMIN.
+assert.equal(canViewSection("DIRECTOR", "istoric"), true);
+assert.equal(canViewSection("ADMIN", "istoric"), true);
+assert.equal(canViewSection("DIRECTOR", "personal"), false);
+assert.equal(canViewSection("ADMIN", "personal"), true);
+assert.equal(canViewSection(null, "produse"), false);
 
 console.log("roles tests passed");

@@ -37,6 +37,28 @@ enum RestockTaskStatus {
   UNAVAILABLE
 }
 
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  userId    String?
+  userName  String?
+  userEmail String?
+  action    AuditAction
+  entity    String
+  entityId  String?
+  summary   String
+  details   Json?
+  createdAt DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([entity, entityId])
+}
+
 model AppUser {
   id         String   @id @default(cuid())
   authUserId String   @unique
@@ -103,6 +125,8 @@ model Product {
   description String
   notes       String?
   stock       Int?
+  /// Prag de alertă stoc minim; null = pragul implicit (3).
+  minStock    Int?
   priceEuro     Decimal?     @db.Decimal(10, 2)
   costLei       Decimal?     @db.Decimal(10, 2)
   salePriceLei  Decimal?     @db.Decimal(10, 2)
@@ -168,6 +192,10 @@ model StockDocument {
   documentDate DateTime           @default(now())
   warehouseId String
   partnerId   String?
+  /// RETURN: id-ul vânzării sursă. Ține legătura retur↔vânzare.
+  sourceDocumentId String?
+  /// ADJUSTMENT-transfer: id comun pentru cele două jumătăți (ieșire+intrare).
+  transferGroupId  String?
   notes       String?
   totalEuro   Decimal?            @db.Decimal(10, 2)
   totalLei    Decimal?            @db.Decimal(10, 2)
@@ -181,6 +209,8 @@ model StockDocument {
   @@index([documentDate])
   @@index([warehouseId])
   @@index([partnerId])
+  @@index([sourceDocumentId])
+  @@index([transferGroupId])
 }
 
 model StockDocumentLine {

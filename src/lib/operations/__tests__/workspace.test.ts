@@ -15,8 +15,10 @@ const expectedSections = [
   "receptii",
   "transferuri",
   "vanzari",
+  "retururi",
   "de-adus",
   "fara-stoc",
+  "inventar",
   "depozite",
   "furnizori",
   "personal",
@@ -25,7 +27,9 @@ const expectedSections = [
   "tipuri",
   "compatibilitati",
   "documente",
+  "istoric",
   "rapoarte",
+  "statistici",
 ];
 
 assert.deepEqual(
@@ -44,6 +48,8 @@ assert.equal(getSection("produse").title, "Produse");
 assert.equal(getSection("receptii").title, "Recepții marfă");
 assert.equal(getSection("transferuri").title, "Transferuri între depozite");
 assert.equal(getSection("vanzari").title, "Vânzări");
+assert.equal(getSection("retururi").title, "Retururi");
+assert.equal(getSection("statistici").title, "Statistici");
 assert.equal(getSection("de-adus").title, "De adus în 110A");
 assert.equal(getSection("fara-stoc").title, "Fără stoc 110A");
 assert.equal(getSection("depozite").title, "Depozite");

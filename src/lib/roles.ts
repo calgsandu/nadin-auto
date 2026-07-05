@@ -1,11 +1,32 @@
 import type { AppRole } from "@/generated/prisma/enums";
+import type { WorkspaceSectionId } from "@/lib/operations/workspace";
 
 export const WRITE_ROLES: readonly AppRole[] = ["ADMIN", "DIRECTOR"];
 export const STAFF_ROLES: readonly AppRole[] = ["ADMIN"];
 export const ALL_ROLES: readonly AppRole[] = ["ADMIN", "DIRECTOR", "ANGAJAT"];
 
+/** Secțiunile pe care un ANGAJAT le poate deschide: produse în stoc + vânzări. */
+export const EMPLOYEE_SECTIONS: readonly WorkspaceSectionId[] = ["produse", "vanzari"];
+
 export function canWriteCatalog(role: AppRole | null | undefined) {
   return role ? WRITE_ROLES.includes(role) : false;
+}
+
+/** Orice rol autentificat poate înregistra vânzări (inclusiv ANGAJAT). */
+export function canCreateSales(role: AppRole | null | undefined) {
+  return role ? ALL_ROLES.includes(role) : false;
+}
+
+/** Vizibilitatea secțiunilor pe rol; folosită de nav + redirect-ul din pagină. */
+export function canViewSection(
+  role: AppRole | null | undefined,
+  section: WorkspaceSectionId,
+) {
+  if (!role) return false;
+  if (section === "personal") return canManageStaff(role);
+  if (section === "istoric") return canWriteCatalog(role);
+  if (role === "ANGAJAT") return EMPLOYEE_SECTIONS.includes(section);
+  return true;
 }
 
 /** Only ADMIN may view/administer the Personal section and change roles. */

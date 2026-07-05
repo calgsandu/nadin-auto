@@ -30,6 +30,7 @@ export type ProductFormValue = {
   yearEnd: string;
   yearOpenEnded: boolean;
   stock: string;
+  minStock: string;
   priceEuro: string;
   costLei: string;
   salePriceLei: string;
@@ -78,8 +79,8 @@ export function ProductFormDialog({
       <button
         className={
           triggerKind === "row"
-            ? "button-secondary rounded-md border border-[#d8d2c6] px-3 py-1.5 text-xs font-semibold text-[#1d2521] hover:bg-[#f4f2ec]"
-            : "button-primary rounded-md bg-[#202d27] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#2c3a33]"
+            ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+            : "button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
         }
         type="button"
         onClick={openDialog}
@@ -96,18 +97,18 @@ export function ProductFormDialog({
             aria-label="Închide formularul"
             onClick={() => setOpen(false)}
           />
-          <aside className="motion-drawer-panel relative flex h-full w-full max-w-2xl flex-col overflow-y-auto bg-[#f8f6f1] shadow-xl">
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#d8d2c6] bg-[#f8f6f1] px-6 py-5">
+          <aside className="motion-drawer-panel relative flex h-full w-full max-w-2xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
               <div>
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#68746d]">
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
                   Catalog
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold text-[#1d2521]">
+                <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">
                   {product ? "Editează produs" : "Adaugă produs"}
                 </h2>
               </div>
               <button
-                className="button-secondary rounded-md border border-[#d8d2c6] bg-white px-3 py-2 text-sm font-medium text-[#1d2521] hover:bg-[#f4f2ec]"
+                className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-medium text-[#1b1a17] hover:bg-[#f6f6f4]"
                 type="button"
                 onClick={() => setOpen(false)}
               >
@@ -245,7 +246,7 @@ export function ProductFormDialog({
                     placeholder="2006"
                   />
                 </Field>
-                <label className="field-control flex items-center gap-2 self-end rounded-md border border-[#d8d2c6] bg-white px-3 py-3 text-sm text-[#2f3a34]">
+                <label className="field-control flex items-center gap-2 self-end rounded-md border border-[#e8e7e3] bg-white px-3 py-3 text-sm text-[#33312c]">
                   <input
                     name="yearOpenEnded"
                     type="checkbox"
@@ -263,6 +264,15 @@ export function ProductFormDialog({
                     name="stock"
                     defaultValue={product?.stock ?? ""}
                     inputMode="numeric"
+                  />
+                </Field>
+                <Field label="Stoc minim (alertă) — gol = 3">
+                  <input
+                    className={inputClassName}
+                    name="minStock"
+                    defaultValue={product?.minStock ?? ""}
+                    inputMode="numeric"
+                    placeholder="3"
                   />
                 </Field>
                 <Field label="Preț EUR">
@@ -297,17 +307,17 @@ export function ProductFormDialog({
                 <div
                   className={`rounded-md border px-3 py-2 text-sm ${
                     state.ok
-                      ? "border-[#9fbc84] bg-[#eef6e6] text-[#334719]"
-                      : "border-[#d6a28b] bg-[#fff1eb] text-[#7a2f13]"
+                      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
+                      : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
                   }`}
                 >
                   {state.message}
                 </div>
               ) : null}
 
-              <div className="flex items-center justify-end gap-3 border-t border-[#d8d2c6] pt-5">
+              <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button
-                  className="button-secondary rounded-md border border-[#d8d2c6] bg-white px-4 py-2.5 text-sm font-semibold text-[#1d2521] hover:bg-[#f4f2ec]"
+                  className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                   type="button"
                   onClick={() => setOpen(false)}
                 >
@@ -332,7 +342,7 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#2f3a34]">
+    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
       {label}
       {children}
     </label>
@@ -344,7 +354,7 @@ function SubmitButton({ label }: { label: string }) {
 
   return (
     <button
-      className="button-primary rounded-md bg-[#202d27] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#2c3a33] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={status.pending}
       type="submit"
     >
@@ -354,4 +364,4 @@ function SubmitButton({ label }: { label: string }) {
 }
 
 const inputClassName =
-  "field-control h-11 w-full rounded-md border border-[#d8d2c6] bg-white px-3 text-sm outline-none placeholder:text-[#8a918d] disabled:bg-[#eeeae1]";
+  "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";

@@ -28,3 +28,22 @@ export function ensureSupplierPartner(
 
   return partner.id;
 }
+
+export function ensureCustomerPartner(
+  partner: SupplierPartner | null,
+  selectedPartnerId: string | null,
+) {
+  if (!selectedPartnerId) {
+    return null;
+  }
+
+  if (!partner) {
+    throw new Error("Clientul ales nu există.");
+  }
+
+  if (partner.kind !== "CUSTOMER" && partner.kind !== "BOTH") {
+    throw new Error("Partenerul ales nu este client.");
+  }
+
+  return partner.id;
+}

@@ -14,6 +14,7 @@ import {
   LogOut,
   PackagePlus,
   PackageSearch,
+  Printer,
   ShoppingCart,
   Tag,
   Users,
@@ -41,6 +42,12 @@ import {
 } from "@/app/partners/partner-form-dialog";
 import { PartnerDeleteButton } from "@/app/partners/partner-delete-button";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
+import {
+  DocumentDetailsButton,
+  type DocumentDetailsValue,
+} from "@/app/operations/document-details";
+import { RestoreButton } from "@/app/istoric/restore-button";
+import { ReturnDialog, type ReturnableSale } from "@/app/operations/return-dialog";
 import { RestockCheckbox } from "@/app/operations/restock-checkbox";
 import { RoleForm, StaffDeleteButton } from "@/app/staff/role-form";
 import {
@@ -60,7 +67,8 @@ import {
 } from "@/app/admin/actions";
 import { getCurrentAppUser } from "@/lib/auth/access";
 import { getCatalogData, type CatalogSearchParams } from "@/lib/catalog/queries";
-import { getOperationsData } from "@/lib/operations/queries";
+import { getInventoryData, getOperationsData, type InventoryData } from "@/lib/operations/queries";
+import { InventoryDialog } from "@/app/operations/inventory-dialog";
 import { getPartnersData, type PartnerRow } from "@/lib/partners/queries";
 import { getStaffData, type StaffRow } from "@/lib/staff/queries";
 import {
@@ -71,8 +79,11 @@ import {
   type FitmentRow,
   type WarehouseRow,
 } from "@/lib/admin/queries";
-import { getDocumentsData, type DocumentRow } from "@/lib/documents/queries";
+import { getDocumentsData } from "@/lib/documents/queries";
 import { getReportsData, type ReportsData } from "@/lib/reports/queries";
+import { getStatsData, type StatsData } from "@/lib/stats/queries";
+import { getAuditData, type AuditData, type AuditRow } from "@/lib/audit/queries";
+import { DailyChart, MonthlyChart, TopProductsChart } from "@/app/stats-charts";
 import {
   getSection,
   groupForSection,
@@ -81,7 +92,8 @@ import {
   sectionLabel,
   type WorkspaceSectionId,
 } from "@/lib/operations/workspace";
-import { canManageStaff, canWriteCatalog } from "@/lib/roles";
+import { canCreateSales, canManageStaff, canViewSection, canWriteCatalog } from "@/lib/roles";
+import { COMPANY } from "@/lib/company";
 import type { AppRole } from "@/generated/prisma/enums";
 
 export const dynamic = "force-dynamic";
@@ -102,6 +114,7 @@ const OPERATIONS_SECTIONS = new Set<WorkspaceSectionId>([
   "receptii",
   "transferuri",
   "vanzari",
+  "retururi",
   "de-adus",
   "fara-stoc",
 ]);
@@ -123,17 +136,21 @@ export default async function Home({ searchParams }: HomeProps) {
 
   const params = await searchParams;
   const activeSectionId = resolveSection(params.section);
-  const canManageStaffSection = canManageStaff(appUser.role);
 
-  // Personal is ADMIN-only: send everyone else back to the catalog.
-  if (activeSectionId === "personal" && !canManageStaffSection) {
+  // Vizibilitatea pe rol: ANGAJAT vede doar produse + vânzări, Personal e
+  // doar pentru ADMIN, Istoric doar pentru ADMIN/DIRECTOR.
+  if (!canViewSection(appUser.role, activeSectionId)) {
     redirect("/");
   }
 
   const activeSection = getSection(activeSectionId);
   const canModify = canWriteCatalog(appUser.role);
+  const canSell = canCreateSales(appUser.role);
+  const canBackup = canManageStaff(appUser.role);
   const catalogPromise =
-    activeSectionId === "produse" ? getCatalogData(params) : null;
+    activeSectionId === "produse"
+      ? getCatalogData(params, { onlyInStock: appUser.role === "ANGAJAT" })
+      : null;
   const operationsPromise = OPERATIONS_SECTIONS.has(activeSectionId)
     ? getOperationsData()
     : null;
@@ -144,9 +161,25 @@ export default async function Home({ searchParams }: HomeProps) {
     ? getCatalogAdminData()
     : null;
   const documentsPromise =
-    activeSectionId === "documente" ? getDocumentsData() : null;
+    activeSectionId === "documente"
+      ? getDocumentsData({
+          dtype: params.dtype,
+          partner: params.partner,
+          from: params.from,
+          to: params.to,
+          dpage: params.dpage,
+        })
+      : null;
   const reportsPromise =
     activeSectionId === "rapoarte" ? getReportsData() : null;
+  const statsPromise =
+    activeSectionId === "statistici" ? getStatsData() : null;
+  const inventoryPromise =
+    activeSectionId === "inventar" ? getInventoryData(params.wh) : null;
+  const auditPromise =
+    activeSectionId === "istoric"
+      ? getAuditData({ doc: params.doc, act: params.act })
+      : null;
   const workspaceKey = [
     activeSectionId,
     params.q,
@@ -155,11 +188,19 @@ export default async function Home({ searchParams }: HomeProps) {
     params.type,
     params.year,
     params.page,
+    params.wh,
+    params.doc,
+    params.act,
+    params.dtype,
+    params.partner,
+    params.from,
+    params.to,
+    params.dpage,
   ].join(":");
 
   return (
-    <main className="min-h-[100dvh] bg-[#f4f2ec] lg:grid lg:grid-cols-[13rem_minmax(0,1fr)]">
-      <aside className="sticky top-0 z-40 border-b border-[#303a34] bg-[#18211d] text-white shadow-sm lg:fixed lg:inset-y-0 lg:left-0 lg:w-[13rem] lg:border-b-0 lg:border-r lg:shadow-none">
+    <main className="min-h-[100dvh] bg-[#f6f6f4] lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)]">
+      <aside className="sticky top-0 z-40 border-b border-[#e8e7e3] bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-[13.5rem] lg:border-b-0 lg:border-r">
         <Sidebar
           activeSectionId={activeSectionId}
           role={appUser.role}
@@ -169,14 +210,11 @@ export default async function Home({ searchParams }: HomeProps) {
       </aside>
 
       <section className="min-w-0 lg:col-start-2">
-        <header className="motion-page border-b border-[#d8d2c6] bg-white px-4 py-4 lg:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-[#1d2521]">
-                {activeSection.title}
-              </h1>
-              <p className="mt-1 text-sm text-[#68746d]">{activeSection.description}</p>
-            </div>
+        <header className="motion-page border-b border-[#e8e7e3] bg-white px-4 py-3 lg:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-lg font-semibold tracking-tight text-[#1b1a17]">
+              {activeSection.title}
+            </h1>
             <div className="flex flex-wrap items-center gap-2">
               {activeSectionId === "produse" ? (
                 <ExportLink href="/api/export/products" label="Export Excel" />
@@ -201,7 +239,7 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
         </header>
 
-        <SectionTabs activeSectionId={activeSectionId} />
+        <SectionTabs activeSectionId={activeSectionId} role={appUser.role} />
 
         <Suspense
           key={workspaceKey}
@@ -210,6 +248,8 @@ export default async function Home({ searchParams }: HomeProps) {
           <WorkspaceLoader
             activeSectionId={activeSectionId}
             canModify={canModify}
+            canSell={canSell}
+            canBackup={canBackup}
             currentUserId={appUser.id}
             catalogPromise={catalogPromise}
             operationsPromise={operationsPromise}
@@ -218,6 +258,9 @@ export default async function Home({ searchParams }: HomeProps) {
             catalogAdminPromise={catalogAdminPromise}
             documentsPromise={documentsPromise}
             reportsPromise={reportsPromise}
+            statsPromise={statsPromise}
+            inventoryPromise={inventoryPromise}
+            auditPromise={auditPromise}
           />
         </Suspense>
       </section>
@@ -236,27 +279,35 @@ function Sidebar({
   userName: string | null;
   userEmail: string | null;
 }) {
-  const visibleGroups = navigationGroups.filter(
-    (group) => !group.adminOnly || canManageStaff(role),
-  );
+  const visibleGroups = navigationGroups
+    .filter((group) => !group.adminOnly || canManageStaff(role))
+    .map((group) => ({
+      ...group,
+      sections: group.sections.filter((section) => canViewSection(role, section)),
+    }))
+    .filter((group) => group.sections.length > 0);
   const userLabel = userName || userEmail || "Utilizator";
 
   return (
     <nav className="flex flex-col gap-2 px-3 py-2 lg:min-h-screen lg:gap-0 lg:px-3 lg:py-4">
-      <div className="flex items-center justify-between gap-3 border-b border-[#303a34] px-1 pb-2 lg:block lg:px-2 lg:pb-4">
-        <div className="min-w-0">
-          <p className="truncate text-base font-semibold lg:text-lg">Nadin Auto</p>
-          <p className="mt-1 hidden text-xs font-medium text-[#99a49d] sm:block lg:block">Depozit și produse</p>
+      <div className="flex items-center justify-between gap-3 px-1 pb-1 lg:block lg:border-b lg:border-[#efeeeb] lg:px-2 lg:pb-4">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#1b1a17] font-mono text-[13px] font-bold text-[#f2b23e]">
+            N
+          </span>
+          <p className="truncate text-[15px] font-semibold tracking-tight text-[#1b1a17]">
+            Nadin Auto
+          </p>
         </div>
         <div className="flex shrink-0 items-center gap-2 lg:hidden">
-          <div className="rounded-full border border-[#303a34] bg-[#202d27] px-2.5 py-1 text-[11px] font-semibold text-[#c9d1ca]">
+          <div className="rounded-full border border-[#e8e7e3] bg-[#f6f6f4] px-2.5 py-1 text-[11px] font-semibold text-[#6f6b63]">
             {role}
           </div>
           <LogoutButton compact />
         </div>
       </div>
 
-      <div className="mobile-nav-scroll -mx-3 flex gap-1 overflow-x-auto px-3 pb-1 lg:mx-0 lg:grid lg:gap-1 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-4">
+      <div className="mobile-nav-scroll -mx-3 flex gap-1 overflow-x-auto px-3 pb-1 lg:mx-0 lg:grid lg:gap-0.5 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-3">
         {visibleGroups.map((group) => {
           const Icon = menuIcons[group.icon];
           const active = group.sections.includes(activeSectionId);
@@ -264,33 +315,33 @@ function Sidebar({
           return (
             <Link
               key={group.id}
-              className={`motion-nav-link flex min-w-max items-center gap-2 rounded-md px-3 py-2 text-sm lg:min-w-0 lg:gap-3 lg:rounded-lg lg:py-3 ${
+              className={`motion-nav-link flex min-w-max items-center gap-2.5 rounded-lg px-3 py-2 text-sm lg:min-w-0 ${
                 active
-                  ? "bg-[#c6a635] text-[#18211d]"
-                  : "text-[#c9d1ca] hover:bg-[#202d27] hover:text-white"
+                  ? "bg-[#f1efe9] font-semibold text-[#1b1a17]"
+                  : "font-medium text-[#6f6b63] hover:bg-[#f6f6f4] hover:text-[#1b1a17]"
               }`}
               href={sectionHref(group.sections[0])}
             >
-              <Icon className="size-4 shrink-0 lg:size-5" aria-hidden="true" />
-              <span className="min-w-0">
-                <span className="block whitespace-nowrap font-semibold leading-none lg:leading-normal">{group.label}</span>
-                <span className={`hidden truncate text-xs lg:block ${active ? "text-[#39433d]" : "text-[#99a49d]"}`}>
-                  {group.description}
-                </span>
-              </span>
+              <Icon
+                className={`size-4 shrink-0 ${active ? "text-[#d97706]" : "text-[#98948b]"}`}
+                aria-hidden="true"
+              />
+              <span className="whitespace-nowrap">{group.label}</span>
             </Link>
           );
         })}
       </div>
 
-      <div className="mt-auto hidden border-t border-[#303a34] px-2 pt-4 lg:block">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-white">{userLabel}</p>
-          <p className="mt-1 text-xs text-[#99a49d]">
-            Rol: <span className="font-semibold text-[#c9d1ca]">{role}</span>
-          </p>
+      <div className="mt-auto hidden border-t border-[#efeeeb] px-2 pt-3 lg:block">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="truncate text-[13px] font-semibold text-[#1b1a17]">{userLabel}</p>
+            <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-[#98948b]">
+              {role}
+            </p>
+          </div>
+          <LogoutButton compact />
         </div>
-        <LogoutButton />
       </div>
     </nav>
   );
@@ -303,7 +354,7 @@ function LogoutButton({ compact = false }: { compact?: boolean }) {
         type="submit"
         aria-label="Ieșire din cont"
         title="Ieșire din cont"
-        className={`button-secondary inline-flex items-center justify-center rounded-md border border-[#303a34] bg-[#202d27] text-sm font-semibold text-[#c9d1ca] hover:bg-[#2b3a32] hover:text-white ${
+        className={`button-secondary inline-flex items-center justify-center rounded-xl border border-[#e8e7e3] bg-white text-sm font-semibold text-[#6f6b63] hover:border-[#dcdad4] hover:text-[#1b1a17] ${
           compact ? "size-8" : "mt-3 w-full gap-2 px-3 py-2"
         }`}
       >
@@ -314,23 +365,30 @@ function LogoutButton({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function SectionTabs({ activeSectionId }: { activeSectionId: WorkspaceSectionId }) {
+function SectionTabs({
+  activeSectionId,
+  role,
+}: {
+  activeSectionId: WorkspaceSectionId;
+  role: AppRole;
+}) {
   const group = groupForSection(activeSectionId);
-  if (!group || group.sections.length <= 1) return null;
+  const sections = group?.sections.filter((section) => canViewSection(role, section)) ?? [];
+  if (sections.length <= 1) return null;
 
   return (
-    <div className="border-b border-[#d8d2c6] bg-white px-4 lg:px-6">
-      <div className="flex gap-1 overflow-x-auto">
-        {group.sections.map((section) => {
+    <div className="border-b border-[#e8e7e3] bg-white px-4 lg:px-6">
+      <div className="mobile-nav-scroll flex gap-1 overflow-x-auto py-2">
+        {sections.map((section) => {
           const active = section === activeSectionId;
           return (
             <Link
               key={section}
               href={sectionHref(section)}
-              className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
                 active
-                  ? "border-[#c6a635] text-[#1d2521]"
-                  : "border-transparent text-[#68746d] hover:text-[#1d2521]"
+                  ? "bg-[#1b1a17] text-white"
+                  : "text-[#6f6b63] hover:bg-[#f1f0ed] hover:text-[#1b1a17]"
               }`}
             >
               {sectionLabel(section)}
@@ -346,7 +404,7 @@ function ExportLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#d8d2c6] bg-white px-4 py-2.5 text-sm font-semibold text-[#1d2521] hover:bg-[#f4f2ec]"
+      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
     >
       <Download className="size-4" aria-hidden="true" />
       {label}
@@ -428,6 +486,8 @@ async function ProductHeaderAction({
 async function WorkspaceLoader({
   activeSectionId,
   canModify,
+  canSell,
+  canBackup,
   currentUserId,
   catalogPromise,
   operationsPromise,
@@ -436,9 +496,14 @@ async function WorkspaceLoader({
   catalogAdminPromise,
   documentsPromise,
   reportsPromise,
+  statsPromise,
+  inventoryPromise,
+  auditPromise,
 }: {
   activeSectionId: WorkspaceSectionId;
   canModify: boolean;
+  canSell: boolean;
+  canBackup: boolean;
   currentUserId: string;
   catalogPromise: Promise<CatalogData> | null;
   operationsPromise: Promise<OperationsData> | null;
@@ -447,6 +512,9 @@ async function WorkspaceLoader({
   catalogAdminPromise: Promise<CatalogAdminData> | null;
   documentsPromise: Promise<DocumentsData> | null;
   reportsPromise: Promise<ReportsData> | null;
+  statsPromise: Promise<StatsData> | null;
+  inventoryPromise: Promise<InventoryData> | null;
+  auditPromise: Promise<AuditData> | null;
 }) {
   if (activeSectionId === "produse") {
     if (!catalogPromise) return null;
@@ -474,20 +542,42 @@ async function WorkspaceLoader({
   if (activeSectionId === "documente") {
     if (!documentsPromise) return null;
     const data = await documentsPromise;
-    return <DocumentsWorkspace documents={data.documents} canModify={canModify} />;
+    return <DocumentsWorkspace data={data} canModify={canModify} />;
   }
 
   if (activeSectionId === "rapoarte") {
     if (!reportsPromise) return null;
     const data = await reportsPromise;
-    return <ReportsWorkspace data={data} />;
+    return <ReportsWorkspace data={data} canBackup={canBackup} />;
+  }
+
+  if (activeSectionId === "istoric") {
+    if (!auditPromise) return null;
+    const data = await auditPromise;
+    return <AuditWorkspace data={data} />;
+  }
+
+  if (activeSectionId === "statistici") {
+    if (!statsPromise) return null;
+    const data = await statsPromise;
+    return <StatsWorkspace data={data} canModify={canModify} />;
+  }
+
+  if (activeSectionId === "inventar") {
+    if (!inventoryPromise) return null;
+    const data = await inventoryPromise;
+    return <InventoryWorkspace data={data} canModify={canModify} />;
   }
 
   if (!operationsPromise) return null;
   const operations = await operationsPromise;
 
   if (activeSectionId === "vanzari") {
-    return <SalesWorkspace canModify={canModify} operations={operations} />;
+    return <SalesWorkspace canModify={canModify} canSell={canSell} operations={operations} />;
+  }
+
+  if (activeSectionId === "retururi") {
+    return <ReturnsWorkspace canModify={canModify} operations={operations} />;
   }
 
   if (activeSectionId === "de-adus") {
@@ -511,7 +601,7 @@ function ButtonSkeleton() {
   return (
     <div
       aria-hidden="true"
-      className="skeleton-pulse h-10 w-32 rounded-md bg-[#e7e2d8]"
+      className="skeleton-pulse h-10 w-32 rounded-md bg-[#efeeeb]"
     />
   );
 }
@@ -539,23 +629,23 @@ function WorkspaceSkeleton({
       ) : null}
 
       {isProducts ? (
-        <div className="grid gap-3 rounded-lg border border-[#d8d2c6] bg-[#f8f6f1] p-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 rounded-lg border border-[#e8e7e3] bg-[#fafaf9] p-4 sm:grid-cols-2 lg:grid-cols-5">
           {Array.from({ length: 5 }, (_, index) => (
             <div
               key={index}
-              className="skeleton-pulse h-11 rounded-md bg-[#e7e2d8]"
+              className="skeleton-pulse h-11 rounded-md bg-[#efeeeb]"
             />
           ))}
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
-        <div className="h-12 bg-[#202d27]" />
+      <div className="overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+        <div className="h-10 border-b border-[#e8e7e3] bg-[#fafaf9]" />
         <div className="grid gap-3 p-4">
           {Array.from({ length: isProducts ? 8 : 5 }, (_, index) => (
             <div
               key={index}
-              className="skeleton-pulse h-11 rounded-md bg-[#eeeae1]"
+              className="skeleton-pulse h-11 rounded-md bg-[#f0efec]"
             />
           ))}
         </div>
@@ -566,18 +656,20 @@ function WorkspaceSkeleton({
 
 function SkeletonCard() {
   return (
-    <div className="rounded-lg border border-[#d8d2c6] bg-white p-4">
-      <div className="skeleton-pulse h-4 w-24 rounded bg-[#e7e2d8]" />
-      <div className="skeleton-pulse mt-3 h-8 w-16 rounded bg-[#eeeae1]" />
+    <div className="rounded-xl border border-[#e8e7e3] bg-white p-4">
+      <div className="skeleton-pulse h-4 w-24 rounded bg-[#efeeeb]" />
+      <div className="skeleton-pulse mt-3 h-8 w-16 rounded bg-[#f0efec]" />
     </div>
   );
 }
 
 function SalesWorkspace({
   canModify,
+  canSell,
   operations,
 }: {
   canModify: boolean;
+  canSell: boolean;
   operations: OperationsData;
 }) {
   const totalProducts = operations.salesToday.reduce(
@@ -589,35 +681,39 @@ function SalesWorkspace({
     (total, document) => total + Number(document.totalLei ?? document.totalEuro ?? 0),
     0,
   );
-  const totalArchivedLei = operations.salesArchive.reduce(
-    (total, document) => total + documentTotalLei(document),
-    0,
-  );
 
   return (
     <section className="motion-page grid gap-4 p-4 lg:p-5">
       <div className="grid gap-3 sm:grid-cols-3">
         <DailyMetric label="Vânzări azi" value={formatNumber(operations.salesToday.length)} />
         <DailyMetric label="Produse vândute" value={formatNumber(totalProducts)} />
-        <DailyMetric label="Total arhivă" value={`${formatMoney(totalArchivedLei)} lei`} />
+        <DailyMetric
+          label="Total vânzări (tot istoricul)"
+          value={`${formatMoney(operations.salesAllTimeLei)} lei`}
+          hint={`${formatNumber(operations.salesAllTimeCount)} vânzări`}
+        />
       </div>
-      {canModify ? (
-        <div className="flex justify-end">
-          <StockSaleDialog warehouses={toWarehouseOptions(operations.warehouses)} />
-        </div>
-      ) : null}
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {canModify ? <SalesRegisterExport /> : null}
+        {canSell ? (
+          <StockSaleDialog
+            warehouses={toWarehouseOptions(operations.warehouses)}
+            customers={toSupplierOptions(operations.customers)}
+          />
+        ) : null}
+      </div>
       <div className="grid gap-3">
         <div>
-          <h2 className="font-semibold text-[#1d2521]">Vânzări de azi</h2>
-          <p className="mt-1 text-sm text-[#68746d]">{formatMoney(totalLei)} lei înregistrat azi.</p>
+          <h2 className="font-semibold text-[#1b1a17]">Vânzări de azi</h2>
+          <p className="mt-1 text-sm text-[#6f6b63]">{formatMoney(totalLei)} lei înregistrat azi.</p>
         </div>
         <RecentDocumentsTable documents={operations.salesToday} canModify={canModify} />
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
-        <SalesPeriodSummary title="Pe luni" groups={operations.salesByMonth} />
-        <SalesPeriodSummary title="Pe ani" groups={operations.salesByYear} />
+        <SalesPeriodSummary title="Pe luni" groups={operations.salesTotalsByMonth} />
+        <SalesPeriodSummary title="Pe ani" groups={operations.salesTotalsByYear} />
       </div>
-      <SalesArchiveTable groups={operations.salesByDay} />
+      <SalesArchiveTable groups={operations.salesByDay} canExport={canModify} />
     </section>
   );
 }
@@ -626,17 +722,17 @@ function SalesPeriodSummary({
   groups,
   title,
 }: {
-  groups: OperationsData["salesByMonth"];
+  groups: OperationsData["salesTotalsByMonth"];
   title: string;
 }) {
   return (
-    <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
-      <div className="border-b border-[#d8d2c6] px-4 py-3">
-        <h2 className="font-semibold text-[#1d2521]">{title}</h2>
+    <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <div className="border-b border-[#e8e7e3] px-4 py-3">
+        <h2 className="font-semibold text-[#1b1a17]">{title}</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[420px] border-collapse text-left text-sm">
-          <thead className="bg-[#202d27] text-white">
+          <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
             <tr>
               <TableHead>Perioadă</TableHead>
               <TableHead align="right">Vânzări</TableHead>
@@ -646,17 +742,17 @@ function SalesPeriodSummary({
           <tbody>
             {groups.length > 0 ? (
               groups.map((group) => (
-                <tr key={group.key} className="motion-table-row border-t border-[#e7e2d8] odd:bg-white even:bg-[#fbfaf7]">
+                <tr key={group.key} className="motion-table-row border-t border-[#efeeeb]">
                   <TableCell className="font-semibold capitalize">{group.label}</TableCell>
-                  <TableCell align="right" className="font-mono">{formatNumber(group.sales.length)}</TableCell>
+                  <TableCell align="right" className="font-mono">{formatNumber(group.count)}</TableCell>
                   <TableCell align="right" className="font-mono font-semibold">
-                    {formatMoney(group.sales.reduce((sum, sale) => sum + documentTotalLei(sale), 0))} lei
+                    {formatMoney(group.totalLei)} lei
                   </TableCell>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className="px-3 py-8 text-center text-[#68746d]" colSpan={3}>
+                <td className="px-3 py-8 text-center text-[#6f6b63]" colSpan={3}>
                   Nu există vânzări.
                 </td>
               </tr>
@@ -668,54 +764,56 @@ function SalesPeriodSummary({
   );
 }
 
-function SalesArchiveTable({ groups }: { groups: OperationsData["salesByDay"] }) {
+function SalesArchiveTable({
+  groups,
+  canExport,
+}: {
+  groups: OperationsData["salesByDay"];
+  canExport: boolean;
+}) {
   return (
-    <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
-      <div className="border-b border-[#d8d2c6] px-4 py-3">
-        <h2 className="font-semibold text-[#1d2521]">Vânzări catalogate pe zile</h2>
+    <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <div className="border-b border-[#e8e7e3] px-4 py-3">
+        <h2 className="font-semibold text-[#1b1a17]">Vânzări catalogate pe zile (ultimele 90 de zile)</h2>
       </div>
       <div className="grid gap-0">
         {groups.length > 0 ? (
           groups.map((group) => (
-            <section key={group.key} className="border-b border-[#e7e2d8] last:border-b-0">
-              <div className="flex items-center justify-between gap-3 bg-[#f4f2ec] px-4 py-2">
-                <h3 className="font-semibold text-[#1d2521]">{group.label}</h3>
-                <span className="font-mono text-sm text-[#68746d]">
+            <section key={group.key} className="border-b border-[#efeeeb] last:border-b-0">
+              <div className="flex items-center justify-between gap-3 bg-[#f6f6f4] px-4 py-2">
+                <h3 className="font-semibold text-[#1b1a17]">{group.label}</h3>
+                <span className="font-mono text-sm text-[#6f6b63]">
                   {formatNumber(group.sales.length)} vânzări
                 </span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-                  <thead className="bg-[#202d27] text-white">
+                  <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
                     <tr>
                       <TableHead>Document</TableHead>
                       <TableHead>Depozit</TableHead>
                       <TableHead>Produse</TableHead>
                       <TableHead align="right">Cantitate</TableHead>
                       <TableHead align="right">Total</TableHead>
+                      <TableHead align="right">Detalii</TableHead>
                     </tr>
                   </thead>
                   <tbody>
                     {group.sales.map((sale) => (
-                      <tr key={sale.id} className="motion-table-row border-t border-[#e7e2d8] odd:bg-white even:bg-[#fbfaf7] hover:bg-[#f4f2ec]">
+                      <tr key={sale.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
                         <TableCell className="font-semibold">Vânzare #{sale.number}</TableCell>
                         <TableCell>{sale.warehouse.name}</TableCell>
                         <TableCell>
-                          <div className="grid gap-1">
-                            {sale.lines.map((line) => (
-                              <span key={line.id}>
-                                {line.product.externalCode ? `${line.product.externalCode} · ` : ""}
-                                {line.product.description}
-                                <span className="font-mono text-[#68746d]"> x{line.quantity}</span>
-                              </span>
-                            ))}
-                          </div>
+                          <SaleLines lines={sale.lines} />
                         </TableCell>
                         <TableCell align="right" className="font-mono">
                           {formatNumber(sale.lines.reduce((sum, line) => sum + line.quantity, 0))}
                         </TableCell>
                         <TableCell align="right" className="font-mono font-semibold">
                           {formatMoney(documentTotalLei(sale))} lei
+                        </TableCell>
+                        <TableCell align="right">
+                          <DocumentDetailsButton details={toDocumentDetails(sale, canExport)} />
                         </TableCell>
                       </tr>
                     ))}
@@ -725,12 +823,179 @@ function SalesArchiveTable({ groups }: { groups: OperationsData["salesByDay"] })
             </section>
           ))
         ) : (
-          <div className="px-4 py-12 text-center text-sm text-[#68746d]">
+          <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
             Nu există vânzări în arhivă.
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+type SaleLineWithProduct = {
+  id: string;
+  quantity: number;
+  unitPriceEuro: { toString(): string } | null;
+  product: {
+    externalCode: string | null;
+    description: string;
+    salePriceLei: { toString(): string } | null;
+  };
+};
+
+/**
+ * Sale lines with the sold price; when the sold price differs from the
+ * catalog price the line is flagged (red below catalog, amber above).
+ */
+function SaleLines({ lines }: { lines: SaleLineWithProduct[] }) {
+  return (
+    <div className="grid gap-1">
+      {lines.map((line) => {
+        const sold = line.unitPriceEuro != null ? Number(line.unitPriceEuro) : null;
+        const list = line.product.salePriceLei != null ? Number(line.product.salePriceLei) : null;
+        const diff = sold != null && list != null ? sold - list : 0;
+        const marked = sold != null && list != null && diff !== 0;
+
+        return (
+          <span key={line.id}>
+            {line.product.externalCode ? `${line.product.externalCode} · ` : ""}
+            {line.product.description}
+            <span className="font-mono text-[#6f6b63]"> x{line.quantity}</span>
+            {sold != null ? (
+              <span
+                className={`ml-1.5 whitespace-nowrap rounded px-1 font-mono text-xs font-semibold ${
+                  marked
+                    ? diff < 0
+                      ? "bg-[#fee2e2] text-[#b91c1c]"
+                      : "bg-[#fef3c7] text-[#92400e]"
+                    : "text-[#6f6b63]"
+                }`}
+                title={
+                  marked
+                    ? `Preț catalog: ${formatMoney(list)} lei (diferență ${diff > 0 ? "+" : ""}${formatMoney(diff)} lei)`
+                    : undefined
+                }
+              >
+                {formatMoney(sold)} lei{marked ? (diff < 0 ? " ↓" : " ↑") : ""}
+              </span>
+            ) : null}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+function ReturnsWorkspace({
+  canModify,
+  operations,
+}: {
+  canModify: boolean;
+  operations: OperationsData;
+}) {
+  const totalReturnedLei = operations.returns.reduce(
+    (total, document) => total + Number(document.totalLei ?? 0),
+    0,
+  );
+  // The dialog offers the most recent 30 sales to return from.
+  const returnableSales: ReturnableSale[] = operations.salesArchive
+    .slice(0, 30)
+    .map((sale) => ({
+      id: sale.id,
+      number: sale.number,
+      dateLabel: formatDate(sale.documentDate),
+      warehouseName: sale.warehouse.name,
+      partnerName: sale.partner?.name ?? null,
+      lines: sale.lines.map((line) => ({
+        productId: line.productId,
+        label: `${line.product.externalCode ? `${line.product.externalCode} · ` : ""}${line.product.description}`,
+        quantity: line.quantity,
+        unitPriceLei: Number(line.unitPriceEuro ?? 0),
+      })),
+    }));
+
+  return (
+    <section className="motion-page grid gap-4 p-4 lg:p-5">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <DailyMetric label="Retururi înregistrate" value={formatNumber(operations.returns.length)} />
+        <DailyMetric label="Valoare returnată" value={`${formatMoney(totalReturnedLei)} lei`} />
+      </div>
+      {canModify ? (
+        <div className="flex justify-end">
+          <ReturnDialog sales={returnableSales} />
+        </div>
+      ) : null}
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[860px] border-collapse text-left text-sm">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+              <tr>
+                <TableHead>Data</TableHead>
+                <TableHead>Document</TableHead>
+                <TableHead>Depozit</TableHead>
+                <TableHead>Produse</TableHead>
+                <TableHead align="right">Cantitate</TableHead>
+                <TableHead align="right">Total</TableHead>
+                {canModify ? <TableHead align="right">Acțiuni</TableHead> : null}
+              </tr>
+            </thead>
+            <tbody>
+              {operations.returns.length > 0 ? (
+                operations.returns.map((document) => (
+                  <tr key={document.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
+                    <TableCell>{formatDate(document.documentDate)}</TableCell>
+                    <TableCell className="font-semibold">
+                      Retur #{document.number}
+                      {document.notes ? (
+                        <p className="mt-0.5 text-xs font-normal text-[#6f6b63]">{document.notes}</p>
+                      ) : null}
+                    </TableCell>
+                    <TableCell>{document.warehouse.name}</TableCell>
+                    <TableCell>
+                      <div className="grid gap-1">
+                        {document.lines.map((line) => (
+                          <span key={line.id}>
+                            {line.product.externalCode ? `${line.product.externalCode} · ` : ""}
+                            {line.product.description}
+                            <span className="font-mono text-[#6f6b63]"> x{line.quantity}</span>
+                          </span>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell align="right" className="font-mono">
+                      {formatNumber(document.lines.reduce((sum, line) => sum + line.quantity, 0))}
+                    </TableCell>
+                    <TableCell align="right" className="font-mono font-semibold">
+                      {formatMoney(documentTotalLei(document))} lei
+                    </TableCell>
+                    {canModify ? (
+                      <TableCell align="right">
+                        <DocumentRowActions
+                          id={document.id}
+                          title={`Retur #${document.number}`}
+                          documentDate={document.documentDate.toISOString().slice(0, 10)}
+                          documentType={document.type}
+                          notes={document.notes ?? ""}
+                          partnerId={document.partner?.id ?? ""}
+                          partnerName={document.partner?.name ?? ""}
+                          lines={toDocLines(document)}
+                        />
+                      </TableCell>
+                    ) : null}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={canModify ? 7 : 6}>
+                    Nu există retururi încă.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -743,10 +1008,10 @@ function RestockWorkspace({
 }) {
   return (
     <section className="motion-page grid gap-4 p-4 lg:p-5">
-      <div className="motion-card flex flex-col gap-3 rounded-lg border border-[#d8d2c6] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="motion-card flex flex-col gap-3 rounded-xl border border-[#e8e7e3] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-semibold text-[#1d2521]">Reaprovizionare Pavilion 110A</h2>
-          <p className="text-sm text-[#68746d]">
+          <h2 className="font-semibold text-[#1b1a17]">Reaprovizionare Pavilion 110A</h2>
+          <p className="text-sm text-[#6f6b63]">
             Produsele vândute din 110A rămân aici până sunt bifate ca aduse.
           </p>
         </div>
@@ -758,10 +1023,10 @@ function RestockWorkspace({
         <DailyMetric label="Poziții active" value={formatNumber(operations.restockPending.length)} />
         <DailyMetric label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
       </div>
-      <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] border-collapse text-left text-sm">
-            <thead className="bg-[#202d27] text-white">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 <TableHead>Cod</TableHead>
                 <TableHead>Produs</TableHead>
@@ -774,7 +1039,7 @@ function RestockWorkspace({
             <tbody>
               {operations.restockPending.length > 0 ? (
                 operations.restockPending.map((line) => (
-                  <tr key={line.productId} className="motion-table-row border-t border-[#e7e2d8] odd:bg-white even:bg-[#fbfaf7] hover:bg-[#f4f2ec]">
+                  <tr key={line.productId} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
                     <TableCell className="font-mono text-xs font-semibold">
                       {formatText(line.product.externalCode)}
                     </TableCell>
@@ -804,7 +1069,7 @@ function RestockWorkspace({
                 ))
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#68746d]" colSpan={canModify ? 6 : 5}>
+                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={canModify ? 6 : 5}>
                     Nu sunt produse de adus în Pavilion 110A.
                   </td>
                 </tr>
@@ -829,13 +1094,13 @@ function UnavailableRestockWorkspace({ operations }: { operations: OperationsDat
           )}
         />
       </div>
-      <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
-        <div className="border-b border-[#d8d2c6] px-4 py-3">
-          <h2 className="font-semibold text-[#1d2521]">Marcate fără stoc</h2>
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+        <div className="border-b border-[#e8e7e3] px-4 py-3">
+          <h2 className="font-semibold text-[#1b1a17]">Marcate fără stoc</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-            <thead className="bg-[#202d27] text-white">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 <TableHead>Cod</TableHead>
                 <TableHead>Produs</TableHead>
@@ -846,7 +1111,7 @@ function UnavailableRestockWorkspace({ operations }: { operations: OperationsDat
             <tbody>
               {operations.restockUnavailable.length > 0 ? (
                 operations.restockUnavailable.map((line) => (
-                  <tr key={line.productId} className="motion-table-row border-t border-[#e7e2d8] odd:bg-white even:bg-[#fbfaf7]">
+                  <tr key={line.productId} className="motion-table-row border-t border-[#efeeeb]">
                     <TableCell className="font-mono text-xs font-semibold">
                       {formatText(line.product.externalCode)}
                     </TableCell>
@@ -857,7 +1122,7 @@ function UnavailableRestockWorkspace({ operations }: { operations: OperationsDat
                 ))
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#68746d]" colSpan={4}>
+                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={4}>
                     Nu sunt produse marcate fără stoc.
                   </td>
                 </tr>
@@ -870,11 +1135,20 @@ function UnavailableRestockWorkspace({ operations }: { operations: OperationsDat
   );
 }
 
-function DailyMetric({ label, value }: { label: string; value: string }) {
+function DailyMetric({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
-    <div className="motion-card rounded-lg border border-[#d8d2c6] bg-white p-4">
-      <p className="text-sm font-medium text-[#68746d]">{label}</p>
-      <p className="mt-2 font-mono text-2xl font-semibold text-[#1d2521]">{value}</p>
+    <div className="motion-card rounded-xl border border-[#e8e7e3] bg-white px-4 py-3.5">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#98948b]">{label}</p>
+      <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums text-[#1b1a17]">{value}</p>
+      {hint ? <p className="mt-0.5 text-xs text-[#98948b]">{hint}</p> : null}
     </div>
   );
 }
@@ -895,21 +1169,21 @@ function ProductWorkspace({
       <CatalogFilters brands={catalog.brands} models={catalog.models} types={catalog.types} />
       <section className="motion-page p-3 lg:p-5">
         <div className="mb-3 flex items-center justify-between gap-4">
-          <p className="text-sm text-[#68746d]">
+          <p className="text-sm text-[#6f6b63]">
             {start}-{end} din {formatNumber(catalog.productCount)} produse
           </p>
           <Link
-            className="text-sm font-medium text-[#1d2521] underline decoration-[#c6a635] underline-offset-4"
+            className="text-sm font-medium text-[#1b1a17] underline decoration-[#d97706] underline-offset-4"
             href={sectionHref("produse")}
           >
             Resetează filtrele
           </Link>
         </div>
 
-        <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+        <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
-              <thead className="bg-[#202d27] text-white">
+              <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
                 <tr>
                   <TableHead>Cod</TableHead>
                   <TableHead>Compatibilitate</TableHead>
@@ -933,7 +1207,7 @@ function ProductWorkspace({
             </table>
           </div>
           {catalog.products.length === 0 ? (
-            <div className="px-4 py-12 text-center text-sm text-[#68746d]">
+            <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
               Nu sunt produse pentru filtrele curente.
             </div>
           ) : null}
@@ -941,7 +1215,7 @@ function ProductWorkspace({
 
         {catalog.productCount > pageSize ? (
           <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-            <p className="text-[#68746d]">
+            <p className="text-[#6f6b63]">
               Pagina {page} din {pageCount}
             </p>
             <div className="flex gap-2">
@@ -972,24 +1246,33 @@ function ProductRow({
   const model = product.fitment.carModel;
 
   return (
-    <tr className="motion-table-row border-t border-[#e7e2d8] align-top odd:bg-white even:bg-[#fbfaf7] hover:bg-[#f4f2ec]">
+    <tr className="motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]">
       <TableCell className="font-mono text-xs font-semibold">{formatText(product.externalCode)}</TableCell>
       <TableCell>
-        <p className="font-semibold text-[#1d2521]">{model.brand.name} {model.name}</p>
-        <p className="mt-1 text-xs text-[#68746d]">
+        <p className="font-semibold text-[#1b1a17]">{model.brand.name} {model.name}</p>
+        <p className="mt-1 text-xs text-[#6f6b63]">
           Ani: {formatYearLabel(product.fitment.yearStart, product.fitment.yearEnd, product.fitment.yearOpenEnded)}
         </p>
       </TableCell>
       <TableCell>
-        <p className="font-medium text-[#1d2521]">{product.description}</p>
-        <p className="mt-1 text-xs text-[#68746d]">{product.type.name}</p>
+        <p className="font-medium text-[#1b1a17]">{product.description}</p>
+        <p className="mt-1 text-xs text-[#6f6b63]">{product.type.name}</p>
       </TableCell>
-      <TableCell align="right" className="font-semibold tabular-nums">{formatNumber(product.stock)}</TableCell>
+      <TableCell align="right" className="font-semibold tabular-nums">
+        {formatNumber(product.stock)}
+        {product.warehouseStocks.length > 0 ? (
+          <p className="mt-1 whitespace-nowrap font-normal text-xs text-[#6f6b63]">
+            {product.warehouseStocks
+              .map((s) => `${s.warehouse.name.replace("Pavilion ", "")}: ${s.quantity}`)
+              .join(" · ")}
+          </p>
+        ) : null}
+      </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
       </TableCell>
       {canModify ? (
-        <TableCell align="right" className="tabular-nums text-[#68746d]">
+        <TableCell align="right" className="tabular-nums text-[#6f6b63]">
           <p>{formatMoney(product.costLei)} lei</p>
           <p className="mt-1 text-xs">{formatMoney(product.priceEuro)} EUR</p>
         </TableCell>
@@ -997,6 +1280,16 @@ function ProductRow({
       {canModify ? (
         <TableCell align="right">
           <div className="flex justify-end gap-2">
+            <a
+              href={`/print/labels?ids=${product.id}`}
+              target="_blank"
+              rel="noreferrer"
+              title="Sticker produs (70×50.8mm)"
+              aria-label="Sticker produs"
+              className="button-secondary grid size-9 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
+            >
+              <Printer className="size-4" aria-hidden="true" />
+            </a>
             <ProductFormDialog
               brands={catalog.brands}
               models={catalog.models}
@@ -1067,9 +1360,9 @@ function toDocLines(doc: {
     product: { description: string; externalCode: string | null };
   }[];
 }) {
-  const isSale = doc.type === "SALE";
+  const usesSalePrice = doc.type === "SALE" || doc.type === "RETURN";
   return doc.lines.map((l) => {
-    const price = isSale ? l.unitPriceEuro : l.unitCostLei;
+    const price = usesSalePrice ? l.unitPriceEuro : l.unitCostLei;
     return {
       productId: l.productId,
       label: `${l.product.externalCode ? `${l.product.externalCode} · ` : ""}${l.product.description}`,
@@ -1077,6 +1370,98 @@ function toDocLines(doc: {
       price: price != null ? String(price) : "",
     };
   });
+}
+
+const dateTimeFormat = new Intl.DateTimeFormat("ro-MD", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+/** Serializare server → client pentru drawer-ul „Detalii". */
+function toDocumentDetails(
+  doc: {
+    id: string;
+    type: string;
+    number: number;
+    documentDate: Date;
+    createdAt: Date;
+    updatedAt: Date;
+    notes: string | null;
+    totalLei: { toString(): string } | null;
+    totalEuro: { toString(): string } | null;
+    warehouse: { name: string };
+    partner: { name: string; phone: string | null } | null;
+    lines: {
+      id: string;
+      productId: string;
+      quantity: number;
+      unitPriceEuro: { toString(): string } | null;
+      unitCostLei: { toString(): string } | null;
+      product: { description: string; externalCode: string | null };
+    }[];
+  },
+  canExport: boolean,
+): DocumentDetailsValue {
+  const usesSalePrice = doc.type === "SALE" || doc.type === "RETURN";
+  return {
+    id: doc.id,
+    typeLabel: formatDocumentType(doc.type),
+    number: doc.number,
+    date: formatDate(doc.documentDate),
+    warehouse: doc.warehouse.name,
+    partnerLabel: usesSalePrice ? "Client" : "Furnizor",
+    partner: doc.partner?.name ?? null,
+    partnerPhone: doc.partner?.phone ?? null,
+    notes: doc.notes,
+    createdAt: dateTimeFormat.format(doc.createdAt),
+    updatedAt: dateTimeFormat.format(doc.updatedAt),
+    totalLei: documentTotalLei(doc),
+    lines: doc.lines.map((line) => {
+      const price = usesSalePrice ? line.unitPriceEuro : line.unitCostLei;
+      return {
+        id: line.id,
+        code: line.product.externalCode,
+        description: line.product.description,
+        quantity: line.quantity,
+        price: price != null ? Number(price) : null,
+      };
+    }),
+    canExport,
+    showVat: COMPANY.vatPayer,
+  };
+}
+
+/** Export „Registrul vânzărilor" (PDF/Excel) pe un interval de date. */
+function SalesRegisterExport() {
+  const now = new Date();
+  const firstOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+  const today = now.toISOString().slice(0, 10);
+  const inputCls =
+    "h-9 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm text-[#1b1a17]";
+  const buttonCls =
+    "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]";
+
+  return (
+    <form
+      action="/api/export/sales-register"
+      method="get"
+      target="_blank"
+      className="flex flex-wrap items-center gap-2 rounded-lg border border-[#e8e7e3] bg-white px-3 py-2"
+    >
+      <span className="text-xs font-semibold text-[#6f6b63]">Registru vânzări</span>
+      <input className={inputCls} type="date" name="from" defaultValue={firstOfMonth} aria-label="De la" />
+      <input className={inputCls} type="date" name="to" defaultValue={today} aria-label="Până la" />
+      <button className={buttonCls} type="submit" name="format" value="pdf">
+        <FileText className="size-3.5" aria-hidden="true" /> PDF
+      </button>
+      <button className={buttonCls} type="submit" name="format" value="xlsx">
+        <Download className="size-3.5" aria-hidden="true" /> Excel
+      </button>
+    </form>
+  );
 }
 
 function RecentDocumentsTable({
@@ -1089,10 +1474,10 @@ function RecentDocumentsTable({
   suppliers?: SupplierOption[];
 }) {
   return (
-    <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+    <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-          <thead className="bg-[#202d27] text-white">
+          <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
             <tr>
               <TableHead>Data</TableHead>
               <TableHead>Document</TableHead>
@@ -1100,44 +1485,56 @@ function RecentDocumentsTable({
               <TableHead>Produs</TableHead>
               <TableHead align="right">Cantitate</TableHead>
               <TableHead align="right">Total</TableHead>
-              <TableHead align="right">TVA (÷6)</TableHead>
-              {canModify ? <TableHead align="right">Acțiuni</TableHead> : null}
+              {COMPANY.vatPayer ? <TableHead align="right">TVA (÷6)</TableHead> : null}
+              <TableHead align="right">Acțiuni</TableHead>
             </tr>
           </thead>
           <tbody>
             {documents.length > 0 ? documents.map((document) => {
               const docTotal = documentTotalLei(document);
               return (
-              <tr key={document.id} className="motion-table-row border-t border-[#e7e2d8] odd:bg-white even:bg-[#fbfaf7] hover:bg-[#f4f2ec]">
+              <tr key={document.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
                 <TableCell>{formatDate(document.documentDate)}</TableCell>
                 <TableCell className="font-semibold">{formatDocumentType(document.type)} #{document.number}</TableCell>
                 <TableCell>{document.warehouse.name}</TableCell>
-                <TableCell>{document.lines.map((line) => line.product.description).join(", ")}</TableCell>
+                <TableCell>
+                  {document.type === "SALE" ? (
+                    <SaleLines lines={document.lines} />
+                  ) : (
+                    document.lines.map((line) => line.product.description).join(", ")
+                  )}
+                </TableCell>
                 <TableCell align="right" className="font-mono">
                   {formatNumber(document.lines.reduce((sum, line) => sum + line.quantity, 0))}
                 </TableCell>
                 <TableCell align="right" className="font-mono font-semibold">{formatMoney(docTotal)} lei</TableCell>
-                <TableCell align="right" className="font-mono text-[#68746d]">{formatMoney(docTotal / 6)} lei</TableCell>
-                {canModify ? (
-                  <TableCell align="right">
-                    <DocumentRowActions
-                      id={document.id}
-                      title={`${formatDocumentType(document.type)} #${document.number}`}
-                      documentDate={document.documentDate.toISOString().slice(0, 10)}
-                      documentType={document.type}
-                      notes={document.notes ?? ""}
-                      partnerId={document.partner?.id ?? ""}
-                      partnerName={document.partner?.name ?? ""}
-                      suppliers={suppliers}
-                      lines={toDocLines(document)}
-                    />
-                  </TableCell>
+                {COMPANY.vatPayer ? (
+                  <TableCell align="right" className="font-mono text-[#6f6b63]">{formatMoney(docTotal / 6)} lei</TableCell>
                 ) : null}
+                <TableCell align="right">
+                  <div className="flex justify-end gap-2">
+                    <DocumentDetailsButton details={toDocumentDetails(document, canModify)} />
+                    {canModify ? (
+                      <DocumentRowActions
+                        id={document.id}
+                        title={`${formatDocumentType(document.type)} #${document.number}`}
+                        documentDate={document.documentDate.toISOString().slice(0, 10)}
+                        documentType={document.type}
+                        notes={document.notes ?? ""}
+                        partnerId={document.partner?.id ?? ""}
+                        partnerName={document.partner?.name ?? ""}
+                        suppliers={suppliers}
+                        lines={toDocLines(document)}
+                        isTransfer={Boolean(document.transferGroupId)}
+                      />
+                    ) : null}
+                  </div>
+                </TableCell>
               </tr>
               );
             }) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#68746d]" colSpan={canModify ? 8 : 7}>
+                <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={8}>
                   Nu există documente încă.
                 </td>
               </tr>
@@ -1150,7 +1547,7 @@ function RecentDocumentsTable({
 }
 
 const adminRowCls =
-  "motion-table-row border-t border-[#e7e2d8] align-top odd:bg-white even:bg-[#fbfaf7] hover:bg-[#f4f2ec]";
+  "motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]";
 
 function AdminSection({
   head,
@@ -1167,10 +1564,10 @@ function AdminSection({
 }) {
   return (
     <section className="motion-page p-4 lg:p-5">
-      <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-sm" style={{ minWidth }}>
-            <thead className="bg-[#202d27] text-white">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 {head.map((h, i) =>
                   h === null ? null : (
@@ -1184,7 +1581,7 @@ function AdminSection({
             <tbody>{children}</tbody>
           </table>
         </div>
-        {isEmpty ? <div className="px-4 py-12 text-center text-sm text-[#68746d]">{empty}</div> : null}
+        {isEmpty ? <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">{empty}</div> : null}
       </div>
     </section>
   );
@@ -1208,7 +1605,7 @@ function CatalogAdminWorkspace({
       <AdminSection head={["Brand", "Modele", canModify ? "Acțiuni" : null]} empty="Niciun brand." isEmpty={data.brands.length === 0}>
         {data.brands.map((b: BrandRow) => (
           <tr key={b.id} className={adminRowCls}>
-            <TableCell className="font-semibold text-[#1d2521]">{b.name}</TableCell>
+            <TableCell className="font-semibold text-[#1b1a17]">{b.name}</TableCell>
             <TableCell align="right" className="font-mono">{formatNumber(b._count.models)}</TableCell>
             {canModify ? (
               <TableCell align="right">
@@ -1229,7 +1626,7 @@ function CatalogAdminWorkspace({
       <AdminSection head={["Tip produs", "Produse", canModify ? "Acțiuni" : null]} empty="Niciun tip." isEmpty={data.types.length === 0}>
         {data.types.map((t: TypeRow) => (
           <tr key={t.id} className={adminRowCls}>
-            <TableCell className="font-semibold text-[#1d2521]">{t.name}</TableCell>
+            <TableCell className="font-semibold text-[#1b1a17]">{t.name}</TableCell>
             <TableCell align="right" className="font-mono">{formatNumber(t._count.products)}</TableCell>
             {canModify ? (
               <TableCell align="right">
@@ -1251,7 +1648,7 @@ function CatalogAdminWorkspace({
       <AdminSection head={["Model", "Brand", "Compatibilități", canModify ? "Acțiuni" : null]} empty="Niciun model." isEmpty={data.models.length === 0}>
         {data.models.map((m: ModelRow) => (
           <tr key={m.id} className={adminRowCls}>
-            <TableCell className="font-semibold text-[#1d2521]">{m.name}</TableCell>
+            <TableCell className="font-semibold text-[#1b1a17]">{m.name}</TableCell>
             <TableCell>{m.brand.name}</TableCell>
             <TableCell align="right" className="font-mono">{formatNumber(m._count.fitments)}</TableCell>
             {canModify ? (
@@ -1274,7 +1671,7 @@ function CatalogAdminWorkspace({
       <AdminSection head={["Compatibilitate", "Model", "Ani", "Produse", canModify ? "Acțiuni" : null]} empty="Nicio compatibilitate." isEmpty={data.fitments.length === 0} minWidth="820px">
         {data.fitments.map((f: FitmentRow) => (
           <tr key={f.id} className={adminRowCls}>
-            <TableCell className="font-semibold text-[#1d2521]">{f.label}</TableCell>
+            <TableCell className="font-semibold text-[#1b1a17]">{f.label}</TableCell>
             <TableCell>{f.carModel.brand.name} {f.carModel.name}</TableCell>
             <TableCell>{formatYearLabel(f.yearStart, f.yearEnd, f.yearOpenEnded)}</TableCell>
             <TableCell align="right" className="font-mono">{formatNumber(f._count.products)}</TableCell>
@@ -1302,7 +1699,7 @@ function CatalogAdminWorkspace({
     <AdminSection head={["Depozit", "Implicit", "Activ", "Produse în stoc", canModify ? "Acțiuni" : null]} empty="Niciun depozit." isEmpty={data.warehouses.length === 0}>
       {data.warehouses.map((w: WarehouseRow) => (
         <tr key={w.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#1d2521]">{w.name}</TableCell>
+          <TableCell className="font-semibold text-[#1b1a17]">{w.name}</TableCell>
           <TableCell>{w.isDefault ? "Da" : "—"}</TableCell>
           <TableCell>{w.active ? "Da" : "Inactiv"}</TableCell>
           <TableCell align="right" className="font-mono">{formatNumber(w._count.stocks)}</TableCell>
@@ -1320,13 +1717,87 @@ function CatalogAdminWorkspace({
   );
 }
 
-function DocumentsWorkspace({ documents, canModify }: { documents: DocumentRow[]; canModify: boolean }) {
+function documentsHref(
+  filters: DocumentsData["filters"],
+  overrides: Partial<DocumentsData["filters"] & { dpage: number }> = {},
+) {
+  const merged = { ...filters, ...overrides };
+  const query = new URLSearchParams({ section: "documente" });
+  if (merged.dtype) query.set("dtype", merged.dtype);
+  if (merged.partner) query.set("partner", merged.partner);
+  if (merged.from) query.set("from", merged.from);
+  if (merged.to) query.set("to", merged.to);
+  if ("dpage" in overrides && overrides.dpage && overrides.dpage > 1) {
+    query.set("dpage", String(overrides.dpage));
+  }
+  return `/?${query.toString()}`;
+}
+
+function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModify: boolean }) {
+  const { documents, filters, partners, page, pageCount, total, pageSize } = data;
+  const filterInputCls =
+    "h-10 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
+  const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, total);
+
   return (
-    <section className="motion-page p-4 lg:p-5">
-      <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+    <section className="motion-page grid gap-4 p-4 lg:p-5">
+      <form
+        action="/"
+        method="get"
+        className="flex flex-wrap items-end gap-2 rounded-xl border border-[#e8e7e3] bg-white px-3 py-3"
+      >
+        <input type="hidden" name="section" value="documente" />
+        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+          Tip
+          <select className={filterInputCls} name="dtype" defaultValue={filters.dtype}>
+            <option value="">Toate</option>
+            <option value="RECEIPT">Recepții</option>
+            <option value="SALE">Vânzări</option>
+            <option value="RETURN">Retururi</option>
+            <option value="ADJUSTMENT">Ajustări/Transferuri</option>
+          </select>
+        </label>
+        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+          Partener
+          <select className={filterInputCls} name="partner" defaultValue={filters.partner}>
+            <option value="">Toți</option>
+            {partners.map((partner) => (
+              <option key={partner.id} value={partner.id}>
+                {partner.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+          De la
+          <input className={filterInputCls} type="date" name="from" defaultValue={filters.from} />
+        </label>
+        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+          Până la
+          <input className={filterInputCls} type="date" name="to" defaultValue={filters.to} />
+        </label>
+        <button
+          type="submit"
+          className="button-primary h-10 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
+        >
+          Filtrează
+        </button>
+        <Link
+          href="/?section=documente"
+          className="h-10 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#d97706] underline-offset-4"
+        >
+          Resetează
+        </Link>
+        <span className="ml-auto text-sm text-[#6f6b63]">
+          {start}-{end} din {formatNumber(total)} documente
+        </span>
+      </form>
+
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-sm" style={{ minWidth: "900px" }}>
-            <thead className="bg-[#202d27] text-white">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 <TableHead>Data</TableHead>
                 <TableHead>Document</TableHead>
@@ -1334,8 +1805,8 @@ function DocumentsWorkspace({ documents, canModify }: { documents: DocumentRow[]
                 <TableHead>Partener</TableHead>
                 <TableHead align="right">Produse</TableHead>
                 <TableHead align="right">Total</TableHead>
-                <TableHead align="right">Factură</TableHead>
-                {canModify ? <TableHead align="right">Acțiuni</TableHead> : null}
+                <TableHead align="right">Export</TableHead>
+                <TableHead align="right">Acțiuni</TableHead>
               </tr>
             </thead>
             <tbody>
@@ -1350,67 +1821,294 @@ function DocumentsWorkspace({ documents, canModify }: { documents: DocumentRow[]
                     {d.totalEuro != null ? `${formatMoney(d.totalEuro)} EUR` : d.totalLei != null ? `${formatMoney(d.totalLei)} lei` : "—"}
                   </TableCell>
                   <TableCell align="right">
-                    <a
-                      href={`/api/export/invoice/${d.id}`}
-                      className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#d8d2c6] px-3 py-1.5 text-xs font-semibold text-[#1d2521] hover:bg-[#f4f2ec]"
-                    >
-                      <Download className="size-3.5" aria-hidden="true" /> Factură
-                    </a>
+                    <div className="flex justify-end gap-1.5">
+                      <a
+                        href={`/api/export/document/${d.id}/pdf`}
+                        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                      >
+                        <FileText className="size-3.5" aria-hidden="true" /> PDF
+                      </a>
+                      {d.type !== "ADJUSTMENT" ? (
+                        <a
+                          href={`/api/export/invoice/${d.id}`}
+                          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                        >
+                          <Download className="size-3.5" aria-hidden="true" /> Excel
+                        </a>
+                      ) : null}
+                    </div>
                   </TableCell>
-                  {canModify ? (
-                    <TableCell align="right">
-                      <DocumentRowActions
-                        id={d.id}
-                        title={`${formatDocType(d.type)} #${d.number}`}
-                        documentDate={d.documentDate.toISOString().slice(0, 10)}
-                        documentType={d.type}
-                        notes={d.notes ?? ""}
-                        partnerId={d.partner?.id ?? ""}
-                        partnerName={d.partner?.name ?? ""}
-                        lines={toDocLines(d)}
-                      />
-                    </TableCell>
-                  ) : null}
+                  <TableCell align="right">
+                    <div className="flex justify-end gap-2">
+                      <DocumentDetailsButton details={toDocumentDetails(d, canModify)} />
+                      {canModify ? (
+                        <DocumentRowActions
+                          id={d.id}
+                          title={`${formatDocType(d.type)} #${d.number}`}
+                          documentDate={d.documentDate.toISOString().slice(0, 10)}
+                          documentType={d.type}
+                          notes={d.notes ?? ""}
+                          partnerId={d.partner?.id ?? ""}
+                          partnerName={d.partner?.name ?? ""}
+                          lines={toDocLines(d)}
+                          isTransfer={Boolean(d.transferGroupId)}
+                        />
+                      ) : null}
+                    </div>
+                  </TableCell>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {documents.length === 0 ? <div className="px-4 py-12 text-center text-sm text-[#68746d]">Niciun document încă.</div> : null}
+        {documents.length === 0 ? <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">Niciun document pentru filtrele curente.</div> : null}
+      </div>
+
+      {pageCount > 1 ? (
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <p className="text-[#6f6b63]">
+            Pagina {page} din {pageCount}
+          </p>
+          <div className="flex gap-2">
+            <PagerLink
+              disabled={page <= 1}
+              href={documentsHref(filters, { dpage: page - 1 })}
+              label="Înapoi"
+            />
+            <PagerLink
+              disabled={page >= pageCount}
+              href={documentsHref(filters, { dpage: page + 1 })}
+              label="Înainte"
+            />
+          </div>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function PagerLink({ href, label, disabled }: { href: string; label: string; disabled: boolean }) {
+  if (disabled) {
+    return (
+      <span className="rounded-md border border-[#e8e7e3] px-3 py-1.5 font-medium text-[#c6c3bc]">
+        {label}
+      </span>
+    );
+  }
+  return (
+    <Link
+      href={href}
+      className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 font-medium text-[#1b1a17] hover:bg-[#f6f6f4]"
+    >
+      {label}
+    </Link>
+  );
+}
+
+const AUDIT_ACTION_META: Record<string, { label: string; className: string }> = {
+  CREATE: { label: "Creare", className: "bg-[#dcfce7] text-[#15803d]" },
+  UPDATE: { label: "Editare", className: "bg-[#fef3c7] text-[#92400e]" },
+  DELETE: { label: "Ștergere", className: "bg-[#fee2e2] text-[#b91c1c]" },
+};
+
+const AUDIT_ENTITY_LABEL: Record<string, string> = {
+  StockDocument: "Operațiune",
+  Product: "Produs",
+};
+
+function AuditWorkspace({ data }: { data: AuditData }) {
+  const filters: { key: string | undefined; label: string }[] = [
+    { key: undefined, label: "Toate" },
+    { key: "CREATE", label: "Creări" },
+    { key: "UPDATE", label: "Editări" },
+    { key: "DELETE", label: "Ștergeri" },
+  ];
+
+  return (
+    <section className="motion-page grid gap-4 p-4 lg:p-5">
+      <div className="flex flex-wrap items-center gap-2">
+        {filters.map((filter) => {
+          const active = data.filters.act === filter.key;
+          const href = filter.key
+            ? `/?section=istoric&act=${filter.key}${data.filters.doc ? `&doc=${data.filters.doc}` : ""}`
+            : `/?section=istoric${data.filters.doc ? `&doc=${data.filters.doc}` : ""}`;
+          return (
+            <Link
+              key={filter.label}
+              href={href}
+              className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+                active
+                  ? "border-[#1b1a17] bg-[#1b1a17] text-white"
+                  : "border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
+              }`}
+            >
+              {filter.label}
+            </Link>
+          );
+        })}
+        {data.filters.doc ? (
+          <Link
+            href="/?section=istoric"
+            className="rounded-full border border-[#d97706] bg-[#fef3c7] px-3.5 py-1.5 text-sm font-semibold text-[#92400e] hover:bg-[#fde68a]"
+          >
+            Filtru: un singur document ✕
+          </Link>
+        ) : null}
+      </div>
+
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[820px] border-collapse text-left text-sm">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+              <tr>
+                <TableHead>Data și ora</TableHead>
+                <TableHead>Utilizator</TableHead>
+                <TableHead>Acțiune</TableHead>
+                <TableHead>Ce s-a întâmplat</TableHead>
+                <TableHead align="right">Detalii</TableHead>
+              </tr>
+            </thead>
+            <tbody>
+              {data.entries.length > 0 ? (
+                data.entries.map((entry) => <AuditRowView key={entry.id} entry={entry} />)
+              ) : (
+                <tr>
+                  <td className="px-3 py-12 text-center text-[#6f6b63]" colSpan={5}>
+                    Nu există intrări în jurnal pentru filtrele curente.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );
 }
 
-function ReportsWorkspace({ data }: { data: ReportsData }) {
+function AuditRowView({ entry }: { entry: AuditRow }) {
+  const meta = AUDIT_ACTION_META[entry.action] ?? {
+    label: entry.action,
+    className: "bg-[#f0efec] text-[#6f6b63]",
+  };
+  const details = entry.details as
+    | { deleted?: unknown; restoredDocumentId?: string }
+    | null;
+  const canRestore =
+    entry.action === "DELETE" &&
+    entry.entity === "StockDocument" &&
+    Boolean(details?.deleted) &&
+    !details?.restoredDocumentId;
+
+  return (
+    <tr className="motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]">
+      <TableCell className="whitespace-nowrap font-mono text-xs">
+        {dateTimeFormat.format(entry.createdAt)}
+      </TableCell>
+      <TableCell>
+        <p className="font-medium">{entry.userName || entry.userEmail || "—"}</p>
+        {entry.userName && entry.userEmail ? (
+          <p className="mt-0.5 text-xs text-[#98948b]">{entry.userEmail}</p>
+        ) : null}
+      </TableCell>
+      <TableCell>
+        <span
+          className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${meta.className}`}
+        >
+          {meta.label}
+        </span>
+        <p className="mt-1 text-xs text-[#98948b]">
+          {AUDIT_ENTITY_LABEL[entry.entity] ?? entry.entity}
+        </p>
+      </TableCell>
+      <TableCell>{entry.summary}</TableCell>
+      <TableCell align="right">
+        <div className="flex flex-col items-end gap-2">
+          {canRestore ? <RestoreButton auditId={entry.id} title={entry.summary} /> : null}
+          {details?.restoredDocumentId ? (
+            <span className="rounded-full bg-[#dcfce7] px-2.5 py-0.5 text-xs font-semibold text-[#15803d]">
+              Restaurat
+            </span>
+          ) : null}
+          {entry.details != null ? (
+            <details className="text-left">
+              <summary className="cursor-pointer whitespace-nowrap text-xs font-semibold text-[#1b1a17] underline decoration-[#d97706] underline-offset-4">
+                Vezi detalii
+              </summary>
+              <pre className="mt-2 max-h-72 max-w-xl overflow-auto rounded-md border border-[#e8e7e3] bg-[#fafaf9] p-2 text-left font-mono text-[11px] leading-relaxed text-[#33312c]">
+                {JSON.stringify(entry.details, null, 2)}
+              </pre>
+            </details>
+          ) : (
+            <span className="text-xs text-[#98948b]">—</span>
+          )}
+        </div>
+      </TableCell>
+    </tr>
+  );
+}
+
+function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: boolean }) {
   return (
     <section className="motion-page grid gap-4 p-4 lg:p-5">
+      {canBackup ? (
+        <div className="flex justify-end">
+          <a
+            href="/api/export/backup"
+            className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+          >
+            <Download className="size-4" aria-hidden="true" /> Backup complet (Excel)
+          </a>
+        </div>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <DailyMetric label="Produse" value={formatNumber(data.totalProducts)} />
         <DailyMetric label="Stoc total (buc.)" value={formatNumber(data.totalStock)} />
-        <DailyMetric label="Valoare stoc" value={`${formatMoney(data.valueEur)} EUR`} />
-        <DailyMetric label="Vânzări 30 zile" value={`${formatNumber(data.sales30Count)} / ${formatMoney(data.sales30Eur)} EUR`} />
+        <DailyMetric
+          label="Valoare stoc"
+          value={`${formatMoney(data.valueEur)} EUR`}
+          hint={`${formatMoney(data.stockValueLei)} lei la preț de vânzare`}
+        />
+        <DailyMetric
+          label="Vânzări 30 zile"
+          value={formatNumber(data.sales30Count)}
+          hint={`${formatMoney(data.sales30Lei)} lei încasați`}
+        />
       </div>
 
       <CurrencyWidget valueLei={data.stockValueLei} rates={data.rates} />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
-          <div className="border-b border-[#e7e2d8] px-4 py-3 font-semibold text-[#1d2521]">Stoc pe depozit</div>
+        <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+          <div className="border-b border-[#efeeeb] px-4 py-3 font-semibold text-[#1b1a17]">Stoc pe depozit</div>
           <table className="w-full border-collapse text-left text-sm">
             <tbody>
-              {data.warehouseStock.map((w) => (
-                <tr key={w.id} className={adminRowCls}>
-                  <TableCell className="font-medium">{w.name}</TableCell>
-                  <TableCell align="right" className="font-mono font-semibold">{formatNumber(w.total_quantity)}</TableCell>
-                </tr>
-              ))}
+              {data.warehouseStock.map((w) => {
+                const max = Math.max(...data.warehouseStock.map((x) => x.total_quantity), 1);
+                return (
+                  <tr key={w.id} className={adminRowCls}>
+                    <TableCell className="font-medium">
+                      {w.name}
+                      <div className="mt-1.5 h-1.5 w-full max-w-56 rounded-full bg-[#f0efec]">
+                        <div
+                          className="h-1.5 rounded-full bg-[#d97706]"
+                          style={{ width: `${Math.max((w.total_quantity / max) * 100, w.total_quantity > 0 ? 4 : 0)}%` }}
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell align="right" className="font-mono font-semibold">{formatNumber(w.total_quantity)}</TableCell>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
-        <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
-          <div className="border-b border-[#e7e2d8] px-4 py-3 font-semibold text-[#1d2521]">Produse sub stoc minim (≤3)</div>
+        <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+          <div className="border-b border-[#efeeeb] px-4 py-3 font-semibold text-[#1b1a17]">
+            Produse sub stocul minim
+            <span className="ml-2 text-xs font-normal text-[#98948b]">prag per produs, implicit 3</span>
+          </div>
           <div className="max-h-96 overflow-y-auto">
             <table className="w-full border-collapse text-left text-sm">
               <tbody>
@@ -1418,7 +2116,10 @@ function ReportsWorkspace({ data }: { data: ReportsData }) {
                   <tr key={p.id} className={adminRowCls}>
                     <TableCell className="font-mono text-xs">{formatText(p.code)}</TableCell>
                     <TableCell>{p.description}</TableCell>
-                    <TableCell align="right" className="font-mono font-semibold">{p.stock ?? 0}</TableCell>
+                    <TableCell align="right" className="whitespace-nowrap font-mono font-semibold">
+                      {p.stock ?? 0}
+                      <span className="font-normal text-[#98948b]"> / prag {p.min_stock}</span>
+                    </TableCell>
                   </tr>
                 ))}
               </tbody>
@@ -1427,6 +2128,257 @@ function ReportsWorkspace({ data }: { data: ReportsData }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModify: boolean }) {
+  const totalQuantity = data.stocks.reduce((sum, row) => sum + row.quantity, 0);
+  const warehouseOptions = data.warehouses.map((w) => ({ id: w.id, name: w.name }));
+
+  return (
+    <section className="motion-page grid gap-4 p-4 lg:p-5">
+      <div className="flex flex-wrap items-center gap-2">
+        {data.warehouses.map((warehouse) => {
+          const active = warehouse.id === data.selected?.id;
+          return (
+            <Link
+              key={warehouse.id}
+              href={`/?section=inventar&wh=${warehouse.id}`}
+              className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+                active
+                  ? "border-[#1b1a17] bg-[#1b1a17] text-white"
+                  : "border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
+              }`}
+            >
+              {warehouse.name}
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <DailyMetric label="Poziții în depozit" value={formatNumber(data.stocks.length)} />
+        <DailyMetric label="Bucăți în depozit" value={formatNumber(totalQuantity)} />
+      </div>
+
+      {canModify ? (
+        <div className="flex justify-end">
+          <InventoryDialog warehouses={warehouseOptions} defaultWarehouseId={data.selected?.id} />
+        </div>
+      ) : null}
+
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+        <div className="border-b border-[#e8e7e3] px-4 py-3">
+          <h2 className="font-semibold text-[#1b1a17]">
+            Stoc în sistem — {data.selected?.name ?? "fără depozit"}
+          </h2>
+          <p className="mt-1 text-sm text-[#6f6b63]">
+            Numără fizic produsele și folosește „Corectează stocul” pentru diferențe.
+          </p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+              <tr>
+                <TableHead>Cod</TableHead>
+                <TableHead>Produs</TableHead>
+                <TableHead align="right">Preț vânzare</TableHead>
+                <TableHead align="right">În sistem</TableHead>
+              </tr>
+            </thead>
+            <tbody>
+              {data.stocks.length > 0 ? (
+                data.stocks.map((row) => (
+                  <tr key={row.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
+                    <TableCell className="font-mono text-xs font-semibold">
+                      {formatText(row.product.externalCode)}
+                    </TableCell>
+                    <TableCell className="font-medium">{row.product.description}</TableCell>
+                    <TableCell align="right" className="font-mono">
+                      {row.product.salePriceLei != null ? `${formatMoney(row.product.salePriceLei)} lei` : "—"}
+                    </TableCell>
+                    <TableCell align="right" className="font-mono font-semibold">
+                      {formatNumber(row.quantity)}
+                    </TableCell>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={4}>
+                    Nu există stoc înregistrat în acest depozit.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function StatsWorkspace({ data, canModify }: { data: StatsData; canModify: boolean }) {
+  return (
+    <section className="motion-page grid gap-4 p-4 lg:p-5">
+      <div className={`grid gap-3 sm:grid-cols-2 ${canModify ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+        <DailyMetric
+          label="Venit (30 zile)"
+          value={`${formatMoney(data.last30.revenueLei)} lei`}
+          hint={`${formatNumber(data.last30.quantity)} produse vândute`}
+        />
+        {canModify ? (
+          <DailyMetric
+            label="Profit (30 zile)"
+            value={`${formatMoney(data.last30.profitLei)} lei`}
+            hint={
+              data.last30.revenueLei > 0
+                ? `marjă ${Math.round((data.last30.profitLei / data.last30.revenueLei) * 100)}%`
+                : undefined
+            }
+          />
+        ) : null}
+        <DailyMetric
+          label="Vânzări (30 zile)"
+          value={formatNumber(data.last30.salesCount)}
+          hint={`coș mediu ${formatMoney(data.last30.avgSaleLei)} lei`}
+        />
+        <DailyMetric
+          label="Retururi (13 luni)"
+          value={formatNumber(data.returnsCount)}
+          hint={`${formatMoney(data.returnsLei)} lei returnați`}
+        />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <DailyChart rows={data.daily} canModify={canModify} />
+        <MonthlyChart rows={data.monthly} canModify={canModify} />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <PeriodStatsTable title="Pe săptămâni (ultimele 8)" rows={data.weekly} canModify={canModify} />
+        <PeriodStatsTable title="Pe luni (ultimele 12)" rows={data.monthly} canModify={canModify} />
+      </div>
+
+      <PeriodStatsTable title="Pe zile (ultimele 14 cu vânzări)" rows={data.daily} canModify={canModify} />
+
+      <TopProductsChart rows={data.topProducts} />
+
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+        <div className="border-b border-[#e8e7e3] px-4 py-3">
+          <h2 className="font-semibold text-[#1b1a17]">Top produse vândute (30 zile)</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[560px] border-collapse text-left text-sm">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+              <tr>
+                <TableHead>Produs</TableHead>
+                <TableHead align="right">Cantitate</TableHead>
+                <TableHead align="right">Venit</TableHead>
+              </tr>
+            </thead>
+            <tbody>
+              {data.topProducts.length > 0 ? (
+                data.topProducts.map((product) => {
+                  const max = data.topProducts[0]?.quantity || 1;
+                  return (
+                    <tr key={product.productId} className="motion-table-row border-t border-[#efeeeb]">
+                      <TableCell>
+                        <p className="font-medium text-[#1b1a17]">{product.label}</p>
+                        <div className="mt-1.5 h-1.5 w-full max-w-64 rounded-full bg-[#f0efec]">
+                          <div
+                            className="h-1.5 rounded-full bg-[#d97706]"
+                            style={{ width: `${Math.max((product.quantity / max) * 100, 4)}%` }}
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell align="right" className="font-mono font-semibold">{formatNumber(product.quantity)}</TableCell>
+                      <TableCell align="right" className="font-mono">{formatMoney(product.revenueLei)} lei</TableCell>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={3}>
+                    Nu există vânzări în ultimele 30 de zile.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PeriodStatsTable({
+  title,
+  rows,
+  canModify,
+}: {
+  title: string;
+  rows: StatsData["daily"];
+  canModify: boolean;
+}) {
+  const max = Math.max(...rows.map((row) => row.revenueLei), 1);
+
+  return (
+    <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <div className="border-b border-[#e8e7e3] px-4 py-3">
+        <h2 className="font-semibold text-[#1b1a17]">{title}</h2>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+          <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <tr>
+              <TableHead>Perioadă</TableHead>
+              <TableHead align="right">Vânzări</TableHead>
+              <TableHead align="right">Buc.</TableHead>
+              <TableHead align="right">Venit</TableHead>
+              {canModify ? <TableHead align="right">Cost</TableHead> : null}
+              {canModify ? <TableHead align="right">Profit</TableHead> : null}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length > 0 ? (
+              rows.map((row) => (
+                <tr key={row.key} className="motion-table-row border-t border-[#efeeeb]">
+                  <TableCell className="capitalize">
+                    <p className="font-semibold">{row.label}</p>
+                    <div className="mt-1.5 h-1.5 w-full max-w-48 rounded-full bg-[#f0efec]">
+                      <div
+                        className="h-1.5 rounded-full bg-[#d97706]"
+                        style={{ width: `${Math.max((row.revenueLei / max) * 100, row.revenueLei > 0 ? 4 : 0)}%` }}
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell align="right" className="font-mono">{formatNumber(row.salesCount)}</TableCell>
+                  <TableCell align="right" className="font-mono">{formatNumber(row.quantity)}</TableCell>
+                  <TableCell align="right" className="font-mono font-semibold">{formatMoney(row.revenueLei)} lei</TableCell>
+                  {canModify ? (
+                    <TableCell align="right" className="font-mono text-[#6f6b63]">{formatMoney(row.costLei)} lei</TableCell>
+                  ) : null}
+                  {canModify ? (
+                    <TableCell
+                      align="right"
+                      className={`font-mono font-semibold ${row.profitLei < 0 ? "text-[#b91c1c]" : "text-[#15803d]"}`}
+                    >
+                      {formatMoney(row.profitLei)} lei
+                    </TableCell>
+                  ) : null}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={canModify ? 6 : 4}>
+                  Nu există date pentru această perioadă.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
@@ -1446,10 +2398,10 @@ function PartnersWorkspace({
 }) {
   return (
     <section className="motion-page p-4 lg:p-5">
-      <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-            <thead className="bg-[#202d27] text-white">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 <TableHead>Nume</TableHead>
                 <TableHead>Tip</TableHead>
@@ -1463,20 +2415,30 @@ function PartnersWorkspace({
               {partners.map((partner) => (
                 <tr
                   key={partner.id}
-                  className="motion-table-row border-t border-[#e7e2d8] align-top odd:bg-white even:bg-[#fbfaf7] hover:bg-[#f4f2ec]"
+                  className="motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]"
                 >
-                  <TableCell className="font-semibold text-[#1d2521]">
+                  <TableCell className="font-semibold text-[#1b1a17]">
                     {partner.name}
                   </TableCell>
                   <TableCell>{formatPartnerKind(partner.kind)}</TableCell>
                   <TableCell className="font-mono text-xs">
                     {formatText(partner.phone)}
                   </TableCell>
-                  <TableCell className="max-w-xs text-[#68746d]">
+                  <TableCell className="max-w-xs text-[#6f6b63]">
                     {formatText(partner.notes)}
                   </TableCell>
-                  <TableCell align="right" className="font-mono">
-                    {formatNumber(partner._count.documents)}
+                  <TableCell align="right">
+                    {partner._count.documents > 0 ? (
+                      <Link
+                        href={`/?section=documente&partner=${partner.id}`}
+                        className="font-mono font-semibold text-[#1b1a17] underline decoration-[#d97706] underline-offset-4"
+                        title="Vezi documentele partenerului"
+                      >
+                        {formatNumber(partner._count.documents)}
+                      </Link>
+                    ) : (
+                      <span className="font-mono text-[#98948b]">0</span>
+                    )}
                   </TableCell>
                   {canModify ? (
                     <TableCell align="right">
@@ -1499,7 +2461,7 @@ function PartnersWorkspace({
           </table>
         </div>
         {partners.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-[#68746d]">
+          <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
             Nu există furnizori încă.
           </div>
         ) : null}
@@ -1517,10 +2479,10 @@ function StaffWorkspace({
 }) {
   return (
     <section className="motion-page p-4 lg:p-5">
-      <div className="motion-card overflow-hidden rounded-lg border border-[#d8d2c6] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-            <thead className="bg-[#202d27] text-white">
+            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 <TableHead>Nume</TableHead>
                 <TableHead>Email</TableHead>
@@ -1532,12 +2494,12 @@ function StaffWorkspace({
               {users.map((user) => (
                 <tr
                   key={user.id}
-                  className="motion-table-row border-t border-[#e7e2d8] align-middle odd:bg-white even:bg-[#fbfaf7] hover:bg-[#f4f2ec]"
+                  className="motion-table-row border-t border-[#efeeeb] align-middle hover:bg-[#f6f6f4]"
                 >
-                  <TableCell className="font-semibold text-[#1d2521]">
+                  <TableCell className="font-semibold text-[#1b1a17]">
                     {formatText(user.name)}
                   </TableCell>
-                  <TableCell className="text-[#68746d]">
+                  <TableCell className="text-[#6f6b63]">
                     {formatText(user.email)}
                   </TableCell>
                   <TableCell>{formatRole(user.role)}</TableCell>
@@ -1558,7 +2520,7 @@ function StaffWorkspace({
           </table>
         </div>
         {users.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-[#68746d]">
+          <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
             Niciun utilizator încă.
           </div>
         ) : null}
@@ -1598,7 +2560,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`border-r border-[#35413a] px-3 py-3 font-medium ${
+      className={`whitespace-nowrap px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#98948b] ${
         align === "right" ? "text-right" : "text-left"
       }`}
     >
@@ -1618,7 +2580,7 @@ function TableCell({
 }) {
   return (
     <td
-      className={`border-r border-[#e7e2d8] px-3 py-3 ${
+      className={`px-4 py-3 ${
         align === "right" ? "text-right" : "text-left"
       } ${className}`}
     >
@@ -1639,11 +2601,11 @@ function PaginationLink({
   page: number;
 }) {
   if (disabled) {
-    return <span className="rounded-md border border-[#ddd8ce] bg-[#eeeae1] px-3 py-2 text-[#8a918d]">{label}</span>;
+    return <span className="rounded-md border border-[#e3e1dc] bg-[#f0efec] px-3 py-2 text-[#98948b]">{label}</span>;
   }
 
   return (
-    <Link className="button-secondary rounded-md border border-[#d8d2c6] bg-white px-3 py-2 font-medium hover:bg-[#f4f2ec]" href={catalogPageHref(catalog.params, page)}>
+    <Link className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 font-medium hover:bg-[#f6f6f4]" href={catalogPageHref(catalog.params, page)}>
       {label}
     </Link>
   );
@@ -1719,6 +2681,7 @@ function toProductFormValue(product: CatalogProduct): ProductFormValue {
     yearEnd: formatFormValue(product.fitment.yearEnd),
     yearOpenEnded: product.fitment.yearOpenEnded,
     stock: formatFormValue(product.stock),
+    minStock: formatFormValue(product.minStock),
     priceEuro: formatFormValue(product.priceEuro),
     costLei: formatFormValue(product.costLei),
     salePriceLei: formatFormValue(product.salePriceLei),

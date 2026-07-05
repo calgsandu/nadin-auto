@@ -22,7 +22,22 @@ export async function getOperationsData() {
   });
   const restockWarehouse = warehouses.find((warehouse) => warehouse.name === "Pavilion 110A");
 
-  const [recentDocuments, salesToday, salesArchive, restockTasks, suppliers] = await Promise.all([
+  // Arhiva detaliată (cu linii) se limitează la 90 de zile; totalurile pe
+  // lună/an vin din SQL ca aplicația să nu încarce toate vânzările istorice.
+  const archiveSince = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+
+  const [
+    recentDocuments,
+    salesToday,
+    salesArchive,
+    returns,
+    restockTasks,
+    suppliers,
+    customers,
+    salesTotalsByMonth,
+    salesTotalsByYear,
+    salesAllTime,
+  ] = await Promise.all([
     prisma.stockDocument.findMany({
       where: {
         type: {
@@ -63,6 +78,7 @@ export async function getOperationsData() {
     prisma.stockDocument.findMany({
       where: {
         type: "SALE",
+        documentDate: { gte: archiveSince },
       },
       include: {
         warehouse: true,
@@ -74,6 +90,16 @@ export async function getOperationsData() {
         },
       },
       orderBy: [{ documentDate: "desc" }, { number: "desc" }],
+    }),
+    prisma.stockDocument.findMany({
+      where: { type: "RETURN" },
+      include: {
+        warehouse: true,
+        partner: true,
+        lines: { include: { product: true } },
+      },
+      orderBy: [{ documentDate: "desc" }, { number: "desc" }],
+      take: 50,
     }),
     restockWarehouse
       ? prisma.restockTask.findMany({
@@ -94,6 +120,30 @@ export async function getOperationsData() {
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),
+    prisma.partner.findMany({
+      where: { kind: { in: ["CUSTOMER", "BOTH"] } },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+    prisma.$queryRaw<{ key: string; cnt: number; total: number }[]>`
+      SELECT to_char(date_trunc('month', "documentDate"), 'YYYY-MM') AS key,
+             COUNT(*)::int AS cnt,
+             COALESCE(SUM(COALESCE("totalLei", "totalEuro")), 0)::float AS total
+      FROM "StockDocument"
+      WHERE type = 'SALE'
+      GROUP BY 1 ORDER BY 1 DESC LIMIT 24`,
+    prisma.$queryRaw<{ key: string; cnt: number; total: number }[]>`
+      SELECT to_char(date_trunc('year', "documentDate"), 'YYYY') AS key,
+             COUNT(*)::int AS cnt,
+             COALESCE(SUM(COALESCE("totalLei", "totalEuro")), 0)::float AS total
+      FROM "StockDocument"
+      WHERE type = 'SALE'
+      GROUP BY 1 ORDER BY 1 DESC`,
+    prisma.$queryRaw<{ cnt: number; total: number }[]>`
+      SELECT COUNT(*)::int AS cnt,
+             COALESCE(SUM(COALESCE("totalLei", "totalEuro")), 0)::float AS total
+      FROM "StockDocument"
+      WHERE type = 'SALE'`,
   ]);
 
   const salesFrom110AToday = salesToday.filter(
@@ -109,14 +159,28 @@ export async function getOperationsData() {
   );
   const restockByStatus = splitRestockTasksByStatus(restockTasks);
 
+  const monthLabel = new Intl.DateTimeFormat("ro-MD", { month: "long", year: "numeric" });
+
   return {
     warehouses,
     recentDocuments,
     salesToday,
     salesArchive,
     salesByDay: groupSalesByPeriod(salesArchive, "day"),
-    salesByMonth: groupSalesByPeriod(salesArchive, "month"),
-    salesByYear: groupSalesByPeriod(salesArchive, "year"),
+    salesTotalsByMonth: salesTotalsByMonth.map((row) => ({
+      key: row.key,
+      label: monthLabel.format(new Date(`${row.key}-01T12:00:00`)),
+      count: row.cnt,
+      totalLei: row.total,
+    })),
+    salesTotalsByYear: salesTotalsByYear.map((row) => ({
+      key: row.key,
+      label: row.key,
+      count: row.cnt,
+      totalLei: row.total,
+    })),
+    salesAllTimeCount: salesAllTime[0]?.cnt ?? 0,
+    salesAllTimeLei: salesAllTime[0]?.total ?? 0,
     soldToday: soldToday.map((line) => ({
       ...line,
       product: soldProductById.get(line.productId)!,
@@ -124,8 +188,41 @@ export async function getOperationsData() {
     restockPending: summarizeRestockTasks(restockByStatus.pending),
     restockUnavailable: summarizeRestockTasks(restockByStatus.unavailable),
     suppliers,
+    customers,
+    returns,
   };
 }
+
+/** Stock rows for one warehouse (inventory check). */
+export async function getInventoryData(warehouseParam?: string) {
+  await ensureDefaultWarehouses();
+
+  const warehouses = await prisma.warehouse.findMany({
+    where: { active: true },
+    orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+  });
+  const selected =
+    warehouses.find((warehouse) => warehouse.id === warehouseParam) ??
+    warehouses.find((warehouse) => warehouse.name === "Pavilion 110A") ??
+    warehouses[0] ??
+    null;
+
+  const stocks = selected
+    ? await prisma.warehouseStock.findMany({
+        where: { warehouseId: selected.id, quantity: { not: 0 } },
+        include: {
+          product: {
+            select: { externalCode: true, description: true, salePriceLei: true },
+          },
+        },
+        orderBy: { product: { description: "asc" } },
+      })
+    : [];
+
+  return { warehouses, selected, stocks };
+}
+
+export type InventoryData = Awaited<ReturnType<typeof getInventoryData>>;
 
 function summarizeRestockTasks<
   T extends {

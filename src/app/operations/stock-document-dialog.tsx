@@ -82,13 +82,13 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
             type="button"
             onClick={() => setOpen(false)}
           />
-          <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#f8f6f1] shadow-xl">
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#d8d2c6] bg-[#f8f6f1] px-6 py-5">
+          <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
               <div>
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#68746d]">
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
                   Document stoc
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold text-[#1d2521]">
+                <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">
                   Recepție marfă
                 </h2>
               </div>
@@ -143,11 +143,11 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                 </Field>
               </div>
 
-              <section className="overflow-visible rounded-lg border border-[#d8d2c6] bg-white">
-                <div className="flex items-center justify-between gap-4 border-b border-[#d8d2c6] bg-[#f4f2ec] px-4 py-3">
+              <section className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
+                <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
                   <div>
-                    <h3 className="font-semibold text-[#1d2521]">Produse recepționate</h3>
-                    <p className="text-xs text-[#68746d]">
+                    <h3 className="font-semibold text-[#1b1a17]">Produse recepționate</h3>
+                    <p className="text-xs text-[#6f6b63]">
                       Toate pozițiile vor fi salvate într-un singur document.
                     </p>
                   </div>
@@ -169,10 +169,10 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                     return (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-3 rounded-md border border-[#e7e2d8] bg-[#fbfaf7] p-3 md:grid-cols-[minmax(0,1fr)_5rem_8rem_12rem_2.75rem] md:items-start"
+                      className="motion-line-item grid gap-3 rounded-md border border-[#efeeeb] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_5rem_8rem_12rem_2.75rem] md:items-start"
                     >
                       <div>
-                        <p className="mb-1.5 text-xs font-semibold text-[#68746d]">
+                        <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">
                           Produs {index + 1}
                         </p>
                         <ProductSearchCombobox
@@ -206,9 +206,9 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                         />
                       </Field>
                       <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-11 flex-col justify-center rounded-md border border-[#e7e2d8] bg-[#f4f2ec] px-3 font-mono text-xs leading-tight text-[#1d2521]">
+                        <div className="flex h-11 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[#68746d]">TVA {money(lineTva)} · net {money(lineNet)}</span>
+                          <span className="text-[#6f6b63]">TVA {money(lineTva)} · net {money(lineNet)}</span>
                         </div>
                       </Field>
                       <button
@@ -226,18 +226,18 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                 </div>
               </section>
 
-              <div className="ml-auto w-full max-w-xs rounded-lg border border-[#d8d2c6] bg-white p-4 text-sm">
+              <div className="ml-auto w-full max-w-xs rounded-xl border border-[#e8e7e3] bg-white p-4 text-sm">
                 <div className="flex justify-between py-1">
-                  <span className="text-[#68746d]">TVA plătit (÷6)</span>
+                  <span className="text-[#6f6b63]">TVA plătit (÷6)</span>
                   <span className="font-mono font-semibold">{money(tvaTotal)} lei</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-[#68746d]">Fără TVA</span>
+                  <span className="text-[#6f6b63]">Fără TVA</span>
                   <span className="font-mono font-semibold">{money(faraTva)} lei</span>
                 </div>
-                <div className="mt-1 flex justify-between border-t border-[#e7e2d8] pt-2 text-base">
-                  <span className="font-semibold text-[#1d2521]">Total (cu TVA)</span>
-                  <span className="font-mono font-bold text-[#1d2521]">{money(valoare)} lei</span>
+                <div className="mt-1 flex justify-between border-t border-[#efeeeb] pt-2 text-base">
+                  <span className="font-semibold text-[#1b1a17]">Total (cu TVA)</span>
+                  <span className="font-mono font-bold text-[#1b1a17]">{money(valoare)} lei</span>
                 </div>
               </div>
 
@@ -253,15 +253,15 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                 <div
                   className={`rounded-md border px-3 py-2 text-sm ${
                     state.ok
-                      ? "border-[#9fbc84] bg-[#eef6e6] text-[#334719]"
-                      : "border-[#d6a28b] bg-[#fff1eb] text-[#7a2f13]"
+                      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
+                      : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
                   }`}
                 >
                   {state.message}
                 </div>
               ) : null}
 
-              <div className="flex items-center justify-end gap-3 border-t border-[#d8d2c6] pt-5">
+              <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button
                   className={`${secondaryButtonClassName} px-4 py-2.5`}
                   type="button"
@@ -319,13 +319,13 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
             type="button"
             onClick={() => setOpen(false)}
           />
-          <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#f8f6f1] shadow-xl">
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#d8d2c6] bg-[#f8f6f1] px-6 py-5">
+          <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
               <div>
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#68746d]">
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
                   Document stoc
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold text-[#1d2521]">
+                <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">
                   Transfer între locații
                 </h2>
               </div>
@@ -379,11 +379,11 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                 </Field>
               </div>
 
-              <section className="overflow-visible rounded-lg border border-[#d8d2c6] bg-white">
-                <div className="flex items-center justify-between gap-4 border-b border-[#d8d2c6] bg-[#f4f2ec] px-4 py-3">
+              <section className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
+                <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
                   <div>
-                    <h3 className="font-semibold text-[#1d2521]">Produse transferate</h3>
-                    <p className="text-xs text-[#68746d]">
+                    <h3 className="font-semibold text-[#1b1a17]">Produse transferate</h3>
+                    <p className="text-xs text-[#6f6b63]">
                       Toate pozițiile vor fi mutate în aceeași operațiune.
                     </p>
                   </div>
@@ -401,10 +401,10 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-3 rounded-md border border-[#e7e2d8] bg-[#fbfaf7] p-3 md:grid-cols-[minmax(0,1fr)_10rem_2.75rem] md:items-start"
+                      className="motion-line-item grid gap-3 rounded-md border border-[#efeeeb] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_10rem_2.75rem] md:items-start"
                     >
                       <div>
-                        <p className="mb-1.5 text-xs font-semibold text-[#68746d]">
+                        <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">
                           Produs {index + 1}
                         </p>
                         <ProductSearchCombobox showHint={false} />
@@ -445,15 +445,15 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                 <div
                   className={`rounded-md border px-3 py-2 text-sm ${
                     state.ok
-                      ? "border-[#9fbc84] bg-[#eef6e6] text-[#334719]"
-                      : "border-[#d6a28b] bg-[#fff1eb] text-[#7a2f13]"
+                      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
+                      : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
                   }`}
                 >
                   {state.message}
                 </div>
               ) : null}
 
-              <div className="flex items-center justify-end gap-3 border-t border-[#d8d2c6] pt-5">
+              <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button
                   className={`${secondaryButtonClassName} px-4 py-2.5`}
                   type="button"
@@ -472,7 +472,13 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   );
 }
 
-export function StockSaleDialog({ warehouses }: { warehouses: WarehouseOption[] }) {
+export function StockSaleDialog({
+  warehouses,
+  customers = [],
+}: {
+  warehouses: WarehouseOption[];
+  customers?: SupplierOption[];
+}) {
   const [open, setOpen] = useState(false);
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<{ id: number; qty: string; price: string }[]>([
@@ -534,20 +540,20 @@ export function StockSaleDialog({ warehouses }: { warehouses: WarehouseOption[] 
             type="button"
             onClick={() => setOpen(false)}
           />
-          <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#f8f6f1] shadow-xl">
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#d8d2c6] bg-[#f8f6f1] px-6 py-5">
+          <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
               <div>
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#68746d]">
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
                   Document stoc
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold text-[#1d2521]">Vânzare marfă</h2>
+                <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">Vânzare marfă</h2>
               </div>
               <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>
                 Închide
               </button>
             </div>
             <form action={formAction} className="grid gap-6 px-6 py-6">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Data vânzării">
                   <input className={inputClassName} defaultValue={today} name="documentDate" type="date" />
                 </Field>
@@ -558,12 +564,20 @@ export function StockSaleDialog({ warehouses }: { warehouses: WarehouseOption[] 
                     ))}
                   </select>
                 </Field>
+                <Field label="Client (pentru factură)">
+                  <select className={inputClassName} name="partnerId">
+                    <option value="">Consumator final</option>
+                    {customers.map((customer) => (
+                      <option key={customer.id} value={customer.id}>{customer.name}</option>
+                    ))}
+                  </select>
+                </Field>
               </div>
-              <section className="overflow-visible rounded-lg border border-[#d8d2c6] bg-white">
-                <div className="flex items-center justify-between gap-4 border-b border-[#d8d2c6] bg-[#f4f2ec] px-4 py-3">
+              <section className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
+                <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
                   <div>
-                    <h3 className="font-semibold text-[#1d2521]">Produse vândute</h3>
-                    <p className="text-xs text-[#68746d]">Vânzările din 110A intră automat în lista De adus.</p>
+                    <h3 className="font-semibold text-[#1b1a17]">Produse vândute</h3>
+                    <p className="text-xs text-[#6f6b63]">Vânzările din 110A intră automat în lista De adus.</p>
                   </div>
                   <button className={secondaryButtonClassName} type="button" onClick={addLine}>
                     <Plus className="size-4" aria-hidden="true" /> Adaugă produs
@@ -575,9 +589,9 @@ export function StockSaleDialog({ warehouses }: { warehouses: WarehouseOption[] 
                     const lineTva = lineVal / 6;
                     const lineNet = lineVal - lineTva;
                     return (
-                    <div key={line.id} className="motion-line-item grid gap-3 rounded-md border border-[#e7e2d8] bg-[#fbfaf7] p-3 md:grid-cols-[minmax(0,1fr)_5rem_8rem_12rem_2.75rem] md:items-start">
+                    <div key={line.id} className="motion-line-item grid gap-3 rounded-md border border-[#efeeeb] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_5rem_8rem_12rem_2.75rem] md:items-start">
                       <div>
-                        <p className="mb-1.5 text-xs font-semibold text-[#68746d]">Produs {index + 1}</p>
+                        <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
                         <ProductSearchCombobox
                           showHint={false}
                           onSelect={(p) => setLineField(line.id, "price", p.salePriceLei)}
@@ -609,9 +623,9 @@ export function StockSaleDialog({ warehouses }: { warehouses: WarehouseOption[] 
                         />
                       </Field>
                       <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-11 flex-col justify-center rounded-md border border-[#e7e2d8] bg-[#f4f2ec] px-3 font-mono text-xs leading-tight text-[#1d2521]">
+                        <div className="flex h-11 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[#68746d]">TVA {money(lineTva)} · net {money(lineNet)}</span>
+                          <span className="text-[#6f6b63]">TVA {money(lineTva)} · net {money(lineNet)}</span>
                         </div>
                       </Field>
                       <button
@@ -629,18 +643,18 @@ export function StockSaleDialog({ warehouses }: { warehouses: WarehouseOption[] 
                 </div>
               </section>
 
-              <div className="ml-auto w-full max-w-xs rounded-lg border border-[#d8d2c6] bg-white p-4 text-sm">
+              <div className="ml-auto w-full max-w-xs rounded-xl border border-[#e8e7e3] bg-white p-4 text-sm">
                 <div className="flex justify-between py-1">
-                  <span className="text-[#68746d]">TVA plătit (÷6)</span>
+                  <span className="text-[#6f6b63]">TVA plătit (÷6)</span>
                   <span className="font-mono font-semibold">{money(tvaTotal)} lei</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-[#68746d]">Fără TVA</span>
+                  <span className="text-[#6f6b63]">Fără TVA</span>
                   <span className="font-mono font-semibold">{money(faraTva)} lei</span>
                 </div>
-                <div className="mt-1 flex justify-between border-t border-[#e7e2d8] pt-2 text-base">
-                  <span className="font-semibold text-[#1d2521]">Total (cu TVA)</span>
-                  <span className="font-mono font-bold text-[#1d2521]">{money(valoare)} lei</span>
+                <div className="mt-1 flex justify-between border-t border-[#efeeeb] pt-2 text-base">
+                  <span className="font-semibold text-[#1b1a17]">Total (cu TVA)</span>
+                  <span className="font-mono font-bold text-[#1b1a17]">{money(valoare)} lei</span>
                 </div>
               </div>
 
@@ -648,11 +662,11 @@ export function StockSaleDialog({ warehouses }: { warehouses: WarehouseOption[] 
                 <textarea className={`${inputClassName} min-h-24 resize-y py-3`} name="notes" placeholder="client, comandă, explicații" />
               </Field>
               {state.message ? (
-                <div className={`rounded-md border px-3 py-2 text-sm ${state.ok ? "border-[#9fbc84] bg-[#eef6e6] text-[#334719]" : "border-[#d6a28b] bg-[#fff1eb] text-[#7a2f13]"}`}>
+                <div className={`rounded-md border px-3 py-2 text-sm ${state.ok ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]" : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"}`}>
                   {state.message}
                 </div>
               ) : null}
-              <div className="flex items-center justify-end gap-3 border-t border-[#d8d2c6] pt-5">
+              <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>Anulează</button>
                 <SubmitButton label="Salvează vânzarea" />
               </div>
@@ -673,7 +687,7 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#2f3a34]">
+    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
       {label}
       {children}
     </label>
@@ -685,7 +699,7 @@ function SubmitButton({ label }: { label: string }) {
 
   return (
     <button
-      className="button-primary rounded-md bg-[#202d27] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#2c3a33] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={status.pending}
       type="submit"
     >
@@ -695,10 +709,10 @@ function SubmitButton({ label }: { label: string }) {
 }
 
 const inputClassName =
-  "field-control h-11 w-full rounded-md border border-[#d8d2c6] bg-white px-3 text-sm outline-none placeholder:text-[#8a918d]";
+  "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b]";
 const primaryButtonClassName =
-  "button-primary rounded-md bg-[#202d27] px-3 py-2 text-sm font-semibold text-white hover:bg-[#2c3a33]";
+  "button-primary rounded-md bg-[#1b1a17] px-3 py-2 text-sm font-semibold text-white hover:bg-[#33312c]";
 const secondaryButtonClassName =
-  "button-secondary flex items-center gap-2 rounded-md border border-[#d8d2c6] bg-white px-3 py-2 text-sm font-semibold text-[#1d2521] hover:bg-[#f8f6f1]";
+  "button-secondary flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#fafaf9]";
 const dangerButtonClassName =
-  "button-danger mt-6 grid size-11 place-items-center rounded-md border border-[#d8d2c6] bg-white text-[#8b3d2c] hover:border-[#c95f47] hover:bg-[#fff1eb] disabled:cursor-not-allowed disabled:opacity-35";
+  "button-danger mt-6 grid size-11 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";

@@ -22,7 +22,7 @@ type Action = (state: AdminActionState, fd: FormData) => Promise<AdminActionStat
 
 const initial: AdminActionState = { ok: false, message: "" };
 const inputClassName =
-  "h-11 w-full rounded-md border border-[#d8d2c6] bg-white px-3 text-sm text-[#1d2521] outline-none transition focus:border-[#c6a635] focus:ring-2 focus:ring-[#c6a635]/30 placeholder:text-[#9aa39c]";
+  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/30 placeholder:text-[#98948b]";
 
 function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary" | "row"; onClick: () => void }) {
   return (
@@ -31,8 +31,8 @@ function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary
       onClick={onClick}
       className={
         kind === "row"
-          ? "button-secondary rounded-md border border-[#d8d2c6] px-3 py-1.5 text-xs font-semibold text-[#1d2521] hover:bg-[#f4f2ec]"
-          : "button-primary rounded-md bg-[#202d27] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#2c3a33]"
+          ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+          : "button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
       }
     >
       {label}
@@ -46,7 +46,7 @@ function SubmitButton({ label }: { label: string }) {
     <button
       type="submit"
       disabled={status.pending}
-      className="button-primary rounded-md bg-[#202d27] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#2c3a33] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {status.pending ? "Se salvează..." : label}
     </button>
@@ -55,7 +55,7 @@ function SubmitButton({ label }: { label: string }) {
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#2f3a34]">
+    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
       {label}
       {children}
     </label>
@@ -92,16 +92,16 @@ function Drawer({
     <DrawerPortal>
     <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
       <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={() => setOpen(false)} />
-      <aside className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#f8f6f1] shadow-xl">
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#d8d2c6] bg-[#f8f6f1] px-6 py-5">
+      <aside className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
           <div>
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#68746d]">{eyebrow}</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#1d2521]">{title}</h2>
+            <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">{eyebrow}</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">{title}</h2>
           </div>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="button-secondary rounded-md border border-[#d8d2c6] bg-white px-3 py-2 text-sm font-medium text-[#1d2521] hover:bg-[#f4f2ec]"
+            className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-medium text-[#1b1a17] hover:bg-[#f6f6f4]"
           >
             Închide
           </button>
@@ -109,15 +109,15 @@ function Drawer({
         <form action={formAction} className="grid gap-5 px-6 py-6">
           {children}
           {state.message && !state.ok ? (
-            <div className="rounded-md border border-[#d6a28b] bg-[#fff1eb] px-3 py-2 text-sm text-[#7a2f13]">
+            <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]">
               {state.message}
             </div>
           ) : null}
-          <div className="flex items-center justify-end gap-3 border-t border-[#d8d2c6] pt-5">
+          <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="button-secondary rounded-md border border-[#d8d2c6] bg-white px-4 py-2.5 text-sm font-semibold text-[#1d2521] hover:bg-[#f4f2ec]"
+              className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
             >
               Anulează
             </button>
@@ -205,10 +205,10 @@ export function WarehouseDialog({
         <Field label="Nume">
           <input className={inputClassName} name="name" defaultValue={warehouse?.name ?? ""} placeholder="ex. Pavilion 110A" required />
         </Field>
-        <label className="flex items-center gap-2 text-sm text-[#2f3a34]">
+        <label className="flex items-center gap-2 text-sm text-[#33312c]">
           <input type="checkbox" name="isDefault" defaultChecked={warehouse?.isDefault ?? false} /> Depozit implicit
         </label>
-        <label className="flex items-center gap-2 text-sm text-[#2f3a34]">
+        <label className="flex items-center gap-2 text-sm text-[#33312c]">
           <input type="checkbox" name="active" defaultChecked={warehouse?.active ?? true} /> Activ
         </label>
       </Drawer>
@@ -310,7 +310,7 @@ export function FitmentDialog({
             <input className={inputClassName} name="yearEnd" defaultValue={fitment?.yearEnd ?? ""} inputMode="numeric" placeholder="2010" />
           </Field>
         </div>
-        <label className="flex items-center gap-2 text-sm text-[#2f3a34]">
+        <label className="flex items-center gap-2 text-sm text-[#33312c]">
           <input type="checkbox" name="yearOpenEnded" defaultChecked={fitment?.yearOpenEnded ?? false} /> În continuare (fără an de sfârșit)
         </label>
       </Drawer>
@@ -354,7 +354,7 @@ function DeleteSubmit() {
     <button
       type="submit"
       disabled={status.pending}
-      className="button-secondary rounded-md border border-[#d6a28b] px-3 py-1.5 text-xs font-semibold text-[#7a2f13] hover:bg-[#fff1eb] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-secondary rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {status.pending ? "..." : "Șterge"}
     </button>

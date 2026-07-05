@@ -36,7 +36,7 @@ export function CatalogFilters({
   }
 
   return (
-    <section className="motion-page border-y border-[#d8d2c6] bg-[#f8f6f1]">
+    <section className="motion-page border-y border-[#e8e7e3] bg-[#fafaf9]">
       <div className="mx-auto grid max-w-[calc(100vw-2rem)] gap-3 px-4 py-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-5 lg:px-8">
         <TextFilterInput
           name="q"
@@ -45,7 +45,7 @@ export function CatalogFilters({
           placeholder="Caută cod, model, descriere"
         />
         <select
-          className="field-control h-11 rounded-md border border-[#d8d2c6] bg-white px-3 text-sm outline-none"
+          className="field-control h-11 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none"
           value={searchParams.get("brand") ?? ""}
           onChange={(event) => updateParam("brand", event.target.value)}
         >
@@ -57,7 +57,7 @@ export function CatalogFilters({
           ))}
         </select>
         <select
-          className="field-control h-11 rounded-md border border-[#d8d2c6] bg-white px-3 text-sm outline-none"
+          className="field-control h-11 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none"
           value={searchParams.get("model") ?? ""}
           onChange={(event) => updateParam("model", event.target.value)}
         >
@@ -69,7 +69,7 @@ export function CatalogFilters({
           ))}
         </select>
         <select
-          className="field-control h-11 rounded-md border border-[#d8d2c6] bg-white px-3 text-sm outline-none"
+          className="field-control h-11 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none"
           value={searchParams.get("type") ?? ""}
           onChange={(event) => updateParam("type", event.target.value)}
         >
@@ -114,7 +114,7 @@ function TextFilterInput({
   return (
     <div className="relative">
       <input
-        className="field-control h-11 w-full rounded-md border border-[#d8d2c6] bg-white px-3 text-sm outline-none placeholder:text-[#8a918d]"
+        className="field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b]"
         defaultValue={value}
         inputMode={inputMode}
         onBlur={(event) => apply(event.currentTarget.value)}

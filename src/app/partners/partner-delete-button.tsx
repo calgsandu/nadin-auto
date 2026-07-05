@@ -43,7 +43,7 @@ function DeleteButton() {
   const status = useFormStatus();
   return (
     <button
-      className="button-secondary rounded-md border border-[#d6a28b] px-3 py-1.5 text-xs font-semibold text-[#7a2f13] hover:bg-[#fff1eb] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-secondary rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={status.pending}
       type="submit"
     >

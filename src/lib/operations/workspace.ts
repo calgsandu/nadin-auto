@@ -3,8 +3,10 @@ export type WorkspaceSectionId =
   | "receptii"
   | "transferuri"
   | "vanzari"
+  | "retururi"
   | "de-adus"
   | "fara-stoc"
+  | "inventar"
   | "depozite"
   | "furnizori"
   | "personal"
@@ -13,7 +15,9 @@ export type WorkspaceSectionId =
   | "tipuri"
   | "compatibilitati"
   | "documente"
-  | "rapoarte";
+  | "istoric"
+  | "rapoarte"
+  | "statistici";
 
 type WorkspaceSection = {
   id: WorkspaceSectionId;
@@ -66,6 +70,11 @@ export const workspaceSections: WorkspaceSection[] = [
     description: "Vânzări catalogate pe zile, luni și ani.",
   },
   {
+    id: "retururi",
+    title: "Retururi",
+    description: "Produse returnate din vânzările înregistrate.",
+  },
+  {
     id: "de-adus",
     title: "De adus în 110A",
     description: "Cantitățile vândute din 110A care trebuie reaprovizionate.",
@@ -74,6 +83,11 @@ export const workspaceSections: WorkspaceSection[] = [
     id: "fara-stoc",
     title: "Fără stoc 110A",
     description: "Produsele din coada 110A marcate ca indisponibile.",
+  },
+  {
+    id: "inventar",
+    title: "Inventar",
+    description: "Verifică stocul fizic pe depozit și corectează diferențele.",
   },
   {
     id: "depozite",
@@ -116,9 +130,19 @@ export const workspaceSections: WorkspaceSection[] = [
     description: "Recepții, vânzări, transferuri și ajustări.",
   },
   {
+    id: "istoric",
+    title: "Istoric modificări",
+    description: "Jurnalul creărilor, editărilor și ștergerilor.",
+  },
+  {
     id: "rapoarte",
     title: "Rapoarte",
     description: "Situații de stoc și vânzări extrase din baza de date.",
+  },
+  {
+    id: "statistici",
+    title: "Statistici",
+    description: "Totaluri zilnice, săptămânale și lunare pentru vânzări.",
   },
 ];
 
@@ -148,6 +172,12 @@ export const navigationEntries: NavigationEntry[] = [
     icon: "ShoppingCart",
   },
   {
+    section: "retururi",
+    label: "Retururi",
+    description: "Produse returnate",
+    icon: "ArrowRightLeft",
+  },
+  {
     section: "de-adus",
     label: "De adus în 110A",
     description: "Produse de reaprovizionat",
@@ -157,6 +187,12 @@ export const navigationEntries: NavigationEntry[] = [
     section: "fara-stoc",
     label: "Fără stoc 110A",
     description: "Indisponibile",
+    icon: "ClipboardList",
+  },
+  {
+    section: "inventar",
+    label: "Inventar",
+    description: "Stoc fizic vs. sistem",
     icon: "ClipboardList",
   },
   {
@@ -209,9 +245,21 @@ export const navigationEntries: NavigationEntry[] = [
     icon: "FileText",
   },
   {
+    section: "istoric",
+    label: "Istoric modificări",
+    description: "Jurnal audit",
+    icon: "FileText",
+  },
+  {
     section: "rapoarte",
     label: "Rapoarte",
     description: "Situații & vânzări",
+    icon: "BarChart3",
+  },
+  {
+    section: "statistici",
+    label: "Statistici",
+    description: "Totaluri & grafice",
     icon: "BarChart3",
   },
 ];
@@ -247,7 +295,7 @@ export const navigationGroups: NavGroup[] = [
     label: "Operațiuni",
     description: "Mișcări de stoc",
     icon: "ArrowRightLeft",
-    sections: ["receptii", "transferuri", "vanzari", "de-adus", "fara-stoc", "documente"],
+    sections: ["receptii", "transferuri", "vanzari", "retururi", "de-adus", "fara-stoc", "inventar", "documente", "istoric"],
   },
   {
     id: "nomenclatoare",
@@ -276,7 +324,7 @@ export const navigationGroups: NavGroup[] = [
     label: "Rapoarte",
     description: "Situații & vânzări",
     icon: "BarChart3",
-    sections: ["rapoarte"],
+    sections: ["rapoarte", "statistici"],
   },
 ];
 
