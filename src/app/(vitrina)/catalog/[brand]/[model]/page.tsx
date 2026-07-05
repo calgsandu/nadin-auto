@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getModelData } from "@/lib/vitrina/queries";
+import { productImage } from "@/lib/vitrina/images";
 import { Reveal, StaggerGroup } from "../../motion";
 
 export const revalidate = 3600;
@@ -103,34 +105,49 @@ export default async function ModelPage({
                 </h2>
               </Reveal>
               <StaggerGroup className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {group.products.map((product) => (
-                  <div
-                    key={product.id}
-                    data-stagger
-                    className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-colors hover:border-white/25"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="font-mono text-xs text-[#d97706]">
-                        {product.code ?? "—"}
+                {group.products.map((product) => {
+                  const image = productImage(product.code);
+                  return (
+                    <Link
+                      key={product.id}
+                      href={`/catalog/piesa/${product.id}`}
+                      data-stagger
+                      className="group rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-colors hover:border-[#d97706]/60"
+                    >
+                      {image ? (
+                        <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-xl border border-white/10">
+                          <Image
+                            src={image}
+                            alt={product.description}
+                            fill
+                            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                          />
+                        </div>
+                      ) : null}
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="font-mono text-xs text-[#d97706]">
+                          {product.code ?? "—"}
+                        </p>
+                        <span
+                          className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                            product.inStock
+                              ? "bg-emerald-400/10 text-emerald-300"
+                              : "bg-white/5 text-[#8f887c]"
+                          }`}
+                        >
+                          {product.inStock ? "În stoc" : "La comandă"}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-base font-medium leading-snug group-hover:text-[#d97706]">
+                        {product.description}
                       </p>
-                      <span
-                        className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                          product.inStock
-                            ? "bg-emerald-400/10 text-emerald-300"
-                            : "bg-white/5 text-[#8f887c]"
-                        }`}
-                      >
-                        {product.inStock ? "În stoc" : "La comandă"}
-                      </span>
-                    </div>
-                    <p className="mt-3 text-base font-medium leading-snug">
-                      {product.description}
-                    </p>
-                    <p className="mt-2 font-mono text-xs text-[#8f887c]">
-                      {product.fitLabel}
-                    </p>
-                  </div>
-                ))}
+                      <p className="mt-2 font-mono text-xs text-[#8f887c]">
+                        {product.fitLabel}
+                      </p>
+                    </Link>
+                  );
+                })}
               </StaggerGroup>
             </div>
           ))}

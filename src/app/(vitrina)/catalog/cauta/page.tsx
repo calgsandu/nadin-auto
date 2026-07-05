@@ -42,7 +42,7 @@ export default async function SearchPage({
         {hits.map((hit) => (
           <Link
             key={hit.id}
-            href={`/catalog/${hit.brandSlug}/${hit.modelSlug}`}
+            href={`/catalog/piesa/${hit.id}`}
             className="group flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-colors hover:border-[#d97706]/60 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="min-w-0">

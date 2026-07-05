@@ -178,6 +178,90 @@ export const getModelData = cache(
   },
 );
 
+export type ProductDetails = {
+  id: string;
+  code: string | null;
+  description: string;
+  notes: string | null;
+  inStock: boolean;
+  type: string;
+  fitLabel: string;
+  years: string | null;
+  brand: { name: string; slug: string };
+  model: { name: string; slug: string };
+  related: (PublicProduct & { type: string })[];
+};
+
+export const getProductDetails = cache(
+  async (id: string): Promise<ProductDetails | null> => {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        type: true,
+        fitment: { include: { carModel: { include: { brand: true } } } },
+      },
+    });
+    if (!product) return null;
+
+    const fitment = product.fitment;
+    const carModel = fitment.carModel;
+    let years: string | null = null;
+    if (fitment.yearStart != null) {
+      const to = fitment.yearOpenEnded
+        ? "prezent"
+        : fitment.yearEnd != null
+          ? String(fitment.yearEnd)
+          : null;
+      years = to ? `${fitment.yearStart} – ${to}` : `din ${fitment.yearStart}`;
+    }
+
+    const sameType = await prisma.product.findMany({
+      where: {
+        id: { not: product.id },
+        fitment: { carModelId: carModel.id },
+        typeId: product.typeId,
+      },
+      include: { type: true, fitment: true },
+      orderBy: { description: "asc" },
+      take: 6,
+    });
+    const fill =
+      sameType.length < 6
+        ? await prisma.product.findMany({
+            where: {
+              id: { notIn: [product.id, ...sameType.map((entry) => entry.id)] },
+              fitment: { carModelId: carModel.id },
+            },
+            include: { type: true, fitment: true },
+            orderBy: { description: "asc" },
+            take: 6 - sameType.length,
+          })
+        : [];
+    const related = [...sameType, ...fill];
+
+    return {
+      id: product.id,
+      code: product.externalCode,
+      description: product.description,
+      notes: product.notes,
+      inStock: (product.stock ?? 0) > 0,
+      type: product.type.name,
+      fitLabel: fitment.label,
+      years,
+      brand: { name: carModel.brand.name, slug: slugify(carModel.brand.name) },
+      model: { name: carModel.name, slug: slugify(carModel.name) },
+      related: related.map((entry) => ({
+        id: entry.id,
+        code: entry.externalCode,
+        description: entry.description,
+        inStock: (entry.stock ?? 0) > 0,
+        fitLabel: entry.fitment.label,
+        type: entry.type.name,
+      })),
+    };
+  },
+);
+
 export type SearchHit = PublicProduct & {
   type: string;
   brand: string;
@@ -187,20 +271,28 @@ export type SearchHit = PublicProduct & {
 };
 
 export async function searchPublicProducts(query: string): Promise<SearchHit[]> {
-  const term = query.trim();
-  if (term.length < 2) return [];
+  const terms = query.trim().split(/\s+/).filter((term) => term.length >= 2);
+  if (terms.length === 0) return [];
   const products = await prisma.product.findMany({
     where: {
-      OR: [
-        { description: { contains: term, mode: "insensitive" } },
-        { externalCode: { contains: term, mode: "insensitive" } },
-        { fitment: { carModel: { name: { contains: term, mode: "insensitive" } } } },
-        {
-          fitment: {
-            carModel: { brand: { name: { contains: term, mode: "insensitive" } } },
+      AND: terms.map((term) => ({
+        OR: [
+          { description: { contains: term, mode: "insensitive" as const } },
+          { externalCode: { contains: term, mode: "insensitive" as const } },
+          {
+            fitment: {
+              carModel: { name: { contains: term, mode: "insensitive" as const } },
+            },
           },
-        },
-      ],
+          {
+            fitment: {
+              carModel: {
+                brand: { name: { contains: term, mode: "insensitive" as const } },
+              },
+            },
+          },
+        ],
+      })),
     },
     include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } },
     orderBy: { description: "asc" },
