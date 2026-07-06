@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getModelData } from "@/lib/vitrina/queries";
-import { productImage } from "@/lib/vitrina/images";
+import { productImage, modelImage } from "@/lib/vitrina/images";
 import { Reveal, StaggerGroup } from "../../motion";
 
 export const revalidate = 3600;
@@ -27,6 +27,7 @@ export default async function ModelPage({
   const activeGroups = tip
     ? data.groups.filter((group) => group.slug === tip)
     : data.groups;
+  const photo = modelImage(data.brand.slug, data.model.slug);
 
   return (
     <>
@@ -37,7 +38,7 @@ export default async function ModelPage({
         >
           {data.model.name}
         </p>
-        <div className="relative mx-auto max-w-6xl px-6 pb-14 pt-36 md:pb-20 md:pt-44">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 pb-14 pt-36 md:grid-cols-[1.1fr_1fr] md:pb-20 md:pt-44">
           <Reveal>
             <p className="text-sm text-[#8f887c]">
               <Link href="/catalog" className="transition-colors hover:text-[#f4f1ea]">
@@ -60,6 +61,20 @@ export default async function ModelPage({
               {data.model.years ?? "toți anii"} · {numberFormat.format(total)} piese
             </p>
           </Reveal>
+          {photo ? (
+            <Reveal delay={0.1}>
+              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 bg-white">
+                <Image
+                  src={photo}
+                  alt={`${data.brand.name} ${data.model.name}`}
+                  fill
+                  priority
+                  sizes="(min-width: 768px) 45vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            </Reveal>
+          ) : null}
         </div>
       </section>
 

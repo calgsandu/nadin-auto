@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getBrandData, getShowroomData } from "@/lib/vitrina/queries";
-import { brandLogo } from "@/lib/vitrina/images";
+import { brandLogo, modelImage } from "@/lib/vitrina/images";
 import { Reveal, StaggerGroup } from "../motion";
 
 export const revalidate = 3600;
@@ -68,26 +68,42 @@ export default async function BrandPage({
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
         <StaggerGroup className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {brand.models.map((model) => (
-            <Link
-              key={model.slug}
-              href={`/catalog/${brand.slug}/${model.slug}`}
-              data-stagger
-              className="group flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-colors hover:border-[#d97706]/60 hover:bg-[#d97706]/5"
-            >
-              <div className="min-w-0">
-                <p className="truncate text-xl font-semibold tracking-tight group-hover:text-[#d97706]">
-                  {model.name}
-                </p>
-                <p className="mt-2 font-mono text-xs text-[#8f887c]">
-                  {model.years ?? "toți anii"}
-                </p>
-              </div>
-              <span className="shrink-0 rounded-full border border-white/10 px-3 py-1.5 font-mono text-xs text-[#b5afa4]">
-                {numberFormat.format(model.productCount)}
-              </span>
-            </Link>
-          ))}
+          {brand.models.map((model) => {
+            const photo = modelImage(brand.slug, model.slug);
+            return (
+              <Link
+                key={model.slug}
+                href={`/catalog/${brand.slug}/${model.slug}`}
+                data-stagger
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] transition-colors hover:border-[#d97706]/60"
+              >
+                {photo ? (
+                  <div className="relative aspect-[4/3] overflow-hidden bg-white">
+                    <Image
+                      src={photo}
+                      alt={`${brand.name} ${model.name}`}
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                  </div>
+                ) : null}
+                <div className="flex items-center justify-between gap-4 p-6">
+                  <div className="min-w-0">
+                    <p className="truncate text-xl font-semibold tracking-tight group-hover:text-[#d97706]">
+                      {model.name}
+                    </p>
+                    <p className="mt-2 font-mono text-xs text-[#8f887c]">
+                      {model.years ?? "toți anii"}
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-white/10 px-3 py-1.5 font-mono text-xs text-[#b5afa4]">
+                    {numberFormat.format(model.productCount)}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </StaggerGroup>
       </section>
     </>

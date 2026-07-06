@@ -66,3 +66,20 @@ export function brandLogo(brandSlug: string): string | null {
   }
   return logoCache.has(`${brandSlug}.png`) ? `/branduri/${brandSlug}.png` : null;
 }
+
+// ponytail: cache model-image filenames per process
+let modelCache: Set<string> | null = null;
+const MODEL_DIR = path.join(process.cwd(), "public", "modele");
+
+/** Poză reală a modelului (public/modele/<brand>__<model>.jpg), null dacă lipsește. */
+export function modelImage(brandSlug: string, modelSlug: string): string | null {
+  if (!modelCache) {
+    try {
+      modelCache = new Set(fs.readdirSync(MODEL_DIR));
+    } catch {
+      modelCache = new Set();
+    }
+  }
+  const name = `${brandSlug}__${modelSlug}.jpg`;
+  return modelCache.has(name) ? `/modele/${name}` : null;
+}
