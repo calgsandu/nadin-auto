@@ -66,18 +66,34 @@ export default async function CatalogPage() {
         </HeroIntro>
       </section>
 
-      <section className="border-y border-white/10 py-6" aria-hidden>
-        <div className="flex w-max animate-[vitrina-marquee_60s_linear_infinite] gap-12 whitespace-nowrap">
+      <section className="overflow-hidden border-y border-white/10 py-8" aria-hidden>
+        <div className="flex w-max animate-[vitrina-marquee_70s_linear_infinite] gap-4">
           {[0, 1].map((copy) => (
-            <div key={copy} className="flex gap-12">
-              {brands.map((brand) => (
-                <span
-                  key={`${copy}-${brand.slug}`}
-                  className="text-lg font-semibold uppercase tracking-[0.2em] text-[#57524a]"
-                >
-                  {brand.name}
-                </span>
-              ))}
+            <div key={copy} className="flex gap-4">
+              {brands.map((brand) => {
+                const logo = brandLogo(brand.slug);
+                return (
+                  <span
+                    key={`${copy}-${brand.slug}`}
+                    className="grid h-16 w-28 shrink-0 place-items-center rounded-2xl bg-white/95 p-3.5"
+                    title={brand.name}
+                  >
+                    {logo ? (
+                      <Image
+                        src={logo}
+                        alt={brand.name}
+                        width={112}
+                        height={64}
+                        className="h-full w-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-sm font-semibold uppercase tracking-wider text-[#1b1a17]">
+                        {brand.name}
+                      </span>
+                    )}
+                  </span>
+                );
+              })}
             </div>
           ))}
         </div>

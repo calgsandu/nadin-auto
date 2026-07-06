@@ -28,6 +28,7 @@ import {
   type ProductFormValue,
 } from "@/app/catalog/product-form-dialog";
 import { ProductDeleteButton } from "@/app/catalog/product-delete-button";
+import { LabelPicker } from "@/app/catalog/label-picker";
 import { CurrencyWidget } from "@/app/rapoarte/currency-widget";
 import {
   StockDocumentDialog,
@@ -1180,38 +1181,41 @@ function ProductWorkspace({
           </Link>
         </div>
 
-        <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
-              <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
-                <tr>
-                  <TableHead>Cod</TableHead>
-                  <TableHead>Compatibilitate</TableHead>
-                  <TableHead>Produs</TableHead>
-                  <TableHead align="right">Stoc</TableHead>
-                  <TableHead align="right">Preț vânzare</TableHead>
-                  {canModify ? <TableHead align="right">Cost aducere</TableHead> : null}
-                  {canModify ? <TableHead align="right">Acțiuni</TableHead> : null}
-                </tr>
-              </thead>
-              <tbody>
-                {catalog.products.map((product) => (
-                  <ProductRow
-                    key={product.id}
-                    canModify={canModify}
-                    catalog={catalog}
-                    product={product}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {catalog.products.length === 0 ? (
-            <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
-              Nu sunt produse pentru filtrele curente.
+        <LabelPicker>
+          <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
+                <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+                  <tr>
+                    {canModify ? <TableHead>{""}</TableHead> : null}
+                    <TableHead>Cod</TableHead>
+                    <TableHead>Compatibilitate</TableHead>
+                    <TableHead>Produs</TableHead>
+                    <TableHead align="right">Stoc</TableHead>
+                    <TableHead align="right">Preț vânzare</TableHead>
+                    {canModify ? <TableHead align="right">Cost aducere</TableHead> : null}
+                    {canModify ? <TableHead align="right">Acțiuni</TableHead> : null}
+                  </tr>
+                </thead>
+                <tbody>
+                  {catalog.products.map((product) => (
+                    <ProductRow
+                      key={product.id}
+                      canModify={canModify}
+                      catalog={catalog}
+                      product={product}
+                    />
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ) : null}
-        </div>
+            {catalog.products.length === 0 ? (
+              <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
+                Nu sunt produse pentru filtrele curente.
+              </div>
+            ) : null}
+          </div>
+        </LabelPicker>
 
         {catalog.productCount > pageSize ? (
           <div className="mt-3 flex items-center justify-between gap-3 text-sm">
@@ -1247,6 +1251,16 @@ function ProductRow({
 
   return (
     <tr className="motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]">
+      {canModify ? (
+        <TableCell>
+          <input
+            type="checkbox"
+            data-label-id={product.id}
+            aria-label={`Selectează ${product.description} pentru sticker`}
+            className="size-4 cursor-pointer accent-[#1b1a17]"
+          />
+        </TableCell>
+      ) : null}
       <TableCell className="font-mono text-xs font-semibold">{formatText(product.externalCode)}</TableCell>
       <TableCell>
         <p className="font-semibold text-[#1b1a17]">{model.brand.name} {model.name}</p>
