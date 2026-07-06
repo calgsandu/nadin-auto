@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getShowroomData } from "@/lib/vitrina/queries";
+import { brandLogo } from "@/lib/vitrina/images";
 import {
   HeroIntro,
   Reveal,
@@ -146,22 +147,38 @@ export default async function CatalogPage() {
           </h2>
         </Reveal>
         <StaggerGroup className="mt-14 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
-          {brands.map((brand) => (
-            <Link
-              key={brand.slug}
-              href={`/catalog/${brand.slug}`}
-              data-stagger
-              className="group rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-colors hover:border-[#d97706]/60 hover:bg-[#d97706]/5"
-            >
-              <p className="truncate text-base font-semibold tracking-tight group-hover:text-[#d97706]">
-                {brand.name}
-              </p>
-              <p className="mt-3 font-mono text-xs text-[#8f887c]">
-                {brand.modelCount} modele · {numberFormat.format(brand.productCount)}{" "}
-                piese
-              </p>
-            </Link>
-          ))}
+          {brands.map((brand) => {
+            const logo = brandLogo(brand.slug);
+            return (
+              <Link
+                key={brand.slug}
+                href={`/catalog/${brand.slug}`}
+                data-stagger
+                className="group rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-colors hover:border-[#d97706]/60 hover:bg-[#d97706]/5"
+              >
+                <div className="flex items-center gap-3">
+                  {logo ? (
+                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white/95 p-1.5">
+                      <Image
+                        src={logo}
+                        alt={brand.name}
+                        width={44}
+                        height={44}
+                        className="h-full w-full object-contain"
+                      />
+                    </span>
+                  ) : null}
+                  <p className="truncate text-base font-semibold tracking-tight group-hover:text-[#d97706]">
+                    {brand.name}
+                  </p>
+                </div>
+                <p className="mt-3 font-mono text-xs text-[#8f887c]">
+                  {brand.modelCount} modele · {numberFormat.format(brand.productCount)}{" "}
+                  piese
+                </p>
+              </Link>
+            );
+          })}
         </StaggerGroup>
       </section>
 

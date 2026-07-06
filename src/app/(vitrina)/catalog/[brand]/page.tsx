@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getBrandData, getShowroomData } from "@/lib/vitrina/queries";
+import { brandLogo } from "@/lib/vitrina/images";
 import { Reveal, StaggerGroup } from "../motion";
 
 export const revalidate = 3600;
@@ -22,6 +24,7 @@ export default async function BrandPage({
   if (!brand || brand.models.length === 0) notFound();
 
   const total = brand.models.reduce((sum, model) => sum + model.productCount, 0);
+  const logo = brandLogo(brand.slug);
 
   return (
     <>
@@ -40,9 +43,22 @@ export default async function BrandPage({
               </Link>{" "}
               / {brand.name}
             </p>
-            <h1 className="mt-4 text-5xl font-bold tracking-tight md:text-7xl">
-              {brand.name}
-            </h1>
+            <div className="mt-4 flex items-center gap-5">
+              {logo ? (
+                <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-white/95 p-3 md:size-24">
+                  <Image
+                    src={logo}
+                    alt={brand.name}
+                    width={96}
+                    height={96}
+                    className="h-full w-full object-contain"
+                  />
+                </span>
+              ) : null}
+              <h1 className="text-5xl font-bold tracking-tight md:text-7xl">
+                {brand.name}
+              </h1>
+            </div>
             <p className="mt-4 text-base text-[#b5afa4] md:text-lg">
               {brand.models.length} modele · {numberFormat.format(total)} piese
             </p>

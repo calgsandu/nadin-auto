@@ -50,3 +50,19 @@ export function typeImage(typeName: string): string {
   }
   return "/vitrina/depozit.jpg";
 }
+
+// ponytail: cache brand-logo filenames per process like product files
+let logoCache: Set<string> | null = null;
+const LOGO_DIR = path.join(process.cwd(), "public", "branduri");
+
+/** Logo real al mărcii (public/branduri/<slug>.png), null dacă lipsește. */
+export function brandLogo(brandSlug: string): string | null {
+  if (!logoCache) {
+    try {
+      logoCache = new Set(fs.readdirSync(LOGO_DIR));
+    } catch {
+      logoCache = new Set();
+    }
+  }
+  return logoCache.has(`${brandSlug}.png`) ? `/branduri/${brandSlug}.png` : null;
+}
