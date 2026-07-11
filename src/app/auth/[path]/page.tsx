@@ -1,12 +1,8 @@
 import { AuthView } from "@neondatabase/auth/react";
+import { redirect } from "next/navigation";
 import { LoginForm } from "@/app/auth/login-form";
 
 export const dynamicParams = false;
-
-const CUSTOM_PATHS: Record<string, "sign-in" | "sign-up"> = {
-  "sign-in": "sign-in",
-  "sign-up": "sign-up",
-};
 
 export default async function AuthPage({
   params,
@@ -14,12 +10,12 @@ export default async function AuthPage({
   params: Promise<{ path: string }>;
 }) {
   const { path } = await params;
-  const mode = CUSTOM_PATHS[path];
+  if (path === "sign-up") redirect("/auth/sign-in");
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f6f6f4] px-4 py-10">
-      {mode ? (
-        <LoginForm mode={mode} />
+      {path === "sign-in" ? (
+        <LoginForm />
       ) : (
         // Other Neon Auth flows (forgot/reset password, email verification, callback).
         <div className="w-full max-w-md">

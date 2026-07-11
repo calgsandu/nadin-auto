@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth/server";
-import { ensureAppUser } from "@/lib/users";
+import { findActiveAppUser } from "@/lib/users";
 import type { AppRole } from "@/generated/prisma/enums";
 
 export type CurrentAppUser = {
@@ -7,6 +7,8 @@ export type CurrentAppUser = {
   role: AppRole;
   name: string | null;
   email: string | null;
+  username: string | null;
+  active: true;
   mode: "authenticated";
 };
 
@@ -17,17 +19,16 @@ export async function getCurrentAppUser(): Promise<CurrentAppUser | null> {
     return null;
   }
 
-  const appUser = await ensureAppUser({
-    id: session.user.id,
-    email: session.user.email,
-    name: session.user.name,
-  });
+  const appUser = await findActiveAppUser(session.user.id);
+  if (!appUser) return null;
 
   return {
     id: appUser.id,
     role: appUser.role,
     name: appUser.name,
     email: appUser.email,
+    username: appUser.username,
+    active: true,
     mode: "authenticated",
   };
 }

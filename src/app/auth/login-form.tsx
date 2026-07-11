@@ -1,85 +1,35 @@
 "use client";
 
 import { useActionState, useState, type FormEvent } from "react";
-import { authenticateWithEmail } from "@/app/auth/actions";
+import { authenticateWithUsername } from "@/app/auth/actions";
 import {
-  getCredentialValidationMessage,
-  getSocialRedirectUrl,
+  getUsernameValidationMessage,
   initialAuthFormState,
-  type AuthMode,
 } from "@/app/auth/form-state";
-import { authClient } from "@/lib/auth/client";
 
-const COPY: Record<
-  AuthMode,
-  { title: string; subtitle: string; submit: string; switchText: string; switchCta: string; switchHref: string }
-> = {
-  "sign-in": {
-    title: "Bine ai revenit",
-    subtitle: "Autentifică-te ca să continui în panoul Nadin Auto.",
-    submit: "Autentificare",
-    switchText: "Nu ai cont?",
-    switchCta: "Creează unul",
-    switchHref: "/auth/sign-up",
-  },
-  "sign-up": {
-    title: "Creează cont",
-    subtitle: "Completează datele ca să începi să folosești panoul.",
-    submit: "Creează cont",
-    switchText: "Ai deja cont?",
-    switchCta: "Autentifică-te",
-    switchHref: "/auth/sign-in",
-  },
-};
-
-export function LoginForm({ mode }: { mode: AuthMode }) {
-  const copy = COPY[mode];
+export function LoginForm() {
   const [state, formAction, isPending] = useActionState(
-    authenticateWithEmail.bind(null, mode),
+    authenticateWithUsername,
     initialAuthFormState,
   );
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [googleError, setGoogleError] = useState<string | null>(null);
-  const [credentialError, setCredentialError] = useState<string | null>(null);
-  const error = credentialError ?? googleError ?? state.error;
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const error = validationError ?? state.error;
 
-  function handleEmailSubmit(event: FormEvent<HTMLFormElement>) {
-    setGoogleError(null);
-    setCredentialError(null);
-
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    setValidationError(null);
     const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "");
-    const password = String(formData.get("password") ?? "");
-    const validationError = getCredentialValidationMessage(mode, email, password);
-
-    if (validationError) {
+    const message = getUsernameValidationMessage(
+      String(formData.get("username") ?? ""),
+      String(formData.get("password") ?? ""),
+    );
+    if (message) {
       event.preventDefault();
-      setCredentialError(validationError);
-    }
-  }
-
-  async function handleGoogle() {
-    setCredentialError(null);
-    setGoogleError(null);
-    setGoogleLoading(true);
-    try {
-      const result = await authClient.signIn.social({ provider: "google", callbackURL: "/auth/callback" });
-      const redirectUrl = getSocialRedirectUrl(result);
-      if (redirectUrl) {
-        window.location.assign(redirectUrl);
-        return;
-      }
-      setGoogleError("Google nu a returnat linkul de autentificare. Încearcă din nou.");
-      setGoogleLoading(false);
-    } catch {
-      setGoogleError("Autentificarea cu Google a eșuat. Verifică dacă ai acces la contul Gmail și încearcă din nou.");
-      setGoogleLoading(false);
+      setValidationError(message);
     }
   }
 
   return (
     <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-[#e3e1dc] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.35)] md:grid-cols-2">
-      {/* Brand panel */}
       <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#1b1a17] p-10 text-white md:flex">
         <div
           aria-hidden
@@ -97,7 +47,7 @@ export function LoginForm({ mode }: { mode: AuthMode }) {
           </p>
         </div>
         <ul className="relative space-y-3 text-sm text-[#d6d3cd]">
-          {["Catalog cu 1.900+ produse", "Recepții, vânzări și transferuri", "Furnizori și roluri de personal"].map(
+          {["Catalog cu 1.900+ produse", "Recepții, vânzări și transferuri", "Acces controlat pentru personal"].map(
             (item) => (
               <li key={item} className="flex items-center gap-3">
                 <span className="size-1.5 shrink-0 rounded-full bg-[#d97706]" />
@@ -108,85 +58,52 @@ export function LoginForm({ mode }: { mode: AuthMode }) {
         </ul>
       </aside>
 
-      {/* Form panel */}
       <section className="bg-[#fafaf9] p-8 sm:p-10">
         <div className="md:hidden">
           <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#92400e]">
             Nadin Auto
           </p>
         </div>
-        <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">{copy.title}</h2>
-        <p className="mt-1 text-sm text-[#6f6b63]">{copy.subtitle}</p>
+        <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">Bine ai revenit</h2>
+        <p className="mt-1 text-sm text-[#6f6b63]">
+          Autentifică-te cu datele primite de la administrator.
+        </p>
 
-        <form action={formAction} onSubmit={handleEmailSubmit} noValidate className="mt-7 grid gap-4">
-          {mode === "sign-up" ? (
-            <Field label="Nume">
-              <input className={inputClassName} name="name" autoComplete="name" placeholder="ex. Ion Popescu" />
-            </Field>
-          ) : null}
-
-          <Field label="Email">
+        <form action={formAction} onSubmit={handleSubmit} noValidate className="mt-7 grid gap-4">
+          <Field label="Nume de utilizator">
             <input
               className={inputClassName}
-              name="email"
-              type="email"
-              autoComplete="email"
+              name="username"
+              autoComplete="username"
               required
-              placeholder="nume@exemplu.com"
+              autoCapitalize="none"
+              spellCheck={false}
+              placeholder="ex. ion"
             />
           </Field>
-
           <Field label="Parolă">
             <input
               className={inputClassName}
               name="password"
               type="password"
-              autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
+              autoComplete="current-password"
               required
               placeholder="••••••••"
             />
           </Field>
-
           {error ? (
             <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]">
               {error}
             </div>
           ) : null}
-
           <button
             type="submit"
             disabled={isPending}
             className="mt-1 h-11 rounded-md bg-[#1b1a17] text-sm font-semibold text-white transition-colors hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isPending ? "Se procesează..." : copy.submit}
+            {isPending ? "Se autentifică..." : "Autentificare"}
           </button>
         </form>
-
-        <div className="my-6 flex items-center gap-3 text-xs text-[#98948b]">
-          <span className="h-px flex-1 bg-[#e3e1dc]" />
-          sau
-          <span className="h-px flex-1 bg-[#e3e1dc]" />
-        </div>
-
-        <button
-          type="button"
-          onClick={handleGoogle}
-          disabled={googleLoading}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#e8e7e3] bg-white text-sm font-semibold text-[#1b1a17] transition-colors hover:bg-[#f6f6f4] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <GoogleIcon />
-          {googleLoading ? "Se conectează..." : "Continuă cu Google"}
-        </button>
-
-        <p className="mt-6 text-center text-sm text-[#6f6b63]">
-          {copy.switchText}{" "}
-          <a
-            href={copy.switchHref}
-            className="font-semibold text-[#1b1a17] underline decoration-[#d97706] underline-offset-4 hover:text-[#92400e]"
-          >
-            {copy.switchCta}
-          </a>
-        </p>
       </section>
     </div>
   );
@@ -203,14 +120,3 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 const inputClassName =
   "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/30 placeholder:text-[#98948b]";
-
-function GoogleIcon() {
-  return (
-    <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24">
-      <path fill="#4285F4" d="M23.06 12.25c0-.85-.07-1.47-.22-2.12H12.24v3.85h6.2c-.13 1.04-.8 2.6-2.3 3.65l-.02.14 3.34 2.58.23.02c2.13-1.97 3.36-4.86 3.36-8.12z" />
-      <path fill="#34A853" d="M12.24 24c3.04 0 5.59-1 7.45-2.73l-3.55-2.74c-.95.66-2.22 1.12-3.9 1.12-2.98 0-5.5-1.96-6.4-4.67l-.13.01-3.47 2.68-.05.13C3.93 21.3 7.8 24 12.24 24z" />
-      <path fill="#FBBC05" d="M5.84 14.98a7.4 7.4 0 0 1-.4-2.98c0-1.04.18-2.05.39-2.98l-.01-.2-3.51-2.72-.12.05A11.97 11.97 0 0 0 .24 12c0 1.93.46 3.76 1.27 5.38l4.33-2.4z" />
-      <path fill="#EB4335" d="M12.24 4.75c2.11 0 3.54.91 4.35 1.67l3.17-3.1C17.82 1.46 15.28.25 12.24.25 7.8.25 3.93 2.95 1.51 6.62l4.32 2.4c.91-2.71 3.43-4.27 6.41-4.27z" />
-    </svg>
-  );
-}

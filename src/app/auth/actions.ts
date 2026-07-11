@@ -2,53 +2,44 @@
 
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/server";
+import { prisma } from "@/lib/prisma";
+import { normalizeUsername } from "@/lib/auth/username";
 import { performLogout } from "@/app/auth/logout";
 import {
-  getCredentialValidationMessage,
-  getAuthErrorMessage,
-  getDefaultDisplayName,
+  getUsernameValidationMessage,
   type AuthFormState,
-  type AuthMode,
 } from "@/app/auth/form-state";
 
-export async function authenticateWithEmail(
-  mode: AuthMode,
+const INVALID_CREDENTIALS = "Nume de utilizator sau parolă greșite.";
+
+export async function authenticateWithUsername(
   _previousState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const email = String(formData.get("email") ?? "").trim();
+  const username = normalizeUsername(String(formData.get("username") ?? ""));
   const password = String(formData.get("password") ?? "");
-  const name = String(formData.get("name") ?? "");
-  const validationError = getCredentialValidationMessage(mode, email, password);
+  const validationError = getUsernameValidationMessage(username, password);
 
   if (validationError) {
     return { error: validationError };
   }
 
   try {
-    const result =
-      mode === "sign-up"
-        ? await auth.signUp.email({
-            email,
-            password,
-            name: getDefaultDisplayName(email, name),
-            callbackURL: "/",
-          })
-        : await auth.signIn.email({
-            email,
-            password,
-            callbackURL: "/",
-          });
+    const appUser = await prisma.appUser.findUnique({ where: { username } });
+    if (!appUser?.active || !appUser.email) {
+      return { error: INVALID_CREDENTIALS };
+    }
+    const result = await auth.signIn.email({
+      email: appUser.email,
+      password,
+      callbackURL: "/",
+    });
 
     if (result?.error) {
-      return { error: getAuthErrorMessage(result.error) };
+      return { error: INVALID_CREDENTIALS };
     }
-  } catch (error) {
-    return {
-      error: getAuthErrorMessage(
-        error instanceof Error ? { message: error.message } : null,
-      ),
-    };
+  } catch {
+    return { error: INVALID_CREDENTIALS };
   }
 
   redirect("/");

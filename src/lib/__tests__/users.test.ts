@@ -1,5 +1,7 @@
+import "dotenv/config";
 import assert from "node:assert/strict";
 import { getAdminEmails, resolveInitialRole } from "@/lib/auth/bootstrap";
+import { isActiveAppUser } from "@/lib/users";
 
 // resolveInitialRole: configured admin emails become ADMIN on first sign-in.
 const admins = ["calugareanusandu@gmail.com"];
@@ -16,5 +18,10 @@ process.env.NADIN_ADMIN_EMAILS = " A@b.com , c@d.com ,";
 assert.deepEqual(getAdminEmails(), ["a@b.com", "c@d.com"]);
 delete process.env.NADIN_ADMIN_EMAILS;
 assert.deepEqual(getAdminEmails(), []);
+
+assert.equal(isActiveAppUser(undefined), false);
+assert.equal(isActiveAppUser(null), false);
+assert.equal(isActiveAppUser({ active: false }), false);
+assert.equal(isActiveAppUser({ active: true }), true);
 
 console.log("users bootstrap tests passed");

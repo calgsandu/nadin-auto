@@ -2,8 +2,7 @@ import assert from "node:assert/strict";
 import {
   getDefaultDisplayName,
   getAuthErrorMessage,
-  getCredentialValidationMessage,
-  getSocialRedirectUrl,
+  getUsernameValidationMessage,
   initialAuthFormState,
 } from "@/app/auth/form-state";
 
@@ -38,36 +37,16 @@ assert.equal(
 );
 assert.equal(getAuthErrorMessage(null), "A apărut o eroare. Încearcă din nou.");
 
+assert.equal(getUsernameValidationMessage("", "parola123"), "Introdu numele de utilizator.");
 assert.equal(
-  getCredentialValidationMessage("sign-in", "", "parola123"),
-  "Introdu adresa de email.",
+  getUsernameValidationMessage("ion popescu", "parola123"),
+  "Folosește doar litere mici, cifre, punct, cratimă sau underscore.",
 );
+assert.equal(getUsernameValidationMessage("ion", ""), "Introdu parola.");
 assert.equal(
-  getCredentialValidationMessage("sign-in", "invalid", "parola123"),
-  "Adresa de email nu este validă. Exemplu: nume@gmail.com.",
-);
-assert.equal(
-  getCredentialValidationMessage("sign-in", "ion@gmail.com", ""),
-  "Introdu parola.",
-);
-assert.equal(
-  getCredentialValidationMessage("sign-in", "ion@gmail.com", "123"),
+  getUsernameValidationMessage("ion", "123"),
   "Parola introdusă este prea scurtă.",
 );
-assert.equal(
-  getCredentialValidationMessage("sign-up", "ion@gmail.com", "123"),
-  "Parola trebuie să aibă cel puțin 8 caractere.",
-);
-assert.equal(
-  getCredentialValidationMessage("sign-in", "ion@gmail.com", "parola123"),
-  null,
-);
-
-assert.equal(
-  getSocialRedirectUrl({ data: { url: "https://accounts.google.com/o/oauth2/v2/auth" } }),
-  "https://accounts.google.com/o/oauth2/v2/auth",
-);
-assert.equal(getSocialRedirectUrl({ data: { redirect: true } }), null);
-assert.equal(getSocialRedirectUrl(null), null);
+assert.equal(getUsernameValidationMessage("Ion_2", "parola123"), null);
 
 console.log("auth form-state tests passed");

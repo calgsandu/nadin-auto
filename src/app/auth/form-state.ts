@@ -1,8 +1,8 @@
+import { validateUsername } from "@/lib/auth/username";
+
 export type AuthFormState = {
   error: string | null;
 };
-
-export type AuthMode = "sign-in" | "sign-up";
 
 export const initialAuthFormState: AuthFormState = {
   error: null,
@@ -100,24 +100,15 @@ export function getAuthErrorMessage(
   return GENERIC_AUTH_ERROR;
 }
 
-export function getCredentialValidationMessage(
-  mode: AuthMode,
-  email: string,
+export function getUsernameValidationMessage(
+  username: string,
   password: string,
 ): string | null {
-  const trimmedEmail = email.trim();
-
-  if (!trimmedEmail) return "Introdu adresa de email.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-    return "Adresa de email nu este validă. Exemplu: nume@gmail.com.";
-  }
+  if (!username.trim()) return "Introdu numele de utilizator.";
+  const usernameError = validateUsername(username);
+  if (usernameError) return usernameError;
   if (!password) return "Introdu parola.";
-  if (password.length < 8) {
-    return mode === "sign-up"
-      ? "Parola trebuie să aibă cel puțin 8 caractere."
-      : "Parola introdusă este prea scurtă.";
-  }
-
+  if (password.length < 8) return "Parola introdusă este prea scurtă.";
   return null;
 }
 
@@ -125,17 +116,4 @@ export function getDefaultDisplayName(email: string, name: string): string {
   const trimmedName = name.trim();
   if (trimmedName) return trimmedName;
   return email.split("@")[0] || email;
-}
-
-export function getSocialRedirectUrl(result: unknown): string | null {
-  if (!result || typeof result !== "object" || !("data" in result)) {
-    return null;
-  }
-
-  const data = result.data;
-  if (!data || typeof data !== "object" || !("url" in data)) {
-    return null;
-  }
-
-  return typeof data.url === "string" ? data.url : null;
 }
