@@ -1,7 +1,4 @@
 import { auth } from "@/lib/auth/server";
-import { hashPassword } from "better-auth/crypto";
-import { prisma } from "@/lib/prisma";
-import { needsPasswordCredential } from "@/lib/staff/bootstrap";
 
 function assertResult<T extends { error?: { message?: string } | null }>(
   result: T,
@@ -26,21 +23,6 @@ export async function createAuthIdentity(input: {
 }
 
 export async function setAuthPassword(userId: string, newPassword: string) {
-  const accounts = await prisma.$queryRaw<Array<{ providerId: string }>>`
-    SELECT "providerId"
-    FROM neon_auth.account
-    WHERE "userId"::text = ${userId}
-  `;
-  if (needsPasswordCredential(accounts.map((account) => account.providerId))) {
-    const passwordHash = await hashPassword(newPassword);
-    await prisma.$executeRaw`
-      INSERT INTO neon_auth.account
-        ("accountId", "providerId", "userId", "password", "updatedAt")
-      VALUES
-        (${userId}, 'credential', CAST(${userId} AS uuid), ${passwordHash}, NOW())
-    `;
-    return;
-  }
   assertResult(
     await auth.admin.setUserPassword({ userId, newPassword }),
     "Parola nu a putut fi resetată.",
