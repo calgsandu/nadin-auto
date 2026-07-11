@@ -4,6 +4,7 @@ import {
   getAuthErrorMessage,
   getUsernameValidationMessage,
   initialAuthFormState,
+  validatePasswordChange,
 } from "@/app/auth/form-state";
 
 assert.deepEqual(initialAuthFormState, { error: null });
@@ -48,5 +49,22 @@ assert.equal(
   "Parola introdusă este prea scurtă.",
 );
 assert.equal(getUsernameValidationMessage("Ion_2", "parola123"), null);
+
+assert.equal(
+  validatePasswordChange("", "parolaNoua", "parolaNoua"),
+  "Introdu parola actuală.",
+);
+assert.equal(
+  validatePasswordChange("parola123", "scurta", "scurta"),
+  "Parola nouă trebuie să aibă cel puțin 8 caractere.",
+);
+assert.equal(
+  validatePasswordChange("parola123", "parolaNoua", "altaParola"),
+  "Parolele noi nu coincid.",
+);
+assert.equal(
+  validatePasswordChange("parola123", "parolaNoua", "parolaNoua"),
+  null,
+);
 
 console.log("auth form-state tests passed");

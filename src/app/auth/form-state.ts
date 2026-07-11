@@ -112,6 +112,22 @@ export function getUsernameValidationMessage(
   return null;
 }
 
+export function validatePasswordChange(
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string,
+): string | null {
+  if (!currentPassword) return "Introdu parola actuală.";
+  if (newPassword.length < 8) {
+    return "Parola nouă trebuie să aibă cel puțin 8 caractere.";
+  }
+  if (newPassword.length > 128) {
+    return "Parola nouă poate avea cel mult 128 de caractere.";
+  }
+  if (newPassword !== confirmPassword) return "Parolele noi nu coincid.";
+  return null;
+}
+
 export function getDefaultDisplayName(email: string, name: string): string {
   const trimmedName = name.trim();
   if (trimmedName) return trimmedName;

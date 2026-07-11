@@ -22,6 +22,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { logoutAction } from "@/app/auth/actions";
+import { ChangePasswordDialog } from "@/app/account/change-password-dialog";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
 import {
   ProductFormDialog,
@@ -312,6 +313,7 @@ function Sidebar({
           <div className="rounded-full border border-[#e8e7e3] bg-[#f6f6f4] px-2.5 py-1 text-[11px] font-semibold text-[#6f6b63]">
             {role}
           </div>
+          <ChangePasswordDialog compact />
           <LogoutButton compact />
         </div>
       </div>
@@ -349,7 +351,10 @@ function Sidebar({
               {role}
             </p>
           </div>
-          <LogoutButton compact />
+          <div className="flex items-center gap-1.5">
+            <ChangePasswordDialog compact />
+            <LogoutButton compact />
+          </div>
         </div>
       </div>
     </nav>
