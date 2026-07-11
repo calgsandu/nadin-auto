@@ -50,7 +50,12 @@ import {
 import { RestoreButton } from "@/app/istoric/restore-button";
 import { ReturnDialog, type ReturnableSale } from "@/app/operations/return-dialog";
 import { RestockCheckbox } from "@/app/operations/restock-checkbox";
-import { RoleForm, StaffDeleteButton } from "@/app/staff/role-form";
+import { RoleForm } from "@/app/staff/role-form";
+import {
+  CreateStaffDialog,
+  ResetPasswordDialog,
+  StaffActiveButton,
+} from "@/app/staff/staff-dialogs";
 import {
   AdminDeleteButton,
   BrandDialog,
@@ -227,6 +232,9 @@ export default async function Home({ searchParams }: HomeProps) {
               ) : null}
               {canModify && activeSectionId === "furnizori" ? (
                 <PartnerFormDialog triggerLabel="Adaugă furnizor" />
+              ) : null}
+              {activeSectionId === "personal" && canManageStaff(appUser.role) ? (
+                <CreateStaffDialog />
               ) : null}
               {canModify && catalogAdminPromise ? (
                 <Suspense fallback={<ButtonSkeleton />}>
@@ -2191,7 +2199,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
           </p>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[900px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 <TableHead>Cod</TableHead>
@@ -2499,8 +2507,9 @@ function StaffWorkspace({
             <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 <TableHead>Nume</TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>Utilizator</TableHead>
                 <TableHead>Rol curent</TableHead>
+                <TableHead>Stare</TableHead>
                 <TableHead align="right">Acțiuni</TableHead>
               </tr>
             </thead>
@@ -2514,16 +2523,32 @@ function StaffWorkspace({
                     {formatText(user.name)}
                   </TableCell>
                   <TableCell className="text-[#6f6b63]">
-                    {formatText(user.email)}
+                    <span className="font-mono">{formatText(user.username)}</span>
                   </TableCell>
                   <TableCell>{formatRole(user.role)}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        user.active
+                          ? "bg-[#f0fdf4] text-[#166534]"
+                          : "bg-[#fef2f2] text-[#b91c1c]"
+                      }`}
+                    >
+                      {user.active ? "Activ" : "Dezactivat"}
+                    </span>
+                  </TableCell>
                   <TableCell align="right">
                     <div className="flex flex-wrap justify-end gap-2">
                       <RoleForm userId={user.id} currentRole={user.role} />
+                      <ResetPasswordDialog
+                        userId={user.id}
+                        username={user.username ?? user.name ?? user.id}
+                      />
                       {user.id !== currentUserId ? (
-                        <StaffDeleteButton
+                        <StaffActiveButton
                           userId={user.id}
-                          label={user.name ?? user.email ?? user.id}
+                          active={user.active}
+                          label={user.username ?? user.name ?? user.id}
                         />
                       ) : null}
                     </div>
