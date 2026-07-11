@@ -101,9 +101,11 @@ export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typ
 export const AppUserScalarFieldEnum = {
   id: 'id',
   authUserId: 'authUserId',
+  username: 'username',
   email: 'email',
   name: 'name',
   role: 'role',
+  active: 'active',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

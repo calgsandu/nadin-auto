@@ -11,6 +11,7 @@
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "db:push": "prisma db push",
+    "staff:bootstrap": "tsx scripts/bootstrap-staff-accounts.ts",
     "import:products": "tsx scripts/import-products.ts"
   },
   "dependencies": {

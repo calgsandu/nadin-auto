@@ -501,10 +501,6 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type VehicleFitmentCreateNestedOneWithoutProductsInput = {
   create?: Prisma.XOR<Prisma.VehicleFitmentCreateWithoutProductsInput, Prisma.VehicleFitmentUncheckedCreateWithoutProductsInput>
   connectOrCreate?: Prisma.VehicleFitmentCreateOrConnectWithoutProductsInput
