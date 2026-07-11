@@ -7,9 +7,10 @@ export async function getStaffData() {
   const users = await prisma.appUser.findMany();
 
   users.sort((a, b) => {
+    if (a.active !== b.active) return a.active ? -1 : 1;
     const byRole = ROLE_ORDER[a.role] - ROLE_ORDER[b.role];
     if (byRole !== 0) return byRole;
-    return (a.name ?? a.email ?? "").localeCompare(b.name ?? b.email ?? "");
+    return (a.name ?? a.username ?? "").localeCompare(b.name ?? b.username ?? "");
   });
 
   return { users };
