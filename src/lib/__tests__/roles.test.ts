@@ -5,6 +5,7 @@ import {
   canViewSection,
   canWriteCatalog,
   wouldDeleteLastAdmin,
+  wouldDeactivateLastAdmin,
   wouldRemoveLastAdmin,
 } from "@/lib/roles";
 
@@ -63,6 +64,37 @@ assert.equal(
   wouldDeleteLastAdmin(twoAdmins, "a"),
   false,
   "Cu doi admini, unul poate fi șters.",
+);
+
+assert.equal(
+  wouldDeactivateLastAdmin(
+    [{ id: "a", role: "ADMIN" as const, active: true }],
+    "a",
+  ),
+  true,
+  "Singurul administrator activ nu poate fi dezactivat.",
+);
+assert.equal(
+  wouldDeactivateLastAdmin(
+    [
+      { id: "a", role: "ADMIN" as const, active: true },
+      { id: "b", role: "ADMIN" as const, active: false },
+    ],
+    "a",
+  ),
+  true,
+  "Un administrator deja dezactivat nu protejează accesul.",
+);
+assert.equal(
+  wouldDeactivateLastAdmin(
+    [
+      { id: "a", role: "ADMIN" as const, active: true },
+      { id: "b", role: "ADMIN" as const, active: true },
+    ],
+    "a",
+  ),
+  false,
+  "Cu doi administratori activi, unul poate fi dezactivat.",
 );
 
 // canCreateSales: toate rolurile autentificate pot vinde.

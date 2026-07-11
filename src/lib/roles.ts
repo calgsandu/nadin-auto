@@ -62,3 +62,17 @@ export function wouldDeleteLastAdmin(
   ).length;
   return remainingAdmins === 0;
 }
+
+/** Guard against disabling the final active ADMIN account. */
+export function wouldDeactivateLastAdmin(
+  users: { id: string; role: AppRole; active: boolean }[],
+  targetUserId: string,
+) {
+  const target = users.find((user) => user.id === targetUserId);
+  if (target?.role !== "ADMIN" || !target.active) return false;
+
+  return !users.some(
+    (user) =>
+      user.id !== targetUserId && user.role === "ADMIN" && user.active,
+  );
+}
