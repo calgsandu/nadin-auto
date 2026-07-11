@@ -7,7 +7,7 @@ Panoul intern Nadin Auto nu permite înregistrarea publică. Numai un utilizator
 ## Decizii aprobate
 
 - Păstrăm Neon Auth pentru stocarea sigură a parolelor și gestionarea sesiunilor.
-- Eliminăm înregistrarea publică și autentificarea Google din interfață.
+- Eliminăm înregistrarea publică. Google rămâne numai pentru identitățile deja aprobate, ca administratorul legacy să nu fie blocat; o identitate Google nouă nu primește profil sau acces.
 - Administratorul creează contul, alege rolul și stabilește ori generează parola inițială.
 - Parola este afișată numai în rezultatul acțiunii de creare sau resetare. Nu este salvată în baza aplicației și nu poate fi recuperată ulterior.
 - Schimbarea parolei de către utilizator este disponibilă, dar nu obligatorie.
@@ -34,7 +34,7 @@ Crearea, resetarea parolei, blocarea și deblocarea folosesc metodele administra
 ## Controlul accesului
 
 - Ruta `/auth/sign-up` nu mai oferă formular de înregistrare și redirecționează la autentificare.
-- Formularul de autentificare nu mai afișează Google sau linkul de creare cont.
+- Formularul nu afișează link de creare cont. Google este marcat explicit „doar conturi existente”, iar accesul rămâne condiționat de un `AppUser` activ.
 - Endpointul proxy de autentificare respinge explicit cererile de creare publică a contului.
 - După validarea sesiunii Neon Auth, aplicația caută un `AppUser` existent după `authUserId`.
 - Nu se mai creează automat un `AppUser` la prima autentificare.
@@ -102,7 +102,7 @@ Implementarea trebuie să includă un pas repetabil de migrare/backfill și o ve
 ## Testare și criterii de acceptare
 
 - Pagina și endpointul public de sign-up nu mai permit crearea conturilor.
-- Google nu mai este disponibil în autentificarea panoului.
+- Google nu poate acorda acces unei identități care nu are deja un `AppUser` activ.
 - Numai `ADMIN` poate crea, reseta, dezactiva și reactiva conturi.
 - Un cont nou se poate autentifica prin username și primește rolul selectat.
 - Un username duplicat sau invalid este respins.
@@ -120,5 +120,5 @@ Implementarea trebuie să includă un pas repetabil de migrare/backfill și o ve
 - recuperarea parolei prin email;
 - obligarea schimbării parolei la prima autentificare;
 - conturi comune pentru mai mulți angajați;
-- autentificare socială;
+- acordarea automată a accesului prin autentificare socială;
 - ștergerea definitivă a conturilor folosite.

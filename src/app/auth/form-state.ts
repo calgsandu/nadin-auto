@@ -128,6 +128,13 @@ export function validatePasswordChange(
   return null;
 }
 
+export function getSocialRedirectUrl(result: unknown): string | null {
+  if (!result || typeof result !== "object" || !("data" in result)) return null;
+  const data = result.data;
+  if (!data || typeof data !== "object" || !("url" in data)) return null;
+  return typeof data.url === "string" ? data.url : null;
+}
+
 export function getDefaultDisplayName(email: string, name: string): string {
   const trimmedName = name.trim();
   if (trimmedName) return trimmedName;

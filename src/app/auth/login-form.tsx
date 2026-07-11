@@ -3,9 +3,11 @@
 import { useActionState, useState, type FormEvent } from "react";
 import { authenticateWithUsername } from "@/app/auth/actions";
 import {
+  getSocialRedirectUrl,
   getUsernameValidationMessage,
   initialAuthFormState,
 } from "@/app/auth/form-state";
+import { authClient } from "@/lib/auth/client";
 
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState(
@@ -13,7 +15,9 @@ export function LoginForm() {
     initialAuthFormState,
   );
   const [validationError, setValidationError] = useState<string | null>(null);
-  const error = validationError ?? state.error;
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
+  const error = validationError ?? googleError ?? state.error;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     setValidationError(null);
@@ -26,6 +30,27 @@ export function LoginForm() {
       event.preventDefault();
       setValidationError(message);
     }
+  }
+
+  async function handleGoogle() {
+    setValidationError(null);
+    setGoogleError(null);
+    setGoogleLoading(true);
+    try {
+      const result = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/auth/callback",
+      });
+      const redirectUrl = getSocialRedirectUrl(result);
+      if (redirectUrl) {
+        window.location.assign(redirectUrl);
+        return;
+      }
+      setGoogleError("Google nu a returnat linkul de autentificare.");
+    } catch {
+      setGoogleError("Autentificarea Google nu a putut fi pornită.");
+    }
+    setGoogleLoading(false);
   }
 
   return (
@@ -104,6 +129,24 @@ export function LoginForm() {
             {isPending ? "Se autentifică..." : "Autentificare"}
           </button>
         </form>
+
+        <div className="my-6 flex items-center gap-3 text-xs text-[#98948b]">
+          <span className="h-px flex-1 bg-[#e3e1dc]" />
+          cont existent
+          <span className="h-px flex-1 bg-[#e3e1dc]" />
+        </div>
+        <button
+          type="button"
+          onClick={handleGoogle}
+          disabled={googleLoading}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#e8e7e3] bg-white text-sm font-semibold text-[#1b1a17] transition-colors hover:bg-[#f6f6f4] disabled:opacity-60"
+        >
+          <GoogleIcon />
+          {googleLoading ? "Se conectează..." : "Google — doar conturi existente"}
+        </button>
+        <p className="mt-3 text-center text-xs leading-relaxed text-[#98948b]">
+          Google nu acordă acces conturilor noi; panoul acceptă numai personalul aprobat.
+        </p>
       </section>
     </div>
   );
@@ -120,3 +163,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 const inputClassName =
   "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/30 placeholder:text-[#98948b]";
+
+function GoogleIcon() {
+  return (
+    <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24">
+      <path fill="#4285F4" d="M23.06 12.25c0-.85-.07-1.47-.22-2.12H12.24v3.85h6.2c-.13 1.04-.8 2.6-2.3 3.65l-.02.14 3.34 2.58.23.02c2.13-1.97 3.36-4.86 3.36-8.12z" />
+      <path fill="#34A853" d="M12.24 24c3.04 0 5.59-1 7.45-2.73l-3.55-2.74c-.95.66-2.22 1.12-3.9 1.12-2.98 0-5.5-1.96-6.4-4.67l-.13.01-3.47 2.68-.05.13C3.93 21.3 7.8 24 12.24 24z" />
+      <path fill="#FBBC05" d="M5.84 14.98a7.4 7.4 0 0 1-.4-2.98c0-1.04.18-2.05.39-2.98l-.01-.2-3.51-2.72-.12.05A11.97 11.97 0 0 0 .24 12c0 1.93.46 3.76 1.27 5.38l4.33-2.4z" />
+      <path fill="#EB4335" d="M12.24 4.75c2.11 0 3.54.91 4.35 1.67l3.17-3.1C17.82 1.46 15.28.25 12.24.25 7.8.25 3.93 2.95 1.51 6.62l4.32 2.4c.91-2.71 3.43-4.27 6.41-4.27z" />
+    </svg>
+  );
+}

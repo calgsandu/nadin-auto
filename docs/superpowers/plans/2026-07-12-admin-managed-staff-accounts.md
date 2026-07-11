@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Public sign-up and Google authentication must not appear or grant panel access.
+- Public sign-up must not appear or work. Google may preserve legacy access but cannot grant panel access without an active pre-provisioned `AppUser`.
 - Passwords must never be stored in Prisma, audit details, logs, URLs, or recoverable UI state.
 - Usernames are lowercase, 3–32 characters, and contain only `a-z`, `0-9`, `.`, `_`, or `-`.
 - Password change at first login is optional.
@@ -177,9 +177,9 @@ Keep the existing return shape and include `username` and `active` in `CurrentAp
 
 Normalize and validate `formData.get("username")`; look up an active user by username; use its stored email for `auth.signIn.email`. Return the same generic message for missing username, inactive account, or bad password: `Nume de utilizator sau parolă greșite.`
 
-- [ ] **Step 5: Remove public registration and Google**
+- [ ] **Step 5: Remove public registration and gate legacy Google access**
 
-Render only sign-in mode, redirect `/auth/sign-up` to `/auth/sign-in`, remove `authClient.signIn.social`, and remove all sign-up links/copy.
+Render only sign-in mode, redirect `/auth/sign-up` to `/auth/sign-in`, and remove all sign-up links/copy. Keep Google visibly labeled for existing accounts only; the provisioned-only access lookup remains the mandatory authorization gate after OAuth.
 
 Wrap the auth handler so POST requests whose catch-all path is `sign-up/email` return `Response.json({ error: "Înregistrarea publică este dezactivată." }, { status: 403 })`; delegate every other request to Neon Auth.
 
@@ -345,7 +345,7 @@ Expected: at least one active admin with username; no password output; no duplic
 
 - [ ] **Step 4: Verify auth surface manually over HTTP**
 
-Start `pnpm dev:http`, then confirm `/auth/sign-in` contains no `Creează cont` or Google text and a POST to `/api/auth/sign-up/email` returns 403. Confirm an inactive or unprovisioned identity is redirected to sign-in.
+Start `pnpm dev:http`, then confirm `/auth/sign-in` contains no `Creează cont`, labels Google for existing accounts only, and a POST to `/api/auth/sign-up/email` returns 403. Confirm an inactive or unprovisioned identity is redirected to sign-in.
 
 - [ ] **Step 5: Review password secrecy and dirty-worktree isolation**
 

@@ -3,6 +3,7 @@ import {
   getDefaultDisplayName,
   getAuthErrorMessage,
   getUsernameValidationMessage,
+  getSocialRedirectUrl,
   initialAuthFormState,
   validatePasswordChange,
 } from "@/app/auth/form-state";
@@ -66,5 +67,11 @@ assert.equal(
   validatePasswordChange("parola123", "parolaNoua", "parolaNoua"),
   null,
 );
+
+assert.equal(
+  getSocialRedirectUrl({ data: { url: "https://accounts.google.com/o/oauth2/v2/auth" } }),
+  "https://accounts.google.com/o/oauth2/v2/auth",
+);
+assert.equal(getSocialRedirectUrl({ data: { redirect: true } }), null);
 
 console.log("auth form-state tests passed");
