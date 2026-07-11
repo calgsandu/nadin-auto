@@ -13,6 +13,7 @@ import { technicalEmailForUsername } from "@/lib/auth/username";
 import {
   banAuthIdentity,
   createAuthIdentity,
+  getAuthProviderIds,
   removeAuthIdentity,
   revokeAuthSessions,
   setAuthPassword,
@@ -20,6 +21,7 @@ import {
 } from "@/lib/staff/auth-admin";
 import {
   parseCreateStaffInput,
+  needsPasswordMigration,
   parsePassword,
   parseUserId,
 } from "@/lib/staff/validate";
@@ -119,18 +121,45 @@ export async function resetStaffPasswordAction(
     const target = await prisma.appUser.findUnique({ where: { id: userId } });
     if (!target) throw new Error("Utilizatorul nu există.");
 
-    await setAuthPassword(target.authUserId, password);
-    await revokeAuthSessions(target.authUserId);
+    const providers = await getAuthProviderIds(target.authUserId);
+    const migrateToPassword = needsPasswordMigration(providers);
+    if (migrateToPassword) {
+      if (!target.username) {
+        throw new Error("Contul trebuie să aibă un username înainte de migrare.");
+      }
+      const oldAuthUserId = target.authUserId;
+      const email = technicalEmailForUsername(target.username);
+      const newAuthUserId = await createAuthIdentity({
+        email,
+        password,
+        name: target.name ?? target.username,
+      });
+      try {
+        await prisma.appUser.update({
+          where: { id: target.id },
+          data: { authUserId: newAuthUserId, email },
+        });
+      } catch (error) {
+        await removeAuthIdentity(newAuthUserId).catch(() => undefined);
+        throw error;
+      }
+      await revokeAuthSessions(oldAuthUserId).catch(() => undefined);
+    } else {
+      await setAuthPassword(target.authUserId, password);
+      await revokeAuthSessions(target.authUserId);
+    }
     await logAudit(prisma, admin, {
       action: "UPDATE",
       entity: "AppUser",
       entityId: target.id,
-      summary: `Parolă resetată pentru ${target.username ?? target.name ?? target.id}`,
-      details: { username: target.username },
+      summary: `${migrateToPassword ? "Cont migrat la username/parolă" : "Parolă resetată"} pentru ${target.username ?? target.name ?? target.id}`,
+      details: { username: target.username, migratedFromSocial: migrateToPassword },
     });
     return {
       ok: true,
-      message: "Parola a fost resetată.",
+      message: migrateToPassword
+        ? "Contul a fost migrat la autentificare cu username și parolă. Autentifică-te din nou."
+        : "Parola a fost resetată.",
       revealedPassword: password,
     };
   } catch (error) {

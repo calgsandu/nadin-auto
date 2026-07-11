@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
-import { parseCreateStaffInput, parsePassword } from "@/lib/staff/validate";
+import {
+  needsPasswordMigration,
+  parseCreateStaffInput,
+  parsePassword,
+} from "@/lib/staff/validate";
 
 function createForm(entries: Record<string, string>) {
   const formData = new FormData();
@@ -36,5 +40,8 @@ assert.deepEqual(
   ),
   { name: "Ion Popescu", username: "ion_2", role: "DIRECTOR", password: "parola123" },
 );
+
+assert.equal(needsPasswordMigration(["google"]), true);
+assert.equal(needsPasswordMigration(["google", "credential"]), false);
 
 console.log("staff validate tests passed");

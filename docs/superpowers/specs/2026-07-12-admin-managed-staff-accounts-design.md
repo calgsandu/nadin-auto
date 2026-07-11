@@ -68,6 +68,8 @@ Utilizatorul introduce username-ul și parola. Serverul normalizează username-u
 
 Administratorul alege „Resetează parola”, introduce sau generează o parolă nouă, iar Neon Auth o înlocuiește. Parola apare o singură dată în confirmare. Parola veche nu poate fi vizualizată.
 
+Dacă profilul existent are numai o identitate socială, resetarea creează prin API-ul administrativ Neon o identitate nouă username/parolă și leagă `AppUser` de aceasta. Vechea identitate socială rămâne fără profil aprobat și nu mai poate accesa panoul.
+
 ### Schimbarea parolei proprii
 
 Utilizatorul poate deschide „Schimbă parola”, introduce parola curentă și parola nouă, apoi confirmă. Acțiunea este opțională și nu există stare obligatorie de schimbare la prima autentificare.

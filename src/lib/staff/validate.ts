@@ -42,3 +42,7 @@ export function parseUserId(formData: FormData) {
   if (!userId) throw new Error("Lipsește utilizatorul.");
   return userId;
 }
+
+export function needsPasswordMigration(providerIds: string[]) {
+  return !providerIds.includes("credential");
+}
