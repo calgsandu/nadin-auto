@@ -1,7 +1,9 @@
 import "dotenv/config";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { hashPassword } from "better-auth/crypto";
 import { normalizeUsername, validateUsername } from "../src/lib/auth/username";
+import { needsPasswordCredential } from "../src/lib/staff/bootstrap";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("Missing DATABASE_URL");
@@ -41,6 +43,7 @@ async function main() {
     users.flatMap((user) => (user.username ? [normalizeUsername(user.username)] : [])),
   );
   let updated = 0;
+  let credentialsAdded = 0;
 
   for (const user of users) {
     let username = user.username ? normalizeUsername(user.username) : null;
@@ -60,6 +63,28 @@ async function main() {
         SET role = 'admin'
         WHERE id::text = ${user.authUserId}
       `;
+
+      const accounts = await prisma.$queryRaw<Array<{ providerId: string }>>`
+        SELECT "providerId"
+        FROM neon_auth.account
+        WHERE "userId"::text = ${user.authUserId}
+      `;
+      if (needsPasswordCredential(accounts.map((account) => account.providerId))) {
+        const bootstrapPassword = process.env.NADIN_BOOTSTRAP_PASSWORD;
+        if (!bootstrapPassword || bootstrapPassword.length < 8) {
+          throw new Error(
+            `Administratorul ${username} nu are parolă. Rulează o singură dată cu NADIN_BOOTSTRAP_PASSWORD setată la o parolă de minimum 8 caractere.`,
+          );
+        }
+        const passwordHash = await hashPassword(bootstrapPassword);
+        await prisma.$executeRaw`
+          INSERT INTO neon_auth.account
+            ("accountId", "providerId", "userId", "password", "updatedAt")
+          VALUES
+            (${user.authUserId}, 'credential', CAST(${user.authUserId} AS uuid), ${passwordHash}, NOW())
+        `;
+        credentialsAdded += 1;
+      }
     }
   }
 
@@ -72,7 +97,7 @@ async function main() {
   }
 
   console.log(
-    `Bootstrap personal finalizat: ${updated} username-uri completate; administratori activi: ${activeAdmins
+    `Bootstrap personal finalizat: ${updated} username-uri completate; ${credentialsAdded} credentiale adăugate; administratori activi: ${activeAdmins
       .map((user) => user.username)
       .join(", ")}.`,
   );
