@@ -16,6 +16,7 @@ import {
   getAuthProviderIds,
   removeAuthIdentity,
   revokeAuthSessions,
+  setAuthRole,
   setAuthPassword,
   unbanAuthIdentity,
 } from "@/lib/staff/auth-admin";
@@ -24,6 +25,7 @@ import {
   needsPasswordMigration,
   parsePassword,
   parseUserId,
+  toAuthRole,
 } from "@/lib/staff/validate";
 import type { AppRole } from "@/generated/prisma/enums";
 
@@ -66,6 +68,7 @@ export async function createStaffUserAction(
       email,
       password: input.password,
       name: input.name,
+      authRole: toAuthRole(input.role),
     });
 
     const created = await prisma.appUser.create({
@@ -133,6 +136,7 @@ export async function resetStaffPasswordAction(
         email,
         password,
         name: target.name ?? target.username,
+        authRole: toAuthRole(target.role),
       });
       try {
         await prisma.appUser.update({
@@ -231,7 +235,7 @@ export async function setUserRoleAction(
     if (!VALID_ROLES.includes(role)) throw new Error("Rol invalid.");
 
     const users = await prisma.appUser.findMany({
-      select: { id: true, role: true, active: true },
+      select: { id: true, authUserId: true, role: true, active: true },
     });
     if (
       wouldRemoveLastAdmin(users, userId, role) ||
@@ -240,7 +244,21 @@ export async function setUserRoleAction(
       throw new Error("Trebuie să rămână cel puțin un administrator activ.");
     }
 
-    await prisma.appUser.update({ where: { id: userId }, data: { role } });
+    const target = users.find((user) => user.id === userId);
+    if (!target) throw new Error("Utilizatorul nu există.");
+    const previousAuthRole = toAuthRole(target.role);
+    const nextAuthRole = toAuthRole(role);
+    if (previousAuthRole !== nextAuthRole) {
+      await setAuthRole(target.authUserId, nextAuthRole);
+    }
+    try {
+      await prisma.appUser.update({ where: { id: userId }, data: { role } });
+    } catch (error) {
+      if (previousAuthRole !== nextAuthRole) {
+        await setAuthRole(target.authUserId, previousAuthRole).catch(() => undefined);
+      }
+      throw error;
+    }
     revalidatePath("/");
     return { ok: true, message: "Rolul a fost actualizat." };
   } catch (error) {

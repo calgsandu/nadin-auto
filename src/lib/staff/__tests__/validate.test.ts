@@ -3,6 +3,7 @@ import {
   needsPasswordMigration,
   parseCreateStaffInput,
   parsePassword,
+  toAuthRole,
 } from "@/lib/staff/validate";
 
 function createForm(entries: Record<string, string>) {
@@ -43,5 +44,8 @@ assert.deepEqual(
 
 assert.equal(needsPasswordMigration(["google"]), true);
 assert.equal(needsPasswordMigration(["google", "credential"]), false);
+assert.equal(toAuthRole("ADMIN"), "admin");
+assert.equal(toAuthRole("DIRECTOR"), "user");
+assert.equal(toAuthRole("ANGAJAT"), "user");
 
 console.log("staff validate tests passed");

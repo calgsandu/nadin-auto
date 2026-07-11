@@ -13,14 +13,26 @@ export async function createAuthIdentity(input: {
   email: string;
   password: string;
   name: string;
+  authRole?: "admin" | "user";
 }) {
+  const { authRole = "user", ...credentials } = input;
   const result = assertResult(
-    await auth.admin.createUser({ ...input, role: "user" }),
+    await auth.admin.createUser({ ...credentials, role: authRole }),
     "Identitatea nu a putut fi creată.",
   );
   const userId = result.data?.user.id;
   if (!userId) throw new Error("Serviciul de autentificare nu a returnat utilizatorul.");
   return String(userId);
+}
+
+export async function setAuthRole(
+  userId: string,
+  role: "admin" | "user",
+) {
+  assertResult(
+    await auth.admin.setRole({ userId, role }),
+    "Rolul din serviciul de autentificare nu a putut fi actualizat.",
+  );
 }
 
 export async function setAuthPassword(userId: string, newPassword: string) {

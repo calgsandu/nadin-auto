@@ -46,3 +46,7 @@ export function parseUserId(formData: FormData) {
 export function needsPasswordMigration(providerIds: string[]) {
   return !providerIds.includes("credential");
 }
+
+export function toAuthRole(role: AppRole): "admin" | "user" {
+  return role === "ADMIN" ? "admin" : "user";
+}
