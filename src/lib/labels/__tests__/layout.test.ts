@@ -10,13 +10,13 @@ assert.equal(large.h, 52);
 assert.equal(large.cols, 3);
 assert.equal(large.rows, 5);
 assert.equal(large.mx, 0);
-assert.equal(large.my, 20.5);
+assert.equal(large.my, 22.5);
 assert.equal(large.padX, 4);
-assert.equal(large.gy, 1.5);
+assert.equal(large.gy, 3.5);
 assert.equal(large.w - large.padX * 2, 62);
-assert.equal(large.my + large.h + large.gy, 74);
+assert.equal(large.my + large.h + large.gy, 78);
 assert.equal(large.w * large.cols + large.mx * 2, 210);
-assert.equal(large.my + large.h * large.rows + large.gy * (large.rows - 1) <= 297, true);
+assert.equal(large.my + large.h * large.rows + large.gy * (large.rows - 1), 296.5);
 assert.equal(LABEL_PHONE, "0 (68) 677885");
 assert.equal(LABEL_COMPATIBILITY_PREFIX, "Piesă auto compatibilă cu modelul");
 
