@@ -93,8 +93,6 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
         .label-sheet {
           width: 210mm;
           padding: ${dim.my}mm ${dim.mx}mm 0;
-          position: relative;
-          left: ${dim.ox}mm;
           display: grid;
           grid-template-columns: repeat(${dim.cols}, ${dim.w}mm);
           grid-auto-rows: ${dim.h}mm;
@@ -104,7 +102,13 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
           background: white;
         }
         .label-roll { display: grid; grid-template-columns: ${dim.w}mm; justify-content: center; gap: 2mm; }
-        .label-sticker { width: ${dim.w}mm; height: ${dim.h}mm; overflow: hidden; }
+        .label-sticker {
+          width: ${dim.w}mm;
+          height: ${dim.h}mm;
+          overflow: hidden;
+          box-sizing: border-box;
+          padding-inline: ${dim.padX}mm;
+        }
         .label-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .label-part {
           display: -webkit-box;
@@ -228,7 +232,7 @@ function LabelSticker({
   const part = buildPartLabel(product.type.name, product.description);
 
   return (
-    <div className="label-sticker flex flex-col bg-white px-[2.5mm] pb-[6mm] pt-[3.5mm] text-[#111]">
+    <div className="label-sticker flex flex-col bg-white pb-[6mm] pt-[3.5mm] text-[#111]">
       <p
         className="label-line text-center font-mono font-bold leading-none tracking-[0.04em]"
         style={{ fontSize: `${dim.code}px` }}

@@ -11,8 +11,9 @@ assert.equal(large.cols, 3);
 assert.equal(large.rows, 5);
 assert.equal(large.mx, 0);
 assert.equal(large.my, 20);
-assert.equal(large.ox, 1.5);
+assert.equal(large.padX, 4);
 assert.equal(large.gy, 1.5);
+assert.equal(large.w - large.padX * 2, 62);
 assert.equal(large.my + large.h + large.gy, 73.5);
 assert.equal(large.w * large.cols + large.mx * 2, 210);
 assert.equal(large.my + large.h * large.rows + large.gy * (large.rows - 1) <= 297, true);
@@ -30,14 +31,19 @@ const pageSource = readFileSync(
   "utf8",
 );
 assert.match(pageSource, /row-gap: \$\{dim\.gy\}mm;/);
-assert.match(pageSource, /left: \$\{dim\.ox\}mm;/);
+assert.doesNotMatch(pageSource, /left: \$\{dim\.ox\}mm;/);
+assert.doesNotMatch(pageSource, /data-col=/);
+assert.match(pageSource, /padding-inline: \$\{dim\.padX\}mm;/);
 
 const pdfSource = readFileSync(
   new URL("../../../app/api/export/labels/route.ts", import.meta.url),
   "utf8",
 );
 assert.match(pdfSource, /const rowStep = boxH \+ dim\.gy \* MM;/);
-assert.match(pdfSource, /const x0 = \(dim\.mx \+ dim\.ox\) \* MM;/);
+assert.match(pdfSource, /const x0 = dim\.mx \* MM;/);
+assert.match(pdfSource, /const padX = dim\.padX \* MM;/);
+assert.doesNotMatch(pdfSource, /contentShiftX/);
+assert.match(pdfSource, /drawLabel\(product, x0 \+ col \* boxW, y0 \+ row \* rowStep\)/);
 assert.match(pdfSource, /y0 \+ row \* rowStep/);
 
 console.log("label layout tests passed");

@@ -1,4 +1,6 @@
 // Foi autoadezive A4. mx/my = marginile foii până la prima etichetă.
+// padX păstrează textul departe de tăieturile laterale; grila de 210 mm nu trebuie
+// deplasată, altfel dialogul de print o poate micșora.
 export const LABEL_SIZES = {
   s: {
     w: 52,
@@ -7,7 +9,7 @@ export const LABEL_SIZES = {
     rows: 9,
     mx: 27,
     my: 13.5,
-    ox: 0,
+    padX: 2.5,
     gy: 0,
     code: 15,
     model: 12,
@@ -21,7 +23,7 @@ export const LABEL_SIZES = {
     rows: 7,
     mx: 0,
     my: 0,
-    ox: 0,
+    padX: 2.5,
     gy: 0,
     code: 22,
     model: 17,
@@ -35,7 +37,7 @@ export const LABEL_SIZES = {
     rows: 5,
     mx: 0,
     my: 20,
-    ox: 1.5,
+    padX: 4,
     gy: 1.5,
     code: 26,
     model: 20,
