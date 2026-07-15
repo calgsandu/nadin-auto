@@ -14,6 +14,7 @@ type ProductFormDialogProps = {
   brands: Brand[];
   models: CarModel[];
   types: ProductType[];
+  warehouses: Array<{ id: string; name: string }>;
   product?: ProductFormValue;
   triggerLabel: string;
   triggerKind?: "primary" | "row";
@@ -29,7 +30,7 @@ export type ProductFormValue = {
   yearStart: string;
   yearEnd: string;
   yearOpenEnded: boolean;
-  stock: string;
+  warehouseStocks: Array<{ warehouseId: string; quantity: string }>;
   minStock: string;
   priceEuro: string;
   costLei: string;
@@ -45,6 +46,7 @@ export function ProductFormDialog({
   brands,
   models,
   types,
+  warehouses,
   product,
   triggerLabel,
   triggerKind = "primary",
@@ -53,6 +55,9 @@ export function ProductFormDialog({
   const [brandId, setBrandId] = useState(product?.brandId ?? "");
   const [modelId, setModelId] = useState(product?.modelId ?? "");
   const [newBrandName, setNewBrandName] = useState("");
+  const [warehouseQuantities, setWarehouseQuantities] = useState<Record<string, string>>(
+    () => getWarehouseQuantities(product, warehouses),
+  );
   const [yearOpenEnded, setYearOpenEnded] = useState(
     product?.yearOpenEnded ?? false,
   );
@@ -71,6 +76,7 @@ export function ProductFormDialog({
     setModelId(product?.modelId ?? "");
     setNewBrandName("");
     setYearOpenEnded(product?.yearOpenEnded ?? false);
+    setWarehouseQuantities(getWarehouseQuantities(product, warehouses));
     setOpen(true);
   }
 
@@ -257,15 +263,44 @@ export function ProductFormDialog({
                 </label>
               </div>
 
+              <section className="rounded-xl border border-[#e8e7e3] bg-white p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-semibold text-[#1b1a17]">Stoc pe depozite</h3>
+                    <p className="mt-1 text-xs text-[#6f6b63]">
+                      Completează cantitatea reală din fiecare depozit. Totalul se calculează automat.
+                    </p>
+                  </div>
+                  <p className="text-sm font-semibold text-[#1b1a17]">
+                    Total: <span className="font-mono">{calculateTotal(warehouseQuantities)}</span> buc.
+                  </p>
+                </div>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {warehouses.map((warehouse) => (
+                    <div key={warehouse.id} className="grid gap-1.5">
+                      <input name="warehouseId" type="hidden" value={warehouse.id} readOnly />
+                      <Field label={warehouse.name}>
+                        <input
+                          className={inputClassName}
+                          inputMode="numeric"
+                          min={0}
+                          name="warehouseQuantity"
+                          type="number"
+                          value={warehouseQuantities[warehouse.id] ?? "0"}
+                          onChange={(event) =>
+                            setWarehouseQuantities((current) => ({
+                              ...current,
+                              [warehouse.id]: event.currentTarget.value,
+                            }))
+                          }
+                        />
+                      </Field>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
               <div className="grid gap-4 sm:grid-cols-3">
-                <Field label="Stoc">
-                  <input
-                    className={inputClassName}
-                    name="stock"
-                    defaultValue={product?.stock ?? ""}
-                    inputMode="numeric"
-                  />
-                </Field>
                 <Field label="Stoc minim (alertă) — gol = 3">
                   <input
                     className={inputClassName}
@@ -365,3 +400,23 @@ function SubmitButton({ label }: { label: string }) {
 
 const inputClassName =
   "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";
+
+function getWarehouseQuantities(
+  product: ProductFormValue | undefined,
+  warehouses: Array<{ id: string; name: string }>,
+) {
+  const current = new Map(
+    (product?.warehouseStocks ?? []).map((stock) => [stock.warehouseId, stock.quantity]),
+  );
+
+  return Object.fromEntries(
+    warehouses.map((warehouse) => [warehouse.id, current.get(warehouse.id) ?? "0"]),
+  );
+}
+
+function calculateTotal(quantities: Record<string, string>) {
+  return Object.values(quantities).reduce((total, quantity) => {
+    const parsed = Number(quantity);
+    return Number.isFinite(parsed) ? total + parsed : total;
+  }, 0);
+}

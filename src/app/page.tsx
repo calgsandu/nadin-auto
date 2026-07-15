@@ -498,6 +498,7 @@ async function ProductHeaderAction({
       brands={catalog.brands}
       models={catalog.models}
       types={catalog.types}
+      warehouses={catalog.warehouses}
       triggerLabel="Adaugă produs"
     />
   );
@@ -1303,13 +1304,14 @@ function ProductRow({
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
         {formatNumber(product.stock)}
-        {product.warehouseStocks.length > 0 ? (
-          <p className="mt-1 whitespace-nowrap font-normal text-xs text-[#6f6b63]">
-            {product.warehouseStocks
-              .map((s) => `${s.warehouse.name.replace("Pavilion ", "")}: ${s.quantity}`)
-              .join(" · ")}
-          </p>
-        ) : null}
+        <p className="mt-1 whitespace-nowrap font-normal text-xs text-[#6f6b63]">
+          {catalog.warehouses
+            .map((warehouse) => {
+              const row = product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id);
+              return `${warehouse.name.replace("Pavilion ", "")}: ${row?.quantity ?? 0}`;
+            })
+            .join(" · ")}
+        </p>
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
@@ -1340,6 +1342,7 @@ function ProductRow({
               triggerKind="row"
               triggerLabel="Editează"
               types={catalog.types}
+              warehouses={catalog.warehouses}
             />
             <ProductDeleteButton productId={product.id} label={product.description} />
           </div>
@@ -2748,7 +2751,10 @@ function toProductFormValue(product: CatalogProduct): ProductFormValue {
     yearStart: formatFormValue(product.fitment.yearStart),
     yearEnd: formatFormValue(product.fitment.yearEnd),
     yearOpenEnded: product.fitment.yearOpenEnded,
-    stock: formatFormValue(product.stock),
+    warehouseStocks: product.warehouseStocks.map((stock) => ({
+      warehouseId: stock.warehouseId,
+      quantity: formatFormValue(stock.quantity),
+    })),
     minStock: formatFormValue(product.minStock),
     priceEuro: formatFormValue(product.priceEuro),
     costLei: formatFormValue(product.costLei),

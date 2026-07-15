@@ -49,6 +49,7 @@ export async function getCatalogData(
     brands,
     models,
     types,
+    warehouses,
   ] = await Promise.all([
     prisma.product.findMany({
       where,
@@ -64,8 +65,11 @@ export async function getCatalogData(
           },
         },
         warehouseStocks: {
-          where: { quantity: { not: 0 } },
-          select: { quantity: true, warehouse: { select: { name: true } } },
+          select: {
+            warehouseId: true,
+            quantity: true,
+            warehouse: { select: { name: true } },
+          },
           orderBy: { warehouse: { name: "asc" } },
         },
       },
@@ -96,6 +100,11 @@ export async function getCatalogData(
       orderBy: { name: "asc" },
     }),
     prisma.productType.findMany({ orderBy: { name: "asc" } }),
+    prisma.warehouse.findMany({
+      where: { active: true },
+      select: { id: true, name: true, isDefault: true },
+      orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+    }),
   ]);
 
   return {
@@ -121,6 +130,7 @@ export async function getCatalogData(
     brands,
     models,
     types,
+    warehouses,
   };
 }
 
