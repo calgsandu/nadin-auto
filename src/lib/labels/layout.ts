@@ -33,7 +33,7 @@ export const LABEL_SIZES = {
     rows: 5,
     mx: 0,
     my: 20,
-    gy: 1,
+    gy: 1.5,
     code: 26,
     model: 20,
     desc: 12,
