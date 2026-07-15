@@ -90,6 +90,8 @@ import { getDocumentsData } from "@/lib/documents/queries";
 import { getReportsData, type ReportsData } from "@/lib/reports/queries";
 import { getStatsData, type StatsData } from "@/lib/stats/queries";
 import { getAuditData, type AuditData, type AuditRow } from "@/lib/audit/queries";
+import { PaymentAccountsWorkspace } from "@/app/payment-accounts/payment-accounts-workspace";
+import { getPaymentAccountsData } from "@/lib/payment-accounts/queries";
 import { DailyChart, MonthlyChart, TopProductsChart } from "@/app/stats-charts";
 import {
   getSection,
@@ -116,6 +118,7 @@ type PartnersData = Awaited<ReturnType<typeof getPartnersData>>;
 type StaffData = Awaited<ReturnType<typeof getStaffData>>;
 type CatalogAdminData = Awaited<ReturnType<typeof getCatalogAdminData>>;
 type DocumentsData = Awaited<ReturnType<typeof getDocumentsData>>;
+type PaymentAccountsData = Awaited<ReturnType<typeof getPaymentAccountsData>>;
 
 const OPERATIONS_SECTIONS = new Set<WorkspaceSectionId>([
   "receptii",
@@ -177,6 +180,8 @@ export default async function Home({ searchParams }: HomeProps) {
           dpage: params.dpage,
         })
       : null;
+  const paymentAccountsPromise =
+    activeSectionId === "conturi-plata" ? getPaymentAccountsData() : null;
   const reportsPromise =
     activeSectionId === "rapoarte" ? getReportsData() : null;
   const statsPromise =
@@ -232,7 +237,7 @@ export default async function Home({ searchParams }: HomeProps) {
                 </Suspense>
               ) : null}
               {canModify && activeSectionId === "furnizori" ? (
-                <PartnerFormDialog triggerLabel="Adaugă furnizor" />
+                <PartnerFormDialog triggerLabel="Adaugă partener" />
               ) : null}
               {activeSectionId === "personal" && canManageStaff(appUser.role) ? (
                 <CreateStaffDialog />
@@ -267,6 +272,7 @@ export default async function Home({ searchParams }: HomeProps) {
             staffPromise={staffPromise}
             catalogAdminPromise={catalogAdminPromise}
             documentsPromise={documentsPromise}
+            paymentAccountsPromise={paymentAccountsPromise}
             reportsPromise={reportsPromise}
             statsPromise={statsPromise}
             inventoryPromise={inventoryPromise}
@@ -509,6 +515,7 @@ async function WorkspaceLoader({
   staffPromise,
   catalogAdminPromise,
   documentsPromise,
+  paymentAccountsPromise,
   reportsPromise,
   statsPromise,
   inventoryPromise,
@@ -525,6 +532,7 @@ async function WorkspaceLoader({
   staffPromise: Promise<StaffData> | null;
   catalogAdminPromise: Promise<CatalogAdminData> | null;
   documentsPromise: Promise<DocumentsData> | null;
+  paymentAccountsPromise: Promise<PaymentAccountsData> | null;
   reportsPromise: Promise<ReportsData> | null;
   statsPromise: Promise<StatsData> | null;
   inventoryPromise: Promise<InventoryData> | null;
@@ -557,6 +565,12 @@ async function WorkspaceLoader({
     if (!documentsPromise) return null;
     const data = await documentsPromise;
     return <DocumentsWorkspace data={data} canModify={canModify} />;
+  }
+
+  if (activeSectionId === "conturi-plata") {
+    if (!paymentAccountsPromise) return null;
+    const data = await paymentAccountsPromise;
+    return <PaymentAccountsWorkspace canSubmitEFactura={canModify} data={data} />;
   }
 
   if (activeSectionId === "rapoarte") {
@@ -1113,7 +1127,7 @@ function UnavailableRestockWorkspace({ operations }: { operations: OperationsDat
           <h2 className="font-semibold text-[#1b1a17]">Marcate fără stoc</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[980px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 <TableHead>Cod</TableHead>
@@ -1832,7 +1846,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                 <TableHead>Partener</TableHead>
                 <TableHead align="right">Produse</TableHead>
                 <TableHead align="right">Total</TableHead>
-                <TableHead align="right">Export</TableHead>
+                <TableHead align="right">Export intern</TableHead>
                 <TableHead align="right">Acțiuni</TableHead>
               </tr>
             </thead>
@@ -1853,14 +1867,14 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                         href={`/api/export/document/${d.id}/pdf`}
                         className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                       >
-                        <FileText className="size-3.5" aria-hidden="true" /> PDF
+                        <FileText className="size-3.5" aria-hidden="true" /> PDF intern
                       </a>
                       {d.type !== "ADJUSTMENT" ? (
                         <a
                           href={`/api/export/invoice/${d.id}`}
                           className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                         >
-                          <Download className="size-3.5" aria-hidden="true" /> Excel
+                          <Download className="size-3.5" aria-hidden="true" /> Excel intern
                         </a>
                       ) : null}
                     </div>
@@ -2432,8 +2446,9 @@ function PartnersWorkspace({
               <tr>
                 <TableHead>Nume</TableHead>
                 <TableHead>Tip</TableHead>
-                <TableHead>Telefon</TableHead>
-                <TableHead>Note</TableHead>
+                <TableHead>IDNO / TVA</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Adresă</TableHead>
                 <TableHead align="right">Documente</TableHead>
                 {canModify ? <TableHead align="right">Acțiuni</TableHead> : null}
               </tr>
@@ -2449,23 +2464,23 @@ function PartnersWorkspace({
                   </TableCell>
                   <TableCell>{formatPartnerKind(partner.kind)}</TableCell>
                   <TableCell className="font-mono text-xs">
-                    {formatText(partner.phone)}
+                    <span className="block">{formatText(partner.idno)}</span>
+                    {partner.vatCode ? <span className="mt-0.5 block text-[#98948b]">TVA {partner.vatCode}</span> : null}
+                  </TableCell>
+                  <TableCell className="text-[#6f6b63]">
+                    <span className="block">{formatText(partner.phone)}</span>
+                    {partner.email ? <span className="mt-0.5 block">{partner.email}</span> : null}
                   </TableCell>
                   <TableCell className="max-w-xs text-[#6f6b63]">
-                    {formatText(partner.notes)}
+                    {formatText(partner.address)}
                   </TableCell>
                   <TableCell align="right">
-                    {partner._count.documents > 0 ? (
-                      <Link
-                        href={`/?section=documente&partner=${partner.id}`}
-                        className="font-mono font-semibold text-[#1b1a17] underline decoration-[#d97706] underline-offset-4"
-                        title="Vezi documentele partenerului"
-                      >
-                        {formatNumber(partner._count.documents)}
-                      </Link>
-                    ) : (
-                      <span className="font-mono text-[#98948b]">0</span>
-                    )}
+                    <span className="font-mono font-semibold text-[#1b1a17]">
+                      {formatNumber(partner._count.documents + partner._count.paymentAccounts)}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-[#98948b]">
+                      {partner._count.paymentAccounts} conturi
+                    </span>
                   </TableCell>
                   {canModify ? (
                     <TableCell align="right">
@@ -2489,7 +2504,7 @@ function PartnersWorkspace({
         </div>
         {partners.length === 0 ? (
           <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
-            Nu există furnizori încă.
+            Nu există parteneri încă.
           </div>
         ) : null}
       </div>
@@ -2579,6 +2594,13 @@ function toPartnerFormValue(partner: PartnerRow): PartnerFormValue {
     name: partner.name,
     kind: partner.kind,
     phone: partner.phone ?? "",
+    email: partner.email ?? "",
+    address: partner.address ?? "",
+    idno: partner.idno ?? "",
+    vatCode: partner.vatCode ?? "",
+    iban: partner.iban ?? "",
+    bankName: partner.bankName ?? "",
+    bankCode: partner.bankCode ?? "",
     notes: partner.notes ?? "",
   };
 }
