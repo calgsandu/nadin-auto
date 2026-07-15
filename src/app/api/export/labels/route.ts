@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
   } else {
     const slots: (Label | null)[] = [...Array.from({ length: skip }, () => null), ...labels];
     if (slots.length === 0) slots.push(null);
-    const x0 = dim.mx * MM;
+    const x0 = (dim.mx + dim.ox) * MM;
     const y0 = dim.my * MM;
     const rowStep = boxH + dim.gy * MM;
     for (let i = 0; i < slots.length; i += perSheet) {

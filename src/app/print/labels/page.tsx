@@ -93,6 +93,8 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
         .label-sheet {
           width: 210mm;
           padding: ${dim.my}mm ${dim.mx}mm 0;
+          position: relative;
+          left: ${dim.ox}mm;
           display: grid;
           grid-template-columns: repeat(${dim.cols}, ${dim.w}mm);
           grid-auto-rows: ${dim.h}mm;
