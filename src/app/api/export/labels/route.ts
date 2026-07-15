@@ -142,6 +142,7 @@ export async function GET(request: NextRequest) {
     if (slots.length === 0) slots.push(null);
     const x0 = dim.mx * MM;
     const y0 = dim.my * MM;
+    const rowStep = boxH + dim.gy * MM;
     for (let i = 0; i < slots.length; i += perSheet) {
       doc.addPage({ size: "A4", margin: 0 });
       const sheet = slots.slice(i, i + perSheet);
@@ -149,7 +150,7 @@ export async function GET(request: NextRequest) {
         if (!product) return;
         const col = j % dim.cols;
         const row = Math.floor(j / dim.cols);
-        drawLabel(product, x0 + col * boxW, y0 + row * boxH);
+        drawLabel(product, x0 + col * boxW, y0 + row * rowStep);
       });
     }
   }

@@ -96,6 +96,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
           display: grid;
           grid-template-columns: repeat(${dim.cols}, ${dim.w}mm);
           grid-auto-rows: ${dim.h}mm;
+          row-gap: ${dim.gy}mm;
           justify-content: ${dim.mx > 0 ? "center" : "start"};
           box-sizing: border-box;
           background: white;
