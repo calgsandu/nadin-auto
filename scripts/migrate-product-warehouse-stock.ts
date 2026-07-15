@@ -10,49 +10,37 @@ async function main() {
       update: {},
       select: { id: true },
     });
-    const products = await tx.product.findMany({
-      select: {
-        id: true,
-        stock: true,
-        warehouseStocks: {
-          select: { warehouseId: true, quantity: true },
-        },
-      },
+    const legacyProducts = await tx.product.findMany({
+      where: { warehouseStocks: { none: {} } },
+      select: { id: true, stock: true },
     });
 
-    let migrated = 0;
-    let synchronized = 0;
-
-    for (const product of products) {
-      const plan = planProductWarehouseMigration({
-        productId: product.id,
-        legacyStock: product.stock ?? 0,
-        existingRows: product.warehouseStocks,
-        warehouse110AId: warehouse110A.id,
-      });
-
-      if (plan.create110AQuantity !== null) {
-        await tx.warehouseStock.create({
-          data: {
+    const migrated = legacyProducts.length > 0
+      ? await tx.warehouseStock.createMany({
+          data: legacyProducts.map((product) => ({
             productId: product.id,
             warehouseId: warehouse110A.id,
-            quantity: plan.create110AQuantity,
-          },
-        });
-        migrated += 1;
-      }
+            quantity: Math.max(0, product.stock ?? 0),
+          })),
+          skipDuplicates: true,
+        })
+      : { count: 0 };
 
-      if (product.stock !== plan.totalQuantity) {
-        await tx.product.update({
-          where: { id: product.id },
-          data: { stock: plan.totalQuantity },
-        });
-        synchronized += 1;
-      }
-    }
+    const synchronized = await tx.$executeRaw`
+      UPDATE "Product" AS p
+      SET "stock" = COALESCE(
+        (SELECT SUM(ws."quantity")::int FROM "WarehouseStock" AS ws WHERE ws."productId" = p."id"),
+        0
+      )
+      WHERE p."stock" IS DISTINCT FROM COALESCE(
+        (SELECT SUM(ws."quantity")::int FROM "WarehouseStock" AS ws WHERE ws."productId" = p."id"),
+        0
+      )`;
 
-    return { migrated, synchronized, products: products.length };
-  });
+    const products = await tx.product.count();
+
+    return { migrated: migrated.count, synchronized, products };
+  }, { maxWait: 10000, timeout: 120000 });
 
   console.log(
     `Stocuri migrate în Pavilion 110A: ${result.migrated}; totaluri sincronizate: ${result.synchronized}; produse verificate: ${result.products}.`,
