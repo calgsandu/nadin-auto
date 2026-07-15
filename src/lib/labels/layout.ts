@@ -26,11 +26,11 @@ export const LABEL_SIZES = {
   },
   l: {
     w: 70,
-    h: 50.8,
+    h: 52,
     cols: 3,
     rows: 5,
     mx: 0,
-    my: 18,
+    my: 20,
     code: 26,
     model: 20,
     desc: 12,

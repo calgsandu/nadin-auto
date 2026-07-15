@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 const SIZES = [
   { value: "s", label: "Mic (52×30 mm)" },
   { value: "m", label: "Mediu (70×42 mm · 21/foaie)" },
-  { value: "l", label: "Mare (70×51 mm · 15/foaie)" },
+  { value: "l", label: "Mare (70×52 mm · 15/foaie)" },
 ] as const;
 
 const LAYOUTS = [
