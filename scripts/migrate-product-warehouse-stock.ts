@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { prisma } from "../src/lib/prisma";
-import { planProductWarehouseMigration } from "../src/lib/catalog/warehouse-stock-migration";
 
 async function main() {
   const result = await prisma.$transaction(async (tx) => {
