@@ -54,6 +54,23 @@ export const RestockTaskStatus = {
 export type RestockTaskStatus = (typeof RestockTaskStatus)[keyof typeof RestockTaskStatus]
 
 
+export const PaymentAccountStatus = {
+  ISSUED: 'ISSUED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type PaymentAccountStatus = (typeof PaymentAccountStatus)[keyof typeof PaymentAccountStatus]
+
+
+export const EFacturaSubmissionStatus = {
+  NOT_SENT: 'NOT_SENT',
+  SUBMITTED: 'SUBMITTED',
+  ERROR: 'ERROR'
+} as const
+
+export type EFacturaSubmissionStatus = (typeof EFacturaSubmissionStatus)[keyof typeof EFacturaSubmissionStatus]
+
+
 export const AuditAction = {
   CREATE: 'CREATE',
   UPDATE: 'UPDATE',

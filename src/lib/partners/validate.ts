@@ -6,6 +6,13 @@ export type PartnerInput = {
   name: string;
   kind: PartnerKind;
   phone: string | null;
+  email: string | null;
+  address: string | null;
+  idno: string | null;
+  vatCode: string | null;
+  iban: string | null;
+  bankName: string | null;
+  bankCode: string | null;
   notes: string | null;
 };
 
@@ -28,6 +35,25 @@ export function parsePartnerForm(formData: FormData): PartnerParseResult {
   }
 
   const phone = readString(formData, "phone");
+  const email = readString(formData, "email");
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, message: "Adresa de e-mail nu este validă." };
+  }
+
+  const address = readString(formData, "address");
+  const idno = readString(formData, "idno");
+  if (idno && !/^\d{7,13}$/.test(idno)) {
+    return { ok: false, message: "IDNO trebuie să conțină între 7 și 13 cifre." };
+  }
+
+  const vatCode = readString(formData, "vatCode");
+  const iban = readString(formData, "iban").replace(/\s+/g, "").toUpperCase();
+  if (iban && !/^[A-Z]{2}[A-Z0-9]{13,32}$/.test(iban)) {
+    return { ok: false, message: "IBAN-ul nu este valid." };
+  }
+
+  const bankName = readString(formData, "bankName");
+  const bankCode = readString(formData, "bankCode").replace(/\s+/g, "").toUpperCase();
   const notes = readString(formData, "notes");
 
   return {
@@ -36,6 +62,13 @@ export function parsePartnerForm(formData: FormData): PartnerParseResult {
       name,
       kind: kindRaw as PartnerKind,
       phone: phone || null,
+      email: email || null,
+      address: address || null,
+      idno: idno || null,
+      vatCode: vatCode || null,
+      iban: iban || null,
+      bankName: bankName || null,
+      bankCode: bankCode || null,
       notes: notes || null,
     },
   };

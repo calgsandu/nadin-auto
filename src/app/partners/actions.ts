@@ -13,13 +13,13 @@ export type PartnerActionState = {
 
 const INITIAL_ERROR: PartnerActionState = {
   ok: false,
-  message: "Furnizorul nu a putut fi salvat.",
+  message: "Partenerul nu a putut fi salvat.",
 };
 
 async function requirePartnerWrite() {
   const appUser = await requireCurrentAppUser();
   if (!canWriteCatalog(appUser.role)) {
-    throw new Error("Nu ai drepturi pentru administrarea furnizorilor.");
+    throw new Error("Nu ai drepturi pentru administrarea partenerilor.");
   }
 }
 
@@ -39,7 +39,7 @@ export async function createPartnerAction(
 
     await prisma.partner.create({ data: parsed.data });
     revalidatePath("/");
-    return { ok: true, message: "Furnizorul a fost adăugat." };
+    return { ok: true, message: "Partenerul a fost adăugat." };
   } catch (error) {
     return toActionError(error);
   }
@@ -52,7 +52,7 @@ export async function updatePartnerAction(
   try {
     await requirePartnerWrite();
     const id = readString(formData, "partnerId");
-    if (!id) throw new Error("Lipsește furnizorul pentru editare.");
+    if (!id) throw new Error("Lipsește partenerul pentru editare.");
 
     const parsed = parsePartnerForm(formData);
     if (!parsed.ok) throw new Error(parsed.message);
@@ -64,7 +64,7 @@ export async function updatePartnerAction(
 
     await prisma.partner.update({ where: { id }, data: parsed.data });
     revalidatePath("/");
-    return { ok: true, message: "Furnizorul a fost actualizat." };
+    return { ok: true, message: "Partenerul a fost actualizat." };
   } catch (error) {
     return toActionError(error);
   }
@@ -77,18 +77,21 @@ export async function deletePartnerAction(
   try {
     await requirePartnerWrite();
     const id = readString(formData, "partnerId");
-    if (!id) throw new Error("Lipsește furnizorul.");
+    if (!id) throw new Error("Lipsește partenerul.");
 
-    const documents = await prisma.stockDocument.count({ where: { partnerId: id } });
-    if (documents > 0) {
+    const [documents, paymentAccounts] = await Promise.all([
+      prisma.stockDocument.count({ where: { partnerId: id } }),
+      prisma.paymentAccount.count({ where: { partnerId: id } }),
+    ]);
+    if (documents + paymentAccounts > 0) {
       throw new Error(
-        `Furnizorul are ${documents} documente legate și nu poate fi șters.`,
+        `Partenerul are ${documents + paymentAccounts} documente legate și nu poate fi șters.`,
       );
     }
 
     await prisma.partner.delete({ where: { id } });
     revalidatePath("/");
-    return { ok: true, message: "Furnizorul a fost șters." };
+    return { ok: true, message: "Partenerul a fost șters." };
   } catch (error) {
     return toActionError(error);
   }

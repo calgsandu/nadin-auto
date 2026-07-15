@@ -6,7 +6,7 @@ export const STAFF_ROLES: readonly AppRole[] = ["ADMIN"];
 export const ALL_ROLES: readonly AppRole[] = ["ADMIN", "DIRECTOR", "ANGAJAT"];
 
 /** Secțiunile pe care un ANGAJAT le poate deschide: produse în stoc + vânzări. */
-export const EMPLOYEE_SECTIONS: readonly WorkspaceSectionId[] = ["produse", "vanzari"];
+export const EMPLOYEE_SECTIONS: readonly WorkspaceSectionId[] = ["produse", "vanzari", "conturi-plata"];
 
 export function canWriteCatalog(role: AppRole | null | undefined) {
   return role ? WRITE_ROLES.includes(role) : false;

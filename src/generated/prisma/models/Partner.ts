@@ -29,6 +29,13 @@ export type PartnerMinAggregateOutputType = {
   name: string | null
   kind: $Enums.PartnerKind | null
   phone: string | null
+  email: string | null
+  address: string | null
+  idno: string | null
+  vatCode: string | null
+  iban: string | null
+  bankName: string | null
+  bankCode: string | null
   notes: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -39,6 +46,13 @@ export type PartnerMaxAggregateOutputType = {
   name: string | null
   kind: $Enums.PartnerKind | null
   phone: string | null
+  email: string | null
+  address: string | null
+  idno: string | null
+  vatCode: string | null
+  iban: string | null
+  bankName: string | null
+  bankCode: string | null
   notes: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +63,13 @@ export type PartnerCountAggregateOutputType = {
   name: number
   kind: number
   phone: number
+  email: number
+  address: number
+  idno: number
+  vatCode: number
+  iban: number
+  bankName: number
+  bankCode: number
   notes: number
   createdAt: number
   updatedAt: number
@@ -61,6 +82,13 @@ export type PartnerMinAggregateInputType = {
   name?: true
   kind?: true
   phone?: true
+  email?: true
+  address?: true
+  idno?: true
+  vatCode?: true
+  iban?: true
+  bankName?: true
+  bankCode?: true
   notes?: true
   createdAt?: true
   updatedAt?: true
@@ -71,6 +99,13 @@ export type PartnerMaxAggregateInputType = {
   name?: true
   kind?: true
   phone?: true
+  email?: true
+  address?: true
+  idno?: true
+  vatCode?: true
+  iban?: true
+  bankName?: true
+  bankCode?: true
   notes?: true
   createdAt?: true
   updatedAt?: true
@@ -81,6 +116,13 @@ export type PartnerCountAggregateInputType = {
   name?: true
   kind?: true
   phone?: true
+  email?: true
+  address?: true
+  idno?: true
+  vatCode?: true
+  iban?: true
+  bankName?: true
+  bankCode?: true
   notes?: true
   createdAt?: true
   updatedAt?: true
@@ -164,6 +206,13 @@ export type PartnerGroupByOutputType = {
   name: string
   kind: $Enums.PartnerKind
   phone: string | null
+  email: string | null
+  address: string | null
+  idno: string | null
+  vatCode: string | null
+  iban: string | null
+  bankName: string | null
+  bankCode: string | null
   notes: string | null
   createdAt: Date
   updatedAt: Date
@@ -195,10 +244,18 @@ export type PartnerWhereInput = {
   name?: Prisma.StringFilter<"Partner"> | string
   kind?: Prisma.EnumPartnerKindFilter<"Partner"> | $Enums.PartnerKind
   phone?: Prisma.StringNullableFilter<"Partner"> | string | null
+  email?: Prisma.StringNullableFilter<"Partner"> | string | null
+  address?: Prisma.StringNullableFilter<"Partner"> | string | null
+  idno?: Prisma.StringNullableFilter<"Partner"> | string | null
+  vatCode?: Prisma.StringNullableFilter<"Partner"> | string | null
+  iban?: Prisma.StringNullableFilter<"Partner"> | string | null
+  bankName?: Prisma.StringNullableFilter<"Partner"> | string | null
+  bankCode?: Prisma.StringNullableFilter<"Partner"> | string | null
   notes?: Prisma.StringNullableFilter<"Partner"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   documents?: Prisma.StockDocumentListRelationFilter
+  paymentAccounts?: Prisma.PaymentAccountListRelationFilter
 }
 
 export type PartnerOrderByWithRelationInput = {
@@ -206,10 +263,18 @@ export type PartnerOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  idno?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  iban?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankCode?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   documents?: Prisma.StockDocumentOrderByRelationAggregateInput
+  paymentAccounts?: Prisma.PaymentAccountOrderByRelationAggregateInput
 }
 
 export type PartnerWhereUniqueInput = Prisma.AtLeast<{
@@ -220,10 +285,18 @@ export type PartnerWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.PartnerWhereInput | Prisma.PartnerWhereInput[]
   kind?: Prisma.EnumPartnerKindFilter<"Partner"> | $Enums.PartnerKind
   phone?: Prisma.StringNullableFilter<"Partner"> | string | null
+  email?: Prisma.StringNullableFilter<"Partner"> | string | null
+  address?: Prisma.StringNullableFilter<"Partner"> | string | null
+  idno?: Prisma.StringNullableFilter<"Partner"> | string | null
+  vatCode?: Prisma.StringNullableFilter<"Partner"> | string | null
+  iban?: Prisma.StringNullableFilter<"Partner"> | string | null
+  bankName?: Prisma.StringNullableFilter<"Partner"> | string | null
+  bankCode?: Prisma.StringNullableFilter<"Partner"> | string | null
   notes?: Prisma.StringNullableFilter<"Partner"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   documents?: Prisma.StockDocumentListRelationFilter
+  paymentAccounts?: Prisma.PaymentAccountListRelationFilter
 }, "id" | "name">
 
 export type PartnerOrderByWithAggregationInput = {
@@ -231,6 +304,13 @@ export type PartnerOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  idno?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  iban?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankCode?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -247,6 +327,13 @@ export type PartnerScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Partner"> | string
   kind?: Prisma.EnumPartnerKindWithAggregatesFilter<"Partner"> | $Enums.PartnerKind
   phone?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
+  email?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
+  address?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
+  idno?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
+  vatCode?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
+  iban?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
+  bankName?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
+  bankCode?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Partner"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Partner"> | Date | string
@@ -257,10 +344,18 @@ export type PartnerCreateInput = {
   name: string
   kind?: $Enums.PartnerKind
   phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
+  paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUncheckedCreateInput = {
@@ -268,10 +363,18 @@ export type PartnerUncheckedCreateInput = {
   name: string
   kind?: $Enums.PartnerKind
   phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUpdateInput = {
@@ -279,10 +382,18 @@ export type PartnerUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerUncheckedUpdateInput = {
@@ -290,10 +401,18 @@ export type PartnerUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerCreateManyInput = {
@@ -301,6 +420,13 @@ export type PartnerCreateManyInput = {
   name: string
   kind?: $Enums.PartnerKind
   phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -311,6 +437,13 @@ export type PartnerUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -321,6 +454,13 @@ export type PartnerUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -331,6 +471,13 @@ export type PartnerCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  idno?: Prisma.SortOrder
+  vatCode?: Prisma.SortOrder
+  iban?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  bankCode?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -341,6 +488,13 @@ export type PartnerMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  idno?: Prisma.SortOrder
+  vatCode?: Prisma.SortOrder
+  iban?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  bankCode?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -351,6 +505,13 @@ export type PartnerMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  idno?: Prisma.SortOrder
+  vatCode?: Prisma.SortOrder
+  iban?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  bankCode?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -359,6 +520,11 @@ export type PartnerMinOrderByAggregateInput = {
 export type PartnerNullableScalarRelationFilter = {
   is?: Prisma.PartnerWhereInput | null
   isNot?: Prisma.PartnerWhereInput | null
+}
+
+export type PartnerScalarRelationFilter = {
+  is?: Prisma.PartnerWhereInput
+  isNot?: Prisma.PartnerWhereInput
 }
 
 export type EnumPartnerKindFieldUpdateOperationsInput = {
@@ -381,14 +547,36 @@ export type PartnerUpdateOneWithoutDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PartnerUpdateToOneWithWhereWithoutDocumentsInput, Prisma.PartnerUpdateWithoutDocumentsInput>, Prisma.PartnerUncheckedUpdateWithoutDocumentsInput>
 }
 
+export type PartnerCreateNestedOneWithoutPaymentAccountsInput = {
+  create?: Prisma.XOR<Prisma.PartnerCreateWithoutPaymentAccountsInput, Prisma.PartnerUncheckedCreateWithoutPaymentAccountsInput>
+  connectOrCreate?: Prisma.PartnerCreateOrConnectWithoutPaymentAccountsInput
+  connect?: Prisma.PartnerWhereUniqueInput
+}
+
+export type PartnerUpdateOneRequiredWithoutPaymentAccountsNestedInput = {
+  create?: Prisma.XOR<Prisma.PartnerCreateWithoutPaymentAccountsInput, Prisma.PartnerUncheckedCreateWithoutPaymentAccountsInput>
+  connectOrCreate?: Prisma.PartnerCreateOrConnectWithoutPaymentAccountsInput
+  upsert?: Prisma.PartnerUpsertWithoutPaymentAccountsInput
+  connect?: Prisma.PartnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PartnerUpdateToOneWithWhereWithoutPaymentAccountsInput, Prisma.PartnerUpdateWithoutPaymentAccountsInput>, Prisma.PartnerUncheckedUpdateWithoutPaymentAccountsInput>
+}
+
 export type PartnerCreateWithoutDocumentsInput = {
   id?: string
   name: string
   kind?: $Enums.PartnerKind
   phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUncheckedCreateWithoutDocumentsInput = {
@@ -396,9 +584,17 @@ export type PartnerUncheckedCreateWithoutDocumentsInput = {
   name: string
   kind?: $Enums.PartnerKind
   phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerCreateOrConnectWithoutDocumentsInput = {
@@ -422,9 +618,17 @@ export type PartnerUpdateWithoutDocumentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerUncheckedUpdateWithoutDocumentsInput = {
@@ -432,9 +636,105 @@ export type PartnerUncheckedUpdateWithoutDocumentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
+}
+
+export type PartnerCreateWithoutPaymentAccountsInput = {
+  id?: string
+  name: string
+  kind?: $Enums.PartnerKind
+  phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
+}
+
+export type PartnerUncheckedCreateWithoutPaymentAccountsInput = {
+  id?: string
+  name: string
+  kind?: $Enums.PartnerKind
+  phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
+}
+
+export type PartnerCreateOrConnectWithoutPaymentAccountsInput = {
+  where: Prisma.PartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartnerCreateWithoutPaymentAccountsInput, Prisma.PartnerUncheckedCreateWithoutPaymentAccountsInput>
+}
+
+export type PartnerUpsertWithoutPaymentAccountsInput = {
+  update: Prisma.XOR<Prisma.PartnerUpdateWithoutPaymentAccountsInput, Prisma.PartnerUncheckedUpdateWithoutPaymentAccountsInput>
+  create: Prisma.XOR<Prisma.PartnerCreateWithoutPaymentAccountsInput, Prisma.PartnerUncheckedCreateWithoutPaymentAccountsInput>
+  where?: Prisma.PartnerWhereInput
+}
+
+export type PartnerUpdateToOneWithWhereWithoutPaymentAccountsInput = {
+  where?: Prisma.PartnerWhereInput
+  data: Prisma.XOR<Prisma.PartnerUpdateWithoutPaymentAccountsInput, Prisma.PartnerUncheckedUpdateWithoutPaymentAccountsInput>
+}
+
+export type PartnerUpdateWithoutPaymentAccountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
+}
+
+export type PartnerUncheckedUpdateWithoutPaymentAccountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
 }
 
 
@@ -444,10 +744,12 @@ export type PartnerUncheckedUpdateWithoutDocumentsInput = {
 
 export type PartnerCountOutputType = {
   documents: number
+  paymentAccounts: number
 }
 
 export type PartnerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   documents?: boolean | PartnerCountOutputTypeCountDocumentsArgs
+  paymentAccounts?: boolean | PartnerCountOutputTypeCountPaymentAccountsArgs
 }
 
 /**
@@ -467,16 +769,31 @@ export type PartnerCountOutputTypeCountDocumentsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.StockDocumentWhereInput
 }
 
+/**
+ * PartnerCountOutputType without action
+ */
+export type PartnerCountOutputTypeCountPaymentAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentAccountWhereInput
+}
+
 
 export type PartnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   kind?: boolean
   phone?: boolean
+  email?: boolean
+  address?: boolean
+  idno?: boolean
+  vatCode?: boolean
+  iban?: boolean
+  bankName?: boolean
+  bankCode?: boolean
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   documents?: boolean | Prisma.Partner$documentsArgs<ExtArgs>
+  paymentAccounts?: boolean | Prisma.Partner$paymentAccountsArgs<ExtArgs>
   _count?: boolean | Prisma.PartnerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["partner"]>
 
@@ -485,6 +802,13 @@ export type PartnerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   kind?: boolean
   phone?: boolean
+  email?: boolean
+  address?: boolean
+  idno?: boolean
+  vatCode?: boolean
+  iban?: boolean
+  bankName?: boolean
+  bankCode?: boolean
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -495,6 +819,13 @@ export type PartnerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   kind?: boolean
   phone?: boolean
+  email?: boolean
+  address?: boolean
+  idno?: boolean
+  vatCode?: boolean
+  iban?: boolean
+  bankName?: boolean
+  bankCode?: boolean
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -505,14 +836,22 @@ export type PartnerSelectScalar = {
   name?: boolean
   kind?: boolean
   phone?: boolean
+  email?: boolean
+  address?: boolean
+  idno?: boolean
+  vatCode?: boolean
+  iban?: boolean
+  bankName?: boolean
+  bankCode?: boolean
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PartnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "kind" | "phone" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["partner"]>
+export type PartnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "kind" | "phone" | "email" | "address" | "idno" | "vatCode" | "iban" | "bankName" | "bankCode" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["partner"]>
 export type PartnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   documents?: boolean | Prisma.Partner$documentsArgs<ExtArgs>
+  paymentAccounts?: boolean | Prisma.Partner$paymentAccountsArgs<ExtArgs>
   _count?: boolean | Prisma.PartnerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PartnerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -522,12 +861,20 @@ export type $PartnerPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Partner"
   objects: {
     documents: Prisma.$StockDocumentPayload<ExtArgs>[]
+    paymentAccounts: Prisma.$PaymentAccountPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     kind: $Enums.PartnerKind
     phone: string | null
+    email: string | null
+    address: string | null
+    idno: string | null
+    vatCode: string | null
+    iban: string | null
+    bankName: string | null
+    bankCode: string | null
     notes: string | null
     createdAt: Date
     updatedAt: Date
@@ -926,6 +1273,7 @@ readonly fields: PartnerFieldRefs;
 export interface Prisma__PartnerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   documents<T extends Prisma.Partner$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  paymentAccounts<T extends Prisma.Partner$paymentAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$paymentAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -959,6 +1307,13 @@ export interface PartnerFieldRefs {
   readonly name: Prisma.FieldRef<"Partner", 'String'>
   readonly kind: Prisma.FieldRef<"Partner", 'PartnerKind'>
   readonly phone: Prisma.FieldRef<"Partner", 'String'>
+  readonly email: Prisma.FieldRef<"Partner", 'String'>
+  readonly address: Prisma.FieldRef<"Partner", 'String'>
+  readonly idno: Prisma.FieldRef<"Partner", 'String'>
+  readonly vatCode: Prisma.FieldRef<"Partner", 'String'>
+  readonly iban: Prisma.FieldRef<"Partner", 'String'>
+  readonly bankName: Prisma.FieldRef<"Partner", 'String'>
+  readonly bankCode: Prisma.FieldRef<"Partner", 'String'>
   readonly notes: Prisma.FieldRef<"Partner", 'String'>
   readonly createdAt: Prisma.FieldRef<"Partner", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Partner", 'DateTime'>
@@ -1376,6 +1731,30 @@ export type Partner$documentsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.StockDocumentScalarFieldEnum | Prisma.StockDocumentScalarFieldEnum[]
+}
+
+/**
+ * Partner.paymentAccounts
+ */
+export type Partner$paymentAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PaymentAccount
+   */
+  select?: Prisma.PaymentAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PaymentAccount
+   */
+  omit?: Prisma.PaymentAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentAccountInclude<ExtArgs> | null
+  where?: Prisma.PaymentAccountWhereInput
+  orderBy?: Prisma.PaymentAccountOrderByWithRelationInput | Prisma.PaymentAccountOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentAccountWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentAccountScalarFieldEnum | Prisma.PaymentAccountScalarFieldEnum[]
 }
 
 /**

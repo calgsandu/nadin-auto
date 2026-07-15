@@ -105,6 +105,7 @@ assert.equal(canCreateSales(null), false);
 // canViewSection: ANGAJAT vede doar produse + vânzări.
 assert.equal(canViewSection("ANGAJAT", "produse"), true);
 assert.equal(canViewSection("ANGAJAT", "vanzari"), true);
+assert.equal(canViewSection("ANGAJAT", "conturi-plata"), true);
 assert.equal(canViewSection("ANGAJAT", "receptii"), false);
 assert.equal(canViewSection("ANGAJAT", "statistici"), false);
 assert.equal(canViewSection("ANGAJAT", "istoric"), false);

@@ -15,6 +15,13 @@ export type PartnerFormValue = {
   name: string;
   kind: PartnerKind;
   phone: string;
+  email: string;
+  address: string;
+  idno: string;
+  vatCode: string;
+  iban: string;
+  bankName: string;
+  bankCode: string;
   notes: string;
 };
 
@@ -68,10 +75,10 @@ export function PartnerFormDialog({
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
                 <div>
                   <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
-                    Furnizori
+                    Parteneri
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">
-                    {partner ? "Editează furnizor" : "Adaugă furnizor"}
+                    {partner ? "Editează partener" : "Adaugă partener"}
                   </h2>
                 </div>
                 <button
@@ -119,6 +126,77 @@ export function PartnerFormDialog({
                     defaultValue={partner?.phone ?? ""}
                     inputMode="tel"
                     placeholder="ex. 0760 123 456"
+                  />
+                </Field>
+
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <Field label="E-mail">
+                    <input
+                      className={inputClassName}
+                      name="email"
+                      defaultValue={partner?.email ?? ""}
+                      inputMode="email"
+                      placeholder="ex. contabilitate@firma.md"
+                      type="email"
+                    />
+                  </Field>
+
+                  <Field label="IDNO / Cod fiscal">
+                    <input
+                      className={inputClassName}
+                      name="idno"
+                      defaultValue={partner?.idno ?? ""}
+                      inputMode="numeric"
+                      placeholder="ex. 1006600052073"
+                    />
+                  </Field>
+                </div>
+
+                <Field label="Adresa juridică">
+                  <input
+                    className={inputClassName}
+                    name="address"
+                    defaultValue={partner?.address ?? ""}
+                    placeholder="mun. Chișinău, str. ..."
+                  />
+                </Field>
+
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <Field label="Cod TVA">
+                    <input
+                      className={inputClassName}
+                      name="vatCode"
+                      defaultValue={partner?.vatCode ?? ""}
+                      inputMode="numeric"
+                      placeholder="opțional"
+                    />
+                  </Field>
+
+                  <Field label="Cod bancar / BIC">
+                    <input
+                      className={inputClassName}
+                      name="bankCode"
+                      defaultValue={partner?.bankCode ?? ""}
+                      placeholder="ex. MOBBMD22"
+                    />
+                  </Field>
+                </div>
+
+                <Field label="IBAN">
+                  <input
+                    className={`${inputClassName} font-mono`}
+                    name="iban"
+                    defaultValue={partner?.iban ?? ""}
+                    placeholder="MD..."
+                  />
+                </Field>
+
+                <Field label="Banca">
+                  <input
+                    className={inputClassName}
+                    name="bankName"
+                    defaultValue={partner?.bankName ?? ""}
+                    placeholder="Denumirea băncii"
                   />
                 </Field>
 

@@ -51,7 +51,7 @@ export default async function BrandPage({
                     alt={brand.name}
                     width={96}
                     height={96}
-                    className="h-full w-full object-contain"
+                    className="h-14 w-full object-contain md:h-18"
                   />
                 </span>
               ) : null}

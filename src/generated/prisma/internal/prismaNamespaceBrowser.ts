@@ -62,6 +62,8 @@ export const ModelName = {
   WarehouseStock: 'WarehouseStock',
   Partner: 'Partner',
   StockDocument: 'StockDocument',
+  PaymentAccount: 'PaymentAccount',
+  PaymentAccountLine: 'PaymentAccountLine',
   StockDocumentLine: 'StockDocumentLine',
   RestockTask: 'RestockTask'
 } as const
@@ -211,6 +213,13 @@ export const PartnerScalarFieldEnum = {
   name: 'name',
   kind: 'kind',
   phone: 'phone',
+  email: 'email',
+  address: 'address',
+  idno: 'idno',
+  vatCode: 'vatCode',
+  iban: 'iban',
+  bankName: 'bankName',
+  bankCode: 'bankCode',
   notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -236,6 +245,63 @@ export const StockDocumentScalarFieldEnum = {
 } as const
 
 export type StockDocumentScalarFieldEnum = (typeof StockDocumentScalarFieldEnum)[keyof typeof StockDocumentScalarFieldEnum]
+
+
+export const PaymentAccountScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  issueDate: 'issueDate',
+  dueDate: 'dueDate',
+  status: 'status',
+  paidAt: 'paidAt',
+  fulfilledAt: 'fulfilledAt',
+  cancelledAt: 'cancelledAt',
+  warehouseId: 'warehouseId',
+  partnerId: 'partnerId',
+  saleDocumentId: 'saleDocumentId',
+  notes: 'notes',
+  customerName: 'customerName',
+  customerAddress: 'customerAddress',
+  customerIdno: 'customerIdno',
+  customerVatCode: 'customerVatCode',
+  customerPhone: 'customerPhone',
+  customerEmail: 'customerEmail',
+  customerIban: 'customerIban',
+  customerBankName: 'customerBankName',
+  customerBankCode: 'customerBankCode',
+  totalNet: 'totalNet',
+  totalVat: 'totalVat',
+  totalGross: 'totalGross',
+  eFacturaStatus: 'eFacturaStatus',
+  eFacturaRequestId: 'eFacturaRequestId',
+  eFacturaResponseCode: 'eFacturaResponseCode',
+  eFacturaMessage: 'eFacturaMessage',
+  eFacturaSubmittedAt: 'eFacturaSubmittedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentAccountScalarFieldEnum = (typeof PaymentAccountScalarFieldEnum)[keyof typeof PaymentAccountScalarFieldEnum]
+
+
+export const PaymentAccountLineScalarFieldEnum = {
+  id: 'id',
+  paymentAccountId: 'paymentAccountId',
+  productId: 'productId',
+  productCode: 'productCode',
+  description: 'description',
+  unitOfMeasure: 'unitOfMeasure',
+  quantity: 'quantity',
+  unitPriceGross: 'unitPriceGross',
+  unitPriceNet: 'unitPriceNet',
+  totalNet: 'totalNet',
+  totalVat: 'totalVat',
+  totalGross: 'totalGross',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentAccountLineScalarFieldEnum = (typeof PaymentAccountLineScalarFieldEnum)[keyof typeof PaymentAccountLineScalarFieldEnum]
 
 
 export const StockDocumentLineScalarFieldEnum = {

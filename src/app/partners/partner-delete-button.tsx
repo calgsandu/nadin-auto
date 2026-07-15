@@ -28,7 +28,7 @@ export function PartnerDeleteButton({
     <form
       action={formAction}
       onSubmit={(event) => {
-        if (!window.confirm(`Ștergi furnizorul "${partnerName}"?`)) {
+        if (!window.confirm(`Ștergi partenerul "${partnerName}"?`)) {
           event.preventDefault();
         }
       }}

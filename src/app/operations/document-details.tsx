@@ -171,13 +171,13 @@ function DetailsPanel({
                   href={`/api/export/document/${details.id}/pdf`}
                   className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                 >
-                  <FileText className="size-4" aria-hidden="true" /> PDF
+                  <FileText className="size-4" aria-hidden="true" /> PDF intern
                 </a>
                 <a
                   href={`/api/export/invoice/${details.id}`}
                   className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                 >
-                  <Download className="size-4" aria-hidden="true" /> Excel
+                  <Download className="size-4" aria-hidden="true" /> Excel intern
                 </a>
                 <Link
                   href={`/?section=istoric&doc=${details.id}`}

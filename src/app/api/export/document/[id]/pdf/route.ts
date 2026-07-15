@@ -14,10 +14,10 @@ import {
 export const dynamic = "force-dynamic";
 
 const TYPE_LABEL: Record<string, string> = {
-  RECEIPT: "FACTURĂ DE RECEPȚIE",
-  SALE: "FACTURĂ DE VÂNZARE",
-  RETURN: "DOCUMENT DE RETUR",
-  ADJUSTMENT: "ACT DE AJUSTARE / TRANSFER",
+  RECEIPT: "FIȘĂ INTERNĂ DE RECEPȚIE",
+  SALE: "FIȘĂ INTERNĂ DE VÂNZARE",
+  RETURN: "FIȘĂ INTERNĂ DE RETUR",
+  ADJUSTMENT: "ACT INTERN DE AJUSTARE / TRANSFER",
 };
 
 export async function GET(
@@ -109,5 +109,5 @@ export async function GET(
   pdf.text("Primit: ______________________", 330, y);
 
   const stamp = doc.documentDate.toISOString().slice(0, 10);
-  return pdfResponse(pdf, `${doc.type.toLowerCase()}-${doc.number}-${stamp}.pdf`);
+  return pdfResponse(pdf, `document-intern-${doc.type.toLowerCase()}-${doc.number}-${stamp}.pdf`);
 }

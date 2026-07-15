@@ -3,6 +3,7 @@ export type WorkspaceSectionId =
   | "receptii"
   | "transferuri"
   | "vanzari"
+  | "conturi-plata"
   | "retururi"
   | "de-adus"
   | "fara-stoc"
@@ -70,6 +71,11 @@ export const workspaceSections: WorkspaceSection[] = [
     description: "Vânzări catalogate pe zile, luni și ani.",
   },
   {
+    id: "conturi-plata",
+    title: "Conturi de plată",
+    description: "Emite proforme, urmărește achitarea și predarea mărfii.",
+  },
+  {
     id: "retururi",
     title: "Retururi",
     description: "Produse returnate din vânzările înregistrate.",
@@ -96,8 +102,8 @@ export const workspaceSections: WorkspaceSection[] = [
   },
   {
     id: "furnizori",
-    title: "Furnizori",
-    description: "Partenerii de la care se aprovizionează marfa.",
+    title: "Parteneri",
+    description: "Furnizorii de la care se aprovizionează marfa și clienții pentru facturi.",
   },
   {
     id: "personal",
@@ -170,6 +176,12 @@ export const navigationEntries: NavigationEntry[] = [
     label: "Vânzări",
     description: "Istoric vânzări",
     icon: "ShoppingCart",
+  },
+  {
+    section: "conturi-plata",
+    label: "Conturi de plată",
+    description: "Proforme și achitări",
+    icon: "FileText",
   },
   {
     section: "retururi",
@@ -295,7 +307,7 @@ export const navigationGroups: NavGroup[] = [
     label: "Operațiuni",
     description: "Mișcări de stoc",
     icon: "ArrowRightLeft",
-    sections: ["receptii", "transferuri", "vanzari", "retururi", "de-adus", "fara-stoc", "inventar", "documente", "istoric"],
+    sections: ["receptii", "transferuri", "vanzari", "conturi-plata", "retururi", "de-adus", "fara-stoc", "inventar", "documente", "istoric"],
   },
   {
     id: "nomenclatoare",
@@ -306,8 +318,8 @@ export const navigationGroups: NavGroup[] = [
   },
   {
     id: "furnizori",
-    label: "Furnizori",
-    description: "Parteneri",
+    label: "Parteneri",
+    description: "Furnizori și clienți",
     icon: "Handshake",
     sections: ["furnizori"],
   },

@@ -84,7 +84,7 @@ export default async function CatalogPage() {
                         alt={brand.name}
                         width={112}
                         height={64}
-                        className="h-full w-full object-contain"
+                        className="h-9 w-full object-contain"
                       />
                     ) : (
                       <span className="text-sm font-semibold uppercase tracking-wider text-[#1b1a17]">
@@ -180,7 +180,7 @@ export default async function CatalogPage() {
                         alt={brand.name}
                         width={44}
                         height={44}
-                        className="h-full w-full object-contain"
+                        className="h-8 w-full object-contain"
                       />
                     </span>
                   ) : null}

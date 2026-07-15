@@ -193,6 +193,7 @@ export type WarehouseWhereInput = {
   stocks?: Prisma.WarehouseStockListRelationFilter
   documents?: Prisma.StockDocumentListRelationFilter
   restockTasks?: Prisma.RestockTaskListRelationFilter
+  paymentAccounts?: Prisma.PaymentAccountListRelationFilter
 }
 
 export type WarehouseOrderByWithRelationInput = {
@@ -205,6 +206,7 @@ export type WarehouseOrderByWithRelationInput = {
   stocks?: Prisma.WarehouseStockOrderByRelationAggregateInput
   documents?: Prisma.StockDocumentOrderByRelationAggregateInput
   restockTasks?: Prisma.RestockTaskOrderByRelationAggregateInput
+  paymentAccounts?: Prisma.PaymentAccountOrderByRelationAggregateInput
 }
 
 export type WarehouseWhereUniqueInput = Prisma.AtLeast<{
@@ -220,6 +222,7 @@ export type WarehouseWhereUniqueInput = Prisma.AtLeast<{
   stocks?: Prisma.WarehouseStockListRelationFilter
   documents?: Prisma.StockDocumentListRelationFilter
   restockTasks?: Prisma.RestockTaskListRelationFilter
+  paymentAccounts?: Prisma.PaymentAccountListRelationFilter
 }, "id" | "name">
 
 export type WarehouseOrderByWithAggregationInput = {
@@ -256,6 +259,7 @@ export type WarehouseCreateInput = {
   stocks?: Prisma.WarehouseStockCreateNestedManyWithoutWarehouseInput
   documents?: Prisma.StockDocumentCreateNestedManyWithoutWarehouseInput
   restockTasks?: Prisma.RestockTaskCreateNestedManyWithoutWarehouseInput
+  paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseUncheckedCreateInput = {
@@ -268,6 +272,7 @@ export type WarehouseUncheckedCreateInput = {
   stocks?: Prisma.WarehouseStockUncheckedCreateNestedManyWithoutWarehouseInput
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutWarehouseInput
   restockTasks?: Prisma.RestockTaskUncheckedCreateNestedManyWithoutWarehouseInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseUpdateInput = {
@@ -280,6 +285,7 @@ export type WarehouseUpdateInput = {
   stocks?: Prisma.WarehouseStockUpdateManyWithoutWarehouseNestedInput
   documents?: Prisma.StockDocumentUpdateManyWithoutWarehouseNestedInput
   restockTasks?: Prisma.RestockTaskUpdateManyWithoutWarehouseNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseUncheckedUpdateInput = {
@@ -292,6 +298,7 @@ export type WarehouseUncheckedUpdateInput = {
   stocks?: Prisma.WarehouseStockUncheckedUpdateManyWithoutWarehouseNestedInput
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutWarehouseNestedInput
   restockTasks?: Prisma.RestockTaskUncheckedUpdateManyWithoutWarehouseNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseCreateManyInput = {
@@ -381,6 +388,20 @@ export type WarehouseUpdateOneRequiredWithoutDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WarehouseUpdateToOneWithWhereWithoutDocumentsInput, Prisma.WarehouseUpdateWithoutDocumentsInput>, Prisma.WarehouseUncheckedUpdateWithoutDocumentsInput>
 }
 
+export type WarehouseCreateNestedOneWithoutPaymentAccountsInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutPaymentAccountsInput, Prisma.WarehouseUncheckedCreateWithoutPaymentAccountsInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutPaymentAccountsInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+}
+
+export type WarehouseUpdateOneRequiredWithoutPaymentAccountsNestedInput = {
+  create?: Prisma.XOR<Prisma.WarehouseCreateWithoutPaymentAccountsInput, Prisma.WarehouseUncheckedCreateWithoutPaymentAccountsInput>
+  connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutPaymentAccountsInput
+  upsert?: Prisma.WarehouseUpsertWithoutPaymentAccountsInput
+  connect?: Prisma.WarehouseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WarehouseUpdateToOneWithWhereWithoutPaymentAccountsInput, Prisma.WarehouseUpdateWithoutPaymentAccountsInput>, Prisma.WarehouseUncheckedUpdateWithoutPaymentAccountsInput>
+}
+
 export type WarehouseCreateNestedOneWithoutRestockTasksInput = {
   create?: Prisma.XOR<Prisma.WarehouseCreateWithoutRestockTasksInput, Prisma.WarehouseUncheckedCreateWithoutRestockTasksInput>
   connectOrCreate?: Prisma.WarehouseCreateOrConnectWithoutRestockTasksInput
@@ -404,6 +425,7 @@ export type WarehouseCreateWithoutStocksInput = {
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentCreateNestedManyWithoutWarehouseInput
   restockTasks?: Prisma.RestockTaskCreateNestedManyWithoutWarehouseInput
+  paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseUncheckedCreateWithoutStocksInput = {
@@ -415,6 +437,7 @@ export type WarehouseUncheckedCreateWithoutStocksInput = {
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutWarehouseInput
   restockTasks?: Prisma.RestockTaskUncheckedCreateNestedManyWithoutWarehouseInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseCreateOrConnectWithoutStocksInput = {
@@ -442,6 +465,7 @@ export type WarehouseUpdateWithoutStocksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUpdateManyWithoutWarehouseNestedInput
   restockTasks?: Prisma.RestockTaskUpdateManyWithoutWarehouseNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseUncheckedUpdateWithoutStocksInput = {
@@ -453,6 +477,7 @@ export type WarehouseUncheckedUpdateWithoutStocksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutWarehouseNestedInput
   restockTasks?: Prisma.RestockTaskUncheckedUpdateManyWithoutWarehouseNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseCreateWithoutDocumentsInput = {
@@ -464,6 +489,7 @@ export type WarehouseCreateWithoutDocumentsInput = {
   updatedAt?: Date | string
   stocks?: Prisma.WarehouseStockCreateNestedManyWithoutWarehouseInput
   restockTasks?: Prisma.RestockTaskCreateNestedManyWithoutWarehouseInput
+  paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseUncheckedCreateWithoutDocumentsInput = {
@@ -475,6 +501,7 @@ export type WarehouseUncheckedCreateWithoutDocumentsInput = {
   updatedAt?: Date | string
   stocks?: Prisma.WarehouseStockUncheckedCreateNestedManyWithoutWarehouseInput
   restockTasks?: Prisma.RestockTaskUncheckedCreateNestedManyWithoutWarehouseInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseCreateOrConnectWithoutDocumentsInput = {
@@ -502,6 +529,7 @@ export type WarehouseUpdateWithoutDocumentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.WarehouseStockUpdateManyWithoutWarehouseNestedInput
   restockTasks?: Prisma.RestockTaskUpdateManyWithoutWarehouseNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseUncheckedUpdateWithoutDocumentsInput = {
@@ -512,6 +540,71 @@ export type WarehouseUncheckedUpdateWithoutDocumentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.WarehouseStockUncheckedUpdateManyWithoutWarehouseNestedInput
+  restockTasks?: Prisma.RestockTaskUncheckedUpdateManyWithoutWarehouseNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutWarehouseNestedInput
+}
+
+export type WarehouseCreateWithoutPaymentAccountsInput = {
+  id?: string
+  name: string
+  isDefault?: boolean
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.WarehouseStockCreateNestedManyWithoutWarehouseInput
+  documents?: Prisma.StockDocumentCreateNestedManyWithoutWarehouseInput
+  restockTasks?: Prisma.RestockTaskCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseUncheckedCreateWithoutPaymentAccountsInput = {
+  id?: string
+  name: string
+  isDefault?: boolean
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.WarehouseStockUncheckedCreateNestedManyWithoutWarehouseInput
+  documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutWarehouseInput
+  restockTasks?: Prisma.RestockTaskUncheckedCreateNestedManyWithoutWarehouseInput
+}
+
+export type WarehouseCreateOrConnectWithoutPaymentAccountsInput = {
+  where: Prisma.WarehouseWhereUniqueInput
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutPaymentAccountsInput, Prisma.WarehouseUncheckedCreateWithoutPaymentAccountsInput>
+}
+
+export type WarehouseUpsertWithoutPaymentAccountsInput = {
+  update: Prisma.XOR<Prisma.WarehouseUpdateWithoutPaymentAccountsInput, Prisma.WarehouseUncheckedUpdateWithoutPaymentAccountsInput>
+  create: Prisma.XOR<Prisma.WarehouseCreateWithoutPaymentAccountsInput, Prisma.WarehouseUncheckedCreateWithoutPaymentAccountsInput>
+  where?: Prisma.WarehouseWhereInput
+}
+
+export type WarehouseUpdateToOneWithWhereWithoutPaymentAccountsInput = {
+  where?: Prisma.WarehouseWhereInput
+  data: Prisma.XOR<Prisma.WarehouseUpdateWithoutPaymentAccountsInput, Prisma.WarehouseUncheckedUpdateWithoutPaymentAccountsInput>
+}
+
+export type WarehouseUpdateWithoutPaymentAccountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.WarehouseStockUpdateManyWithoutWarehouseNestedInput
+  documents?: Prisma.StockDocumentUpdateManyWithoutWarehouseNestedInput
+  restockTasks?: Prisma.RestockTaskUpdateManyWithoutWarehouseNestedInput
+}
+
+export type WarehouseUncheckedUpdateWithoutPaymentAccountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.WarehouseStockUncheckedUpdateManyWithoutWarehouseNestedInput
+  documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutWarehouseNestedInput
   restockTasks?: Prisma.RestockTaskUncheckedUpdateManyWithoutWarehouseNestedInput
 }
 
@@ -524,6 +617,7 @@ export type WarehouseCreateWithoutRestockTasksInput = {
   updatedAt?: Date | string
   stocks?: Prisma.WarehouseStockCreateNestedManyWithoutWarehouseInput
   documents?: Prisma.StockDocumentCreateNestedManyWithoutWarehouseInput
+  paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseUncheckedCreateWithoutRestockTasksInput = {
@@ -535,6 +629,7 @@ export type WarehouseUncheckedCreateWithoutRestockTasksInput = {
   updatedAt?: Date | string
   stocks?: Prisma.WarehouseStockUncheckedCreateNestedManyWithoutWarehouseInput
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutWarehouseInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutWarehouseInput
 }
 
 export type WarehouseCreateOrConnectWithoutRestockTasksInput = {
@@ -562,6 +657,7 @@ export type WarehouseUpdateWithoutRestockTasksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.WarehouseStockUpdateManyWithoutWarehouseNestedInput
   documents?: Prisma.StockDocumentUpdateManyWithoutWarehouseNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutWarehouseNestedInput
 }
 
 export type WarehouseUncheckedUpdateWithoutRestockTasksInput = {
@@ -573,6 +669,7 @@ export type WarehouseUncheckedUpdateWithoutRestockTasksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.WarehouseStockUncheckedUpdateManyWithoutWarehouseNestedInput
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutWarehouseNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutWarehouseNestedInput
 }
 
 
@@ -584,12 +681,14 @@ export type WarehouseCountOutputType = {
   stocks: number
   documents: number
   restockTasks: number
+  paymentAccounts: number
 }
 
 export type WarehouseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   stocks?: boolean | WarehouseCountOutputTypeCountStocksArgs
   documents?: boolean | WarehouseCountOutputTypeCountDocumentsArgs
   restockTasks?: boolean | WarehouseCountOutputTypeCountRestockTasksArgs
+  paymentAccounts?: boolean | WarehouseCountOutputTypeCountPaymentAccountsArgs
 }
 
 /**
@@ -623,6 +722,13 @@ export type WarehouseCountOutputTypeCountRestockTasksArgs<ExtArgs extends runtim
   where?: Prisma.RestockTaskWhereInput
 }
 
+/**
+ * WarehouseCountOutputType without action
+ */
+export type WarehouseCountOutputTypeCountPaymentAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentAccountWhereInput
+}
+
 
 export type WarehouseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -634,6 +740,7 @@ export type WarehouseSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   stocks?: boolean | Prisma.Warehouse$stocksArgs<ExtArgs>
   documents?: boolean | Prisma.Warehouse$documentsArgs<ExtArgs>
   restockTasks?: boolean | Prisma.Warehouse$restockTasksArgs<ExtArgs>
+  paymentAccounts?: boolean | Prisma.Warehouse$paymentAccountsArgs<ExtArgs>
   _count?: boolean | Prisma.WarehouseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["warehouse"]>
 
@@ -669,6 +776,7 @@ export type WarehouseInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   stocks?: boolean | Prisma.Warehouse$stocksArgs<ExtArgs>
   documents?: boolean | Prisma.Warehouse$documentsArgs<ExtArgs>
   restockTasks?: boolean | Prisma.Warehouse$restockTasksArgs<ExtArgs>
+  paymentAccounts?: boolean | Prisma.Warehouse$paymentAccountsArgs<ExtArgs>
   _count?: boolean | Prisma.WarehouseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WarehouseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -680,6 +788,7 @@ export type $WarehousePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     stocks: Prisma.$WarehouseStockPayload<ExtArgs>[]
     documents: Prisma.$StockDocumentPayload<ExtArgs>[]
     restockTasks: Prisma.$RestockTaskPayload<ExtArgs>[]
+    paymentAccounts: Prisma.$PaymentAccountPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1085,6 +1194,7 @@ export interface Prisma__WarehouseClient<T, Null = never, ExtArgs extends runtim
   stocks<T extends Prisma.Warehouse$stocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Warehouse$stocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WarehouseStockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   documents<T extends Prisma.Warehouse$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Warehouse$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   restockTasks<T extends Prisma.Warehouse$restockTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Warehouse$restockTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RestockTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  paymentAccounts<T extends Prisma.Warehouse$paymentAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Warehouse$paymentAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1582,6 +1692,30 @@ export type Warehouse$restockTasksArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.RestockTaskScalarFieldEnum | Prisma.RestockTaskScalarFieldEnum[]
+}
+
+/**
+ * Warehouse.paymentAccounts
+ */
+export type Warehouse$paymentAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PaymentAccount
+   */
+  select?: Prisma.PaymentAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PaymentAccount
+   */
+  omit?: Prisma.PaymentAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentAccountInclude<ExtArgs> | null
+  where?: Prisma.PaymentAccountWhereInput
+  orderBy?: Prisma.PaymentAccountOrderByWithRelationInput | Prisma.PaymentAccountOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentAccountWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentAccountScalarFieldEnum | Prisma.PaymentAccountScalarFieldEnum[]
 }
 
 /**

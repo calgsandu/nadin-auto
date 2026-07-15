@@ -226,6 +226,7 @@ export async function createSaleAction(
     const warehouseId = readString(formData, "warehouseId");
     const documentDate = readDate(formData, "documentDate");
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
+    const newCustomerName = readString(formData, "newCustomerName");
     const notes = readString(formData, "notes");
     const lines = parseSaleLines({
       productIds: readStrings(formData, "productId"),
@@ -247,13 +248,36 @@ export async function createSaleAction(
         throw new Error("Locația aleasă nu există.");
       }
 
-      const partner = selectedPartnerId
-        ? await tx.partner.findUnique({
-            where: { id: selectedPartnerId },
-            select: { id: true, kind: true },
-          })
-        : null;
-      const partnerId = ensureCustomerPartner(partner, selectedPartnerId);
+      let partnerId: string | null;
+      if (newCustomerName) {
+        const existing = await tx.partner.findUnique({
+          where: { name: newCustomerName },
+          select: { id: true, kind: true },
+        });
+        if (existing) {
+          if (existing.kind === "SUPPLIER") {
+            await tx.partner.update({
+              where: { id: existing.id },
+              data: { kind: "BOTH" },
+            });
+          }
+          partnerId = existing.id;
+        } else {
+          const created = await tx.partner.create({
+            data: { name: newCustomerName, kind: "CUSTOMER" },
+            select: { id: true },
+          });
+          partnerId = created.id;
+        }
+      } else {
+        const partner = selectedPartnerId
+          ? await tx.partner.findUnique({
+              where: { id: selectedPartnerId },
+              select: { id: true, kind: true },
+            })
+          : null;
+        partnerId = ensureCustomerPartner(partner, selectedPartnerId);
+      }
 
       for (const line of lines) {
         const stock = await ensureWarehouseStockRow(tx, line.productId, warehouseId);

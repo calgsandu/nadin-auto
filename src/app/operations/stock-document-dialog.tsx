@@ -480,6 +480,7 @@ export function StockSaleDialog({
   customers?: SupplierOption[];
 }) {
   const [open, setOpen] = useState(false);
+  const [newClient, setNewClient] = useState(false);
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<{ id: number; qty: string; price: string }[]>([
     { id: 1, qty: "", price: "" },
@@ -489,6 +490,7 @@ export function StockSaleDialog({
 
     if (nextState.ok) {
       setOpen(false);
+      setNewClient(false);
       nextLineId.current = 2;
       setLines([{ id: 1, qty: "", price: "" }]);
     }
@@ -565,12 +567,31 @@ export function StockSaleDialog({
                   </select>
                 </Field>
                 <Field label="Client (pentru factură)">
-                  <select className={inputClassName} name="partnerId">
-                    <option value="">Consumator final</option>
-                    {customers.map((customer) => (
-                      <option key={customer.id} value={customer.id}>{customer.name}</option>
-                    ))}
-                  </select>
+                  <div className="flex gap-2">
+                    {newClient ? (
+                      <input
+                        autoFocus
+                        className={inputClassName}
+                        name="newCustomerName"
+                        placeholder="nume client nou"
+                        required
+                      />
+                    ) : (
+                      <select className={inputClassName} name="partnerId">
+                        <option value="">Consumator final</option>
+                        {customers.map((customer) => (
+                          <option key={customer.id} value={customer.id}>{customer.name}</option>
+                        ))}
+                      </select>
+                    )}
+                    <button
+                      className={`${secondaryButtonClassName} shrink-0`}
+                      type="button"
+                      onClick={() => setNewClient((current) => !current)}
+                    >
+                      {newClient ? "Alege din listă" : "Client nou"}
+                    </button>
+                  </div>
                 </Field>
               </div>
               <section className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">

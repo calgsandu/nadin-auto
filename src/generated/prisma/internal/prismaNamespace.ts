@@ -395,6 +395,8 @@ export const ModelName = {
   WarehouseStock: 'WarehouseStock',
   Partner: 'Partner',
   StockDocument: 'StockDocument',
+  PaymentAccount: 'PaymentAccount',
+  PaymentAccountLine: 'PaymentAccountLine',
   StockDocumentLine: 'StockDocumentLine',
   RestockTask: 'RestockTask'
 } as const
@@ -412,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "auditLog" | "appUser" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "warehouse" | "warehouseStock" | "partner" | "stockDocument" | "stockDocumentLine" | "restockTask"
+    modelProps: "auditLog" | "appUser" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "warehouse" | "warehouseStock" | "partner" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1230,6 +1232,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PaymentAccount: {
+      payload: Prisma.$PaymentAccountPayload<ExtArgs>
+      fields: Prisma.PaymentAccountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PaymentAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PaymentAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload>
+        }
+        findFirst: {
+          args: Prisma.PaymentAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PaymentAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload>
+        }
+        findMany: {
+          args: Prisma.PaymentAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload>[]
+        }
+        create: {
+          args: Prisma.PaymentAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload>
+        }
+        createMany: {
+          args: Prisma.PaymentAccountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PaymentAccountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload>[]
+        }
+        delete: {
+          args: Prisma.PaymentAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload>
+        }
+        update: {
+          args: Prisma.PaymentAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload>
+        }
+        deleteMany: {
+          args: Prisma.PaymentAccountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PaymentAccountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PaymentAccountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload>[]
+        }
+        upsert: {
+          args: Prisma.PaymentAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountPayload>
+        }
+        aggregate: {
+          args: Prisma.PaymentAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePaymentAccount>
+        }
+        groupBy: {
+          args: Prisma.PaymentAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentAccountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PaymentAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentAccountCountAggregateOutputType> | number
+        }
+      }
+    }
+    PaymentAccountLine: {
+      payload: Prisma.$PaymentAccountLinePayload<ExtArgs>
+      fields: Prisma.PaymentAccountLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PaymentAccountLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PaymentAccountLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload>
+        }
+        findFirst: {
+          args: Prisma.PaymentAccountLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PaymentAccountLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload>
+        }
+        findMany: {
+          args: Prisma.PaymentAccountLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload>[]
+        }
+        create: {
+          args: Prisma.PaymentAccountLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload>
+        }
+        createMany: {
+          args: Prisma.PaymentAccountLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PaymentAccountLineCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload>[]
+        }
+        delete: {
+          args: Prisma.PaymentAccountLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload>
+        }
+        update: {
+          args: Prisma.PaymentAccountLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.PaymentAccountLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PaymentAccountLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PaymentAccountLineUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload>[]
+        }
+        upsert: {
+          args: Prisma.PaymentAccountLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentAccountLinePayload>
+        }
+        aggregate: {
+          args: Prisma.PaymentAccountLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePaymentAccountLine>
+        }
+        groupBy: {
+          args: Prisma.PaymentAccountLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentAccountLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PaymentAccountLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentAccountLineCountAggregateOutputType> | number
+        }
+      }
+    }
     StockDocumentLine: {
       payload: Prisma.$StockDocumentLinePayload<ExtArgs>
       fields: Prisma.StockDocumentLineFieldRefs
@@ -1546,6 +1696,13 @@ export const PartnerScalarFieldEnum = {
   name: 'name',
   kind: 'kind',
   phone: 'phone',
+  email: 'email',
+  address: 'address',
+  idno: 'idno',
+  vatCode: 'vatCode',
+  iban: 'iban',
+  bankName: 'bankName',
+  bankCode: 'bankCode',
   notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1571,6 +1728,63 @@ export const StockDocumentScalarFieldEnum = {
 } as const
 
 export type StockDocumentScalarFieldEnum = (typeof StockDocumentScalarFieldEnum)[keyof typeof StockDocumentScalarFieldEnum]
+
+
+export const PaymentAccountScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  issueDate: 'issueDate',
+  dueDate: 'dueDate',
+  status: 'status',
+  paidAt: 'paidAt',
+  fulfilledAt: 'fulfilledAt',
+  cancelledAt: 'cancelledAt',
+  warehouseId: 'warehouseId',
+  partnerId: 'partnerId',
+  saleDocumentId: 'saleDocumentId',
+  notes: 'notes',
+  customerName: 'customerName',
+  customerAddress: 'customerAddress',
+  customerIdno: 'customerIdno',
+  customerVatCode: 'customerVatCode',
+  customerPhone: 'customerPhone',
+  customerEmail: 'customerEmail',
+  customerIban: 'customerIban',
+  customerBankName: 'customerBankName',
+  customerBankCode: 'customerBankCode',
+  totalNet: 'totalNet',
+  totalVat: 'totalVat',
+  totalGross: 'totalGross',
+  eFacturaStatus: 'eFacturaStatus',
+  eFacturaRequestId: 'eFacturaRequestId',
+  eFacturaResponseCode: 'eFacturaResponseCode',
+  eFacturaMessage: 'eFacturaMessage',
+  eFacturaSubmittedAt: 'eFacturaSubmittedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentAccountScalarFieldEnum = (typeof PaymentAccountScalarFieldEnum)[keyof typeof PaymentAccountScalarFieldEnum]
+
+
+export const PaymentAccountLineScalarFieldEnum = {
+  id: 'id',
+  paymentAccountId: 'paymentAccountId',
+  productId: 'productId',
+  productCode: 'productCode',
+  description: 'description',
+  unitOfMeasure: 'unitOfMeasure',
+  quantity: 'quantity',
+  unitPriceGross: 'unitPriceGross',
+  unitPriceNet: 'unitPriceNet',
+  totalNet: 'totalNet',
+  totalVat: 'totalVat',
+  totalGross: 'totalGross',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentAccountLineScalarFieldEnum = (typeof PaymentAccountLineScalarFieldEnum)[keyof typeof PaymentAccountLineScalarFieldEnum]
 
 
 export const StockDocumentLineScalarFieldEnum = {
@@ -1798,6 +2012,34 @@ export type ListEnumStockDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'PaymentAccountStatus'
+ */
+export type EnumPaymentAccountStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentAccountStatus'>
+
+
+
+/**
+ * Reference to a field of type 'PaymentAccountStatus[]'
+ */
+export type ListEnumPaymentAccountStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentAccountStatus[]'>
+
+
+
+/**
+ * Reference to a field of type 'EFacturaSubmissionStatus'
+ */
+export type EnumEFacturaSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EFacturaSubmissionStatus'>
+
+
+
+/**
+ * Reference to a field of type 'EFacturaSubmissionStatus[]'
+ */
+export type ListEnumEFacturaSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EFacturaSubmissionStatus[]'>
+
+
+
+/**
  * Reference to a field of type 'RestockTaskStatus'
  */
 export type EnumRestockTaskStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RestockTaskStatus'>
@@ -1945,6 +2187,8 @@ export type GlobalOmitConfig = {
   warehouseStock?: Prisma.WarehouseStockOmit
   partner?: Prisma.PartnerOmit
   stockDocument?: Prisma.StockDocumentOmit
+  paymentAccount?: Prisma.PaymentAccountOmit
+  paymentAccountLine?: Prisma.PaymentAccountLineOmit
   stockDocumentLine?: Prisma.StockDocumentLineOmit
   restockTask?: Prisma.RestockTaskOmit
 }
@@ -2009,4 +2253,3 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
-

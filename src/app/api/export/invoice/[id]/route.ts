@@ -65,9 +65,9 @@ export async function GET(
       ]
     : [];
   const aoa: (string | number)[][] = [
-    ["NADIN AUTO — Depozit și piese auto"],
+    ["NADIN AUTO — DOCUMENT INTERN"],
     [],
-    [`${TYPE_LABEL[doc.type] ?? doc.type} nr. ${doc.number} din ${date}`],
+    [`Fișă internă de ${TYPE_LABEL[doc.type]?.toLowerCase() ?? doc.type} nr. ${doc.number} din ${date}`],
     [],
     ["Depozit:", doc.warehouse.name],
     [isOutgoing ? "Client:" : "Furnizor:", doc.partner?.name ?? "Consumator final"],
@@ -110,8 +110,8 @@ export async function GET(
   }
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Factură");
+  XLSX.utils.book_append_sheet(wb, ws, "Document intern");
 
   const stamp = doc.documentDate.toISOString().slice(0, 10);
-  return xlsxResponse(wb, `factura-${doc.type.toLowerCase()}-${doc.number}-${stamp}.xlsx`);
+  return xlsxResponse(wb, `document-intern-${doc.type.toLowerCase()}-${doc.number}-${stamp}.xlsx`);
 }

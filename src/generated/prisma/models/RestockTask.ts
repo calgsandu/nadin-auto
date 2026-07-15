@@ -561,10 +561,6 @@ export type EnumRestockTaskStatusFieldUpdateOperationsInput = {
   set?: $Enums.RestockTaskStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type RestockTaskCreateWithoutProductInput = {
   id?: string
   sourceDocumentId?: string | null
