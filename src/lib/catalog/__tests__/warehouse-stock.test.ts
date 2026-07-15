@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { parseWarehouseStockAssignments } from "@/lib/catalog/warehouse-stock";
+import {
+  calculateWarehouseStockTotal,
+  parseWarehouseStockAssignments,
+} from "@/lib/catalog/warehouse-stock";
 
 const activeWarehouses = [{ id: "110a" }, { id: "514" }];
 
@@ -51,6 +54,14 @@ assert.throws(
 assert.throws(
   () => parseWarehouseStockAssignments({ warehouseIds: ["110a", "514"], quantities: ["1"] }, activeWarehouses),
   /corespund/i,
+);
+
+assert.equal(
+  calculateWarehouseStockTotal(
+    [{ quantity: 2 }, { quantity: 4 }],
+    [{ quantity: 1 }],
+  ),
+  7,
 );
 
 console.log("warehouse stock tests passed");

@@ -6,6 +6,11 @@ import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import {
+  calculateWarehouseStockTotal,
+  parseWarehouseStockAssignments,
+  type WarehouseStockAssignment,
+} from "@/lib/catalog/warehouse-stock";
 
 export type CatalogActionState = {
   ok: boolean;
@@ -24,35 +29,42 @@ export async function createProductAction(
   try {
     const user = await requireCatalogWrite();
     const input = await parseProductForm(formData);
+    const warehouseAssignments = await parseWarehouseAssignments(formData);
     const fitment = await findOrCreateFitment(input);
     const type = await findOrCreateType(input.typeId, input.newTypeName);
 
-    const created = await prisma.product.create({
-      data: {
-        importKey: `manual:${randomUUID()}`,
-        source: "MANUAL",
-        manuallyEdited: true,
-        sourceRow: 0,
-        sourceItem: null,
-        externalCode: input.externalCode,
-        description: input.description,
-        notes: null,
-        stock: input.stock,
-        minStock: input.minStock,
-        priceEuro: input.priceEuro,
-        costLei: input.costLei,
-        salePriceLei: input.salePriceLei,
-        fitmentId: fitment.id,
-        typeId: type.id,
-      },
-    });
+    await prisma.$transaction(async (tx) => {
+      const created = await tx.product.create({
+        data: {
+          importKey: `manual:${randomUUID()}`,
+          source: "MANUAL",
+          manuallyEdited: true,
+          sourceRow: 0,
+          sourceItem: null,
+          externalCode: input.externalCode,
+          description: input.description,
+          notes: null,
+          stock: 0,
+          minStock: input.minStock,
+          priceEuro: input.priceEuro,
+          costLei: input.costLei,
+          salePriceLei: input.salePriceLei,
+          fitmentId: fitment.id,
+          typeId: type.id,
+        },
+      });
+      const after = await saveWarehouseStocks(tx, created.id, warehouseAssignments);
 
-    await logAudit(prisma, user, {
-      action: "CREATE",
-      entity: "Product",
-      entityId: created.id,
-      summary: `Produs adăugat: ${created.externalCode ? `${created.externalCode} · ` : ""}${created.description}`,
-      details: { after: productAuditSnapshot(created) },
+      await logAudit(tx, user, {
+        action: "CREATE",
+        entity: "Product",
+        entityId: created.id,
+        summary: `Produs adăugat: ${created.externalCode ? `${created.externalCode} · ` : ""}${created.description}`,
+        details: {
+          after: productAuditSnapshot(after.product),
+          warehouseStocks: after.rows,
+        },
+      });
     });
 
     revalidatePath("/");
@@ -75,35 +87,48 @@ export async function updateProductAction(
     }
 
     const input = await parseProductForm(formData);
+    const warehouseAssignments = await parseWarehouseAssignments(formData);
     const fitment = await findOrCreateFitment(input);
     const type = await findOrCreateType(input.typeId, input.newTypeName);
 
-    const before = await prisma.product.findUnique({ where: { id: productId } });
-    if (!before) throw new Error("Produsul nu există.");
+    await prisma.$transaction(async (tx) => {
+      const before = await tx.product.findUnique({
+        where: { id: productId },
+        include: { warehouseStocks: { include: { warehouse: { select: { name: true } } } } },
+      });
+      if (!before) throw new Error("Produsul nu există.");
 
-    const updated = await prisma.product.update({
-      where: { id: productId },
-      data: {
-        manuallyEdited: true,
-        externalCode: input.externalCode,
-        description: input.description,
-        stock: input.stock,
-        minStock: input.minStock,
-        priceEuro: input.priceEuro,
-        costLei: input.costLei,
-        salePriceLei: input.salePriceLei,
-        fitmentId: fitment.id,
-        typeId: type.id,
-      },
-    });
-    await reconcileManualStock(productId, input.stock);
+      const updated = await tx.product.update({
+        where: { id: productId },
+        data: {
+          manuallyEdited: true,
+          externalCode: input.externalCode,
+          description: input.description,
+          minStock: input.minStock,
+          priceEuro: input.priceEuro,
+          costLei: input.costLei,
+          salePriceLei: input.salePriceLei,
+          fitmentId: fitment.id,
+          typeId: type.id,
+        },
+      });
+      const after = await saveWarehouseStocks(tx, productId, warehouseAssignments);
 
-    await logAudit(prisma, user, {
-      action: "UPDATE",
-      entity: "Product",
-      entityId: productId,
-      summary: `Produs editat: ${updated.externalCode ? `${updated.externalCode} · ` : ""}${updated.description}`,
-      details: { before: productAuditSnapshot(before), after: productAuditSnapshot(updated) },
+      await logAudit(tx, user, {
+        action: "UPDATE",
+        entity: "Product",
+        entityId: productId,
+        summary: `Produs editat: ${updated.externalCode ? `${updated.externalCode} · ` : ""}${updated.description}`,
+        details: {
+          before: productAuditSnapshot(before),
+          beforeWarehouseStocks: before.warehouseStocks.map((row) => ({
+            warehouse: row.warehouse.name,
+            quantity: row.quantity,
+          })),
+          after: productAuditSnapshot(after.product),
+          afterWarehouseStocks: after.rows,
+        },
+      });
     });
 
     revalidatePath("/");
@@ -145,48 +170,61 @@ export async function deleteProductAction(
   }
 }
 
-/**
- * Keep per-warehouse rows in sync with a manually edited product stock.
- * Without this, the next stock movement recomputes product.stock from the
- * warehouse rows and silently reverts the manual correction.
- * Increases go to the default warehouse row (or the largest one); decreases
- * are taken from the largest rows first, never below zero.
- */
-async function reconcileManualStock(productId: string, stock: number | null) {
-  if (stock == null) return;
-
-  await prisma.$transaction(async (tx) => {
-    const rows = await tx.warehouseStock.findMany({
-      where: { productId },
-      orderBy: { quantity: "desc" },
-    });
-    if (rows.length === 0) return; // product.stock is the source of truth until the first movement
-
-    let diff = stock - rows.reduce((sum, row) => sum + row.quantity, 0);
-    if (diff === 0) return;
-
-    if (diff > 0) {
-      const defaultWarehouse = await tx.warehouse.findFirst({ where: { isDefault: true } });
-      const target = rows.find((row) => row.warehouseId === defaultWarehouse?.id) ?? rows[0];
-      await tx.warehouseStock.update({
-        where: { id: target.id },
-        data: { quantity: target.quantity + diff },
-      });
-      return;
-    }
-
-    for (const row of rows) {
-      if (diff === 0) break;
-      const take = Math.min(row.quantity, -diff);
-      if (take > 0) {
-        await tx.warehouseStock.update({
-          where: { id: row.id },
-          data: { quantity: row.quantity - take },
-        });
-        diff += take;
-      }
-    }
+async function parseWarehouseAssignments(formData: FormData) {
+  const activeWarehouses = await prisma.warehouse.findMany({
+    where: { active: true },
+    select: { id: true },
+    orderBy: [{ isDefault: "desc" }, { name: "asc" }],
   });
+
+  return parseWarehouseStockAssignments(
+    {
+      warehouseIds: readStrings(formData, "warehouseId"),
+      quantities: readStrings(formData, "warehouseQuantity"),
+    },
+    activeWarehouses,
+  );
+}
+
+async function saveWarehouseStocks(
+  tx: TransactionClient,
+  productId: string,
+  assignments: WarehouseStockAssignment[],
+) {
+  for (const assignment of assignments) {
+    await tx.warehouseStock.upsert({
+      where: {
+        productId_warehouseId: {
+          productId,
+          warehouseId: assignment.warehouseId,
+        },
+      },
+      create: {
+        productId,
+        warehouseId: assignment.warehouseId,
+        quantity: assignment.quantity,
+      },
+      update: { quantity: assignment.quantity },
+    });
+  }
+
+  const rows = await tx.warehouseStock.findMany({
+    where: { productId },
+    include: { warehouse: { select: { name: true } } },
+    orderBy: { warehouse: { name: "asc" } },
+  });
+  const activeIds = new Set(assignments.map((assignment) => assignment.warehouseId));
+  const preservedRows = rows.filter((row) => !activeIds.has(row.warehouseId));
+  const total = calculateWarehouseStockTotal(assignments, preservedRows);
+  const product = await tx.product.update({
+    where: { id: productId },
+    data: { stock: total, manuallyEdited: true },
+  });
+
+  return {
+    product,
+    rows: rows.map((row) => ({ warehouse: row.warehouse.name, quantity: row.quantity })),
+  };
 }
 
 async function requireCatalogWrite() {
@@ -216,6 +254,8 @@ function productAuditSnapshot(product: {
   };
 }
 
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
 async function parseProductForm(formData: FormData) {
   const externalCode = readString(formData, "externalCode");
   const description = readString(formData, "description");
@@ -230,7 +270,6 @@ async function parseProductForm(formData: FormData) {
     ? null
     : readOptionalInteger(formData, "yearEnd");
   const yearOpenEnded = Boolean(formData.get("yearOpenEnded"));
-  const stock = readOptionalInteger(formData, "stock");
   const minStock = readOptionalInteger(formData, "minStock");
   const priceEuro = readOptionalDecimal(formData, "priceEuro");
   const costLei = readOptionalDecimal(formData, "costLei");
@@ -271,7 +310,6 @@ async function parseProductForm(formData: FormData) {
     yearEnd,
     yearOpenEnded,
     salePriceLei,
-    stock,
     minStock,
     priceEuro,
     costLei,
@@ -400,6 +438,12 @@ function readString(formData: FormData, key: string) {
   const value = formData.get(key);
 
   return typeof value === "string" ? value.trim() : "";
+}
+
+function readStrings(formData: FormData, key: string) {
+  return formData
+    .getAll(key)
+    .map((value) => (typeof value === "string" ? value.trim() : ""));
 }
 
 function readOptionalInteger(formData: FormData, key: string) {
