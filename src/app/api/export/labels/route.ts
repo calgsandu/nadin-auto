@@ -111,8 +111,10 @@ export async function GET(request: NextRequest) {
     y += code * 1.05 + 11;
 
     doc.font("bold").fontSize(modelSize).fillColor("#111");
-    doc.text(compatibility, cx, y, { width: cw, lineBreak: false, ellipsis: true });
-    y += modelSize * 1.15 + 4;
+    const modelMaxHeight = modelSize * 2.4;
+    const modelHeight = Math.min(doc.heightOfString(compatibility, { width: cw }), modelMaxHeight);
+    doc.text(compatibility, cx, y, { width: cw, height: modelMaxHeight, lineBreak: true });
+    y += modelHeight + 4;
 
     doc.font("bold").fontSize(desc).fillColor("#111");
     doc.text(part, cx, y, {

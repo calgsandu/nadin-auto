@@ -36,7 +36,7 @@ export const LABEL_SIZES = {
     cols: 3,
     rows: 5,
     mx: 0,
-    my: 20,
+    my: 20.5,
     padX: 4,
     gy: 1.5,
     code: 26,

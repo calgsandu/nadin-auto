@@ -110,6 +110,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
           padding-inline: ${dim.padX}mm;
         }
         .label-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .label-model { white-space: normal; overflow: hidden; line-height: 1.05; max-height: 2.1em; }
         .label-part {
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -246,7 +247,7 @@ function LabelSticker({
         {LABEL_COMPATIBILITY_PREFIX}
       </p>
       <p
-        className="label-line mt-[1mm] font-mono font-bold leading-none tracking-[0.02em]"
+        className="label-model mt-[1mm] font-mono font-bold tracking-[0.02em]"
         style={{ fontSize: `${dim.model}px` }}
       >
         {compatibility}
