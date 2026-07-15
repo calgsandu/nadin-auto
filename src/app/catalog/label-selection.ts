@@ -63,6 +63,48 @@ export function setLabelCount(
   );
 }
 
+export function toggleLabelSelection(
+  items: LabelSelectionItem[],
+  item: LabelSelectionItem,
+  checked: boolean,
+) {
+  if (!checked) return items.filter((current) => current.id !== item.id);
+
+  const index = items.findIndex((current) => current.id === item.id);
+  if (index === -1) {
+    return [...items, { ...item, count: clampLabelCount(item.count) }];
+  }
+
+  const current = items[index];
+  if (current.code === item.code && current.name === item.name) return items;
+
+  return items.map((entry, entryIndex) =>
+    entryIndex === index
+      ? { ...entry, code: item.code, name: item.name }
+      : entry,
+  );
+}
+
+export function hydrateLabelSelection(
+  items: LabelSelectionItem[],
+  visibleItems: LabelSelectionItem[],
+) {
+  const visibleById = new Map(visibleItems.map((item) => [item.id, item]));
+  let changed = false;
+
+  const hydrated = items.map((item) => {
+    const visible = visibleById.get(item.id);
+    if (!visible || (visible.code === item.code && visible.name === item.name)) {
+      return item;
+    }
+
+    changed = true;
+    return { ...item, code: visible.code, name: visible.name };
+  });
+
+  return changed ? hydrated : items;
+}
+
 export function buildLabelPrintQuery(items: LabelSelectionItem[]) {
   const query = new URLSearchParams();
   query.set(

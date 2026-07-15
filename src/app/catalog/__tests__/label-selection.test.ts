@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildLabelPrintQuery,
+  hydrateLabelSelection,
   parseLabelSelection,
   serializeLabelSelection,
   setLabelCount,
+  toggleLabelSelection,
 } from "../label-selection";
 
 test("parses stored selection items and clamps their counts", () => {
@@ -61,4 +63,26 @@ test("serializes selection and builds the print query", () => {
   assert.deepEqual(parseLabelSelection(serializeLabelSelection(items)), items);
   assert.equal(buildLabelPrintQuery(items).get("items"), "p1:3,p2:1");
   assert.equal(buildLabelPrintQuery(items).get("layout"), "grid");
+});
+
+test("adds and removes a product while preserving its count", () => {
+  const first = { id: "p1", code: "A", name: "Aripă", count: 4 };
+  const second = { id: "p2", code: "B", name: "Bară", count: 1 };
+
+  assert.deepEqual(toggleLabelSelection([first], second, true), [first, second]);
+  assert.deepEqual(
+    toggleLabelSelection([first], { ...first, name: "Aripă față", count: 1 }, true),
+    [{ ...first, name: "Aripă față" }],
+  );
+  assert.deepEqual(toggleLabelSelection([first, second], first, false), [second]);
+});
+
+test("hydrates legacy product metadata from visible rows", () => {
+  const stored = [{ id: "p1", code: "", name: "", count: 3 }];
+  const visible = [{ id: "p1", code: "A", name: "Aripă", count: 1 }];
+
+  assert.deepEqual(hydrateLabelSelection(stored, visible), [
+    { id: "p1", code: "A", name: "Aripă", count: 3 },
+  ]);
+  assert.equal(hydrateLabelSelection(visible, visible), visible);
 });

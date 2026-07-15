@@ -1283,6 +1283,8 @@ function ProductRow({
           <input
             type="checkbox"
             data-label-id={product.id}
+            data-label-code={product.externalCode ?? "—"}
+            data-label-name={product.description}
             aria-label={`Selectează ${product.description} pentru sticker`}
             className="size-4 cursor-pointer accent-[#1b1a17]"
           />
