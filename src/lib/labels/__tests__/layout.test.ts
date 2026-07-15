@@ -12,11 +12,12 @@ assert.equal(large.rows, 5);
 assert.equal(large.mx, 0);
 assert.equal(large.my, 22.5);
 assert.equal(large.padX, 4);
-assert.equal(large.gy, 3.5);
+assert.equal(large.detailOffsetX, 2);
+assert.equal(large.gy, 3.3);
 assert.equal(large.w - large.padX * 2, 62);
-assert.equal(large.my + large.h + large.gy, 78);
+assert.equal(large.my + large.h + large.gy, 77.8);
 assert.equal(large.w * large.cols + large.mx * 2, 210);
-assert.equal(large.my + large.h * large.rows + large.gy * (large.rows - 1), 296.5);
+assert.equal(large.my + large.h * large.rows + large.gy * (large.rows - 1), 295.7);
 assert.equal(LABEL_PHONE, "0 (68) 677885");
 assert.equal(LABEL_COMPATIBILITY_PREFIX, "Piesă auto compatibilă cu modelul");
 
@@ -34,12 +35,14 @@ assert.match(pageSource, /row-gap: \$\{dim\.gy\}mm;/);
 assert.doesNotMatch(pageSource, /left: \$\{dim\.ox\}mm;/);
 assert.doesNotMatch(pageSource, /data-col=/);
 assert.match(pageSource, /padding-inline: \$\{dim\.padX\}mm;/);
+assert.match(pageSource, /\.label-detail \{ margin-left: \$\{dim\.detailOffsetX\}mm; \}/);
 assert.match(
   pageSource,
   /\.label-model \{ white-space: normal; overflow: hidden; line-height: 1\.05; max-height: 2\.1em; \}/,
 );
 assert.doesNotMatch(pageSource, /\.label-model \{[^}]*text-overflow/);
-assert.match(pageSource, /className="label-model mt-\[1mm\]/);
+assert.match(pageSource, /className="label-model label-detail mt-\[1mm\]/);
+assert.match(pageSource, /className="label-part label-detail mt-\[1\.8mm\]/);
 
 const pdfSource = readFileSync(
   new URL("../../../app/api/export/labels/route.ts", import.meta.url),
@@ -49,6 +52,8 @@ assert.match(pdfSource, /const rowStep = boxH \+ dim\.gy \* MM;/);
 assert.match(pdfSource, /const x0 = dim\.mx \* MM;/);
 assert.match(pdfSource, /const padX = dim\.padX \* MM;/);
 assert.doesNotMatch(pdfSource, /contentShiftX/);
+assert.match(pdfSource, /const detailX = cx \+ dim\.detailOffsetX \* MM;/);
+assert.match(pdfSource, /const detailWidth = cw - dim\.detailOffsetX \* MM;/);
 assert.match(pdfSource, /const modelMaxHeight = modelSize \* 2\.4;/);
 assert.match(pdfSource, /doc\.text\(compatibility,[\s\S]*?lineBreak: true/);
 assert.doesNotMatch(

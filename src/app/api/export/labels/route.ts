@@ -83,6 +83,8 @@ export async function GET(request: NextRequest) {
   const drawLabel = (product: Label, boxX: number, boxY: number) => {
     const cx = boxX + padX;
     const cw = boxW - padX * 2;
+    const detailX = cx + dim.detailOffsetX * MM;
+    const detailWidth = cw - dim.detailOffsetX * MM;
     let y = boxY + padTopY;
 
     const code = dim.code * PX;
@@ -112,13 +114,20 @@ export async function GET(request: NextRequest) {
 
     doc.font("bold").fontSize(modelSize).fillColor("#111");
     const modelMaxHeight = modelSize * 2.4;
-    const modelHeight = Math.min(doc.heightOfString(compatibility, { width: cw }), modelMaxHeight);
-    doc.text(compatibility, cx, y, { width: cw, height: modelMaxHeight, lineBreak: true });
+    const modelHeight = Math.min(
+      doc.heightOfString(compatibility, { width: detailWidth }),
+      modelMaxHeight,
+    );
+    doc.text(compatibility, detailX, y, {
+      width: detailWidth,
+      height: modelMaxHeight,
+      lineBreak: true,
+    });
     y += modelHeight + 4;
 
     doc.font("bold").fontSize(desc).fillColor("#111");
-    doc.text(part, cx, y, {
-      width: cw,
+    doc.text(part, detailX, y, {
+      width: detailWidth,
       height: desc * 1.25 * 2 + 1,
       ellipsis: true,
     });
