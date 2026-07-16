@@ -89,7 +89,7 @@ export async function createPaymentAccountAction(
       const productById = new Map(products.map((product) => [product.id, product]));
       const totals = calculatePaymentTotals(input.lines, COMPANY.vatRate, COMPANY.vatPayer);
 
-      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext('payment-account:number'))`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('payment-account:number'))`;
       const last = await tx.paymentAccount.findFirst({
         orderBy: { number: "desc" },
         select: { number: true },
@@ -263,7 +263,7 @@ export async function fulfillPaymentAccountAction(
         stocks.set(line.productId, stock);
       }
 
-      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext('stockdoc:SALE'))`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('stockdoc:SALE'))`;
       const lastSale = await tx.stockDocument.findFirst({
         where: { type: "SALE" },
         orderBy: { number: "desc" },

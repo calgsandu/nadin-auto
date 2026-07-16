@@ -657,7 +657,7 @@ const RESTOCK_WAREHOUSE_NAME = "Pavilion 110A";
 async function nextDocumentNumber(tx: TransactionClient, type: StockDocumentKind) {
   // Advisory lock per tip de document: două tranzacții simultane nu mai pot
   // lua același număr (unique [type, number] ar fi respins una din ele urât).
-  await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${`stockdoc:${type}`}))`;
+  await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`stockdoc:${type}`}))`;
 
   const last = await tx.stockDocument.findFirst({
     where: { type },
