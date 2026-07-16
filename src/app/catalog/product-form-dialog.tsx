@@ -287,12 +287,15 @@ export function ProductFormDialog({
                           name="warehouseQuantity"
                           type="number"
                           value={warehouseQuantities[warehouse.id] ?? "0"}
-                          onChange={(event) =>
+                          onChange={(event) => {
+                            // React clears `currentTarget` once this handler returns.
+                            // The state updater can run afterwards, so retain the value first.
+                            const quantity = event.currentTarget.value;
                             setWarehouseQuantities((current) => ({
                               ...current,
-                              [warehouse.id]: event.currentTarget.value,
-                            }))
-                          }
+                              [warehouse.id]: quantity,
+                            }));
+                          }}
                         />
                       </Field>
                     </div>

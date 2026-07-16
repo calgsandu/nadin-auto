@@ -482,8 +482,8 @@ export function StockSaleDialog({
   const [open, setOpen] = useState(false);
   const [newClient, setNewClient] = useState(false);
   const nextLineId = useRef(2);
-  const [lines, setLines] = useState<{ id: number; qty: string; price: string }[]>([
-    { id: 1, qty: "", price: "" },
+  const [lines, setLines] = useState<{ id: number; productId: string; qty: string; price: string }[]>([
+    { id: 1, productId: "", qty: "", price: "" },
   ]);
   async function saleAction(previousState: OperationActionState, formData: FormData) {
     const nextState = await createSaleAction(previousState, formData);
@@ -492,7 +492,7 @@ export function StockSaleDialog({
       setOpen(false);
       setNewClient(false);
       nextLineId.current = 2;
-      setLines([{ id: 1, qty: "", price: "" }]);
+      setLines([{ id: 1, productId: "", qty: "", price: "" }]);
     }
 
     return nextState;
@@ -508,7 +508,7 @@ export function StockSaleDialog({
   function addLine() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [...current, { id, qty: "", price: "" }]);
+    setLines((current) => [...current, { id, productId: "", qty: "", price: "" }]);
   }
 
   function removeLine(id: number) {
@@ -517,6 +517,18 @@ export function StockSaleDialog({
 
   function setLineField(id: number, field: "qty" | "price", value: string) {
     setLines((current) => current.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
+  }
+
+  function selectProduct(id: number, productId: string, price: string) {
+    setLines((current) =>
+      current.map((line) => (line.id === id ? { ...line, productId, price } : line)),
+    );
+  }
+
+  function clearProduct(id: number) {
+    setLines((current) =>
+      current.map((line) => (line.id === id ? { ...line, productId: "" } : line)),
+    );
   }
 
   // Prices are VAT-inclusive (gross). TVA = valoare ÷ 6; fără TVA = valoare − TVA.
@@ -614,8 +626,10 @@ export function StockSaleDialog({
                       <div>
                         <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
                         <ProductSearchCombobox
+                          excludedProductIds={lines.filter((item) => item.id !== line.id).map((item) => item.productId)}
                           showHint={false}
-                          onSelect={(p) => setLineField(line.id, "price", p.salePriceLei)}
+                          onClear={() => clearProduct(line.id)}
+                          onSelect={(p) => selectProduct(line.id, p.id, p.salePriceLei)}
                         />
                       </div>
                       <Field label="Cantitate">

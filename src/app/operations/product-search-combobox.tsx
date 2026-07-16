@@ -9,11 +9,15 @@ export function ProductSearchCombobox({
   showHint = true,
   initialProduct,
   onSelect,
+  onClear,
+  excludedProductIds = [],
 }: {
   name?: string;
   showHint?: boolean;
   initialProduct?: { id: string; label: string } | null;
   onSelect?: (product: ProductSearchResult) => void;
+  onClear?: () => void;
+  excludedProductIds?: string[];
 }) {
   const id = useId();
   const requestIdRef = useRef(0);
@@ -24,6 +28,9 @@ export function ProductSearchCombobox({
   const [results, setResults] = useState<ProductSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const excludedIds = new Set(excludedProductIds);
+  const visibleResults = results.filter((product) => !excludedIds.has(product.id));
+  const onlyExcludedResults = results.length > 0 && visibleResults.length === 0;
 
   useEffect(() => {
     const normalized = query.trim();
@@ -87,6 +94,7 @@ export function ProductSearchCombobox({
           }}
           onChange={(event) => {
             const nextQuery = event.currentTarget.value;
+            if (selected) onClear?.();
             setSelected(null);
             setQuery(nextQuery);
 
@@ -112,8 +120,8 @@ export function ProductSearchCombobox({
           id={`${id}-results`}
           role="listbox"
         >
-          {results.length > 0 ? (
-            results.map((product) => (
+          {visibleResults.length > 0 ? (
+            visibleResults.map((product) => (
               <button
                 key={product.id}
                 className="button-secondary block w-full border-b border-[#efeeeb] px-3 py-2.5 text-left text-sm text-[#1b1a17] hover:bg-[#f6f6f4]"
@@ -138,7 +146,11 @@ export function ProductSearchCombobox({
             ))
           ) : (
             <div className="px-3 py-3 text-sm font-medium text-[#6f6b63]">
-              {loading ? "Se caută..." : "Nu am găsit produse pentru căutarea curentă."}
+              {loading
+                ? "Se caută..."
+                : onlyExcludedResults
+                  ? "Produsul este deja adăugat pe altă poziție."
+                  : "Nu am găsit produse pentru căutarea curentă."}
             </div>
           )}
         </div>
