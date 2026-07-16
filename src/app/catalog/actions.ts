@@ -53,6 +53,9 @@ export async function createProductAction(
           typeId: type.id,
         },
       });
+      await tx.productFitment.create({
+        data: { productId: created.id, fitmentId: fitment.id },
+      });
       const after = await saveWarehouseStocks(tx, created.id, warehouseAssignments);
 
       await logAudit(tx, user, {
@@ -111,6 +114,11 @@ export async function updateProductAction(
           fitmentId: fitment.id,
           typeId: type.id,
         },
+      });
+      await tx.productFitment.upsert({
+        where: { productId_fitmentId: { productId, fitmentId: fitment.id } },
+        create: { productId, fitmentId: fitment.id },
+        update: {},
       });
       const after = await saveWarehouseStocks(tx, productId, warehouseAssignments);
 

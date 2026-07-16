@@ -58,6 +58,7 @@ export const ModelName = {
   VehicleFitment: 'VehicleFitment',
   ProductType: 'ProductType',
   Product: 'Product',
+  ProductFitment: 'ProductFitment',
   Warehouse: 'Warehouse',
   WarehouseStock: 'WarehouseStock',
   Partner: 'Partner',
@@ -182,6 +183,14 @@ export const ProductScalarFieldEnum = {
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const ProductFitmentScalarFieldEnum = {
+  productId: 'productId',
+  fitmentId: 'fitmentId'
+} as const
+
+export type ProductFitmentScalarFieldEnum = (typeof ProductFitmentScalarFieldEnum)[keyof typeof ProductFitmentScalarFieldEnum]
 
 
 export const WarehouseScalarFieldEnum = {

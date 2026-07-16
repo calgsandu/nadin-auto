@@ -391,6 +391,7 @@ export const ModelName = {
   VehicleFitment: 'VehicleFitment',
   ProductType: 'ProductType',
   Product: 'Product',
+  ProductFitment: 'ProductFitment',
   Warehouse: 'Warehouse',
   WarehouseStock: 'WarehouseStock',
   Partner: 'Partner',
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "auditLog" | "appUser" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "warehouse" | "warehouseStock" | "partner" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
+    modelProps: "auditLog" | "appUser" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -933,6 +934,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductFitment: {
+      payload: Prisma.$ProductFitmentPayload<ExtArgs>
+      fields: Prisma.ProductFitmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductFitmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductFitmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductFitmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductFitmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload>
+        }
+        findMany: {
+          args: Prisma.ProductFitmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload>[]
+        }
+        create: {
+          args: Prisma.ProductFitmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload>
+        }
+        createMany: {
+          args: Prisma.ProductFitmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductFitmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductFitmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload>
+        }
+        update: {
+          args: Prisma.ProductFitmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductFitmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductFitmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductFitmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductFitmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductFitmentPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductFitmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductFitment>
+        }
+        groupBy: {
+          args: Prisma.ProductFitmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductFitmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductFitmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductFitmentCountAggregateOutputType> | number
         }
       }
     }
@@ -1667,6 +1742,14 @@ export const ProductScalarFieldEnum = {
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
 
 
+export const ProductFitmentScalarFieldEnum = {
+  productId: 'productId',
+  fitmentId: 'fitmentId'
+} as const
+
+export type ProductFitmentScalarFieldEnum = (typeof ProductFitmentScalarFieldEnum)[keyof typeof ProductFitmentScalarFieldEnum]
+
+
 export const WarehouseScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2015,28 +2098,28 @@ export type ListEnumStockDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInput
  * Reference to a field of type 'PaymentAccountStatus'
  */
 export type EnumPaymentAccountStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentAccountStatus'>
-
+    
 
 
 /**
  * Reference to a field of type 'PaymentAccountStatus[]'
  */
 export type ListEnumPaymentAccountStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentAccountStatus[]'>
-
+    
 
 
 /**
  * Reference to a field of type 'EFacturaSubmissionStatus'
  */
 export type EnumEFacturaSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EFacturaSubmissionStatus'>
-
+    
 
 
 /**
  * Reference to a field of type 'EFacturaSubmissionStatus[]'
  */
 export type ListEnumEFacturaSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EFacturaSubmissionStatus[]'>
-
+    
 
 
 /**
@@ -2183,6 +2266,7 @@ export type GlobalOmitConfig = {
   vehicleFitment?: Prisma.VehicleFitmentOmit
   productType?: Prisma.ProductTypeOmit
   product?: Prisma.ProductOmit
+  productFitment?: Prisma.ProductFitmentOmit
   warehouse?: Prisma.WarehouseOmit
   warehouseStock?: Prisma.WarehouseStockOmit
   partner?: Prisma.PartnerOmit
@@ -2253,3 +2337,4 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
+

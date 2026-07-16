@@ -24,11 +24,11 @@ export const getShowroomData = cache(async (): Promise<ShowroomData> => {
     >`
       SELECT b.id, b.name,
         COUNT(DISTINCT cm.id) AS models,
-        COUNT(p.id) AS products
+        COUNT(DISTINCT pf."productId") AS products
       FROM "Brand" b
       LEFT JOIN "CarModel" cm ON cm."brandId" = b.id
       LEFT JOIN "VehicleFitment" vf ON vf."carModelId" = cm.id
-      LEFT JOIN "Product" p ON p."fitmentId" = vf.id
+      LEFT JOIN "ProductFitment" pf ON pf."fitmentId" = vf.id
       GROUP BY b.id, b.name
       ORDER BY products DESC, b.name ASC
     `,
@@ -70,6 +70,7 @@ export const getShowroomData = cache(async (): Promise<ShowroomData> => {
 });
 
 export type BrandModel = {
+  id: string;
   name: string;
   slug: string;
   productCount: number;
@@ -89,7 +90,7 @@ export const getBrandData = cache(async (brandSlug: string) => {
           yearStart: true,
           yearEnd: true,
           yearOpenEnded: true,
-          _count: { select: { products: true } },
+          productFitments: { select: { productId: true } },
         },
       },
     },
@@ -98,10 +99,9 @@ export const getBrandData = cache(async (brandSlug: string) => {
 
   const entries: BrandModel[] = models
     .map((model) => {
-      const productCount = model.fitments.reduce(
-        (sum, fitment) => sum + fitment._count.products,
-        0,
-      );
+      const productCount = new Set(
+        model.fitments.flatMap((fitment) => fitment.productFitments.map((entry) => entry.productId)),
+      ).size;
       const starts = model.fitments
         .map((fitment) => fitment.yearStart)
         .filter((year): year is number => year != null);
@@ -115,7 +115,7 @@ export const getBrandData = cache(async (brandSlug: string) => {
         const to = open ? "prezent" : ends.length > 0 ? String(Math.max(...ends)) : null;
         years = to ? `${from} – ${to}` : `din ${from}`;
       }
-      return { name: model.name, slug: slugify(model.name), productCount, years };
+      return { id: model.id, name: model.name, slug: slugify(model.name), productCount, years };
     })
     .filter((entry) => entry.productCount > 0)
     .sort((a, b) => b.productCount - a.productCount || a.name.localeCompare(b.name));
@@ -142,14 +142,12 @@ export const getModelData = cache(
 
     const products = await prisma.product.findMany({
       where: {
-        fitment: {
-          carModel: {
-            name: modelEntry.name,
-            brand: { name: brand.name },
-          },
-        },
+        OR: [
+          { fitment: { carModelId: modelEntry.id } },
+          { productFitments: { some: { fitment: { carModelId: modelEntry.id } } } },
+        ],
       },
-      include: { type: true, fitment: true },
+      include: { type: true, fitment: true, productFitments: { include: { fitment: true } } },
       orderBy: [{ type: { name: "asc" } }, { description: "asc" }],
     });
 
@@ -164,7 +162,9 @@ export const getModelData = cache(
         code: product.externalCode,
         description: product.description,
         inStock: (product.stock ?? 0) > 0,
-        fitLabel: product.fitment.label,
+        fitLabel:
+          product.productFitments.find((entry) => entry.fitment.carModelId === modelEntry.id)
+            ?.fitment.label ?? product.fitment.label,
       });
     }
 
@@ -218,7 +218,10 @@ export const getProductDetails = cache(
     const sameType = await prisma.product.findMany({
       where: {
         id: { not: product.id },
-        fitment: { carModelId: carModel.id },
+        OR: [
+          { fitment: { carModelId: carModel.id } },
+          { productFitments: { some: { fitment: { carModelId: carModel.id } } } },
+        ],
         typeId: product.typeId,
       },
       include: { type: true, fitment: true },
@@ -230,7 +233,10 @@ export const getProductDetails = cache(
         ? await prisma.product.findMany({
             where: {
               id: { notIn: [product.id, ...sameType.map((entry) => entry.id)] },
-              fitment: { carModelId: carModel.id },
+              OR: [
+                { fitment: { carModelId: carModel.id } },
+                { productFitments: { some: { fitment: { carModelId: carModel.id } } } },
+              ],
             },
             include: { type: true, fitment: true },
             orderBy: { description: "asc" },
@@ -285,9 +291,29 @@ export async function searchPublicProducts(query: string): Promise<SearchHit[]> 
             },
           },
           {
+            productFitments: {
+              some: {
+                fitment: {
+                  carModel: { name: { contains: term, mode: "insensitive" as const } },
+                },
+              },
+            },
+          },
+          {
             fitment: {
               carModel: {
                 brand: { name: { contains: term, mode: "insensitive" as const } },
+              },
+            },
+          },
+          {
+            productFitments: {
+              some: {
+                fitment: {
+                  carModel: {
+                    brand: { name: { contains: term, mode: "insensitive" as const } },
+                  },
+                },
               },
             },
           },

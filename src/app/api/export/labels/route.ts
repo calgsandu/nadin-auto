@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { FONT_REGULAR, FONT_BOLD, pdfResponse } from "@/lib/export/pdf";
 import {
   LABEL_PHONE,
-  buildCompatibilityLabel,
+  buildCombinedCompatibilityLabel,
   buildPartLabel,
   upperLabelText,
 } from "@/lib/labels/format";
@@ -53,16 +53,31 @@ export async function GET(request: NextRequest) {
         include: {
           type: true,
           fitment: { include: { carModel: { include: { brand: true } } } },
+          productFitments: {
+            include: { fitment: { include: { carModel: { include: { brand: true } } } } },
+          },
         },
       })
     : [];
+
   const products = [...counts.keys()]
     .map((id) => fetched.find((p) => p.id === id))
     .filter((p): p is (typeof fetched)[number] => Boolean(p));
 
-  type Label = (typeof products)[number];
+  type Label = (typeof products)[number] & { compatibility: string };
   const labels: Label[] = products.flatMap((p) =>
-    Array.from({ length: counts.get(p.id) ?? 1 }, () => p),
+    Array.from({ length: counts.get(p.id) ?? 1 }, () => ({
+      ...p,
+      compatibility: buildCombinedCompatibilityLabel(
+        p.productFitments.map(({ fitment }) => ({
+          brandName: fitment.carModel.brand.name,
+          modelName: fitment.carModel.name,
+          yearStart: fitment.yearStart,
+          yearEnd: fitment.yearEnd,
+          yearOpenEnded: fitment.yearOpenEnded,
+        })),
+      ),
+    })),
   );
 
   const doc = new PDFDocument({
@@ -88,19 +103,18 @@ export async function GET(request: NextRequest) {
     let y = boxY + padTopY;
 
     const code = dim.code * PX;
-    const modelSize = dim.model * PX;
+    const modelSize =
+      dim.model *
+      (product.compatibility.length > 55
+        ? 0.72
+        : product.compatibility.length > 35
+          ? 0.84
+          : 1) *
+      PX;
     const desc = dim.desc * PX;
     const phone = dim.phone * PX;
 
-    const model = product.fitment.carModel;
     const codeText = upperLabelText(product.externalCode ?? "-");
-    const compatibility = buildCompatibilityLabel({
-      brandName: model.brand.name,
-      modelName: model.name,
-      yearStart: product.fitment.yearStart,
-      yearEnd: product.fitment.yearEnd,
-      yearOpenEnded: product.fitment.yearOpenEnded,
-    });
     const part = buildPartLabel(product.type.name, product.description);
 
     doc.font("bold").fontSize(code).fillColor("#111");
@@ -113,12 +127,12 @@ export async function GET(request: NextRequest) {
     y += code * 1.05 + 11;
 
     doc.font("bold").fontSize(modelSize).fillColor("#111");
-    const modelMaxHeight = modelSize * 2.4;
+    const modelMaxHeight = modelSize * 4.2;
     const modelHeight = Math.min(
-      doc.heightOfString(compatibility, { width: detailWidth }),
+      doc.heightOfString(product.compatibility, { width: detailWidth }),
       modelMaxHeight,
     );
-    doc.text(compatibility, detailX, y, {
+    doc.text(product.compatibility, detailX, y, {
       width: detailWidth,
       height: modelMaxHeight,
       lineBreak: true,

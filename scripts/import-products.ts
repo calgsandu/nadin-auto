@@ -9,6 +9,7 @@ import {
   parseProductDescription,
   parseVehicleApplications,
 } from "@/lib/catalog/parse-product";
+import { groupImportRowsByKey } from "@/lib/catalog/import-compatibilities";
 
 type SheetRow = unknown[];
 
@@ -84,14 +85,14 @@ async function main() {
     const priceEuro = normalizeNumber(row[54]);
     const costLei = normalizeNumber(row[55]);
 
-    vehicles.forEach((vehicle, vehicleIndex) => {
+    vehicles.forEach((vehicle) => {
       if (vehicle.brandName === "NECUNOSCUT") {
         skipped += 1;
         return;
       }
 
       parsedRows.push({
-        importKey: `${sourceRow}:${vehicleIndex}`,
+        importKey: `${sourceRow}:0`,
         sourceRow,
         sourceItem,
         externalCode,
@@ -182,6 +183,7 @@ async function main() {
   );
 
   const sourceRows = parsedRows.map((row) => row.sourceRow);
+  const productRows = groupImportRowsByKey(parsedRows).map(({ rows }) => rows[0]!);
 
   await prisma.product.deleteMany({
     where: {
@@ -192,7 +194,7 @@ async function main() {
   });
 
   await prisma.product.createMany({
-    data: parsedRows.map((row) => {
+    data: productRows.map((row) => {
       const brand = requireMapValue(brands, row.brandName, "brand");
       const model = requireMapValue(models, `${brand.id}:${row.modelName}`, "model");
       const fitment = requireMapValue(
@@ -221,13 +223,40 @@ async function main() {
     skipDuplicates: true,
   });
 
+  const productsByImportKey = new Map(
+    (
+      await prisma.product.findMany({
+        where: { importKey: { in: productRows.map((row) => row.importKey) } },
+      })
+    ).map((product) => [product.importKey, product]),
+  );
+
+  const productFitments = uniqueBy(
+    parsedRows.map((row) => {
+      const brand = requireMapValue(brands, row.brandName, "brand");
+      const model = requireMapValue(models, `${brand.id}:${row.modelName}`, "model");
+      const fitment = requireMapValue(
+        fitments,
+        `${model.id}:${row.fitmentLabel}`,
+        "fitment",
+      );
+      const product = requireMapValue(productsByImportKey, row.importKey, "product");
+
+      return { productId: product.id, fitmentId: fitment.id };
+    }),
+    (entry) => `${entry.productId}:${entry.fitmentId}`,
+  );
+
+  await prisma.productFitment.createMany({ data: productFitments, skipDuplicates: true });
+
   await cleanupOrphanCatalogRows();
 
   console.log(
     JSON.stringify(
       {
         sheetName,
-        imported: parsedRows.length,
+        imported: productRows.length,
+        fitmentsLinked: productFitments.length,
         skipped,
         cutoff: "CARENAJE RUSSIA",
       },

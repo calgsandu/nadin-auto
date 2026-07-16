@@ -64,6 +64,15 @@ export async function getCatalogData(
             },
           },
         },
+        productFitments: {
+          include: {
+            fitment: {
+              include: {
+                carModel: { include: { brand: true } },
+              },
+            },
+          },
+        },
         warehouseStocks: {
           select: {
             warehouseId: true,
@@ -144,7 +153,7 @@ function normalizePage(page: string | undefined) {
   return value;
 }
 
-function buildProductWhere(params: CatalogSearchParams): Prisma.ProductWhereInput {
+export function buildProductWhere(params: CatalogSearchParams): Prisma.ProductWhereInput {
   const filters: Prisma.ProductWhereInput[] = [];
   const q = params.q?.trim();
   const year = params.year ? Number(params.year) : null;
@@ -154,11 +163,22 @@ function buildProductWhere(params: CatalogSearchParams): Prisma.ProductWhereInpu
       OR: [
         { externalCode: { contains: q, mode: "insensitive" } },
         { description: { contains: q, mode: "insensitive" } },
-        { fitment: { label: { contains: q, mode: "insensitive" } } },
-        { fitment: { carModel: { name: { contains: q, mode: "insensitive" } } } },
+        ...compatibleFitmentFilter({ label: { contains: q, mode: "insensitive" } }).OR!,
+        ...compatibleFitmentFilter({
+          carModel: { name: { contains: q, mode: "insensitive" } },
+        }).OR!,
         {
           fitment: {
             carModel: { brand: { name: { contains: q, mode: "insensitive" } } },
+          },
+        },
+        {
+          productFitments: {
+            some: {
+              fitment: {
+                carModel: { brand: { name: { contains: q, mode: "insensitive" } } },
+              },
+            },
           },
         },
       ],
@@ -166,21 +186,11 @@ function buildProductWhere(params: CatalogSearchParams): Prisma.ProductWhereInpu
   }
 
   if (params.brand) {
-    filters.push({
-      fitment: {
-        carModel: {
-          brandId: params.brand,
-        },
-      },
-    });
+    filters.push(compatibleFitmentFilter({ carModel: { brandId: params.brand } }));
   }
 
   if (params.model) {
-    filters.push({
-      fitment: {
-        carModelId: params.model,
-      },
-    });
+    filters.push(compatibleFitmentFilter({ carModelId: params.model }));
   }
 
   if (params.type) {
@@ -188,8 +198,8 @@ function buildProductWhere(params: CatalogSearchParams): Prisma.ProductWhereInpu
   }
 
   if (year && Number.isInteger(year)) {
-    filters.push({
-      fitment: {
+    filters.push(
+      compatibleFitmentFilter({
         AND: [
           { OR: [{ yearStart: null }, { yearStart: { lte: year } }] },
           {
@@ -200,9 +210,20 @@ function buildProductWhere(params: CatalogSearchParams): Prisma.ProductWhereInpu
             ],
           },
         ],
-      },
-    });
+      }),
+    );
   }
 
   return filters.length > 0 ? { AND: filters } : {};
+}
+
+function compatibleFitmentFilter(
+  fitment: Prisma.VehicleFitmentWhereInput,
+): Prisma.ProductWhereInput {
+  return {
+    OR: [
+      { fitment },
+      { productFitments: { some: { fitment } } },
+    ],
+  };
 }

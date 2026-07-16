@@ -14,11 +14,34 @@ assert.deepEqual(buildProductSearchWhere("bmw e90"), {
     { externalCode: { contains: "bmw e90", mode: "insensitive" } },
     { description: { contains: "bmw e90", mode: "insensitive" } },
     { fitment: { label: { contains: "bmw e90", mode: "insensitive" } } },
+    {
+      productFitments: {
+        some: { fitment: { label: { contains: "bmw e90", mode: "insensitive" } } },
+      },
+    },
     { fitment: { carModel: { name: { contains: "bmw e90", mode: "insensitive" } } } },
+    {
+      productFitments: {
+        some: {
+          fitment: { carModel: { name: { contains: "bmw e90", mode: "insensitive" } } },
+        },
+      },
+    },
     {
       fitment: {
         carModel: {
           brand: { name: { contains: "bmw e90", mode: "insensitive" } },
+        },
+      },
+    },
+    {
+      productFitments: {
+        some: {
+          fitment: {
+            carModel: {
+              brand: { name: { contains: "bmw e90", mode: "insensitive" } },
+            },
+          },
         },
       },
     },

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import {
   LABEL_COMPATIBILITY_PREFIX,
   LABEL_PHONE,
-  buildCompatibilityLabel,
+  buildCombinedCompatibilityLabel,
   buildPartLabel,
   upperLabelText,
 } from "@/lib/labels/format";
@@ -64,13 +64,26 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
         include: productLabelInclude,
       })
     : [];
+
   // păstrează ordinea din URL, nu ordinea din DB
   const products = [...counts.keys()]
     .map((id) => fetched.find((p) => p.id === id))
     .filter((p): p is (typeof fetched)[number] => Boolean(p));
 
   const labels = products.flatMap((product) =>
-    Array.from({ length: counts.get(product.id) ?? 1 }, (_, copy) => ({ product, copy })),
+    Array.from({ length: counts.get(product.id) ?? 1 }, (_, copy) => ({
+      product,
+      copy,
+      compatibility: buildCombinedCompatibilityLabel(
+        product.productFitments.map(({ fitment }) => ({
+          brandName: fitment.carModel.brand.name,
+          modelName: fitment.carModel.name,
+          yearStart: fitment.yearStart,
+          yearEnd: fitment.yearEnd,
+          yearOpenEnded: fitment.yearOpenEnded,
+        })),
+      ),
+    })),
   );
 
   // celule goale la început = poziții deja folosite pe o foaie începută
@@ -111,7 +124,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
         }
         .label-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .label-detail { margin-left: ${dim.detailOffsetX}mm; }
-        .label-model { white-space: normal; overflow: hidden; line-height: 1.05; max-height: 2.1em; }
+        .label-model { white-space: normal; overflow: hidden; line-height: 1.05; max-height: 4.2em; }
         .label-part {
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -164,6 +177,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
             <LabelSticker
               key={`${slot.product.id}-${slot.copy}`}
               product={slot.product}
+              compatibility={slot.compatibility}
               dim={dim}
             />
           ))}
@@ -174,7 +188,11 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
             {sheet.map((slot, i) =>
               slot ? (
                 <div key={`${slot.product.id}-${slot.copy}`} className="label-cell">
-                  <LabelSticker product={slot.product} dim={dim} />
+                  <LabelSticker
+                    product={slot.product}
+                    compatibility={slot.compatibility}
+                    dim={dim}
+                  />
                 </div>
               ) : (
                 <div key={`empty-${i}`} className="label-cell" />
@@ -199,6 +217,19 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
         };
       };
     };
+    productFitments: {
+      include: {
+        fitment: {
+          include: {
+            carModel: {
+              include: {
+                brand: true;
+              };
+            };
+          };
+        };
+      };
+    };
   };
 }>;
 
@@ -213,25 +244,36 @@ const productLabelInclude = {
       },
     },
   },
+  productFitments: {
+    include: {
+      fitment: {
+        include: {
+          carModel: {
+            include: {
+              brand: true,
+            },
+          },
+        },
+      },
+    },
+  },
 } satisfies Prisma.ProductInclude;
 
 function LabelSticker({
   product,
+  compatibility,
   dim,
 }: {
   product: ProductWithRelations;
+  compatibility: string;
   dim: (typeof LABEL_SIZES)[LabelSizeKey];
 }) {
-  const model = product.fitment.carModel;
   const code = upperLabelText(product.externalCode ?? "-");
-  const compatibility = buildCompatibilityLabel({
-    brandName: model.brand.name,
-    modelName: model.name,
-    yearStart: product.fitment.yearStart,
-    yearEnd: product.fitment.yearEnd,
-    yearOpenEnded: product.fitment.yearOpenEnded,
-  });
   const part = buildPartLabel(product.type.name, product.description);
+  const compatibilitySize = Math.max(
+    dim.model * (compatibility.length > 55 ? 0.72 : compatibility.length > 35 ? 0.84 : 1),
+    5,
+  );
 
   return (
     <div className="label-sticker flex flex-col bg-white pb-[6mm] pt-[3.5mm] text-[#111]">
@@ -249,7 +291,7 @@ function LabelSticker({
       </p>
       <p
         className="label-model label-detail mt-[1mm] font-mono font-bold tracking-[0.02em]"
-        style={{ fontSize: `${dim.model}px` }}
+        style={{ fontSize: `${compatibilitySize}px` }}
       >
         {compatibility}
       </p>

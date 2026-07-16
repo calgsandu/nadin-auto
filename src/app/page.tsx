@@ -74,6 +74,7 @@ import {
 } from "@/app/admin/actions";
 import { getCurrentAppUser } from "@/lib/auth/access";
 import { getCatalogData, type CatalogSearchParams } from "@/lib/catalog/queries";
+import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
 import { getInventoryData, getOperationsData, type InventoryData } from "@/lib/operations/queries";
 import { InventoryDialog } from "@/app/operations/inventory-dialog";
 import { getPartnersData, type PartnerRow } from "@/lib/partners/queries";
@@ -1275,7 +1276,16 @@ function ProductRow({
   catalog: CatalogData;
   product: CatalogProduct;
 }) {
-  const model = product.fitment.carModel;
+  const compatibilities = buildCompatibilityLines(
+    product.productFitments.map(({ fitment }) => ({
+      id: fitment.id,
+      brandName: fitment.carModel.brand.name,
+      modelName: fitment.carModel.name,
+      yearStart: fitment.yearStart,
+      yearEnd: fitment.yearEnd,
+      yearOpenEnded: fitment.yearOpenEnded,
+    })),
+  );
 
   return (
     <tr className="motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]">
@@ -1293,10 +1303,14 @@ function ProductRow({
       ) : null}
       <TableCell className="font-mono text-xs font-semibold">{formatText(product.externalCode)}</TableCell>
       <TableCell>
-        <p className="font-semibold text-[#1b1a17]">{model.brand.name} {model.name}</p>
-        <p className="mt-1 text-xs text-[#6f6b63]">
-          Ani: {formatYearLabel(product.fitment.yearStart, product.fitment.yearEnd, product.fitment.yearOpenEnded)}
-        </p>
+        <div className="space-y-2">
+          {compatibilities.map((compatibility, index) => (
+            <div key={`${compatibility.title}:${compatibility.years}:${index}`}>
+              <p className="font-semibold text-[#1b1a17]">{compatibility.title}</p>
+              <p className="mt-0.5 text-xs text-[#6f6b63]">Ani: {compatibility.years}</p>
+            </div>
+          ))}
+        </div>
       </TableCell>
       <TableCell>
         <p className="font-medium text-[#1b1a17]">{product.description}</p>

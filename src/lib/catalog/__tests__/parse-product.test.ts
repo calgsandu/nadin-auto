@@ -90,4 +90,21 @@ const explicitBmwApplication = parseVehicleApplications(
 assert.equal(explicitBmwApplication[0].brandName, "BMW");
 assert.equal(explicitBmwApplication[0].modelName, "E 34");
 
+const landRover = parseVehicleApplications("LAND ROVER FREELANDER /99-06/");
+assert.equal(landRover[0].brandName, "LAND ROVER");
+assert.equal(landRover[0].modelName, "FREELANDER");
+
+const poloHeader = parseHeaderVehicles("VW POLO H/B 94-99");
+const poloHatchback = parseVehicleApplications("VW POLO H/B /94-99/", poloHeader);
+assert.equal(poloHatchback.length, 1);
+assert.equal(poloHatchback[0].brandName, "VOLKSWAGEN");
+assert.equal(poloHatchback[0].modelName, "POLO H/B");
+
+const ltHeader = parseHeaderVehicles("VW LT 35/45 95-06");
+const ltApplications = parseVehicleApplications("VW LT-35/45 /95-06/", ltHeader);
+assert.deepEqual(
+  ltApplications.map((application) => application.modelName),
+  ["LT 35", "LT 45"],
+);
+
 console.log("parse-product tests passed");

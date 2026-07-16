@@ -246,6 +246,7 @@ export type VehicleFitmentWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"VehicleFitment"> | Date | string
   carModel?: Prisma.XOR<Prisma.CarModelScalarRelationFilter, Prisma.CarModelWhereInput>
   products?: Prisma.ProductListRelationFilter
+  productFitments?: Prisma.ProductFitmentListRelationFilter
 }
 
 export type VehicleFitmentOrderByWithRelationInput = {
@@ -259,6 +260,7 @@ export type VehicleFitmentOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   carModel?: Prisma.CarModelOrderByWithRelationInput
   products?: Prisma.ProductOrderByRelationAggregateInput
+  productFitments?: Prisma.ProductFitmentOrderByRelationAggregateInput
 }
 
 export type VehicleFitmentWhereUniqueInput = Prisma.AtLeast<{
@@ -276,6 +278,7 @@ export type VehicleFitmentWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"VehicleFitment"> | Date | string
   carModel?: Prisma.XOR<Prisma.CarModelScalarRelationFilter, Prisma.CarModelWhereInput>
   products?: Prisma.ProductListRelationFilter
+  productFitments?: Prisma.ProductFitmentListRelationFilter
 }, "id" | "carModelId_label">
 
 export type VehicleFitmentOrderByWithAggregationInput = {
@@ -318,6 +321,7 @@ export type VehicleFitmentCreateInput = {
   updatedAt?: Date | string
   carModel: Prisma.CarModelCreateNestedOneWithoutFitmentsInput
   products?: Prisma.ProductCreateNestedManyWithoutFitmentInput
+  productFitments?: Prisma.ProductFitmentCreateNestedManyWithoutFitmentInput
 }
 
 export type VehicleFitmentUncheckedCreateInput = {
@@ -330,6 +334,7 @@ export type VehicleFitmentUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutFitmentInput
+  productFitments?: Prisma.ProductFitmentUncheckedCreateNestedManyWithoutFitmentInput
 }
 
 export type VehicleFitmentUpdateInput = {
@@ -342,6 +347,7 @@ export type VehicleFitmentUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   carModel?: Prisma.CarModelUpdateOneRequiredWithoutFitmentsNestedInput
   products?: Prisma.ProductUpdateManyWithoutFitmentNestedInput
+  productFitments?: Prisma.ProductFitmentUpdateManyWithoutFitmentNestedInput
 }
 
 export type VehicleFitmentUncheckedUpdateInput = {
@@ -354,6 +360,7 @@ export type VehicleFitmentUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutFitmentNestedInput
+  productFitments?: Prisma.ProductFitmentUncheckedUpdateManyWithoutFitmentNestedInput
 }
 
 export type VehicleFitmentCreateManyInput = {
@@ -515,6 +522,20 @@ export type VehicleFitmentUpdateOneRequiredWithoutProductsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.VehicleFitmentUpdateToOneWithWhereWithoutProductsInput, Prisma.VehicleFitmentUpdateWithoutProductsInput>, Prisma.VehicleFitmentUncheckedUpdateWithoutProductsInput>
 }
 
+export type VehicleFitmentCreateNestedOneWithoutProductFitmentsInput = {
+  create?: Prisma.XOR<Prisma.VehicleFitmentCreateWithoutProductFitmentsInput, Prisma.VehicleFitmentUncheckedCreateWithoutProductFitmentsInput>
+  connectOrCreate?: Prisma.VehicleFitmentCreateOrConnectWithoutProductFitmentsInput
+  connect?: Prisma.VehicleFitmentWhereUniqueInput
+}
+
+export type VehicleFitmentUpdateOneRequiredWithoutProductFitmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.VehicleFitmentCreateWithoutProductFitmentsInput, Prisma.VehicleFitmentUncheckedCreateWithoutProductFitmentsInput>
+  connectOrCreate?: Prisma.VehicleFitmentCreateOrConnectWithoutProductFitmentsInput
+  upsert?: Prisma.VehicleFitmentUpsertWithoutProductFitmentsInput
+  connect?: Prisma.VehicleFitmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.VehicleFitmentUpdateToOneWithWhereWithoutProductFitmentsInput, Prisma.VehicleFitmentUpdateWithoutProductFitmentsInput>, Prisma.VehicleFitmentUncheckedUpdateWithoutProductFitmentsInput>
+}
+
 export type VehicleFitmentCreateWithoutCarModelInput = {
   id?: string
   label: string
@@ -524,6 +545,7 @@ export type VehicleFitmentCreateWithoutCarModelInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductCreateNestedManyWithoutFitmentInput
+  productFitments?: Prisma.ProductFitmentCreateNestedManyWithoutFitmentInput
 }
 
 export type VehicleFitmentUncheckedCreateWithoutCarModelInput = {
@@ -535,6 +557,7 @@ export type VehicleFitmentUncheckedCreateWithoutCarModelInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutFitmentInput
+  productFitments?: Prisma.ProductFitmentUncheckedCreateNestedManyWithoutFitmentInput
 }
 
 export type VehicleFitmentCreateOrConnectWithoutCarModelInput = {
@@ -586,6 +609,7 @@ export type VehicleFitmentCreateWithoutProductsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   carModel: Prisma.CarModelCreateNestedOneWithoutFitmentsInput
+  productFitments?: Prisma.ProductFitmentCreateNestedManyWithoutFitmentInput
 }
 
 export type VehicleFitmentUncheckedCreateWithoutProductsInput = {
@@ -597,6 +621,7 @@ export type VehicleFitmentUncheckedCreateWithoutProductsInput = {
   yearOpenEnded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  productFitments?: Prisma.ProductFitmentUncheckedCreateNestedManyWithoutFitmentInput
 }
 
 export type VehicleFitmentCreateOrConnectWithoutProductsInput = {
@@ -624,6 +649,7 @@ export type VehicleFitmentUpdateWithoutProductsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   carModel?: Prisma.CarModelUpdateOneRequiredWithoutFitmentsNestedInput
+  productFitments?: Prisma.ProductFitmentUpdateManyWithoutFitmentNestedInput
 }
 
 export type VehicleFitmentUncheckedUpdateWithoutProductsInput = {
@@ -635,6 +661,71 @@ export type VehicleFitmentUncheckedUpdateWithoutProductsInput = {
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productFitments?: Prisma.ProductFitmentUncheckedUpdateManyWithoutFitmentNestedInput
+}
+
+export type VehicleFitmentCreateWithoutProductFitmentsInput = {
+  id?: string
+  label: string
+  yearStart?: number | null
+  yearEnd?: number | null
+  yearOpenEnded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  carModel: Prisma.CarModelCreateNestedOneWithoutFitmentsInput
+  products?: Prisma.ProductCreateNestedManyWithoutFitmentInput
+}
+
+export type VehicleFitmentUncheckedCreateWithoutProductFitmentsInput = {
+  id?: string
+  carModelId: string
+  label: string
+  yearStart?: number | null
+  yearEnd?: number | null
+  yearOpenEnded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutFitmentInput
+}
+
+export type VehicleFitmentCreateOrConnectWithoutProductFitmentsInput = {
+  where: Prisma.VehicleFitmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.VehicleFitmentCreateWithoutProductFitmentsInput, Prisma.VehicleFitmentUncheckedCreateWithoutProductFitmentsInput>
+}
+
+export type VehicleFitmentUpsertWithoutProductFitmentsInput = {
+  update: Prisma.XOR<Prisma.VehicleFitmentUpdateWithoutProductFitmentsInput, Prisma.VehicleFitmentUncheckedUpdateWithoutProductFitmentsInput>
+  create: Prisma.XOR<Prisma.VehicleFitmentCreateWithoutProductFitmentsInput, Prisma.VehicleFitmentUncheckedCreateWithoutProductFitmentsInput>
+  where?: Prisma.VehicleFitmentWhereInput
+}
+
+export type VehicleFitmentUpdateToOneWithWhereWithoutProductFitmentsInput = {
+  where?: Prisma.VehicleFitmentWhereInput
+  data: Prisma.XOR<Prisma.VehicleFitmentUpdateWithoutProductFitmentsInput, Prisma.VehicleFitmentUncheckedUpdateWithoutProductFitmentsInput>
+}
+
+export type VehicleFitmentUpdateWithoutProductFitmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  carModel?: Prisma.CarModelUpdateOneRequiredWithoutFitmentsNestedInput
+  products?: Prisma.ProductUpdateManyWithoutFitmentNestedInput
+}
+
+export type VehicleFitmentUncheckedUpdateWithoutProductFitmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  carModelId?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  products?: Prisma.ProductUncheckedUpdateManyWithoutFitmentNestedInput
 }
 
 export type VehicleFitmentCreateManyCarModelInput = {
@@ -656,6 +747,7 @@ export type VehicleFitmentUpdateWithoutCarModelInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUpdateManyWithoutFitmentNestedInput
+  productFitments?: Prisma.ProductFitmentUpdateManyWithoutFitmentNestedInput
 }
 
 export type VehicleFitmentUncheckedUpdateWithoutCarModelInput = {
@@ -667,6 +759,7 @@ export type VehicleFitmentUncheckedUpdateWithoutCarModelInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutFitmentNestedInput
+  productFitments?: Prisma.ProductFitmentUncheckedUpdateManyWithoutFitmentNestedInput
 }
 
 export type VehicleFitmentUncheckedUpdateManyWithoutCarModelInput = {
@@ -686,10 +779,12 @@ export type VehicleFitmentUncheckedUpdateManyWithoutCarModelInput = {
 
 export type VehicleFitmentCountOutputType = {
   products: number
+  productFitments: number
 }
 
 export type VehicleFitmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   products?: boolean | VehicleFitmentCountOutputTypeCountProductsArgs
+  productFitments?: boolean | VehicleFitmentCountOutputTypeCountProductFitmentsArgs
 }
 
 /**
@@ -709,6 +804,13 @@ export type VehicleFitmentCountOutputTypeCountProductsArgs<ExtArgs extends runti
   where?: Prisma.ProductWhereInput
 }
 
+/**
+ * VehicleFitmentCountOutputType without action
+ */
+export type VehicleFitmentCountOutputTypeCountProductFitmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductFitmentWhereInput
+}
+
 
 export type VehicleFitmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -721,6 +823,7 @@ export type VehicleFitmentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   updatedAt?: boolean
   carModel?: boolean | Prisma.CarModelDefaultArgs<ExtArgs>
   products?: boolean | Prisma.VehicleFitment$productsArgs<ExtArgs>
+  productFitments?: boolean | Prisma.VehicleFitment$productFitmentsArgs<ExtArgs>
   _count?: boolean | Prisma.VehicleFitmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["vehicleFitment"]>
 
@@ -763,6 +866,7 @@ export type VehicleFitmentOmit<ExtArgs extends runtime.Types.Extensions.Internal
 export type VehicleFitmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   carModel?: boolean | Prisma.CarModelDefaultArgs<ExtArgs>
   products?: boolean | Prisma.VehicleFitment$productsArgs<ExtArgs>
+  productFitments?: boolean | Prisma.VehicleFitment$productFitmentsArgs<ExtArgs>
   _count?: boolean | Prisma.VehicleFitmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type VehicleFitmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -777,6 +881,7 @@ export type $VehicleFitmentPayload<ExtArgs extends runtime.Types.Extensions.Inte
   objects: {
     carModel: Prisma.$CarModelPayload<ExtArgs>
     products: Prisma.$ProductPayload<ExtArgs>[]
+    productFitments: Prisma.$ProductFitmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1183,6 +1288,7 @@ export interface Prisma__VehicleFitmentClient<T, Null = never, ExtArgs extends r
   readonly [Symbol.toStringTag]: "PrismaPromise"
   carModel<T extends Prisma.CarModelDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CarModelDefaultArgs<ExtArgs>>): Prisma.Prisma__CarModelClient<runtime.Types.Result.GetResult<Prisma.$CarModelPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   products<T extends Prisma.VehicleFitment$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VehicleFitment$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  productFitments<T extends Prisma.VehicleFitment$productFitmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VehicleFitment$productFitmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductFitmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1642,6 +1748,30 @@ export type VehicleFitment$productsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.ProductScalarFieldEnum | Prisma.ProductScalarFieldEnum[]
+}
+
+/**
+ * VehicleFitment.productFitments
+ */
+export type VehicleFitment$productFitmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductFitment
+   */
+  select?: Prisma.ProductFitmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductFitment
+   */
+  omit?: Prisma.ProductFitmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductFitmentInclude<ExtArgs> | null
+  where?: Prisma.ProductFitmentWhereInput
+  orderBy?: Prisma.ProductFitmentOrderByWithRelationInput | Prisma.ProductFitmentOrderByWithRelationInput[]
+  cursor?: Prisma.ProductFitmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductFitmentScalarFieldEnum | Prisma.ProductFitmentScalarFieldEnum[]
 }
 
 /**

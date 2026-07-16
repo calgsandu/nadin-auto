@@ -12,7 +12,7 @@ const KNOWN_BRANDS = new Set([
   "HYUNDAI",
   "IVECO",
   "KIA",
-  "LAND",
+  "LAND ROVER",
   "MAZDA",
   "MB",
   "MERCEDES",
@@ -111,11 +111,11 @@ export function parseVehicle(value: unknown, fallbackBrandName?: string | null):
 
   let brandName = fallbackBrandName ? normalizeBrandName(fallbackBrandName) : null;
   let modelTokens = tokens;
-  const possibleBrand = tokens[0]?.toUpperCase();
+  const knownBrand = findKnownBrand(tokens);
 
-  if (possibleBrand && KNOWN_BRANDS.has(possibleBrand)) {
-    brandName = normalizeBrandName(possibleBrand);
-    modelTokens = tokens.slice(1);
+  if (knownBrand) {
+    brandName = normalizeBrandName(knownBrand.name);
+    modelTokens = tokens.slice(knownBrand.tokenCount);
   }
 
   const modelName = normalizeModelName(modelTokens.join(" ").trim() || original);
@@ -137,7 +137,7 @@ export function parseHeaderVehicles(value: unknown) {
     yearMatch ? original.slice(0, yearMatch.index).trim() : original,
     { keepSeparators: true },
   );
-  const segments = base.split("/").map(normalizeText).filter(Boolean);
+  const segments = splitVehicleSegments(base);
   const vehicles: ParsedVehicle[] = [];
 
   for (const segment of segments) {
@@ -168,7 +168,7 @@ export function parseVehicleApplications(
       ? `${original.slice(0, yearMatch.index)} ${original.slice(yearMatch.index + yearMatch.raw.length)}`
       : original,
   );
-  const segments = base.split("/").map(normalizeText).filter(Boolean);
+  const segments = splitVehicleSegments(base);
 
   if (segments.length <= 1 || headerVehicles.length <= 1) {
     const parsed = parseVehicle(original, headerVehicles[0]?.brandName ?? null);
@@ -258,6 +258,20 @@ function stripYearSegments(
   );
 }
 
+function splitVehicleSegments(value: string) {
+  const normalized = normalizeComparable(value);
+
+  if (normalized === "VWPOLOHB") {
+    return [value];
+  }
+
+  if (normalized === "VWLT3545") {
+    return ["VW LT 35", "VW LT 45"];
+  }
+
+  return value.split("/").map(normalizeText).filter(Boolean);
+}
+
 function sameModel(left: string, right: string) {
   return normalizeComparable(left) === normalizeComparable(right);
 }
@@ -267,15 +281,30 @@ function normalizeComparable(value: string) {
 }
 
 function firstTokenIsKnownBrand(value: string) {
-  const firstToken = value
+  const tokens = value
     .replace(/--/g, " ")
     .replace(/\s+-\s+/g, " ")
     .replace(/^-\s*/, "")
     .split(" ")
-    .filter(Boolean)[0]
-    ?.toUpperCase();
+    .filter(Boolean);
 
-  return Boolean(firstToken && KNOWN_BRANDS.has(firstToken));
+  return Boolean(findKnownBrand(tokens));
+}
+
+function findKnownBrand(tokens: string[]) {
+  const twoWordBrand = tokens.slice(0, 2).join(" ").toUpperCase();
+
+  if (KNOWN_BRANDS.has(twoWordBrand)) {
+    return { name: twoWordBrand, tokenCount: 2 };
+  }
+
+  const oneWordBrand = tokens[0]?.toUpperCase();
+
+  if (oneWordBrand && KNOWN_BRANDS.has(oneWordBrand)) {
+    return { name: oneWordBrand, tokenCount: 1 };
+  }
+
+  return null;
 }
 
 function normalizeBrandName(value: string) {

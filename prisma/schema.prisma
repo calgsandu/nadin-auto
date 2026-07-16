@@ -112,6 +112,7 @@ model VehicleFitment {
   yearOpenEnded Boolean   @default(false)
   carModel      CarModel  @relation(fields: [carModelId], references: [id], onDelete: Cascade)
   products      Product[]
+  productFitments ProductFitment[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -146,6 +147,7 @@ model Product {
   fitmentId   String
   typeId      String
   fitment     VehicleFitment @relation(fields: [fitmentId], references: [id], onDelete: Restrict)
+  productFitments ProductFitment[]
   type        ProductType    @relation(fields: [typeId], references: [id], onDelete: Restrict)
   warehouseStocks WarehouseStock[]
   stockLines   StockDocumentLine[]
@@ -158,6 +160,16 @@ model Product {
   @@index([externalCode])
   @@index([description])
   @@index([typeId])
+  @@index([fitmentId])
+}
+
+model ProductFitment {
+  productId String
+  fitmentId String
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fitment   VehicleFitment @relation(fields: [fitmentId], references: [id], onDelete: Cascade)
+
+  @@id([productId, fitmentId])
   @@index([fitmentId])
 }
 

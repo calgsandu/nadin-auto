@@ -43,11 +43,34 @@ export function buildProductSearchWhere(query: string): Prisma.ProductWhereInput
       { externalCode: { contains: query, mode: "insensitive" } },
       { description: { contains: query, mode: "insensitive" } },
       { fitment: { label: { contains: query, mode: "insensitive" } } },
+      {
+        productFitments: {
+          some: { fitment: { label: { contains: query, mode: "insensitive" } } },
+        },
+      },
       { fitment: { carModel: { name: { contains: query, mode: "insensitive" } } } },
+      {
+        productFitments: {
+          some: {
+            fitment: { carModel: { name: { contains: query, mode: "insensitive" } } },
+          },
+        },
+      },
       {
         fitment: {
           carModel: {
             brand: { name: { contains: query, mode: "insensitive" } },
+          },
+        },
+      },
+      {
+        productFitments: {
+          some: {
+            fitment: {
+              carModel: {
+                brand: { name: { contains: query, mode: "insensitive" } },
+              },
+            },
           },
         },
       },

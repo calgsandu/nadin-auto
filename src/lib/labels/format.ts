@@ -1,6 +1,14 @@
 export const LABEL_PHONE = "0 (68) 677885";
 export const LABEL_COMPATIBILITY_PREFIX = "Piesă auto compatibilă cu modelul";
 
+export type LabelCompatibilityInput = {
+  brandName: string;
+  modelName: string;
+  yearStart: number | null;
+  yearEnd: number | null;
+  yearOpenEnded: boolean;
+};
+
 export function buildCompatibilityLabel({
   brandName,
   modelName,
@@ -23,6 +31,16 @@ export function buildCompatibilityLabel({
       .filter(Boolean)
       .join(" "),
   );
+}
+
+export function buildCombinedCompatibilityLabel(entries: LabelCompatibilityInput[]) {
+  const labels = new Set(
+    entries
+      .map((entry) => buildCompatibilityLabel(entry))
+      .filter(Boolean),
+  );
+
+  return [...labels].join(" / ");
 }
 
 export function buildPartLabel(typeName: string, description: string) {

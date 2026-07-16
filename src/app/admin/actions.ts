@@ -212,7 +212,11 @@ export async function deleteFitmentAction(_s: AdminActionState, fd: FormData): P
     await requireWrite();
     const fitmentId = id(fd);
     if (!fitmentId) throw new Error("Compatibilitate lipsă.");
-    const products = await prisma.product.count({ where: { fitmentId } });
+    const products = await prisma.product.count({
+      where: {
+        OR: [{ fitmentId }, { productFitments: { some: { fitmentId } } }],
+      },
+    });
     if (products > 0) throw new Error(`Compatibilitatea are ${products} produse și nu poate fi ștearsă.`);
     await prisma.vehicleFitment.delete({ where: { id: fitmentId } });
     return done("Compatibilitate ștearsă.");
