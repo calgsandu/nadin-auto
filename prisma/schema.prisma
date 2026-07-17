@@ -31,6 +31,11 @@ enum StockDocumentType {
   ADJUSTMENT
 }
 
+enum SalePaymentMethod {
+  CASH
+  CARD
+}
+
 enum RestockTaskStatus {
   PENDING
   DELIVERED
@@ -234,6 +239,8 @@ model StockDocument {
   notes       String?
   totalEuro   Decimal?            @db.Decimal(10, 2)
   totalLei    Decimal?            @db.Decimal(10, 2)
+  /// SALE: CASH/CARD; null = vânzare istorică sau nespecificată.
+  paymentMethod SalePaymentMethod?
   warehouse   Warehouse           @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
   partner     Partner?            @relation(fields: [partnerId], references: [id], onDelete: SetNull)
   lines       StockDocumentLine[]
