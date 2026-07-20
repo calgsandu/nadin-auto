@@ -16,8 +16,11 @@ test("encrypts and decrypts a TOTP secret with a versioned envelope", () => {
   assert.match(envelope, /^v1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
   assert.equal(decryptTotpSecret(envelope, key), "JBSWY3DPEHPK3PXP");
 
-  const replacement = envelope.endsWith("A") ? "B" : "A";
-  assert.throws(() => decryptTotpSecret(`${envelope.slice(0, -1)}${replacement}`, key));
+  const parts = envelope.split(".");
+  const ciphertext = parts[3]!;
+  const replacement = ciphertext.startsWith("A") ? "B" : "A";
+  parts[3] = `${replacement}${ciphertext.slice(1)}`;
+  assert.throws(() => decryptTotpSecret(parts.join("."), key));
 });
 
 test("creates opaque tokens with at least 256 bits", () => {
