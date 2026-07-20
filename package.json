@@ -15,6 +15,7 @@
     "catalog:backfill-ru": "tsx scripts/backfill-russian-catalog.ts",
     "db:push": "prisma db push",
     "staff:bootstrap": "tsx scripts/bootstrap-staff-accounts.ts",
+    "staff:reset-2fa": "tsx --env-file=.env scripts/reset-staff-2fa.ts",
     "import:products": "tsx scripts/import-products.ts"
   },
   "dependencies": {
