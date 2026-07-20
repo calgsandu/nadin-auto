@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NeonAuthUIProvider } from "@neondatabase/auth/react";
 import { authClient } from "@/lib/auth/client";
@@ -37,6 +38,9 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#f6f6f4] text-[#1b1a17]">
+        <Script id="crm-sidebar-state" strategy="beforeInteractive">
+          {`try{if(localStorage.getItem("nadin-crm-collapsed")==="1")document.documentElement.setAttribute("data-crm-collapsed","")}catch(e){}`}
+        </Script>
         <NeonAuthUIProvider authClient={authClient} redirectTo="/">
           {children}
         </NeonAuthUIProvider>
