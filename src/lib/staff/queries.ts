@@ -9,12 +9,27 @@ export async function getStaffData() {
       twoFactorCredential: {
         select: { status: true },
       },
+      twoFactorEnrollmentGrant: {
+        select: { expiresAt: true },
+      },
     },
   });
-  const users = records.map(({ twoFactorCredential, ...user }) => ({
-    ...user,
-    twoFactorStatus: twoFactorCredential?.status ?? ("NOT_CONFIGURED" as const),
-  }));
+  const now = new Date();
+  const users = records.map(
+    ({ twoFactorCredential, twoFactorEnrollmentGrant, ...user }) => ({
+      ...user,
+      twoFactorStatus:
+        twoFactorCredential?.status === "ACTIVE"
+          ? ("ACTIVE" as const)
+          : twoFactorCredential?.status === "PENDING"
+            ? ("PENDING" as const)
+            : twoFactorEnrollmentGrant?.expiresAt
+                && twoFactorEnrollmentGrant.expiresAt > now
+              ? ("CODE_ISSUED" as const)
+              : ("NOT_CONFIGURED" as const),
+      twoFactorActivationExpiresAt: twoFactorEnrollmentGrant?.expiresAt ?? null,
+    }),
+  );
 
   users.sort((a, b) => {
     if (a.active !== b.active) return a.active ? -1 : 1;

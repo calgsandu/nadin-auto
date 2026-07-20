@@ -15,6 +15,7 @@ import {
   clearTrustedDevices,
   resetTwoFactorCredential,
 } from "@/lib/auth/two-factor/reset";
+import { replaceEnrollmentGrant } from "@/lib/auth/two-factor/enrollment-grant";
 import {
   banAuthIdentity,
   createAuthIdentity,
@@ -29,6 +30,7 @@ import {
   parseCreateStaffInput,
   needsPasswordMigration,
   parsePassword,
+  parseTwoFactorActivationTarget,
   parseTwoFactorResetConfirmation,
   parseUserId,
   toAuthRole,
@@ -39,6 +41,9 @@ export type StaffActionState = {
   ok: boolean;
   message: string;
   revealedPassword?: string;
+  revealedActivationCode?: string;
+  activationExpiresAt?: string;
+  warning?: boolean;
 };
 
 const VALID_ROLES: readonly AppRole[] = ["ADMIN", "DIRECTOR", "ANGAJAT"];
@@ -198,15 +203,23 @@ export async function resetStaffTwoFactorAction(
       throw new Error("Confirmarea nu corespunde utilizatorului selectat.");
     }
 
-    await prisma.$transaction(async (tx) => {
-      await resetTwoFactorCredential(tx, target.id, new Date());
+    const now = new Date();
+    const activation = await prisma.$transaction(async (tx) => {
+      await resetTwoFactorCredential(tx, target.id, now);
+      const issued = await replaceEnrollmentGrant(tx, target.id, now);
       await logAuditRequired(tx, admin, {
         action: "UPDATE",
         entity: "AppUser",
         entityId: target.id,
         summary: `2FA resetat pentru ${target.username}`,
-        details: { username: target.username, twoFactorReset: true },
+        details: {
+          username: target.username,
+          twoFactorReset: true,
+          enrollmentGrantIssued: true,
+          expiresAt: issued.expiresAt.toISOString(),
+        },
       });
+      return issued;
     });
 
     try {
@@ -215,15 +228,74 @@ export async function resetStaffTwoFactorAction(
       revalidatePath("/crm");
       return {
         ok: false,
+        warning: true,
         message:
           "2FA a fost resetat și accesul local a fost blocat, dar sesiunile Neon Auth nu au putut fi revocate. Sincronizarea trebuie reîncercată.",
+        revealedActivationCode: activation.code,
+        activationExpiresAt: activation.expiresAt.toISOString(),
       };
     }
 
     revalidatePath("/crm");
     return {
       ok: true,
-      message: "2FA a fost resetat. Utilizatorul trebuie să îl configureze din nou.",
+      message: "2FA a fost resetat. Comunică utilizatorului noul cod de activare.",
+      revealedActivationCode: activation.code,
+      activationExpiresAt: activation.expiresAt.toISOString(),
+    };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
+export async function issueStaffTwoFactorActivationAction(
+  _state: StaffActionState,
+  formData: FormData,
+): Promise<StaffActionState> {
+  try {
+    const admin = await requireStaffAdmin();
+    const input = parseTwoFactorActivationTarget(formData);
+    const target = await prisma.appUser.findUnique({
+      where: { id: input.userId },
+      include: {
+        twoFactorCredential: { select: { status: true } },
+      },
+    });
+    if (!target) throw new Error("Utilizatorul nu există.");
+    if (target.id === admin.id) {
+      throw new Error("Nu îți poți emite propriul cod 2FA din administrare.");
+    }
+    if (!target.active) throw new Error("Contul utilizatorului este dezactivat.");
+    if (!target.username || target.username !== input.username) {
+      throw new Error("Utilizatorul selectat nu mai corespunde datelor afișate.");
+    }
+    if (target.twoFactorCredential?.status === "ACTIVE") {
+      throw new Error("Authenticator este deja activ. Folosește resetarea 2FA.");
+    }
+
+    const now = new Date();
+    const activation = await prisma.$transaction(async (tx) => {
+      const issued = await replaceEnrollmentGrant(tx, target.id, now);
+      await logAuditRequired(tx, admin, {
+        action: "UPDATE",
+        entity: "AppUser",
+        entityId: target.id,
+        summary: `Cod de activare 2FA emis pentru ${target.username}`,
+        details: {
+          username: target.username,
+          enrollmentGrantIssued: true,
+          expiresAt: issued.expiresAt.toISOString(),
+        },
+      });
+      return issued;
+    });
+
+    revalidatePath("/crm");
+    return {
+      ok: true,
+      message: "Codul de activare 2FA a fost emis.",
+      revealedActivationCode: activation.code,
+      activationExpiresAt: activation.expiresAt.toISOString(),
     };
   } catch (error) {
     return toActionError(error);

@@ -66,6 +66,7 @@ import { RestockCheckbox } from "@/app/operations/restock-checkbox";
 import { RoleForm } from "@/app/staff/role-form";
 import {
   CreateStaffDialog,
+  IssueTwoFactorActivationDialog,
   ResetPasswordDialog,
   ResetTwoFactorDialog,
   StaffActiveButton,
@@ -2739,6 +2740,8 @@ function StaffWorkspace({
                           ? "bg-[#f0fdf4] text-[#166534]"
                           : user.twoFactorStatus === "PENDING"
                             ? "bg-[#fff7ed] text-[#9a3412]"
+                            : user.twoFactorStatus === "CODE_ISSUED"
+                              ? "bg-[#eff6ff] text-[#1d4ed8]"
                             : "bg-[#f5f5f4] text-[#57534e]"
                       }`}
                     >
@@ -2746,6 +2749,8 @@ function StaffWorkspace({
                         ? "Activ"
                         : user.twoFactorStatus === "PENDING"
                           ? "În configurare"
+                          : user.twoFactorStatus === "CODE_ISSUED"
+                            ? "Cod emis"
                           : "Neconfigurat"}
                     </span>
                   </TableCell>
@@ -2757,9 +2762,18 @@ function StaffWorkspace({
                         username={user.username ?? user.name ?? user.id}
                       />
                       {user.id !== currentUserId &&
-                      user.twoFactorStatus !== "NOT_CONFIGURED" &&
+                      user.twoFactorStatus === "ACTIVE" &&
                       user.username ? (
                         <ResetTwoFactorDialog userId={user.id} username={user.username} />
+                      ) : null}
+                      {user.id !== currentUserId &&
+                      user.active &&
+                      user.twoFactorStatus !== "ACTIVE" &&
+                      user.username ? (
+                        <IssueTwoFactorActivationDialog
+                          userId={user.id}
+                          username={user.username}
+                        />
                       ) : null}
                       {user.id !== currentUserId ? (
                         <StaffActiveButton

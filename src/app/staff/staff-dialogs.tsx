@@ -6,6 +6,7 @@ import { DrawerPortal } from "@/app/components/drawer-portal";
 import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   createStaffUserAction,
+  issueStaffTwoFactorActivationAction,
   resetStaffPasswordAction,
   resetStaffTwoFactorAction,
   setStaffActiveAction,
@@ -122,6 +123,68 @@ export function ResetTwoFactorDialog({ userId, username }: { userId: string; use
   );
 }
 
+export function IssueTwoFactorActivationDialog({
+  userId,
+  username,
+}: {
+  userId: string;
+  username: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <RowButton onClick={() => setOpen(true)}>Emite cod 2FA</RowButton>
+      {open ? (
+        <IssueTwoFactorActivationDrawer
+          userId={userId}
+          username={username}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function IssueTwoFactorActivationDrawer({
+  userId,
+  username,
+  onClose,
+}: {
+  userId: string;
+  username: string;
+  onClose: () => void;
+}) {
+  const [state, formAction] = useActionState(
+    issueStaffTwoFactorActivationAction,
+    initialState,
+  );
+
+  return (
+    <StaffDrawer title={`Activare 2FA · ${username}`} onClose={onClose}>
+      {state.revealedActivationCode && state.activationExpiresAt ? (
+        <div className="grid gap-4">
+          <ActionMessage state={state} />
+          <RevealedActivationCode
+            code={state.revealedActivationCode}
+            expiresAt={state.activationExpiresAt}
+            onClose={onClose}
+          />
+        </div>
+      ) : (
+        <form action={formAction} className="grid gap-5">
+          <input type="hidden" name="userId" value={userId} />
+          <input type="hidden" name="username" value={username} />
+          <div className="rounded-lg border border-[#facc15] bg-[#fefce8] p-4 text-sm leading-6 text-[#854d0e]">
+            Un cod nou îl invalidează pe cel emis anterior și orice configurare QR nefinalizată.
+          </div>
+          <ActionMessage state={state} />
+          <DrawerActions onClose={onClose} submitLabel="Emite cod 2FA" />
+        </form>
+      )}
+    </StaffDrawer>
+  );
+}
+
 function ResetTwoFactorDrawer({
   userId,
   username,
@@ -135,27 +198,38 @@ function ResetTwoFactorDrawer({
 
   return (
     <StaffDrawer title={`Resetare 2FA · ${username}`} onClose={onClose}>
-      <form action={formAction} className="grid gap-5">
-        <input type="hidden" name="userId" value={userId} />
-        <input type="hidden" name="username" value={username} />
-        <div className="rounded-lg border border-[#fca5a5] bg-[#fef2f2] p-4 text-sm leading-6 text-[#991b1b]">
-          Resetarea invalidează toate sesiunile 2FA și dispozitivele memorate. Utilizatorul
-          va trebui să configureze din nou aplicația de autentificare.
-        </div>
-        <Field label={`Scrie exact „${username}” pentru confirmare`}>
-          <input
-            className={inputClassName}
-            name="confirmation"
-            required
-            autoComplete="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            placeholder={username}
+      {state.revealedActivationCode && state.activationExpiresAt ? (
+        <div className="grid gap-4">
+          <ActionMessage state={state} />
+          <RevealedActivationCode
+            code={state.revealedActivationCode}
+            expiresAt={state.activationExpiresAt}
+            onClose={onClose}
           />
-        </Field>
-        <ActionMessage state={state} />
-        <DrawerActions onClose={onClose} submitLabel="Resetează 2FA" />
-      </form>
+        </div>
+      ) : (
+        <form action={formAction} className="grid gap-5">
+          <input type="hidden" name="userId" value={userId} />
+          <input type="hidden" name="username" value={username} />
+          <div className="rounded-lg border border-[#fca5a5] bg-[#fef2f2] p-4 text-sm leading-6 text-[#991b1b]">
+            Resetarea invalidează toate sesiunile 2FA și dispozitivele memorate. Utilizatorul
+            va trebui să configureze din nou aplicația de autentificare.
+          </div>
+          <Field label={`Scrie exact „${username}” pentru confirmare`}>
+            <input
+              className={inputClassName}
+              name="confirmation"
+              required
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              placeholder={username}
+            />
+          </Field>
+          <ActionMessage state={state} />
+          <DrawerActions onClose={onClose} submitLabel="Resetează 2FA" />
+        </form>
+      )}
     </StaffDrawer>
   );
 }
@@ -249,6 +323,54 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
   );
 }
 
+function RevealedActivationCode({
+  code,
+  expiresAt,
+  onClose,
+}: {
+  code: string;
+  expiresAt: string;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const expiryLabel = new Date(expiresAt).toLocaleTimeString("ro-MD", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return (
+    <div className="grid gap-4">
+      <div className="rounded-lg border border-[#7cb8f5] bg-[#f0f7ff] p-4 text-sm leading-6 text-[#194185]">
+        Comunică acest cod separat, ideal personal. După închiderea ferestrei nu mai poate fi afișat.
+      </div>
+      <div className="rounded-lg border border-[#e8e7e3] bg-white p-3">
+        <div className="flex items-center gap-2">
+          <code className="min-w-0 flex-1 break-all font-mono text-base font-semibold tracking-[0.12em]">
+            {code}
+          </code>
+          <button
+            className="button-secondary rounded-md border border-[#e8e7e3] px-3 py-2 text-xs font-semibold"
+            type="button"
+            onClick={async () => {
+              await navigator.clipboard.writeText(code);
+              setCopied(true);
+            }}
+          >
+            {copied ? "Copiat" : "Copiază"}
+          </button>
+        </div>
+        <p className="mt-2 text-xs text-[#6f6b63]">Expiră la {expiryLabel}.</p>
+      </div>
+      <button
+        className="button-primary justify-self-end rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white"
+        type="button"
+        onClick={onClose}
+      >
+        Am comunicat codul
+      </button>
+    </div>
+  );
+}
+
 function DrawerActions({ onClose, submitLabel }: { onClose: () => void; submitLabel: string }) {
   return (
     <div className="flex justify-end gap-3 border-t border-[#e8e7e3] pt-5">
@@ -278,7 +400,12 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 
 function ActionMessage({ state }: { state: StaffActionState }) {
   if (!state.message) return null;
-  return <div className={`rounded-md border px-3 py-2 text-sm ${state.ok ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]" : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"}`}>{state.message}</div>;
+  const tone = state.warning
+    ? "border-[#facc15] bg-[#fefce8] text-[#854d0e]"
+    : state.ok
+      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
+      : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]";
+  return <div className={`rounded-md border px-3 py-2 text-sm ${tone}`}>{state.message}</div>;
 }
 
 function generatePassword() {

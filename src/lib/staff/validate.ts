@@ -48,6 +48,14 @@ export function parseUserId(formData: FormData) {
   return userId;
 }
 
+export function parseTwoFactorActivationTarget(formData: FormData) {
+  const userId = readString(formData, "userId");
+  const username = normalizeUsername(readString(formData, "username"));
+  if (!userId) throw new Error("Lipsește utilizatorul.");
+  if (!username) throw new Error("Utilizatorul nu are un username valid.");
+  return { userId, username };
+}
+
 export function parseTwoFactorResetConfirmation(formData: FormData) {
   const userId = readString(formData, "userId");
   const username = normalizeUsername(readString(formData, "username"));
