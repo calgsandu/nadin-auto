@@ -19,10 +19,16 @@ async function main() {
     throw new Error("Comanda break-glass necesită un terminal interactiv.");
   }
 
-  const [{ prisma }, { resetTwoFactorCredential }, { revokeAuthSessions }] =
+  const [
+    { prisma },
+    { resetTwoFactorCredential },
+    { replaceEnrollmentGrant },
+    { revokeAuthSessions },
+  ] =
     await Promise.all([
       import("../src/lib/prisma"),
       import("../src/lib/auth/two-factor/reset"),
+      import("../src/lib/auth/two-factor/enrollment-grant"),
       import("../src/lib/staff/auth-admin"),
     ]);
 
@@ -58,8 +64,10 @@ async function main() {
     }
     if (answer !== confirmation) throw new Error("Confirmare anulată.");
 
-    await prisma.$transaction(async (tx) => {
-      await resetTwoFactorCredential(tx, target.id, new Date());
+    const now = new Date();
+    const activation = await prisma.$transaction(async (tx) => {
+      await resetTwoFactorCredential(tx, target.id, now);
+      const issued = await replaceEnrollmentGrant(tx, target.id, now);
       await tx.auditLog.create({
         data: {
           userId: null,
@@ -74,14 +82,25 @@ async function main() {
             reason: input.reason,
             twoFactorReset: true,
             breakGlass: true,
+            enrollmentGrantIssued: true,
+            expiresAt: issued.expiresAt.toISOString(),
           },
           reviewStatus: "APPROVED",
         },
       });
+      return issued;
     });
 
-    await revokeAuthSessions(target.authUserId);
-    console.log(`2FA a fost resetat pentru ${target.username}.`);
+    console.log(`Cod activare 2FA (afișat o singură dată): ${activation.code}`);
+    console.log(`Codul expiră la ${activation.expiresAt.toISOString()}.`);
+    try {
+      await revokeAuthSessions(target.authUserId);
+    } catch {
+      throw new Error(
+        "ATENȚIE: resetarea locală și codul nou sunt valide, dar sesiunile Neon nu au putut fi revocate.",
+      );
+    }
+    console.log(`2FA a fost resetat pentru ${target.username}; sesiunile Neon au fost revocate.`);
   } finally {
     await prisma.$disconnect();
   }

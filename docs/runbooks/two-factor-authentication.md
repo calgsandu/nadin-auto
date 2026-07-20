@@ -39,24 +39,38 @@ Ultima comandă trebuie testată într-un shell interactiv care va fi disponibil
    2FA.
 2. Publică aplicația pe HTTPS și verifică accesul public la `/catalog` și
    `/ru/catalog`.
-3. Autentifică un cont de test. Utilizatorul trebuie trimis la configurare,
-   înainte să fie încărcate date CRM.
-4. Scanează QR-ul, confirmă un cod curent și verifică autentificarea cu și fără
+3. Din Personal, administratorul emite un cod 2FA pentru contul de test și îl
+   comunică separat, ideal personal. Codul are 16 caractere, expiră în 15 minute
+   și este afișat administratorului o singură dată.
+4. Autentifică acel cont. Utilizatorul trebuie trimis mai întâi la introducerea
+   codului de activare, înainte să poată fi creat sau afișat QR-ul și înainte să
+   fie încărcate date CRM.
+5. Scanează QR-ul, confirmă un cod curent și verifică autentificarea cu și fără
    opțiunea de memorare pentru 30 de zile.
-5. Verifică un cont cu parolă și unul Google. Ambele trebuie să treacă prin
+6. Verifică un cont cu parolă și unul Google. Ambele trebuie să treacă prin
    același dispatcher 2FA.
-6. Testează resetarea contului de test din Personal, apoi elimină credențialul
-   de test prin aceeași resetare normală.
+7. Testează resetarea contului de test din Personal. Resetarea trebuie să
+   afișeze un cod de activare nou, care trebuie comunicat separat.
 
 Nu folosi resetarea break-glass pe un cont de producție doar ca smoke test.
 
 ## Resetare normală de către administrator
 
-În CRM, deschide Personal, verifică utilizatorul și starea 2FA, apoi apasă
-„Resetează 2FA”. Confirmă username-ul exact. Resetarea șterge credențialul,
-dovezile 2FA și toate dispozitivele memorate, scrie auditul în aceeași tranzacție
-și revocă sesiunile Neon. Utilizatorul trebuie să se autentifice din nou și să
-înroleze o aplicație Authenticator nouă.
+În CRM, deschide Personal și folosește „Emite cod 2FA” pentru un utilizator fără
+Authenticator activ. Pentru un utilizator cu 2FA activ, apasă „Resetează 2FA” și
+confirmă username-ul exact. Resetarea șterge credențialul, dovezile 2FA și toate
+dispozitivele memorate, emite codul nou și scrie auditul în aceeași tranzacție,
+apoi revocă sesiunile Neon.
+
+Copiază codul cât timp sertarul este deschis și comunică-l pe alt canal decât
+parola. Codul expiră după 15 minute și este utilizabil o singură dată. Emiterea
+altui cod invalidează imediat codul anterior și orice QR nefinalizat. Un cod
+expirat nu poate fi recuperat sau reafișat; administratorul emite unul nou.
+
+După consumare, configurarea QR este legată de sesiunea Neon exactă care a
+introdus codul. Deschiderea aceleiași pagini din alt browser sau altă sesiune nu
+expune secretul. Credențialele `PENDING` vechi, fără această legătură, sunt
+intenționat inutilizabile și necesită emiterea unui cod nou.
 
 Administratorul curent nu se poate reseta pe sine din interfață.
 
@@ -69,19 +83,22 @@ mediului corect:
 pnpm staff:reset-2fa --username <username-exact> --reason "<motiv incident>"
 ```
 
-Comanda afișează numai identitatea țintei și cere confirmarea exactă
-`RESET <username>`. Resetarea și auditul `BREAK_GLASS` sunt atomice; după commit
-sunt revocate sesiunile Neon. Nu există opțiune `--force` și comanda refuză un
-stdin/stdout non-interactiv.
+Comanda afișează identitatea țintei și cere confirmarea exactă
+`RESET <username>`. Resetarea, emiterea codului și auditul `BREAK_GLASS` sunt
+atomice. După commit, comanda afișează o singură dată codul de activare și ora
+expirării, apoi revocă sesiunile Neon. Comunică acel cod separat. Nu există
+opțiune `--force` și comanda refuză un stdin/stdout non-interactiv.
 
 ## Incidente
 
 ### Revocarea Neon eșuează după resetare
 
-Resetarea locală rămâne aplicată intenționat: timestamp-ul de resetare face
-sesiunea existentă neeligibilă pentru CRM. Păstrează eroarea ca incident,
-blochează identitatea Neon dacă este necesar și reîncearcă revocarea sesiunilor.
-Nu restaura credențialul local pentru a ascunde eroarea de sincronizare.
+Resetarea locală și codul de activare nou rămân valabile intenționat:
+timestamp-ul de resetare face sesiunea existentă neeligibilă pentru CRM. În UI,
+codul este afișat împreună cu avertismentul; în break-glass este tipărit înainte
+de încercarea de revocare. Păstrează eroarea ca incident, blochează identitatea
+Neon dacă este necesar și reîncearcă revocarea sesiunilor. Nu restaura
+credențialul local pentru a ascunde eroarea de sincronizare.
 
 ### Cheia de criptare este pierdută
 
@@ -93,7 +110,8 @@ controlat credențialele tuturor utilizatorilor, cu audit și comunicare.
 
 ### Rollback
 
-Tabelele 2FA sunt aditive; un rollback de cod nu le elimină automat și nu trebuie
+Tabelele și coloanele 2FA, inclusiv granturile de activare și legătura de sesiune,
+sunt aditive; un rollback de cod nu le elimină automat și nu trebuie
 urmat de ștergerea lor în grabă. Revenirea la codul vechi elimină poarta 2FA din
 aplicație, deci este o decizie explicită de securitate, nu un rollback tehnic
 neutru. Păstrează datele și secretele până la hotărârea incident commander-ului,
