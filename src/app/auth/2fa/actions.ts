@@ -3,9 +3,11 @@
 import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import {
+  InvalidEnrollmentActivationCodeError,
   confirmPendingEnrollment,
   InvalidTotpCodeError,
   regeneratePendingEnrollment,
+  startPendingEnrollmentWithActivationCode,
 } from "@/lib/auth/two-factor/enrollment";
 import { readTwoFactorConfig } from "@/lib/auth/two-factor/config";
 import { getPrimaryAuthContext } from "@/lib/auth/two-factor/primary";
@@ -15,11 +17,34 @@ import { verifyActiveTotp } from "@/lib/auth/two-factor/verification";
 import type { TwoFactorFormState } from "@/app/auth/2fa/form-state";
 
 function safeTwoFactorError(error: unknown): TwoFactorFormState {
-  if (error instanceof InvalidTotpCodeError || error instanceof TwoFactorLockedError) {
+  if (
+    error instanceof InvalidEnrollmentActivationCodeError
+    || error instanceof InvalidTotpCodeError
+    || error instanceof TwoFactorLockedError
+  ) {
     return { ok: false, message: error.message };
   }
   console.error("[2fa] verificarea a eșuat", error);
   return { ok: false, message: "Verificarea nu a putut fi finalizată. Încearcă din nou." };
+}
+
+export async function activateTwoFactorEnrollmentAction(
+  _previous: TwoFactorFormState,
+  formData: FormData,
+): Promise<TwoFactorFormState> {
+  const primary = await getPrimaryAuthContext();
+  if (!primary) return { ok: false, message: "Sesiunea a expirat. Autentifică-te din nou." };
+
+  try {
+    await startPendingEnrollmentWithActivationCode({
+      primary,
+      activationCode: String(formData.get("activationCode") ?? ""),
+      ip: trustedClientIp(await headers()),
+    });
+  } catch (error) {
+    return safeTwoFactorError(error);
+  }
+  redirect("/auth/2fa/setup");
 }
 
 export async function confirmTwoFactorEnrollmentAction(

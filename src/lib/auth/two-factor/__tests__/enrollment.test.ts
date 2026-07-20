@@ -1,36 +1,84 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { decidePendingEnrollment } from "@/lib/auth/two-factor/enrollment";
+import { resolveEnrollmentSetupKind } from "@/lib/auth/two-factor/enrollment";
 
 const now = new Date("2026-07-20T12:00:00.000Z");
 
-test("creates an enrollment when no credential exists", () => {
-  assert.equal(decidePendingEnrollment(null, now), "CREATE");
+test("requires an administrator activation code when no credential exists", () => {
+  assert.equal(resolveEnrollmentSetupKind(null, "session_hash", now), "ACTIVATION_REQUIRED");
 });
 
-test("reuses an unexpired pending enrollment", () => {
+test("reveals enrollment only to the exact bound session before expiry", () => {
   assert.equal(
-    decidePendingEnrollment(
-      { status: "PENDING", setupExpiresAt: new Date("2026-07-20T12:14:00.000Z") },
+    resolveEnrollmentSetupKind(
+      {
+        status: "PENDING",
+        setupExpiresAt: new Date("2026-07-20T12:14:00.000Z"),
+        enrollmentAuthSessionHash: "session_hash",
+      },
+      "session_hash",
       now,
     ),
-    "REUSE",
+    "READY",
   );
 });
 
-test("replaces an expired pending enrollment", () => {
+test("rejects legacy pending credentials without a session binding", () => {
   assert.equal(
-    decidePendingEnrollment(
-      { status: "PENDING", setupExpiresAt: new Date("2026-07-20T11:59:59.000Z") },
+    resolveEnrollmentSetupKind(
+      {
+        status: "PENDING",
+        setupExpiresAt: new Date("2026-07-20T12:14:00.000Z"),
+        enrollmentAuthSessionHash: null,
+      },
+      "session_hash",
       now,
     ),
-    "REPLACE",
+    "ACTIVATION_REQUIRED",
   );
 });
 
-test("refuses to overwrite an active credential", () => {
+test("rejects a pending credential bound to another session", () => {
   assert.equal(
-    decidePendingEnrollment({ status: "ACTIVE", setupExpiresAt: null }, now),
+    resolveEnrollmentSetupKind(
+      {
+        status: "PENDING",
+        setupExpiresAt: new Date("2026-07-20T12:14:00.000Z"),
+        enrollmentAuthSessionHash: "other_session_hash",
+      },
+      "session_hash",
+      now,
+    ),
+    "ACTIVATION_REQUIRED",
+  );
+});
+
+test("rejects an expired pending credential even in the bound session", () => {
+  assert.equal(
+    resolveEnrollmentSetupKind(
+      {
+        status: "PENDING",
+        setupExpiresAt: new Date("2026-07-20T12:00:00.000Z"),
+        enrollmentAuthSessionHash: "session_hash",
+      },
+      "session_hash",
+      now,
+    ),
+    "ACTIVATION_REQUIRED",
+  );
+});
+
+test("refuses to replace an active credential", () => {
+  assert.equal(
+    resolveEnrollmentSetupKind(
+      {
+        status: "ACTIVE",
+        setupExpiresAt: null,
+        enrollmentAuthSessionHash: null,
+      },
+      "session_hash",
+      now,
+    ),
     "REJECT_ACTIVE",
   );
 });

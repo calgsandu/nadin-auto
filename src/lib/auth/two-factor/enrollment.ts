@@ -1,8 +1,16 @@
-import { Prisma } from "@/generated/prisma/client";
+import { timingSafeEqual } from "node:crypto";
 import type { TwoFactorCredentialStatus } from "@/generated/prisma/enums";
+import { logAuditRequired } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
+import { normalizeEnrollmentActivationCode } from "./activation-code";
 import { readTwoFactorConfig } from "./config";
-import { decryptTotpSecret, encryptTotpSecret } from "./crypto";
+import {
+  decryptTotpSecret,
+  encryptTotpSecret,
+  hashEnrollmentActivationCode,
+  hashNeonSessionId,
+} from "./crypto";
+import { consumeEnrollmentGrant } from "./enrollment-grant";
 import {
   assertTwoFactorAttemptAllowed,
   buildRateLimitKeys,
@@ -18,7 +26,12 @@ const SETUP_LIFETIME_MS = 15 * 60_000;
 type PendingCredential = {
   status: TwoFactorCredentialStatus;
   setupExpiresAt: Date | null;
+  enrollmentAuthSessionHash: string | null;
 };
+
+export type EnrollmentSetupState =
+  | { kind: "ACTIVATION_REQUIRED" }
+  | { kind: "READY"; enrollment: TotpEnrollmentView };
 
 export type TotpEnrollmentView = {
   credentialId: string;
@@ -34,15 +47,33 @@ export class InvalidTotpCodeError extends Error {
   }
 }
 
-export function decidePendingEnrollment(
+export class InvalidEnrollmentActivationCodeError extends Error {
+  constructor(message = "Codul de activare nu este valid sau a expirat.") {
+    super(message);
+    this.name = "InvalidEnrollmentActivationCodeError";
+  }
+}
+
+function hashesEqual(left: string, right: string) {
+  const leftBuffer = Buffer.from(left, "utf8");
+  const rightBuffer = Buffer.from(right, "utf8");
+  return leftBuffer.byteLength === rightBuffer.byteLength
+    && timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+export function resolveEnrollmentSetupKind(
   credential: PendingCredential | null,
+  authSessionHash: string,
   now: Date,
 ) {
-  if (!credential) return "CREATE" as const;
+  if (!credential) return "ACTIVATION_REQUIRED" as const;
   if (credential.status === "ACTIVE") return "REJECT_ACTIVE" as const;
-  return credential.setupExpiresAt && credential.setupExpiresAt > now
-    ? "REUSE" as const
-    : "REPLACE" as const;
+  return credential.setupExpiresAt
+    && credential.setupExpiresAt > now
+    && credential.enrollmentAuthSessionHash
+    && hashesEqual(credential.enrollmentAuthSessionHash, authSessionHash)
+    ? "READY" as const
+    : "ACTIVATION_REQUIRED" as const;
 }
 
 function requireUsername(primary: PrimaryAuthContext) {
@@ -53,10 +84,6 @@ function requireUsername(primary: PrimaryAuthContext) {
     );
   }
   return username;
-}
-
-function isUniqueConflict(error: unknown) {
-  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
 }
 
 function enrollmentView(
@@ -78,74 +105,144 @@ function enrollmentView(
   };
 }
 
-export async function getOrCreatePendingEnrollment(
+export async function getEnrollmentSetupState(
   primary: PrimaryAuthContext,
   now = new Date(),
-  retry = 0,
-): Promise<TotpEnrollmentView> {
+): Promise<EnrollmentSetupState> {
   const username = requireUsername(primary);
+  const authSessionHash = hashNeonSessionId(primary.sessionId);
   const current = await prisma.twoFactorCredential.findUnique({
     where: { appUserId: primary.appUser.id },
     select: {
       id: true,
       status: true,
-      encryptedSecret: true,
       setupExpiresAt: true,
+      enrollmentAuthSessionHash: true,
     },
   });
-  const decision = decidePendingEnrollment(current, now);
+  const decision = resolveEnrollmentSetupKind(current, authSessionHash, now);
   if (decision === "REJECT_ACTIVE") {
     throw new Error("Authenticator este deja configurat pentru acest cont.");
   }
-  if (decision === "REUSE" && current) {
-    return enrollmentView(current, username);
+  if (decision === "ACTIVATION_REQUIRED" || !current) {
+    return { kind: "ACTIVATION_REQUIRED" };
   }
 
-  const generated = createTotpEnrollment(username);
-  const expiresAt = new Date(now.getTime() + SETUP_LIFETIME_MS);
-  const encryptedSecret = encryptTotpSecret(
-    generated.secret,
-    readTwoFactorConfig().encryptionKey,
-  );
-
-  if (decision === "CREATE") {
-    try {
-      const created = await prisma.twoFactorCredential.create({
-        data: {
-          appUserId: primary.appUser.id,
-          status: "PENDING",
-          encryptedSecret,
-          setupExpiresAt: expiresAt,
-        },
-        select: { id: true, encryptedSecret: true, setupExpiresAt: true },
-      });
-      return enrollmentView(created, username);
-    } catch (error) {
-      if (!isUniqueConflict(error) || retry >= 1) throw error;
-      return getOrCreatePendingEnrollment(primary, now, retry + 1);
-    }
-  }
-
-  if (!current) throw new Error("Configurarea Authenticator nu mai este disponibilă.");
-  const replaced = await prisma.twoFactorCredential.updateMany({
+  const authorized = await prisma.twoFactorCredential.findFirst({
     where: {
       id: current.id,
       appUserId: primary.appUser.id,
       status: "PENDING",
-      OR: [{ setupExpiresAt: null }, { setupExpiresAt: { lte: now } }],
+      setupExpiresAt: { gt: now },
+      enrollmentAuthSessionHash: authSessionHash,
     },
-    data: { encryptedSecret, setupExpiresAt: expiresAt },
+    select: { id: true, encryptedSecret: true, setupExpiresAt: true },
   });
-  if (replaced.count !== 1) {
-    if (retry >= 1) throw new Error("Configurarea Authenticator s-a schimbat. Reîncarcă pagina.");
-    return getOrCreatePendingEnrollment(primary, now, retry + 1);
+  if (!authorized) {
+    return { kind: "ACTIVATION_REQUIRED" };
   }
-  return {
-    credentialId: current.id,
-    secret: generated.secret,
-    uri: generated.uri,
-    expiresAt,
-  };
+  return { kind: "READY", enrollment: enrollmentView(authorized, username) };
+}
+
+export async function startPendingEnrollmentWithActivationCode(input: {
+  primary: PrimaryAuthContext;
+  activationCode: string;
+  ip: string | null;
+  now?: Date;
+}) {
+  const now = input.now ?? new Date();
+  const currentUser = await prisma.appUser.findUnique({
+    where: { id: input.primary.appUser.id },
+    select: {
+      id: true,
+      active: true,
+      username: true,
+      twoFactorResetAt: true,
+      role: true,
+      name: true,
+      email: true,
+    },
+  });
+  if (
+    !currentUser?.active
+    || (currentUser.twoFactorResetAt
+      && input.primary.sessionCreatedAt <= currentUser.twoFactorResetAt)
+  ) {
+    throw new Error("Sesiunea trebuie autentificată din nou.");
+  }
+  if (!currentUser.username) {
+    throw new Error(
+      "Contul nu are un nume de utilizator configurat. Contactează administratorul.",
+    );
+  }
+  const username = currentUser.username;
+
+  const config = readTwoFactorConfig();
+  const rateLimitKeys = buildRateLimitKeys(
+    currentUser.id,
+    input.primary.sessionId,
+    input.ip,
+    config.rateLimitPepper,
+  );
+  await assertTwoFactorAttemptAllowed(rateLimitKeys, now);
+
+  let normalizedCode: string;
+  try {
+    normalizedCode = normalizeEnrollmentActivationCode(input.activationCode);
+  } catch {
+    await recordTwoFactorFailure(rateLimitKeys, now);
+    throw new InvalidEnrollmentActivationCodeError();
+  }
+
+  let enrollment: TotpEnrollmentView;
+  try {
+    enrollment = await prisma.$transaction(async (tx) => {
+      const consumed = await consumeEnrollmentGrant(tx, {
+        appUserId: currentUser.id,
+        tokenHash: hashEnrollmentActivationCode(normalizedCode),
+        now,
+      });
+      if (!consumed) throw new InvalidEnrollmentActivationCodeError();
+
+      const generated = createTotpEnrollment(username);
+      const expiresAt = new Date(now.getTime() + SETUP_LIFETIME_MS);
+      await tx.twoFactorCredential.deleteMany({
+        where: { appUserId: currentUser.id, status: "PENDING" },
+      });
+      const created = await tx.twoFactorCredential.create({
+        data: {
+          appUserId: currentUser.id,
+          status: "PENDING",
+          encryptedSecret: encryptTotpSecret(generated.secret, config.encryptionKey),
+          setupExpiresAt: expiresAt,
+          enrollmentAuthSessionHash: hashNeonSessionId(input.primary.sessionId),
+        },
+        select: { id: true },
+      });
+      await logAuditRequired(tx, currentUser, {
+        action: "UPDATE",
+        entity: "TwoFactorCredential",
+        entityId: created.id,
+        summary: `Codul de activare 2FA pentru ${username} a fost consumat`,
+        details: { event: "TWO_FACTOR_ENROLLMENT_GRANT_CONSUMED" },
+      });
+      return {
+        credentialId: created.id,
+        secret: generated.secret,
+        uri: generated.uri,
+        expiresAt,
+      };
+    });
+  } catch (error) {
+    if (error instanceof InvalidEnrollmentActivationCodeError) {
+      await recordTwoFactorFailure(rateLimitKeys, now);
+    }
+    throw error;
+  }
+
+  const userSessionKey = rateLimitKeys.find(({ scope }) => scope === "USER_SESSION");
+  if (userSessionKey) await clearUserSessionRateLimit(userSessionKey);
+  return enrollment;
 }
 
 export async function regeneratePendingEnrollment(
@@ -155,22 +252,36 @@ export async function regeneratePendingEnrollment(
   const username = requireUsername(primary);
   const current = await prisma.twoFactorCredential.findUnique({
     where: { appUserId: primary.appUser.id },
-    select: { id: true, status: true },
+    select: {
+      id: true,
+      status: true,
+      setupExpiresAt: true,
+      enrollmentAuthSessionHash: true,
+    },
   });
-  if (!current || current.status !== "PENDING") {
+  const authSessionHash = hashNeonSessionId(primary.sessionId);
+  if (
+    !current
+    || resolveEnrollmentSetupKind(current, authSessionHash, now) !== "READY"
+    || !current.setupExpiresAt
+  ) {
     throw new Error("Nu există o configurare Authenticator în curs.");
   }
 
   const generated = createTotpEnrollment(username);
-  const expiresAt = new Date(now.getTime() + SETUP_LIFETIME_MS);
   const changed = await prisma.twoFactorCredential.updateMany({
-    where: { id: current.id, appUserId: primary.appUser.id, status: "PENDING" },
+    where: {
+      id: current.id,
+      appUserId: primary.appUser.id,
+      status: "PENDING",
+      setupExpiresAt: { gt: now },
+      enrollmentAuthSessionHash: authSessionHash,
+    },
     data: {
       encryptedSecret: encryptTotpSecret(
         generated.secret,
         readTwoFactorConfig().encryptionKey,
       ),
-      setupExpiresAt: expiresAt,
     },
   });
   if (changed.count !== 1) {
@@ -180,7 +291,7 @@ export async function regeneratePendingEnrollment(
     credentialId: current.id,
     secret: generated.secret,
     uri: generated.uri,
-    expiresAt,
+    expiresAt: current.setupExpiresAt,
   };
 }
 
@@ -195,7 +306,15 @@ export async function confirmPendingEnrollment(input: {
   const now = input.now ?? new Date();
   const currentUser = await prisma.appUser.findUnique({
     where: { id: input.primary.appUser.id },
-    select: { active: true, username: true, twoFactorResetAt: true },
+    select: {
+      id: true,
+      active: true,
+      username: true,
+      twoFactorResetAt: true,
+      role: true,
+      name: true,
+      email: true,
+    },
   });
   if (
     !currentUser?.active
@@ -218,16 +337,20 @@ export async function confirmPendingEnrollment(input: {
     config.rateLimitPepper,
   );
   await assertTwoFactorAttemptAllowed(rateLimitKeys, now);
+  const authSessionHash = hashNeonSessionId(input.primary.sessionId);
 
   const credential = await prisma.twoFactorCredential.findFirst({
     where: {
       id: input.credentialId,
       appUserId: input.primary.appUser.id,
       status: "PENDING",
+      enrollmentAuthSessionHash: authSessionHash,
     },
   });
   if (!credential?.setupExpiresAt || credential.setupExpiresAt <= now) {
-    throw new InvalidTotpCodeError("Configurarea a expirat. Generează o cheie nouă.");
+    throw new InvalidTotpCodeError(
+      "Configurarea a expirat. Cere administratorului un cod de activare nou.",
+    );
   }
 
   const secret = decryptTotpSecret(credential.encryptedSecret, config.encryptionKey);
@@ -237,25 +360,34 @@ export async function confirmPendingEnrollment(input: {
     throw new InvalidTotpCodeError();
   }
 
-  const activated = await prisma.$transaction((tx) =>
-    tx.twoFactorCredential.updateMany({
+  await prisma.$transaction(async (tx) => {
+    const activated = await tx.twoFactorCredential.updateMany({
       where: {
         id: credential.id,
         appUserId: input.primary.appUser.id,
         status: "PENDING",
         setupExpiresAt: { gt: now },
+        enrollmentAuthSessionHash: authSessionHash,
       },
       data: {
         status: "ACTIVE",
         verifiedAt: now,
         setupExpiresAt: null,
         lastAcceptedStep: BigInt(step),
+        enrollmentAuthSessionHash: null,
       },
-    }),
-  );
-  if (activated.count !== 1) {
-    throw new InvalidTotpCodeError("Configurarea s-a schimbat. Reîncarcă pagina.");
-  }
+    });
+    if (activated.count !== 1) {
+      throw new InvalidTotpCodeError("Configurarea s-a schimbat. Reîncarcă pagina.");
+    }
+    await logAuditRequired(tx, currentUser, {
+      action: "UPDATE",
+      entity: "TwoFactorCredential",
+      entityId: credential.id,
+      summary: `Authenticator activat pentru ${currentUser.username}`,
+      details: { event: "TWO_FACTOR_ENROLLMENT_ACTIVATED" },
+    });
+  });
 
   const proof = await issueSessionProof({
     appUserId: input.primary.appUser.id,

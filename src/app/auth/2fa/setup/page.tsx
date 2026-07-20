@@ -2,8 +2,9 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import QRCode from "qrcode";
 import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
-import { getOrCreatePendingEnrollment } from "@/lib/auth/two-factor/enrollment";
+import { getEnrollmentSetupState } from "@/lib/auth/two-factor/enrollment";
 import { TwoFactorShell } from "../two-factor-shell";
+import { ActivationForm } from "./activation-form";
 import { SetupForm } from "./setup-form";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,19 @@ export default async function TwoFactorSetupPage() {
   if (state.kind === "TOTP_REQUIRED") redirect("/auth/2fa/verify");
   if (state.kind === "AUTHENTICATED") redirect("/crm");
 
-  const enrollment = await getOrCreatePendingEnrollment(state.primary);
+  const setup = await getEnrollmentSetupState(state.primary);
+  if (setup.kind === "ACTIVATION_REQUIRED") {
+    return (
+      <TwoFactorShell
+        title="Activează Authenticator"
+        description="Pentru securitate, configurarea 2FA începe numai cu un cod unic primit de la administrator pe un canal separat."
+      >
+        <ActivationForm />
+      </TwoFactorShell>
+    );
+  }
+
+  const enrollment = setup.enrollment;
   const qrDataUrl = await QRCode.toDataURL(enrollment.uri, {
     errorCorrectionLevel: "M",
     margin: 1,
