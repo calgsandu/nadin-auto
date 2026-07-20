@@ -11,6 +11,10 @@ import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { technicalEmailForUsername } from "@/lib/auth/username";
 import {
+  clearSecondFactorSessions,
+  clearTrustedDevices,
+} from "@/lib/auth/two-factor/reset";
+import {
   banAuthIdentity,
   createAuthIdentity,
   getAuthProviderIds,
@@ -126,16 +130,20 @@ export async function resetStaffPasswordAction(
 
     const providers = await getAuthProviderIds(target.authUserId);
     const migrateToPassword = needsPasswordMigration(providers);
+    if (migrateToPassword && !target.username) {
+      throw new Error("Contul trebuie să aibă un username înainte de migrare.");
+    }
+    await prisma.$transaction(async (tx) => {
+      await clearTrustedDevices(tx, target.id);
+      await clearSecondFactorSessions(tx, target.id);
+    });
     if (migrateToPassword) {
-      if (!target.username) {
-        throw new Error("Contul trebuie să aibă un username înainte de migrare.");
-      }
       const oldAuthUserId = target.authUserId;
-      const email = technicalEmailForUsername(target.username);
+      const email = technicalEmailForUsername(target.username!);
       const newAuthUserId = await createAuthIdentity({
         email,
         password,
-        name: target.name ?? target.username,
+        name: target.name ?? target.username!,
         authRole: toAuthRole(target.role),
       });
       try {
@@ -190,7 +198,14 @@ export async function setStaffActiveAction(
     }
 
     if (!active) {
-      await prisma.appUser.update({ where: { id: target.id }, data: { active: false } });
+      await prisma.$transaction(async (tx) => {
+        await tx.appUser.update({
+          where: { id: target.id },
+          data: { active: false },
+        });
+        await clearTrustedDevices(tx, target.id);
+        await clearSecondFactorSessions(tx, target.id);
+      });
       try {
         await banAuthIdentity(target.authUserId);
         await revokeAuthSessions(target.authUserId);

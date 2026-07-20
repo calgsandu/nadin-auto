@@ -2,6 +2,8 @@
 
 import { auth } from "@/lib/auth/server";
 import { requireCurrentAppUser } from "@/lib/auth/access";
+import { clearTrustedDevices } from "@/lib/auth/two-factor/reset";
+import { prisma } from "@/lib/prisma";
 import { validatePasswordChange } from "@/app/auth/form-state";
 
 export type PasswordChangeState = { ok: boolean; message: string };
@@ -11,7 +13,7 @@ export async function changeOwnPasswordAction(
   formData: FormData,
 ): Promise<PasswordChangeState> {
   try {
-    await requireCurrentAppUser();
+    const current = await requireCurrentAppUser();
     const currentPassword = String(formData.get("currentPassword") ?? "");
     const newPassword = String(formData.get("newPassword") ?? "");
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
@@ -22,6 +24,7 @@ export async function changeOwnPasswordAction(
     );
     if (validationError) return { ok: false, message: validationError };
 
+    await prisma.$transaction((tx) => clearTrustedDevices(tx, current.id));
     const result = await auth.changePassword({
       currentPassword,
       newPassword,
