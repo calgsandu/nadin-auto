@@ -1,4 +1,9 @@
+import { clearEnrollmentGrant } from "./enrollment-grant";
+
 export type TwoFactorResetClient = {
+  twoFactorEnrollmentGrant: {
+    deleteMany(args: { where: { appUserId: string } }): Promise<{ count: number }>;
+  };
   twoFactorCredential: {
     deleteMany(args: { where: { appUserId: string } }): Promise<unknown>;
   };
@@ -35,6 +40,7 @@ export async function resetTwoFactorCredential(
   appUserId: string,
   resetAt: Date,
 ) {
+  await clearEnrollmentGrant(tx, appUserId);
   await clearSecondFactorSessions(tx, appUserId);
   await clearTrustedDevices(tx, appUserId);
   await tx.twoFactorCredential.deleteMany({ where: { appUserId } });

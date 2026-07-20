@@ -9,6 +9,12 @@ import {
 
 function fakeClient(calls: string[]): TwoFactorResetClient {
   return {
+    twoFactorEnrollmentGrant: {
+      deleteMany: async () => {
+        calls.push("grant");
+        return { count: 1 };
+      },
+    },
     twoFactorCredential: {
       deleteMany: async () => {
         calls.push("credential");
@@ -48,8 +54,8 @@ test("clears only second-factor session proofs", async () => {
   assert.deepEqual(calls, ["proofs"]);
 });
 
-test("resets proof, devices, credential, and reset timestamp in fail-closed order", async () => {
+test("resets grant, proof, devices, credential, and timestamp in fail-closed order", async () => {
   const calls: string[] = [];
   await resetTwoFactorCredential(fakeClient(calls), "user_1", new Date(100));
-  assert.deepEqual(calls, ["proofs", "devices", "credential", "resetAt"]);
+  assert.deepEqual(calls, ["grant", "proofs", "devices", "credential", "resetAt"]);
 });
