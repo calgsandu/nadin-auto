@@ -114,6 +114,22 @@ export const PendingOperationStatus = {
 export type PendingOperationStatus = (typeof PendingOperationStatus)[keyof typeof PendingOperationStatus]
 
 
+export const TwoFactorCredentialStatus = {
+  PENDING: 'PENDING',
+  ACTIVE: 'ACTIVE'
+} as const
+
+export type TwoFactorCredentialStatus = (typeof TwoFactorCredentialStatus)[keyof typeof TwoFactorCredentialStatus]
+
+
+export const TwoFactorRateLimitScope = {
+  USER_SESSION: 'USER_SESSION',
+  IP: 'IP'
+} as const
+
+export type TwoFactorRateLimitScope = (typeof TwoFactorRateLimitScope)[keyof typeof TwoFactorRateLimitScope]
+
+
 export const ExternalOrderStatus = {
   CERERE: 'CERERE',
   OFERTAT: 'OFERTAT',

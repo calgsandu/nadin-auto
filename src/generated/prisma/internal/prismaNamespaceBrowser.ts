@@ -54,6 +54,10 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   PendingOperation: 'PendingOperation',
   AppUser: 'AppUser',
+  TwoFactorCredential: 'TwoFactorCredential',
+  TwoFactorSessionProof: 'TwoFactorSessionProof',
+  TrustedDevice: 'TrustedDevice',
+  TwoFactorRateLimit: 'TwoFactorRateLimit',
   Brand: 'Brand',
   CarModel: 'CarModel',
   VehicleFitment: 'VehicleFitment',
@@ -140,11 +144,66 @@ export const AppUserScalarFieldEnum = {
   name: 'name',
   role: 'role',
   active: 'active',
+  twoFactorResetAt: 'twoFactorResetAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type AppUserScalarFieldEnum = (typeof AppUserScalarFieldEnum)[keyof typeof AppUserScalarFieldEnum]
+
+
+export const TwoFactorCredentialScalarFieldEnum = {
+  id: 'id',
+  appUserId: 'appUserId',
+  status: 'status',
+  encryptedSecret: 'encryptedSecret',
+  setupExpiresAt: 'setupExpiresAt',
+  verifiedAt: 'verifiedAt',
+  lastAcceptedStep: 'lastAcceptedStep',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TwoFactorCredentialScalarFieldEnum = (typeof TwoFactorCredentialScalarFieldEnum)[keyof typeof TwoFactorCredentialScalarFieldEnum]
+
+
+export const TwoFactorSessionProofScalarFieldEnum = {
+  id: 'id',
+  appUserId: 'appUserId',
+  credentialId: 'credentialId',
+  tokenHash: 'tokenHash',
+  authSessionHash: 'authSessionHash',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TwoFactorSessionProofScalarFieldEnum = (typeof TwoFactorSessionProofScalarFieldEnum)[keyof typeof TwoFactorSessionProofScalarFieldEnum]
+
+
+export const TrustedDeviceScalarFieldEnum = {
+  id: 'id',
+  appUserId: 'appUserId',
+  credentialId: 'credentialId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TrustedDeviceScalarFieldEnum = (typeof TrustedDeviceScalarFieldEnum)[keyof typeof TrustedDeviceScalarFieldEnum]
+
+
+export const TwoFactorRateLimitScalarFieldEnum = {
+  id: 'id',
+  scope: 'scope',
+  keyHash: 'keyHash',
+  failures: 'failures',
+  windowStarted: 'windowStarted',
+  blockedUntil: 'blockedUntil',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TwoFactorRateLimitScalarFieldEnum = (typeof TwoFactorRateLimitScalarFieldEnum)[keyof typeof TwoFactorRateLimitScalarFieldEnum]
 
 
 export const BrandScalarFieldEnum = {

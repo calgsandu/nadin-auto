@@ -33,6 +33,26 @@ export type PendingOperation = Prisma.PendingOperationModel
  */
 export type AppUser = Prisma.AppUserModel
 /**
+ * Model TwoFactorCredential
+ * 
+ */
+export type TwoFactorCredential = Prisma.TwoFactorCredentialModel
+/**
+ * Model TwoFactorSessionProof
+ * 
+ */
+export type TwoFactorSessionProof = Prisma.TwoFactorSessionProofModel
+/**
+ * Model TrustedDevice
+ * 
+ */
+export type TrustedDevice = Prisma.TrustedDeviceModel
+/**
+ * Model TwoFactorRateLimit
+ * 
+ */
+export type TwoFactorRateLimit = Prisma.TwoFactorRateLimitModel
+/**
  * Model Brand
  * 
  */

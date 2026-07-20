@@ -387,6 +387,10 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   PendingOperation: 'PendingOperation',
   AppUser: 'AppUser',
+  TwoFactorCredential: 'TwoFactorCredential',
+  TwoFactorSessionProof: 'TwoFactorSessionProof',
+  TrustedDevice: 'TrustedDevice',
+  TwoFactorRateLimit: 'TwoFactorRateLimit',
   Brand: 'Brand',
   CarModel: 'CarModel',
   VehicleFitment: 'VehicleFitment',
@@ -417,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "auditLog" | "pendingOperation" | "appUser" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "externalOrder" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
+    modelProps: "auditLog" | "pendingOperation" | "appUser" | "twoFactorCredential" | "twoFactorSessionProof" | "trustedDevice" | "twoFactorRateLimit" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "externalOrder" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -640,6 +644,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AppUserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AppUserCountAggregateOutputType> | number
+        }
+      }
+    }
+    TwoFactorCredential: {
+      payload: Prisma.$TwoFactorCredentialPayload<ExtArgs>
+      fields: Prisma.TwoFactorCredentialFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TwoFactorCredentialFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TwoFactorCredentialFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload>
+        }
+        findFirst: {
+          args: Prisma.TwoFactorCredentialFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TwoFactorCredentialFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload>
+        }
+        findMany: {
+          args: Prisma.TwoFactorCredentialFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload>[]
+        }
+        create: {
+          args: Prisma.TwoFactorCredentialCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload>
+        }
+        createMany: {
+          args: Prisma.TwoFactorCredentialCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TwoFactorCredentialCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload>[]
+        }
+        delete: {
+          args: Prisma.TwoFactorCredentialDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload>
+        }
+        update: {
+          args: Prisma.TwoFactorCredentialUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload>
+        }
+        deleteMany: {
+          args: Prisma.TwoFactorCredentialDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TwoFactorCredentialUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TwoFactorCredentialUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload>[]
+        }
+        upsert: {
+          args: Prisma.TwoFactorCredentialUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorCredentialPayload>
+        }
+        aggregate: {
+          args: Prisma.TwoFactorCredentialAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTwoFactorCredential>
+        }
+        groupBy: {
+          args: Prisma.TwoFactorCredentialGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TwoFactorCredentialGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TwoFactorCredentialCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TwoFactorCredentialCountAggregateOutputType> | number
+        }
+      }
+    }
+    TwoFactorSessionProof: {
+      payload: Prisma.$TwoFactorSessionProofPayload<ExtArgs>
+      fields: Prisma.TwoFactorSessionProofFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TwoFactorSessionProofFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TwoFactorSessionProofFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload>
+        }
+        findFirst: {
+          args: Prisma.TwoFactorSessionProofFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TwoFactorSessionProofFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload>
+        }
+        findMany: {
+          args: Prisma.TwoFactorSessionProofFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload>[]
+        }
+        create: {
+          args: Prisma.TwoFactorSessionProofCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload>
+        }
+        createMany: {
+          args: Prisma.TwoFactorSessionProofCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TwoFactorSessionProofCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload>[]
+        }
+        delete: {
+          args: Prisma.TwoFactorSessionProofDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload>
+        }
+        update: {
+          args: Prisma.TwoFactorSessionProofUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload>
+        }
+        deleteMany: {
+          args: Prisma.TwoFactorSessionProofDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TwoFactorSessionProofUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TwoFactorSessionProofUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload>[]
+        }
+        upsert: {
+          args: Prisma.TwoFactorSessionProofUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorSessionProofPayload>
+        }
+        aggregate: {
+          args: Prisma.TwoFactorSessionProofAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTwoFactorSessionProof>
+        }
+        groupBy: {
+          args: Prisma.TwoFactorSessionProofGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TwoFactorSessionProofGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TwoFactorSessionProofCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TwoFactorSessionProofCountAggregateOutputType> | number
+        }
+      }
+    }
+    TrustedDevice: {
+      payload: Prisma.$TrustedDevicePayload<ExtArgs>
+      fields: Prisma.TrustedDeviceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TrustedDeviceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TrustedDeviceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload>
+        }
+        findFirst: {
+          args: Prisma.TrustedDeviceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TrustedDeviceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload>
+        }
+        findMany: {
+          args: Prisma.TrustedDeviceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload>[]
+        }
+        create: {
+          args: Prisma.TrustedDeviceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload>
+        }
+        createMany: {
+          args: Prisma.TrustedDeviceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TrustedDeviceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload>[]
+        }
+        delete: {
+          args: Prisma.TrustedDeviceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload>
+        }
+        update: {
+          args: Prisma.TrustedDeviceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload>
+        }
+        deleteMany: {
+          args: Prisma.TrustedDeviceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TrustedDeviceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TrustedDeviceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload>[]
+        }
+        upsert: {
+          args: Prisma.TrustedDeviceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TrustedDevicePayload>
+        }
+        aggregate: {
+          args: Prisma.TrustedDeviceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTrustedDevice>
+        }
+        groupBy: {
+          args: Prisma.TrustedDeviceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TrustedDeviceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TrustedDeviceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TrustedDeviceCountAggregateOutputType> | number
+        }
+      }
+    }
+    TwoFactorRateLimit: {
+      payload: Prisma.$TwoFactorRateLimitPayload<ExtArgs>
+      fields: Prisma.TwoFactorRateLimitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TwoFactorRateLimitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TwoFactorRateLimitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload>
+        }
+        findFirst: {
+          args: Prisma.TwoFactorRateLimitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TwoFactorRateLimitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload>
+        }
+        findMany: {
+          args: Prisma.TwoFactorRateLimitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload>[]
+        }
+        create: {
+          args: Prisma.TwoFactorRateLimitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload>
+        }
+        createMany: {
+          args: Prisma.TwoFactorRateLimitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TwoFactorRateLimitCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload>[]
+        }
+        delete: {
+          args: Prisma.TwoFactorRateLimitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload>
+        }
+        update: {
+          args: Prisma.TwoFactorRateLimitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload>
+        }
+        deleteMany: {
+          args: Prisma.TwoFactorRateLimitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TwoFactorRateLimitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TwoFactorRateLimitUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload>[]
+        }
+        upsert: {
+          args: Prisma.TwoFactorRateLimitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorRateLimitPayload>
+        }
+        aggregate: {
+          args: Prisma.TwoFactorRateLimitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTwoFactorRateLimit>
+        }
+        groupBy: {
+          args: Prisma.TwoFactorRateLimitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TwoFactorRateLimitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TwoFactorRateLimitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TwoFactorRateLimitCountAggregateOutputType> | number
         }
       }
     }
@@ -1845,11 +2145,66 @@ export const AppUserScalarFieldEnum = {
   name: 'name',
   role: 'role',
   active: 'active',
+  twoFactorResetAt: 'twoFactorResetAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type AppUserScalarFieldEnum = (typeof AppUserScalarFieldEnum)[keyof typeof AppUserScalarFieldEnum]
+
+
+export const TwoFactorCredentialScalarFieldEnum = {
+  id: 'id',
+  appUserId: 'appUserId',
+  status: 'status',
+  encryptedSecret: 'encryptedSecret',
+  setupExpiresAt: 'setupExpiresAt',
+  verifiedAt: 'verifiedAt',
+  lastAcceptedStep: 'lastAcceptedStep',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TwoFactorCredentialScalarFieldEnum = (typeof TwoFactorCredentialScalarFieldEnum)[keyof typeof TwoFactorCredentialScalarFieldEnum]
+
+
+export const TwoFactorSessionProofScalarFieldEnum = {
+  id: 'id',
+  appUserId: 'appUserId',
+  credentialId: 'credentialId',
+  tokenHash: 'tokenHash',
+  authSessionHash: 'authSessionHash',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TwoFactorSessionProofScalarFieldEnum = (typeof TwoFactorSessionProofScalarFieldEnum)[keyof typeof TwoFactorSessionProofScalarFieldEnum]
+
+
+export const TrustedDeviceScalarFieldEnum = {
+  id: 'id',
+  appUserId: 'appUserId',
+  credentialId: 'credentialId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TrustedDeviceScalarFieldEnum = (typeof TrustedDeviceScalarFieldEnum)[keyof typeof TrustedDeviceScalarFieldEnum]
+
+
+export const TwoFactorRateLimitScalarFieldEnum = {
+  id: 'id',
+  scope: 'scope',
+  keyHash: 'keyHash',
+  failures: 'failures',
+  windowStarted: 'windowStarted',
+  blockedUntil: 'blockedUntil',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TwoFactorRateLimitScalarFieldEnum = (typeof TwoFactorRateLimitScalarFieldEnum)[keyof typeof TwoFactorRateLimitScalarFieldEnum]
 
 
 export const BrandScalarFieldEnum = {
@@ -2290,6 +2645,48 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'TwoFactorCredentialStatus'
+ */
+export type EnumTwoFactorCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TwoFactorCredentialStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'TwoFactorCredentialStatus[]'
+ */
+export type ListEnumTwoFactorCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TwoFactorCredentialStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt'
+ */
+export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt[]'
+ */
+export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TwoFactorRateLimitScope'
+ */
+export type EnumTwoFactorRateLimitScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TwoFactorRateLimitScope'>
+    
+
+
+/**
+ * Reference to a field of type 'TwoFactorRateLimitScope[]'
+ */
+export type ListEnumTwoFactorRateLimitScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TwoFactorRateLimitScope[]'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -2555,6 +2952,10 @@ export type GlobalOmitConfig = {
   auditLog?: Prisma.AuditLogOmit
   pendingOperation?: Prisma.PendingOperationOmit
   appUser?: Prisma.AppUserOmit
+  twoFactorCredential?: Prisma.TwoFactorCredentialOmit
+  twoFactorSessionProof?: Prisma.TwoFactorSessionProofOmit
+  trustedDevice?: Prisma.TrustedDeviceOmit
+  twoFactorRateLimit?: Prisma.TwoFactorRateLimitOmit
   brand?: Prisma.BrandOmit
   carModel?: Prisma.CarModelOmit
   vehicleFitment?: Prisma.VehicleFitmentOmit

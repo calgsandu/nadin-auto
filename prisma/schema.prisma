@@ -76,6 +76,16 @@ enum PendingOperationStatus {
   REJECTED
 }
 
+enum TwoFactorCredentialStatus {
+  PENDING
+  ACTIVE
+}
+
+enum TwoFactorRateLimitScope {
+  USER_SESSION
+  IP
+}
+
 /// Fluxul back-to-back: cerere client → ofertă furnizor → comandă → livrare.
 enum ExternalOrderStatus {
   CERERE
@@ -136,15 +146,80 @@ model PendingOperation {
 }
 
 model AppUser {
-  id         String   @id @default(cuid())
-  authUserId String   @unique
-  username   String?  @unique
-  email      String?
-  name       String?
-  role       AppRole  @default(ANGAJAT)
-  active     Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                      String                   @id @default(cuid())
+  authUserId              String                   @unique
+  username                String?                  @unique
+  email                   String?
+  name                    String?
+  role                    AppRole                  @default(ANGAJAT)
+  active                  Boolean                  @default(true)
+  twoFactorResetAt        DateTime?
+  twoFactorCredential     TwoFactorCredential?
+  twoFactorSessionProofs  TwoFactorSessionProof[]
+  trustedDevices          TrustedDevice[]
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+}
+
+model TwoFactorCredential {
+  id               String                    @id @default(cuid())
+  appUserId        String                    @unique
+  status           TwoFactorCredentialStatus @default(PENDING)
+  encryptedSecret  String
+  setupExpiresAt   DateTime?
+  verifiedAt       DateTime?
+  lastAcceptedStep BigInt?
+  appUser          AppUser                   @relation(fields: [appUserId], references: [id], onDelete: Cascade)
+  sessionProofs    TwoFactorSessionProof[]
+  trustedDevices   TrustedDevice[]
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
+
+  @@index([status, setupExpiresAt])
+}
+
+model TwoFactorSessionProof {
+  id              String              @id @default(cuid())
+  appUserId       String
+  credentialId    String
+  tokenHash       String              @unique
+  authSessionHash String              @unique
+  expiresAt       DateTime
+  appUser         AppUser             @relation(fields: [appUserId], references: [id], onDelete: Cascade)
+  credential      TwoFactorCredential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+  createdAt       DateTime             @default(now())
+
+  @@index([appUserId, expiresAt])
+  @@index([credentialId])
+}
+
+model TrustedDevice {
+  id           String              @id @default(cuid())
+  appUserId    String
+  credentialId String
+  tokenHash    String              @unique
+  expiresAt    DateTime
+  lastUsedAt   DateTime
+  appUser      AppUser             @relation(fields: [appUserId], references: [id], onDelete: Cascade)
+  credential   TwoFactorCredential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+  createdAt    DateTime             @default(now())
+
+  @@index([appUserId, expiresAt])
+  @@index([credentialId])
+}
+
+model TwoFactorRateLimit {
+  id            String                  @id @default(cuid())
+  scope         TwoFactorRateLimitScope
+  keyHash       String
+  failures      Int
+  windowStarted DateTime
+  blockedUntil  DateTime?
+  updatedAt     DateTime                @updatedAt
+
+  @@unique([scope, keyHash])
+  @@index([blockedUntil])
+  @@index([updatedAt])
 }
 
 model Brand {

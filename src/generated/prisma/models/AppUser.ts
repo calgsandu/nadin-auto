@@ -32,6 +32,7 @@ export type AppUserMinAggregateOutputType = {
   name: string | null
   role: $Enums.AppRole | null
   active: boolean | null
+  twoFactorResetAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,6 +45,7 @@ export type AppUserMaxAggregateOutputType = {
   name: string | null
   role: $Enums.AppRole | null
   active: boolean | null
+  twoFactorResetAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +58,7 @@ export type AppUserCountAggregateOutputType = {
   name: number
   role: number
   active: number
+  twoFactorResetAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -70,6 +73,7 @@ export type AppUserMinAggregateInputType = {
   name?: true
   role?: true
   active?: true
+  twoFactorResetAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +86,7 @@ export type AppUserMaxAggregateInputType = {
   name?: true
   role?: true
   active?: true
+  twoFactorResetAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,6 +99,7 @@ export type AppUserCountAggregateInputType = {
   name?: true
   role?: true
   active?: true
+  twoFactorResetAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -179,6 +185,7 @@ export type AppUserGroupByOutputType = {
   name: string | null
   role: $Enums.AppRole
   active: boolean
+  twoFactorResetAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: AppUserCountAggregateOutputType | null
@@ -212,8 +219,12 @@ export type AppUserWhereInput = {
   name?: Prisma.StringNullableFilter<"AppUser"> | string | null
   role?: Prisma.EnumAppRoleFilter<"AppUser"> | $Enums.AppRole
   active?: Prisma.BoolFilter<"AppUser"> | boolean
+  twoFactorResetAt?: Prisma.DateTimeNullableFilter<"AppUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AppUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AppUser"> | Date | string
+  twoFactorCredential?: Prisma.XOR<Prisma.TwoFactorCredentialNullableScalarRelationFilter, Prisma.TwoFactorCredentialWhereInput> | null
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofListRelationFilter
+  trustedDevices?: Prisma.TrustedDeviceListRelationFilter
 }
 
 export type AppUserOrderByWithRelationInput = {
@@ -224,8 +235,12 @@ export type AppUserOrderByWithRelationInput = {
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  twoFactorResetAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  twoFactorCredential?: Prisma.TwoFactorCredentialOrderByWithRelationInput
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofOrderByRelationAggregateInput
+  trustedDevices?: Prisma.TrustedDeviceOrderByRelationAggregateInput
 }
 
 export type AppUserWhereUniqueInput = Prisma.AtLeast<{
@@ -239,8 +254,12 @@ export type AppUserWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringNullableFilter<"AppUser"> | string | null
   role?: Prisma.EnumAppRoleFilter<"AppUser"> | $Enums.AppRole
   active?: Prisma.BoolFilter<"AppUser"> | boolean
+  twoFactorResetAt?: Prisma.DateTimeNullableFilter<"AppUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AppUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AppUser"> | Date | string
+  twoFactorCredential?: Prisma.XOR<Prisma.TwoFactorCredentialNullableScalarRelationFilter, Prisma.TwoFactorCredentialWhereInput> | null
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofListRelationFilter
+  trustedDevices?: Prisma.TrustedDeviceListRelationFilter
 }, "id" | "authUserId" | "username">
 
 export type AppUserOrderByWithAggregationInput = {
@@ -251,6 +270,7 @@ export type AppUserOrderByWithAggregationInput = {
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  twoFactorResetAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AppUserCountOrderByAggregateInput
@@ -269,6 +289,7 @@ export type AppUserScalarWhereWithAggregatesInput = {
   name?: Prisma.StringNullableWithAggregatesFilter<"AppUser"> | string | null
   role?: Prisma.EnumAppRoleWithAggregatesFilter<"AppUser"> | $Enums.AppRole
   active?: Prisma.BoolWithAggregatesFilter<"AppUser"> | boolean
+  twoFactorResetAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AppUser"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AppUser"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AppUser"> | Date | string
 }
@@ -281,8 +302,12 @@ export type AppUserCreateInput = {
   name?: string | null
   role?: $Enums.AppRole
   active?: boolean
+  twoFactorResetAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialCreateNestedOneWithoutAppUserInput
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofCreateNestedManyWithoutAppUserInput
+  trustedDevices?: Prisma.TrustedDeviceCreateNestedManyWithoutAppUserInput
 }
 
 export type AppUserUncheckedCreateInput = {
@@ -293,8 +318,12 @@ export type AppUserUncheckedCreateInput = {
   name?: string | null
   role?: $Enums.AppRole
   active?: boolean
+  twoFactorResetAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialUncheckedCreateNestedOneWithoutAppUserInput
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofUncheckedCreateNestedManyWithoutAppUserInput
+  trustedDevices?: Prisma.TrustedDeviceUncheckedCreateNestedManyWithoutAppUserInput
 }
 
 export type AppUserUpdateInput = {
@@ -305,8 +334,12 @@ export type AppUserUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialUpdateOneWithoutAppUserNestedInput
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofUpdateManyWithoutAppUserNestedInput
+  trustedDevices?: Prisma.TrustedDeviceUpdateManyWithoutAppUserNestedInput
 }
 
 export type AppUserUncheckedUpdateInput = {
@@ -317,8 +350,12 @@ export type AppUserUncheckedUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialUncheckedUpdateOneWithoutAppUserNestedInput
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofUncheckedUpdateManyWithoutAppUserNestedInput
+  trustedDevices?: Prisma.TrustedDeviceUncheckedUpdateManyWithoutAppUserNestedInput
 }
 
 export type AppUserCreateManyInput = {
@@ -329,6 +366,7 @@ export type AppUserCreateManyInput = {
   name?: string | null
   role?: $Enums.AppRole
   active?: boolean
+  twoFactorResetAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -341,6 +379,7 @@ export type AppUserUpdateManyMutationInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -353,6 +392,7 @@ export type AppUserUncheckedUpdateManyInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -365,6 +405,7 @@ export type AppUserCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  twoFactorResetAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -377,6 +418,7 @@ export type AppUserMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  twoFactorResetAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -389,14 +431,328 @@ export type AppUserMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  twoFactorResetAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type AppUserScalarRelationFilter = {
+  is?: Prisma.AppUserWhereInput
+  isNot?: Prisma.AppUserWhereInput
 }
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
+export type AppUserCreateNestedOneWithoutTwoFactorCredentialInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutTwoFactorCredentialInput, Prisma.AppUserUncheckedCreateWithoutTwoFactorCredentialInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutTwoFactorCredentialInput
+  connect?: Prisma.AppUserWhereUniqueInput
+}
+
+export type AppUserUpdateOneRequiredWithoutTwoFactorCredentialNestedInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutTwoFactorCredentialInput, Prisma.AppUserUncheckedCreateWithoutTwoFactorCredentialInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutTwoFactorCredentialInput
+  upsert?: Prisma.AppUserUpsertWithoutTwoFactorCredentialInput
+  connect?: Prisma.AppUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AppUserUpdateToOneWithWhereWithoutTwoFactorCredentialInput, Prisma.AppUserUpdateWithoutTwoFactorCredentialInput>, Prisma.AppUserUncheckedUpdateWithoutTwoFactorCredentialInput>
+}
+
+export type AppUserCreateNestedOneWithoutTwoFactorSessionProofsInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutTwoFactorSessionProofsInput, Prisma.AppUserUncheckedCreateWithoutTwoFactorSessionProofsInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutTwoFactorSessionProofsInput
+  connect?: Prisma.AppUserWhereUniqueInput
+}
+
+export type AppUserUpdateOneRequiredWithoutTwoFactorSessionProofsNestedInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutTwoFactorSessionProofsInput, Prisma.AppUserUncheckedCreateWithoutTwoFactorSessionProofsInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutTwoFactorSessionProofsInput
+  upsert?: Prisma.AppUserUpsertWithoutTwoFactorSessionProofsInput
+  connect?: Prisma.AppUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AppUserUpdateToOneWithWhereWithoutTwoFactorSessionProofsInput, Prisma.AppUserUpdateWithoutTwoFactorSessionProofsInput>, Prisma.AppUserUncheckedUpdateWithoutTwoFactorSessionProofsInput>
+}
+
+export type AppUserCreateNestedOneWithoutTrustedDevicesInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutTrustedDevicesInput, Prisma.AppUserUncheckedCreateWithoutTrustedDevicesInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutTrustedDevicesInput
+  connect?: Prisma.AppUserWhereUniqueInput
+}
+
+export type AppUserUpdateOneRequiredWithoutTrustedDevicesNestedInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutTrustedDevicesInput, Prisma.AppUserUncheckedCreateWithoutTrustedDevicesInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutTrustedDevicesInput
+  upsert?: Prisma.AppUserUpsertWithoutTrustedDevicesInput
+  connect?: Prisma.AppUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AppUserUpdateToOneWithWhereWithoutTrustedDevicesInput, Prisma.AppUserUpdateWithoutTrustedDevicesInput>, Prisma.AppUserUncheckedUpdateWithoutTrustedDevicesInput>
+}
+
+export type AppUserCreateWithoutTwoFactorCredentialInput = {
+  id?: string
+  authUserId: string
+  username?: string | null
+  email?: string | null
+  name?: string | null
+  role?: $Enums.AppRole
+  active?: boolean
+  twoFactorResetAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofCreateNestedManyWithoutAppUserInput
+  trustedDevices?: Prisma.TrustedDeviceCreateNestedManyWithoutAppUserInput
+}
+
+export type AppUserUncheckedCreateWithoutTwoFactorCredentialInput = {
+  id?: string
+  authUserId: string
+  username?: string | null
+  email?: string | null
+  name?: string | null
+  role?: $Enums.AppRole
+  active?: boolean
+  twoFactorResetAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofUncheckedCreateNestedManyWithoutAppUserInput
+  trustedDevices?: Prisma.TrustedDeviceUncheckedCreateNestedManyWithoutAppUserInput
+}
+
+export type AppUserCreateOrConnectWithoutTwoFactorCredentialInput = {
+  where: Prisma.AppUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutTwoFactorCredentialInput, Prisma.AppUserUncheckedCreateWithoutTwoFactorCredentialInput>
+}
+
+export type AppUserUpsertWithoutTwoFactorCredentialInput = {
+  update: Prisma.XOR<Prisma.AppUserUpdateWithoutTwoFactorCredentialInput, Prisma.AppUserUncheckedUpdateWithoutTwoFactorCredentialInput>
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutTwoFactorCredentialInput, Prisma.AppUserUncheckedCreateWithoutTwoFactorCredentialInput>
+  where?: Prisma.AppUserWhereInput
+}
+
+export type AppUserUpdateToOneWithWhereWithoutTwoFactorCredentialInput = {
+  where?: Prisma.AppUserWhereInput
+  data: Prisma.XOR<Prisma.AppUserUpdateWithoutTwoFactorCredentialInput, Prisma.AppUserUncheckedUpdateWithoutTwoFactorCredentialInput>
+}
+
+export type AppUserUpdateWithoutTwoFactorCredentialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  authUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofUpdateManyWithoutAppUserNestedInput
+  trustedDevices?: Prisma.TrustedDeviceUpdateManyWithoutAppUserNestedInput
+}
+
+export type AppUserUncheckedUpdateWithoutTwoFactorCredentialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  authUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofUncheckedUpdateManyWithoutAppUserNestedInput
+  trustedDevices?: Prisma.TrustedDeviceUncheckedUpdateManyWithoutAppUserNestedInput
+}
+
+export type AppUserCreateWithoutTwoFactorSessionProofsInput = {
+  id?: string
+  authUserId: string
+  username?: string | null
+  email?: string | null
+  name?: string | null
+  role?: $Enums.AppRole
+  active?: boolean
+  twoFactorResetAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialCreateNestedOneWithoutAppUserInput
+  trustedDevices?: Prisma.TrustedDeviceCreateNestedManyWithoutAppUserInput
+}
+
+export type AppUserUncheckedCreateWithoutTwoFactorSessionProofsInput = {
+  id?: string
+  authUserId: string
+  username?: string | null
+  email?: string | null
+  name?: string | null
+  role?: $Enums.AppRole
+  active?: boolean
+  twoFactorResetAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialUncheckedCreateNestedOneWithoutAppUserInput
+  trustedDevices?: Prisma.TrustedDeviceUncheckedCreateNestedManyWithoutAppUserInput
+}
+
+export type AppUserCreateOrConnectWithoutTwoFactorSessionProofsInput = {
+  where: Prisma.AppUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutTwoFactorSessionProofsInput, Prisma.AppUserUncheckedCreateWithoutTwoFactorSessionProofsInput>
+}
+
+export type AppUserUpsertWithoutTwoFactorSessionProofsInput = {
+  update: Prisma.XOR<Prisma.AppUserUpdateWithoutTwoFactorSessionProofsInput, Prisma.AppUserUncheckedUpdateWithoutTwoFactorSessionProofsInput>
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutTwoFactorSessionProofsInput, Prisma.AppUserUncheckedCreateWithoutTwoFactorSessionProofsInput>
+  where?: Prisma.AppUserWhereInput
+}
+
+export type AppUserUpdateToOneWithWhereWithoutTwoFactorSessionProofsInput = {
+  where?: Prisma.AppUserWhereInput
+  data: Prisma.XOR<Prisma.AppUserUpdateWithoutTwoFactorSessionProofsInput, Prisma.AppUserUncheckedUpdateWithoutTwoFactorSessionProofsInput>
+}
+
+export type AppUserUpdateWithoutTwoFactorSessionProofsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  authUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialUpdateOneWithoutAppUserNestedInput
+  trustedDevices?: Prisma.TrustedDeviceUpdateManyWithoutAppUserNestedInput
+}
+
+export type AppUserUncheckedUpdateWithoutTwoFactorSessionProofsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  authUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialUncheckedUpdateOneWithoutAppUserNestedInput
+  trustedDevices?: Prisma.TrustedDeviceUncheckedUpdateManyWithoutAppUserNestedInput
+}
+
+export type AppUserCreateWithoutTrustedDevicesInput = {
+  id?: string
+  authUserId: string
+  username?: string | null
+  email?: string | null
+  name?: string | null
+  role?: $Enums.AppRole
+  active?: boolean
+  twoFactorResetAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialCreateNestedOneWithoutAppUserInput
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofCreateNestedManyWithoutAppUserInput
+}
+
+export type AppUserUncheckedCreateWithoutTrustedDevicesInput = {
+  id?: string
+  authUserId: string
+  username?: string | null
+  email?: string | null
+  name?: string | null
+  role?: $Enums.AppRole
+  active?: boolean
+  twoFactorResetAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialUncheckedCreateNestedOneWithoutAppUserInput
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofUncheckedCreateNestedManyWithoutAppUserInput
+}
+
+export type AppUserCreateOrConnectWithoutTrustedDevicesInput = {
+  where: Prisma.AppUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutTrustedDevicesInput, Prisma.AppUserUncheckedCreateWithoutTrustedDevicesInput>
+}
+
+export type AppUserUpsertWithoutTrustedDevicesInput = {
+  update: Prisma.XOR<Prisma.AppUserUpdateWithoutTrustedDevicesInput, Prisma.AppUserUncheckedUpdateWithoutTrustedDevicesInput>
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutTrustedDevicesInput, Prisma.AppUserUncheckedCreateWithoutTrustedDevicesInput>
+  where?: Prisma.AppUserWhereInput
+}
+
+export type AppUserUpdateToOneWithWhereWithoutTrustedDevicesInput = {
+  where?: Prisma.AppUserWhereInput
+  data: Prisma.XOR<Prisma.AppUserUpdateWithoutTrustedDevicesInput, Prisma.AppUserUncheckedUpdateWithoutTrustedDevicesInput>
+}
+
+export type AppUserUpdateWithoutTrustedDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  authUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialUpdateOneWithoutAppUserNestedInput
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofUpdateManyWithoutAppUserNestedInput
+}
+
+export type AppUserUncheckedUpdateWithoutTrustedDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  authUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAppRoleFieldUpdateOperationsInput | $Enums.AppRole
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorResetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorCredential?: Prisma.TwoFactorCredentialUncheckedUpdateOneWithoutAppUserNestedInput
+  twoFactorSessionProofs?: Prisma.TwoFactorSessionProofUncheckedUpdateManyWithoutAppUserNestedInput
+}
+
+
+/**
+ * Count Type AppUserCountOutputType
+ */
+
+export type AppUserCountOutputType = {
+  twoFactorSessionProofs: number
+  trustedDevices: number
+}
+
+export type AppUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  twoFactorSessionProofs?: boolean | AppUserCountOutputTypeCountTwoFactorSessionProofsArgs
+  trustedDevices?: boolean | AppUserCountOutputTypeCountTrustedDevicesArgs
+}
+
+/**
+ * AppUserCountOutputType without action
+ */
+export type AppUserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AppUserCountOutputType
+   */
+  select?: Prisma.AppUserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AppUserCountOutputType without action
+ */
+export type AppUserCountOutputTypeCountTwoFactorSessionProofsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TwoFactorSessionProofWhereInput
+}
+
+/**
+ * AppUserCountOutputType without action
+ */
+export type AppUserCountOutputTypeCountTrustedDevicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TrustedDeviceWhereInput
+}
 
 
 export type AppUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -407,8 +763,13 @@ export type AppUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   role?: boolean
   active?: boolean
+  twoFactorResetAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  twoFactorCredential?: boolean | Prisma.AppUser$twoFactorCredentialArgs<ExtArgs>
+  twoFactorSessionProofs?: boolean | Prisma.AppUser$twoFactorSessionProofsArgs<ExtArgs>
+  trustedDevices?: boolean | Prisma.AppUser$trustedDevicesArgs<ExtArgs>
+  _count?: boolean | Prisma.AppUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["appUser"]>
 
 export type AppUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -419,6 +780,7 @@ export type AppUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   role?: boolean
   active?: boolean
+  twoFactorResetAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appUser"]>
@@ -431,6 +793,7 @@ export type AppUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   role?: boolean
   active?: boolean
+  twoFactorResetAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appUser"]>
@@ -443,15 +806,28 @@ export type AppUserSelectScalar = {
   name?: boolean
   role?: boolean
   active?: boolean
+  twoFactorResetAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AppUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authUserId" | "username" | "email" | "name" | "role" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["appUser"]>
+export type AppUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authUserId" | "username" | "email" | "name" | "role" | "active" | "twoFactorResetAt" | "createdAt" | "updatedAt", ExtArgs["result"]["appUser"]>
+export type AppUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  twoFactorCredential?: boolean | Prisma.AppUser$twoFactorCredentialArgs<ExtArgs>
+  twoFactorSessionProofs?: boolean | Prisma.AppUser$twoFactorSessionProofsArgs<ExtArgs>
+  trustedDevices?: boolean | Prisma.AppUser$trustedDevicesArgs<ExtArgs>
+  _count?: boolean | Prisma.AppUserCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type AppUserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type AppUserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $AppUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AppUser"
-  objects: {}
+  objects: {
+    twoFactorCredential: Prisma.$TwoFactorCredentialPayload<ExtArgs> | null
+    twoFactorSessionProofs: Prisma.$TwoFactorSessionProofPayload<ExtArgs>[]
+    trustedDevices: Prisma.$TrustedDevicePayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     authUserId: string
@@ -460,6 +836,7 @@ export type $AppUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name: string | null
     role: $Enums.AppRole
     active: boolean
+    twoFactorResetAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["appUser"]>
@@ -856,6 +1233,9 @@ readonly fields: AppUserFieldRefs;
  */
 export interface Prisma__AppUserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  twoFactorCredential<T extends Prisma.AppUser$twoFactorCredentialArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppUser$twoFactorCredentialArgs<ExtArgs>>): Prisma.Prisma__TwoFactorCredentialClient<runtime.Types.Result.GetResult<Prisma.$TwoFactorCredentialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  twoFactorSessionProofs<T extends Prisma.AppUser$twoFactorSessionProofsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppUser$twoFactorSessionProofsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TwoFactorSessionProofPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  trustedDevices<T extends Prisma.AppUser$trustedDevicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppUser$trustedDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TrustedDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -892,6 +1272,7 @@ export interface AppUserFieldRefs {
   readonly name: Prisma.FieldRef<"AppUser", 'String'>
   readonly role: Prisma.FieldRef<"AppUser", 'AppRole'>
   readonly active: Prisma.FieldRef<"AppUser", 'Boolean'>
+  readonly twoFactorResetAt: Prisma.FieldRef<"AppUser", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"AppUser", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"AppUser", 'DateTime'>
 }
@@ -911,6 +1292,10 @@ export type AppUserFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
+  /**
    * Filter, which AppUser to fetch.
    */
   where: Prisma.AppUserWhereUniqueInput
@@ -929,6 +1314,10 @@ export type AppUserFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
+  /**
    * Filter, which AppUser to fetch.
    */
   where: Prisma.AppUserWhereUniqueInput
@@ -946,6 +1335,10 @@ export type AppUserFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the AppUser
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
   /**
    * Filter, which AppUser to fetch.
    */
@@ -995,6 +1388,10 @@ export type AppUserFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
+  /**
    * Filter, which AppUser to fetch.
    */
   where?: Prisma.AppUserWhereInput
@@ -1042,6 +1439,10 @@ export type AppUserFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the AppUser
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
   /**
    * Filter, which AppUsers to fetch.
    */
@@ -1091,6 +1492,10 @@ export type AppUserCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
+  /**
    * The data needed to create a AppUser.
    */
   data: Prisma.XOR<Prisma.AppUserCreateInput, Prisma.AppUserUncheckedCreateInput>
@@ -1138,6 +1543,10 @@ export type AppUserUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the AppUser
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
   /**
    * The data needed to update a AppUser.
    */
@@ -1205,6 +1614,10 @@ export type AppUserUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
+  /**
    * The filter to search for the AppUser to update in case it exists.
    */
   where: Prisma.AppUserWhereUniqueInput
@@ -1231,6 +1644,10 @@ export type AppUserDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
+  /**
    * Filter which AppUser to delete.
    */
   where: Prisma.AppUserWhereUniqueInput
@@ -1251,6 +1668,73 @@ export type AppUserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
+ * AppUser.twoFactorCredential
+ */
+export type AppUser$twoFactorCredentialArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TwoFactorCredential
+   */
+  select?: Prisma.TwoFactorCredentialSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TwoFactorCredential
+   */
+  omit?: Prisma.TwoFactorCredentialOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TwoFactorCredentialInclude<ExtArgs> | null
+  where?: Prisma.TwoFactorCredentialWhereInput
+}
+
+/**
+ * AppUser.twoFactorSessionProofs
+ */
+export type AppUser$twoFactorSessionProofsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TwoFactorSessionProof
+   */
+  select?: Prisma.TwoFactorSessionProofSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TwoFactorSessionProof
+   */
+  omit?: Prisma.TwoFactorSessionProofOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TwoFactorSessionProofInclude<ExtArgs> | null
+  where?: Prisma.TwoFactorSessionProofWhereInput
+  orderBy?: Prisma.TwoFactorSessionProofOrderByWithRelationInput | Prisma.TwoFactorSessionProofOrderByWithRelationInput[]
+  cursor?: Prisma.TwoFactorSessionProofWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TwoFactorSessionProofScalarFieldEnum | Prisma.TwoFactorSessionProofScalarFieldEnum[]
+}
+
+/**
+ * AppUser.trustedDevices
+ */
+export type AppUser$trustedDevicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TrustedDevice
+   */
+  select?: Prisma.TrustedDeviceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TrustedDevice
+   */
+  omit?: Prisma.TrustedDeviceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TrustedDeviceInclude<ExtArgs> | null
+  where?: Prisma.TrustedDeviceWhereInput
+  orderBy?: Prisma.TrustedDeviceOrderByWithRelationInput | Prisma.TrustedDeviceOrderByWithRelationInput[]
+  cursor?: Prisma.TrustedDeviceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TrustedDeviceScalarFieldEnum | Prisma.TrustedDeviceScalarFieldEnum[]
+}
+
+/**
  * AppUser without action
  */
 export type AppUserDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1262,4 +1746,8 @@ export type AppUserDefaultArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the AppUser
    */
   omit?: Prisma.AppUserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppUserInclude<ExtArgs> | null
 }
