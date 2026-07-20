@@ -8,6 +8,7 @@ import {
   parseFitment,
   parseModel,
   parseName,
+  parseTranslatedName,
   parseWarehouse,
 } from "@/lib/admin/validate";
 
@@ -33,7 +34,7 @@ function id(formData: FormData) {
 }
 
 function done(message: string): AdminActionState {
-  revalidatePath("/");
+  revalidatePath("/crm");
   return { ok: true, message };
 }
 
@@ -88,7 +89,7 @@ export async function deleteBrandAction(_s: AdminActionState, fd: FormData): Pro
 export async function createTypeAction(_s: AdminActionState, fd: FormData): Promise<AdminActionState> {
   try {
     await requireWrite();
-    const parsed = parseName(fd);
+    const parsed = parseTranslatedName(fd);
     if (!parsed.ok) throw new Error(parsed.message);
     if (await prisma.productType.findUnique({ where: { name: parsed.data.name } }))
       throw new Error("Există deja un tip cu acest nume.");
@@ -103,7 +104,7 @@ export async function updateTypeAction(_s: AdminActionState, fd: FormData): Prom
   try {
     await requireWrite();
     const typeId = id(fd);
-    const parsed = parseName(fd);
+    const parsed = parseTranslatedName(fd);
     if (!typeId) throw new Error("Tip lipsă.");
     if (!parsed.ok) throw new Error(parsed.message);
     if (await prisma.productType.findFirst({ where: { name: parsed.data.name, NOT: { id: typeId } } }))

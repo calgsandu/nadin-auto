@@ -1,8 +1,9 @@
 "use client";
 
 import { FileCode2, FileText, Send } from "lucide-react";
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   cancelPaymentAccountAction,
   fulfillPaymentAccountAction,
@@ -74,7 +75,7 @@ export function PaymentAccountRowActions({
           primary
         />
       ) : null}
-      {!cancelled && !fulfilled ? (
+      {!cancelled && !fulfilled && !paid ? (
         <ActionForm
           action={cancelPaymentAccountAction}
           confirmText={`Anulezi contul de plată #${number}?`}
@@ -113,19 +114,18 @@ function ActionForm({
   icon?: React.ReactNode;
 }) {
   const [state, formAction] = useActionState(action, initialState);
-  useEffect(() => {
-    if (state.message) window.alert(state.message);
-  }, [state]);
 
   return (
     <form
       action={formAction}
+      className="grid justify-items-end gap-1"
       onSubmit={(event) => {
         if (confirmText && !window.confirm(confirmText)) event.preventDefault();
       }}
     >
       <input name="paymentAccountId" type="hidden" value={id} />
       <ActionButton danger={danger} icon={icon} label={label} primary={primary} />
+      <ActionFeedback state={state} compact />
     </form>
   );
 }

@@ -1,6 +1,7 @@
 import { PaymentAccountDialog } from "@/app/payment-accounts/payment-account-dialog";
 import { PaymentAccountRowActions } from "@/app/payment-accounts/payment-account-row-actions";
 import type { PaymentAccountsData } from "@/lib/payment-accounts/queries";
+import { vehicleLabel } from "@/lib/catalog/vehicle-label";
 
 const money = new Intl.NumberFormat("ro-MD", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const date = new Intl.DateTimeFormat("ro-MD", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -44,9 +45,16 @@ export function PaymentAccountsWorkspace({
                   </Cell>
                   <Cell>
                     <div className="grid gap-1">
-                      {account.lines.map((line) => (
-                        <span key={line.id}>{line.productCode ? `${line.productCode} · ` : ""}{line.description} <span className="font-mono text-[#6f6b63]">×{line.quantity}</span></span>
-                      ))}
+                      {account.lines.map((line) => {
+                        const vehicle = vehicleLabel(line.product?.fitment);
+                        return (
+                          <span key={line.id}>
+                            {line.productCode ? `${line.productCode} · ` : ""}
+                            {line.description} <span className="font-mono text-[#6f6b63]">×{line.quantity}</span>
+                            {vehicle ? <span className="block text-xs text-[#6f6b63]">{vehicle}</span> : null}
+                          </span>
+                        );
+                      })}
                     </div>
                     <span className="mt-2 block text-xs text-[#98948b]">Din {account.warehouse.name}</span>
                   </Cell>
@@ -90,7 +98,7 @@ function Flow({ account }: { account: PaymentAccountsData["accounts"][number] })
   return (
     <div className="grid w-72 grid-cols-3 overflow-hidden rounded-md border border-[#e8e7e3]">
       {steps.map((step) => (
-        <span key={step.label} className={`border-l border-[#e8e7e3] px-2 py-1.5 text-center text-xs font-semibold first:border-l-0 ${step.done ? "bg-[#fffbeb] text-[#92400e]" : "bg-white text-[#98948b]"}`}>
+        <span key={step.label} className={`border-l border-[#e8e7e3] px-2 py-1.5 text-center text-xs font-semibold first:border-l-0 ${step.done ? "bg-[#f0f7ff] text-[#175cd3]" : "bg-white text-[#98948b]"}`}>
           {step.done ? "● " : "○ "}{step.label}
         </span>
       ))}

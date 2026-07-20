@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import {
   deletePartnerAction,
   type PartnerActionState,
 } from "@/app/partners/actions";
+import { ActionFeedback } from "@/app/components/action-feedback";
 
 const initialState: PartnerActionState = { ok: false, message: "" };
 
@@ -18,15 +19,10 @@ export function PartnerDeleteButton({
 }) {
   const [state, formAction] = useActionState(deletePartnerAction, initialState);
 
-  useEffect(() => {
-    if (state.message && !state.ok) {
-      window.alert(state.message);
-    }
-  }, [state]);
-
   return (
     <form
       action={formAction}
+      className="grid justify-items-end gap-1"
       onSubmit={(event) => {
         if (!window.confirm(`Ștergi partenerul "${partnerName}"?`)) {
           event.preventDefault();
@@ -35,6 +31,7 @@ export function PartnerDeleteButton({
     >
       <input name="partnerId" type="hidden" value={partnerId} />
       <DeleteButton />
+      <ActionFeedback state={state} compact />
     </form>
   );
 }

@@ -27,20 +27,30 @@ export type ReturnableSale = {
 const initialState: OperationActionState = { ok: false, message: "" };
 
 export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
+  const today = useMemo(() => formatDateInputValue(new Date()), []);
   const [open, setOpen] = useState(false);
   const [saleId, setSaleId] = useState("");
+  const [documentDate, setDocumentDate] = useState(today);
+  const [notes, setNotes] = useState("");
+  const [showFeedback, setShowFeedback] = useState(false);
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   async function returnAction(previousState: OperationActionState, formData: FormData) {
     const nextState = await createReturnAction(previousState, formData);
+    setShowFeedback(true);
     if (nextState.ok) {
       setOpen(false);
       setSaleId("");
+      setDocumentDate(today);
+      setNotes("");
       setQuantities({});
+    } else {
+      // React resetează DOM-ul formularului după o server action. Un obiect nou
+      // forțează rerandarea și reaplică valorile controlate după eroare.
+      setQuantities((current) => ({ ...current }));
     }
     return nextState;
   }
   const [state, formAction] = useActionState(returnAction, initialState);
-  const today = useMemo(() => formatDateInputValue(new Date()), []);
 
   const sale = sales.find((s) => s.id === saleId) ?? null;
   const totalLei = sale
@@ -54,7 +64,14 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
 
   return (
     <>
-      <button className={primaryButtonClassName} type="button" onClick={() => setOpen(true)}>
+      <button
+        className={primaryButtonClassName}
+        type="button"
+        onClick={() => {
+          setShowFeedback(false);
+          setOpen(true);
+        }}
+      >
         Adaugă retur
       </button>
       {open ? (
@@ -66,7 +83,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
               type="button"
               onClick={() => setOpen(false)}
             />
-            <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
                 <div>
                   <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
@@ -81,7 +98,13 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
               <form action={formAction} className="grid gap-6 px-6 py-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Data returului">
-                    <input className={inputClassName} defaultValue={today} name="documentDate" type="date" />
+                    <input
+                      className={inputClassName}
+                      name="documentDate"
+                      type="date"
+                      value={documentDate}
+                      onChange={(event) => setDocumentDate(event.currentTarget.value)}
+                    />
                   </Field>
                   <Field label="Vânzarea din care se returnează">
                     <select
@@ -172,10 +195,12 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                     className={`${inputClassName} min-h-24 resize-y py-3`}
                     name="notes"
                     placeholder="motivul returului"
+                    value={notes}
+                    onChange={(event) => setNotes(event.currentTarget.value)}
                   />
                 </Field>
 
-                {state.message ? (
+                {showFeedback && state.message ? (
                   <div
                     className={`rounded-md border px-3 py-2 text-sm ${
                       state.ok

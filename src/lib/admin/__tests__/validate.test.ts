@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { parseName, parseModel, parseFitment, parseWarehouse } from "@/lib/admin/validate";
+import { parseName, parseTranslatedName, parseModel, parseFitment, parseWarehouse } from "@/lib/admin/validate";
 
 function fd(entries: Record<string, string>): FormData {
   const f = new FormData();
@@ -11,6 +11,10 @@ function fd(entries: Record<string, string>): FormData {
 assert.equal(parseName(fd({ name: "  " })).ok, false);
 const n = parseName(fd({ name: "  AUDI " }));
 assert.equal(n.ok && n.data.name, "AUDI");
+const tn = parseTranslatedName(fd({ name: " Prag ", nameRu: "  Порог  " }));
+assert.deepEqual(tn, { ok: true, data: { name: "Prag", nameRu: "Порог" } });
+const emptyRu = parseTranslatedName(fd({ name: "Prag", nameRu: "   " }));
+assert.equal(emptyRu.ok && emptyRu.data.nameRu, null);
 
 // parseModel: brand + name required
 assert.equal(parseModel(fd({ name: "Passat" })).ok, false);
@@ -35,5 +39,8 @@ const ok = parseFitment(fd({ carModelId: "m1", label: " B6 ", yearStart: "2005",
 assert.equal(ok.ok && ok.data.yearStart, 2005);
 assert.equal(ok.ok && ok.data.yearEnd, 2010);
 assert.equal(ok.ok && ok.data.yearOpenEnded, true);
+assert.equal(ok.ok && ok.data.labelRu, null);
+const translatedFitment = parseFitment(fd({ carModelId: "m1", label: " B6 ", labelRu: " Б6 " }));
+assert.equal(translatedFitment.ok && translatedFitment.data.labelRu, "Б6");
 
 console.log("admin validate tests passed");

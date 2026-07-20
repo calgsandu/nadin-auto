@@ -3,10 +3,12 @@ import { documentSnapshot } from "@/lib/audit";
 
 // Snapshot-ul de ștergere trebuie să conțină exact câmpurile pe care
 // restoreDocumentAction le citește (DeletedSnapshot) — round-trip safe.
-const snapshot = documentSnapshot({
+const snapshotInput = {
   type: "SALE",
   number: 12,
   documentDate: new Date("2026-07-05T12:00:00"),
+  sourceDocumentId: "sale-source",
+  transferGroupId: "transfer-group",
   notes: "test",
   totalLei: { toString: () => "150.50" },
   totalEuro: null,
@@ -21,7 +23,8 @@ const snapshot = documentSnapshot({
       product: { description: "Far stânga", externalCode: "F-01" },
     },
   ],
-});
+};
+const snapshot = documentSnapshot(snapshotInput);
 
 assert.equal(snapshot.type, "SALE");
 assert.equal(snapshot.number, 12);
@@ -30,6 +33,8 @@ assert.equal(snapshot.totalLei, 150.5);
 assert.equal(snapshot.totalEuro, null);
 assert.equal(snapshot.warehouse, "Pavilion 110A");
 assert.equal(snapshot.partner, "Client X");
+assert.equal(snapshot.sourceDocumentId, "sale-source");
+assert.equal(snapshot.transferGroupId, "transfer-group");
 assert.equal(snapshot.lines.length, 1);
 assert.equal(snapshot.lines[0].productId, "p1");
 assert.equal(snapshot.lines[0].quantity, 2);

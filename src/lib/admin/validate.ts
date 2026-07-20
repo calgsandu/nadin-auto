@@ -5,6 +5,10 @@ function str(formData: FormData, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+export function optionalText(formData: FormData, key: string): string | null {
+  return str(formData, key) || null;
+}
+
 function parseYear(formData: FormData, key: string): Parsed<number | null> {
   const raw = str(formData, key);
   if (!raw) return { ok: true, data: null };
@@ -19,6 +23,17 @@ export function parseName(formData: FormData): Parsed<{ name: string }> {
   const name = str(formData, "name");
   if (!name) return { ok: false, message: "Numele este obligatoriu." };
   return { ok: true, data: { name } };
+}
+
+export function parseTranslatedName(
+  formData: FormData,
+): Parsed<{ name: string; nameRu: string | null }> {
+  const parsed = parseName(formData);
+  if (!parsed.ok) return parsed;
+  return {
+    ok: true,
+    data: { ...parsed.data, nameRu: optionalText(formData, "nameRu") },
+  };
 }
 
 export function parseWarehouse(
@@ -49,6 +64,7 @@ export function parseModel(
 export function parseFitment(formData: FormData): Parsed<{
   carModelId: string;
   label: string;
+  labelRu: string | null;
   yearStart: number | null;
   yearEnd: number | null;
   yearOpenEnded: boolean;
@@ -71,6 +87,7 @@ export function parseFitment(formData: FormData): Parsed<{
     data: {
       carModelId,
       label,
+      labelRu: optionalText(formData, "labelRu"),
       yearStart: start.data,
       yearEnd: end.data,
       yearOpenEnded: formData.get("yearOpenEnded") === "on",

@@ -393,10 +393,6 @@ export type AppUserMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type EnumAppRoleFieldUpdateOperationsInput = {
-  set?: $Enums.AppRole
-}
-
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }

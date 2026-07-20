@@ -256,6 +256,8 @@ export type PartnerWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   documents?: Prisma.StockDocumentListRelationFilter
   paymentAccounts?: Prisma.PaymentAccountListRelationFilter
+  externalOrders?: Prisma.ExternalOrderListRelationFilter
+  externalLines?: Prisma.StockDocumentLineListRelationFilter
 }
 
 export type PartnerOrderByWithRelationInput = {
@@ -275,6 +277,8 @@ export type PartnerOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   documents?: Prisma.StockDocumentOrderByRelationAggregateInput
   paymentAccounts?: Prisma.PaymentAccountOrderByRelationAggregateInput
+  externalOrders?: Prisma.ExternalOrderOrderByRelationAggregateInput
+  externalLines?: Prisma.StockDocumentLineOrderByRelationAggregateInput
 }
 
 export type PartnerWhereUniqueInput = Prisma.AtLeast<{
@@ -297,6 +301,8 @@ export type PartnerWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   documents?: Prisma.StockDocumentListRelationFilter
   paymentAccounts?: Prisma.PaymentAccountListRelationFilter
+  externalOrders?: Prisma.ExternalOrderListRelationFilter
+  externalLines?: Prisma.StockDocumentLineListRelationFilter
 }, "id" | "name">
 
 export type PartnerOrderByWithAggregationInput = {
@@ -356,6 +362,8 @@ export type PartnerCreateInput = {
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
   paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
+  externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
 }
 
 export type PartnerUncheckedCreateInput = {
@@ -375,6 +383,8 @@ export type PartnerUncheckedCreateInput = {
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
   paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
+  externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
 }
 
 export type PartnerUpdateInput = {
@@ -394,6 +404,8 @@ export type PartnerUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
   paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
+  externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
 }
 
 export type PartnerUncheckedUpdateInput = {
@@ -413,6 +425,8 @@ export type PartnerUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
   paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
+  externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
 }
 
 export type PartnerCreateManyInput = {
@@ -531,6 +545,22 @@ export type EnumPartnerKindFieldUpdateOperationsInput = {
   set?: $Enums.PartnerKind
 }
 
+export type PartnerCreateNestedOneWithoutExternalOrdersInput = {
+  create?: Prisma.XOR<Prisma.PartnerCreateWithoutExternalOrdersInput, Prisma.PartnerUncheckedCreateWithoutExternalOrdersInput>
+  connectOrCreate?: Prisma.PartnerCreateOrConnectWithoutExternalOrdersInput
+  connect?: Prisma.PartnerWhereUniqueInput
+}
+
+export type PartnerUpdateOneWithoutExternalOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.PartnerCreateWithoutExternalOrdersInput, Prisma.PartnerUncheckedCreateWithoutExternalOrdersInput>
+  connectOrCreate?: Prisma.PartnerCreateOrConnectWithoutExternalOrdersInput
+  upsert?: Prisma.PartnerUpsertWithoutExternalOrdersInput
+  disconnect?: Prisma.PartnerWhereInput | boolean
+  delete?: Prisma.PartnerWhereInput | boolean
+  connect?: Prisma.PartnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PartnerUpdateToOneWithWhereWithoutExternalOrdersInput, Prisma.PartnerUpdateWithoutExternalOrdersInput>, Prisma.PartnerUncheckedUpdateWithoutExternalOrdersInput>
+}
+
 export type PartnerCreateNestedOneWithoutDocumentsInput = {
   create?: Prisma.XOR<Prisma.PartnerCreateWithoutDocumentsInput, Prisma.PartnerUncheckedCreateWithoutDocumentsInput>
   connectOrCreate?: Prisma.PartnerCreateOrConnectWithoutDocumentsInput
@@ -561,6 +591,118 @@ export type PartnerUpdateOneRequiredWithoutPaymentAccountsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PartnerUpdateToOneWithWhereWithoutPaymentAccountsInput, Prisma.PartnerUpdateWithoutPaymentAccountsInput>, Prisma.PartnerUncheckedUpdateWithoutPaymentAccountsInput>
 }
 
+export type PartnerCreateNestedOneWithoutExternalLinesInput = {
+  create?: Prisma.XOR<Prisma.PartnerCreateWithoutExternalLinesInput, Prisma.PartnerUncheckedCreateWithoutExternalLinesInput>
+  connectOrCreate?: Prisma.PartnerCreateOrConnectWithoutExternalLinesInput
+  connect?: Prisma.PartnerWhereUniqueInput
+}
+
+export type PartnerUpdateOneWithoutExternalLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.PartnerCreateWithoutExternalLinesInput, Prisma.PartnerUncheckedCreateWithoutExternalLinesInput>
+  connectOrCreate?: Prisma.PartnerCreateOrConnectWithoutExternalLinesInput
+  upsert?: Prisma.PartnerUpsertWithoutExternalLinesInput
+  disconnect?: Prisma.PartnerWhereInput | boolean
+  delete?: Prisma.PartnerWhereInput | boolean
+  connect?: Prisma.PartnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PartnerUpdateToOneWithWhereWithoutExternalLinesInput, Prisma.PartnerUpdateWithoutExternalLinesInput>, Prisma.PartnerUncheckedUpdateWithoutExternalLinesInput>
+}
+
+export type PartnerCreateWithoutExternalOrdersInput = {
+  id?: string
+  name: string
+  kind?: $Enums.PartnerKind
+  phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
+  paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
+  externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
+}
+
+export type PartnerUncheckedCreateWithoutExternalOrdersInput = {
+  id?: string
+  name: string
+  kind?: $Enums.PartnerKind
+  phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
+  externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
+}
+
+export type PartnerCreateOrConnectWithoutExternalOrdersInput = {
+  where: Prisma.PartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartnerCreateWithoutExternalOrdersInput, Prisma.PartnerUncheckedCreateWithoutExternalOrdersInput>
+}
+
+export type PartnerUpsertWithoutExternalOrdersInput = {
+  update: Prisma.XOR<Prisma.PartnerUpdateWithoutExternalOrdersInput, Prisma.PartnerUncheckedUpdateWithoutExternalOrdersInput>
+  create: Prisma.XOR<Prisma.PartnerCreateWithoutExternalOrdersInput, Prisma.PartnerUncheckedCreateWithoutExternalOrdersInput>
+  where?: Prisma.PartnerWhereInput
+}
+
+export type PartnerUpdateToOneWithWhereWithoutExternalOrdersInput = {
+  where?: Prisma.PartnerWhereInput
+  data: Prisma.XOR<Prisma.PartnerUpdateWithoutExternalOrdersInput, Prisma.PartnerUncheckedUpdateWithoutExternalOrdersInput>
+}
+
+export type PartnerUpdateWithoutExternalOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
+  externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
+}
+
+export type PartnerUncheckedUpdateWithoutExternalOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
+  externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
+}
+
 export type PartnerCreateWithoutDocumentsInput = {
   id?: string
   name: string
@@ -577,6 +719,8 @@ export type PartnerCreateWithoutDocumentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
+  externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
 }
 
 export type PartnerUncheckedCreateWithoutDocumentsInput = {
@@ -595,6 +739,8 @@ export type PartnerUncheckedCreateWithoutDocumentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
+  externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
 }
 
 export type PartnerCreateOrConnectWithoutDocumentsInput = {
@@ -629,6 +775,8 @@ export type PartnerUpdateWithoutDocumentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
+  externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
 }
 
 export type PartnerUncheckedUpdateWithoutDocumentsInput = {
@@ -647,6 +795,8 @@ export type PartnerUncheckedUpdateWithoutDocumentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
+  externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
 }
 
 export type PartnerCreateWithoutPaymentAccountsInput = {
@@ -665,6 +815,8 @@ export type PartnerCreateWithoutPaymentAccountsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
+  externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
 }
 
 export type PartnerUncheckedCreateWithoutPaymentAccountsInput = {
@@ -683,6 +835,8 @@ export type PartnerUncheckedCreateWithoutPaymentAccountsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
+  externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
 }
 
 export type PartnerCreateOrConnectWithoutPaymentAccountsInput = {
@@ -717,6 +871,8 @@ export type PartnerUpdateWithoutPaymentAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
+  externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
 }
 
 export type PartnerUncheckedUpdateWithoutPaymentAccountsInput = {
@@ -735,6 +891,104 @@ export type PartnerUncheckedUpdateWithoutPaymentAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
+  externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
+}
+
+export type PartnerCreateWithoutExternalLinesInput = {
+  id?: string
+  name: string
+  kind?: $Enums.PartnerKind
+  phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
+  paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
+}
+
+export type PartnerUncheckedCreateWithoutExternalLinesInput = {
+  id?: string
+  name: string
+  kind?: $Enums.PartnerKind
+  phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
+}
+
+export type PartnerCreateOrConnectWithoutExternalLinesInput = {
+  where: Prisma.PartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartnerCreateWithoutExternalLinesInput, Prisma.PartnerUncheckedCreateWithoutExternalLinesInput>
+}
+
+export type PartnerUpsertWithoutExternalLinesInput = {
+  update: Prisma.XOR<Prisma.PartnerUpdateWithoutExternalLinesInput, Prisma.PartnerUncheckedUpdateWithoutExternalLinesInput>
+  create: Prisma.XOR<Prisma.PartnerCreateWithoutExternalLinesInput, Prisma.PartnerUncheckedCreateWithoutExternalLinesInput>
+  where?: Prisma.PartnerWhereInput
+}
+
+export type PartnerUpdateToOneWithWhereWithoutExternalLinesInput = {
+  where?: Prisma.PartnerWhereInput
+  data: Prisma.XOR<Prisma.PartnerUpdateWithoutExternalLinesInput, Prisma.PartnerUncheckedUpdateWithoutExternalLinesInput>
+}
+
+export type PartnerUpdateWithoutExternalLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
+}
+
+export type PartnerUncheckedUpdateWithoutExternalLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
 }
 
 
@@ -745,11 +999,15 @@ export type PartnerUncheckedUpdateWithoutPaymentAccountsInput = {
 export type PartnerCountOutputType = {
   documents: number
   paymentAccounts: number
+  externalOrders: number
+  externalLines: number
 }
 
 export type PartnerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   documents?: boolean | PartnerCountOutputTypeCountDocumentsArgs
   paymentAccounts?: boolean | PartnerCountOutputTypeCountPaymentAccountsArgs
+  externalOrders?: boolean | PartnerCountOutputTypeCountExternalOrdersArgs
+  externalLines?: boolean | PartnerCountOutputTypeCountExternalLinesArgs
 }
 
 /**
@@ -776,6 +1034,20 @@ export type PartnerCountOutputTypeCountPaymentAccountsArgs<ExtArgs extends runti
   where?: Prisma.PaymentAccountWhereInput
 }
 
+/**
+ * PartnerCountOutputType without action
+ */
+export type PartnerCountOutputTypeCountExternalOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExternalOrderWhereInput
+}
+
+/**
+ * PartnerCountOutputType without action
+ */
+export type PartnerCountOutputTypeCountExternalLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockDocumentLineWhereInput
+}
+
 
 export type PartnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -794,6 +1066,8 @@ export type PartnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   documents?: boolean | Prisma.Partner$documentsArgs<ExtArgs>
   paymentAccounts?: boolean | Prisma.Partner$paymentAccountsArgs<ExtArgs>
+  externalOrders?: boolean | Prisma.Partner$externalOrdersArgs<ExtArgs>
+  externalLines?: boolean | Prisma.Partner$externalLinesArgs<ExtArgs>
   _count?: boolean | Prisma.PartnerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["partner"]>
 
@@ -852,6 +1126,8 @@ export type PartnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type PartnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   documents?: boolean | Prisma.Partner$documentsArgs<ExtArgs>
   paymentAccounts?: boolean | Prisma.Partner$paymentAccountsArgs<ExtArgs>
+  externalOrders?: boolean | Prisma.Partner$externalOrdersArgs<ExtArgs>
+  externalLines?: boolean | Prisma.Partner$externalLinesArgs<ExtArgs>
   _count?: boolean | Prisma.PartnerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PartnerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -862,6 +1138,8 @@ export type $PartnerPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     documents: Prisma.$StockDocumentPayload<ExtArgs>[]
     paymentAccounts: Prisma.$PaymentAccountPayload<ExtArgs>[]
+    externalOrders: Prisma.$ExternalOrderPayload<ExtArgs>[]
+    externalLines: Prisma.$StockDocumentLinePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1274,6 +1552,8 @@ export interface Prisma__PartnerClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   documents<T extends Prisma.Partner$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   paymentAccounts<T extends Prisma.Partner$paymentAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$paymentAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  externalOrders<T extends Prisma.Partner$externalOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$externalOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExternalOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  externalLines<T extends Prisma.Partner$externalLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$externalLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockDocumentLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1755,6 +2035,54 @@ export type Partner$paymentAccountsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.PaymentAccountScalarFieldEnum | Prisma.PaymentAccountScalarFieldEnum[]
+}
+
+/**
+ * Partner.externalOrders
+ */
+export type Partner$externalOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExternalOrder
+   */
+  select?: Prisma.ExternalOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExternalOrder
+   */
+  omit?: Prisma.ExternalOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalOrderInclude<ExtArgs> | null
+  where?: Prisma.ExternalOrderWhereInput
+  orderBy?: Prisma.ExternalOrderOrderByWithRelationInput | Prisma.ExternalOrderOrderByWithRelationInput[]
+  cursor?: Prisma.ExternalOrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExternalOrderScalarFieldEnum | Prisma.ExternalOrderScalarFieldEnum[]
+}
+
+/**
+ * Partner.externalLines
+ */
+export type Partner$externalLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockDocumentLine
+   */
+  select?: Prisma.StockDocumentLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockDocumentLine
+   */
+  omit?: Prisma.StockDocumentLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockDocumentLineInclude<ExtArgs> | null
+  where?: Prisma.StockDocumentLineWhereInput
+  orderBy?: Prisma.StockDocumentLineOrderByWithRelationInput | Prisma.StockDocumentLineOrderByWithRelationInput[]
+  cursor?: Prisma.StockDocumentLineWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StockDocumentLineScalarFieldEnum | Prisma.StockDocumentLineScalarFieldEnum[]
 }
 
 /**

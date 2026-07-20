@@ -3,6 +3,7 @@ import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { COMPANY } from "@/lib/company";
 import { XLSX, xlsxResponse } from "@/lib/export/xlsx";
+import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
 
 export const dynamic = "force-dynamic";
 
@@ -44,8 +45,8 @@ export async function GET(
     const unit = Number((isOutgoing ? line.unitPriceEuro : line.unitCostLei) ?? 0);
     return [
       index + 1,
-      line.product.externalCode ?? "",
-      line.product.description,
+      line.product?.externalCode ?? line.externalCode ?? (line.product ? "" : "extern"),
+      line.product?.description ?? line.externalName ?? "Piesă externă",
       line.quantity,
       unit,
       unit * line.quantity,
@@ -64,6 +65,10 @@ export async function GET(
         ["", "", "", "", "TVA (lei)", tva],
       ]
     : [];
+  const paymentRows: (string | number)[][] =
+    doc.type === "SALE"
+      ? [["Metoda de plată:", salePaymentMethodLabel(doc.paymentMethod)]]
+      : [];
   const aoa: (string | number)[][] = [
     ["NADIN AUTO — DOCUMENT INTERN"],
     [],
@@ -71,6 +76,7 @@ export async function GET(
     [],
     ["Depozit:", doc.warehouse.name],
     [isOutgoing ? "Client:" : "Furnizor:", doc.partner?.name ?? "Consumator final"],
+    ...paymentRows,
     ["Telefon:", doc.partner?.phone ?? "—"],
     ["Notițe:", doc.notes || "—"],
     [],
@@ -96,7 +102,7 @@ export async function GET(
   ];
 
   // Number formats on money cells (prices, values, totals).
-  const firstLineRow = 10; // 0-indexed row of the first product line
+  const firstLineRow = 10 + paymentRows.length; // 0-indexed row of the first product line
   for (let r = firstLineRow; r < firstLineRow + lineRows.length; r += 1) {
     for (const c of [4, 5]) {
       const cell = ws[XLSX.utils.encode_cell({ r, c })];

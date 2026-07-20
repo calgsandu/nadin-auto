@@ -1094,10 +1094,6 @@ export type PaymentAccountUncheckedUpdateOneWithoutSaleDocumentNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PaymentAccountUpdateToOneWithWhereWithoutSaleDocumentInput, Prisma.PaymentAccountUpdateWithoutSaleDocumentInput>, Prisma.PaymentAccountUncheckedUpdateWithoutSaleDocumentInput>
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type EnumPaymentAccountStatusFieldUpdateOperationsInput = {
   set?: $Enums.PaymentAccountStatus
 }

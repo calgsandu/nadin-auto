@@ -3,6 +3,7 @@ export type WorkspaceSectionId =
   | "receptii"
   | "transferuri"
   | "vanzari"
+  | "la-comanda"
   | "conturi-plata"
   | "retururi"
   | "de-adus"
@@ -16,6 +17,7 @@ export type WorkspaceSectionId =
   | "tipuri"
   | "compatibilitati"
   | "documente"
+  | "aprobari"
   | "istoric"
   | "rapoarte"
   | "statistici";
@@ -69,6 +71,12 @@ export const workspaceSections: WorkspaceSection[] = [
     id: "vanzari",
     title: "Vânzări",
     description: "Vânzări catalogate pe zile, luni și ani.",
+  },
+  {
+    id: "la-comanda",
+    title: "Comenzi la furnizori",
+    description:
+      "Piese aduse la comandă de la furnizori parteneri, fără a intra în catalogul propriu.",
   },
   {
     id: "conturi-plata",
@@ -136,6 +144,11 @@ export const workspaceSections: WorkspaceSection[] = [
     description: "Recepții, vânzări, transferuri și ajustări.",
   },
   {
+    id: "aprobari",
+    title: "Aprobări operațiuni",
+    description: "Operațiunile angajaților care așteaptă confirmarea directorului.",
+  },
+  {
     id: "istoric",
     title: "Istoric modificări",
     description: "Jurnalul creărilor, editărilor și ștergerilor.",
@@ -176,6 +189,12 @@ export const navigationEntries: NavigationEntry[] = [
     label: "Vânzări",
     description: "Istoric vânzări",
     icon: "ShoppingCart",
+  },
+  {
+    section: "la-comanda",
+    label: "La comandă",
+    description: "Piese aduse de la furnizori parteneri",
+    icon: "PackagePlus",
   },
   {
     section: "conturi-plata",
@@ -257,6 +276,12 @@ export const navigationEntries: NavigationEntry[] = [
     icon: "FileText",
   },
   {
+    section: "aprobari",
+    label: "Aprobări",
+    description: "Operațiuni de confirmat",
+    icon: "ClipboardList",
+  },
+  {
     section: "istoric",
     label: "Istoric modificări",
     description: "Jurnal audit",
@@ -307,7 +332,7 @@ export const navigationGroups: NavGroup[] = [
     label: "Operațiuni",
     description: "Mișcări de stoc",
     icon: "ArrowRightLeft",
-    sections: ["receptii", "transferuri", "vanzari", "conturi-plata", "retururi", "de-adus", "fara-stoc", "inventar", "documente", "istoric"],
+    sections: ["receptii", "transferuri", "vanzari", "la-comanda", "conturi-plata", "retururi", "de-adus", "fara-stoc", "inventar", "documente", "aprobari", "istoric"],
   },
   {
     id: "nomenclatoare",

@@ -59,6 +59,33 @@ enum AuditAction {
   DELETE
 }
 
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  FLAGGED
+}
+
+enum PendingOperationKind {
+  SALE
+  PAYMENT_ACCOUNT_FULFILLMENT
+}
+
+enum PendingOperationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Fluxul back-to-back: cerere client → ofertă furnizor → comandă → livrare.
+enum ExternalOrderStatus {
+  CERERE
+  OFERTAT
+  CONFIRMAT
+  RECEPTIONAT
+  LIVRAT
+  ANULAT
+}
+
 model AuditLog {
   id        String      @id @default(cuid())
   userId    String?
@@ -71,8 +98,41 @@ model AuditLog {
   details   Json?
   createdAt DateTime    @default(now())
 
+  /// Aprobarea directorului: ANGAJAT → PENDING, DIRECTOR/ADMIN → auto-APPROVED.
+  reviewStatus   ReviewStatus @default(APPROVED)
+  reviewedById   String?
+  reviewedByName String?
+  reviewedAt     DateTime?
+  reviewNote     String?
+
   @@index([createdAt])
   @@index([entity, entityId])
+  @@index([reviewStatus])
+}
+
+model PendingOperation {
+  id               String                 @id @default(cuid())
+  kind             PendingOperationKind
+  status           PendingOperationStatus @default(PENDING)
+  requestedById    String
+  requestedByName  String?
+  requestedByEmail String?
+  requestedByRole  AppRole
+  summary          String
+  payload          Json
+  activeKey        String?                @unique
+  reviewedById     String?
+  reviewedByName   String?
+  reviewedAt       DateTime?
+  reviewNote       String?
+  appliedEntityId  String?
+  lastError        String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  @@index([status, createdAt])
+  @@index([kind, status])
+  @@index([requestedById, createdAt])
 }
 
 model AppUser {
@@ -112,6 +172,7 @@ model VehicleFitment {
   id            String    @id @default(cuid())
   carModelId    String
   label         String
+  labelRu       String?
   yearStart     Int?
   yearEnd       Int?
   yearOpenEnded Boolean   @default(false)
@@ -128,6 +189,7 @@ model VehicleFitment {
 model ProductType {
   id        String    @id @default(cuid())
   name      String    @unique
+  nameRu    String?
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -138,11 +200,16 @@ model Product {
   importKey   String         @unique
   source      ProductSource  @default(EXCEL)
   manuallyEdited Boolean     @default(false)
+  /// Piesă fabricată local (manufactura proprie), nu importată.
+  isLocal     Boolean        @default(false)
   sourceRow   Int
   sourceItem  String?
   externalCode String?
+  alternativeCode String?
   description String
+  descriptionRu String?
   notes       String?
+  notesRu     String?
   stock       Int?
   /// Prag de alertă stoc minim; null = pragul implicit (3).
   minStock    Int?
@@ -221,8 +288,48 @@ model Partner {
   notes     String?
   documents StockDocument[]
   paymentAccounts PaymentAccount[]
+  externalOrders ExternalOrder[]
+  externalLines StockDocumentLine[] @relation("ExternalLineSupplier")
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
+}
+
+/// Comandă la furnizor extern (back-to-back): piesa NU intră în catalog/stoc,
+/// dar păstrăm clientul, furnizorul, costul și marja pentru trasabilitate.
+model ExternalOrder {
+  id       String              @id @default(cuid())
+  number   Int                 @unique
+  status   ExternalOrderStatus @default(CERERE)
+
+  customerName  String
+  customerPhone String?
+
+  productName String
+  productCode String?
+  quantity    Int     @default(1)
+
+  supplierId String?
+  supplier   Partner? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+
+  /// Preț de achiziție per bucată, de la furnizor.
+  supplierPriceLei Decimal? @db.Decimal(10, 2)
+  /// Preț de vânzare per bucată, către client.
+  salePriceLei     Decimal? @db.Decimal(10, 2)
+  offerValidUntil  DateTime?
+
+  notes String?
+
+  quotedAt    DateTime?
+  confirmedAt DateTime?
+  receivedAt  DateTime?
+  deliveredAt DateTime?
+  cancelledAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([supplierId])
 }
 
 model StockDocument {
@@ -239,6 +346,8 @@ model StockDocument {
   notes       String?
   totalEuro   Decimal?            @db.Decimal(10, 2)
   totalLei    Decimal?            @db.Decimal(10, 2)
+  /// SALE: true = bătută în casa de marcat, false = nebătută, null = nespecificat.
+  cashRegistered Boolean?
   /// SALE: CASH/CARD; null = vânzare istorică sau nespecificată.
   paymentMethod SalePaymentMethod?
   warehouse   Warehouse           @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
@@ -328,17 +437,26 @@ model PaymentAccountLine {
 model StockDocumentLine {
   id          String        @id @default(cuid())
   documentId String
-  productId  String
+  /// null = linie externă (piesă de la furnizor, în afara catalogului propriu).
+  productId  String?
+  /// Denumirea liberă a piesei externe; setată doar când productId e null.
+  externalName String?
+  /// Codul piesei externe (ex. codul Polcar/furnizor).
+  externalCode String?
+  externalSupplierId String?
   quantity   Int
   unitPriceEuro Decimal?    @db.Decimal(10, 2)
+  /// Pe linii externe: cost de achiziție per bucată (marja = preț − cost).
   unitCostLei   Decimal?    @db.Decimal(10, 2)
   document   StockDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  product    Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
+  product    Product?      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  externalSupplier Partner? @relation("ExternalLineSupplier", fields: [externalSupplierId], references: [id], onDelete: SetNull)
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
 
   @@index([documentId])
   @@index([productId])
+  @@index([externalSupplierId])
 }
 
 model RestockTask {

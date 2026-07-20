@@ -23,13 +23,18 @@ type ProductFormDialogProps = {
 export type ProductFormValue = {
   id: string;
   externalCode: string;
+  alternativeCode: string;
   brandId: string;
   modelId: string;
   typeId: string;
   description: string;
+  descriptionRu: string;
+  notes: string;
+  notesRu: string;
   yearStart: string;
   yearEnd: string;
   yearOpenEnded: boolean;
+  isLocal: boolean;
   warehouseStocks: Array<{ warehouseId: string; quantity: string }>;
   minStock: string;
   priceEuro: string;
@@ -127,13 +132,21 @@ export function ProductFormDialog({
                 <input name="productId" type="hidden" value={product.id} />
               ) : null}
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Cod">
                   <input
                     className={inputClassName}
                     name="externalCode"
                     defaultValue={product?.externalCode ?? ""}
                     placeholder="ex. P12013 1"
+                  />
+                </Field>
+                <Field label="Cod alternativ">
+                  <input
+                    className={inputClassName}
+                    name="alternativeCode"
+                    defaultValue={product?.alternativeCode ?? ""}
+                    placeholder="ex. cod furnizor"
                   />
                 </Field>
                 <Field label="Tip produs">
@@ -232,6 +245,32 @@ export function ProductFormDialog({
                 />
               </Field>
 
+              <Field label="Descriere în rusă">
+                <textarea
+                  className={`${inputClassName} min-h-24 resize-y py-3`}
+                  name="descriptionRu"
+                  defaultValue={product?.descriptionRu ?? ""}
+                  placeholder="ex. Левый порог для 4/5 дверей"
+                />
+              </Field>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Notițe">
+                  <textarea
+                    className={`${inputClassName} min-h-20 resize-y py-3`}
+                    name="notes"
+                    defaultValue={product?.notes ?? ""}
+                  />
+                </Field>
+                <Field label="Notițe în rusă">
+                  <textarea
+                    className={`${inputClassName} min-h-20 resize-y py-3`}
+                    name="notesRu"
+                    defaultValue={product?.notesRu ?? ""}
+                  />
+                </Field>
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Ani de la">
                   <input
@@ -262,6 +301,11 @@ export function ProductFormDialog({
                   În continuare
                 </label>
               </div>
+
+              <label className="field-control flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-3 text-sm text-[#33312c]">
+                <input name="isLocal" type="checkbox" defaultChecked={product?.isLocal ?? false} />
+                Piesă fabricată local (manufactura proprie)
+              </label>
 
               <section className="rounded-xl border border-[#e8e7e3] bg-white p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">

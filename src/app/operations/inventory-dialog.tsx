@@ -62,7 +62,7 @@ export function InventoryDialog({
               type="button"
               onClick={() => setOpen(false)}
             />
-            <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
                 <div>
                   <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">

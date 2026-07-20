@@ -1,6 +1,11 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/vitrina/slug";
+import {
+  catalogCopy,
+  localizedValue,
+  type CatalogLocale,
+} from "@/lib/vitrina/i18n";
 
 export type ShowroomBrand = {
   name: string;
@@ -9,7 +14,12 @@ export type ShowroomBrand = {
   productCount: number;
 };
 
-export type ShowroomType = { name: string; slug: string; count: number };
+export type ShowroomType = {
+  name: string;
+  sourceName: string;
+  slug: string;
+  count: number;
+};
 
 export type ShowroomData = {
   totals: { products: number; brands: number; models: number; types: number };
@@ -17,7 +27,7 @@ export type ShowroomData = {
   types: ShowroomType[];
 };
 
-export const getShowroomData = cache(async (): Promise<ShowroomData> => {
+export const getShowroomData = cache(async (locale: CatalogLocale = "ro"): Promise<ShowroomData> => {
   const [brandRows, typeRows, productCount, modelCount] = await Promise.all([
     prisma.$queryRaw<
       { id: string; name: string; models: bigint; products: bigint }[]
@@ -52,7 +62,8 @@ export const getShowroomData = cache(async (): Promise<ShowroomData> => {
   const types = typeRows
     .filter((type) => type._count.products > 0)
     .map((type) => ({
-      name: type.name,
+      name: localizedValue(locale, type.name, type.nameRu),
+      sourceName: type.name,
       slug: slugify(type.name),
       count: type._count.products,
     }));
@@ -77,7 +88,7 @@ export type BrandModel = {
   years: string | null;
 };
 
-export const getBrandData = cache(async (brandSlug: string) => {
+export const getBrandData = cache(async (brandSlug: string, locale: CatalogLocale = "ro") => {
   const brands = await prisma.brand.findMany({ select: { id: true, name: true } });
   const brand = brands.find((entry) => slugify(entry.name) === brandSlug);
   if (!brand) return null;
@@ -112,8 +123,9 @@ export const getBrandData = cache(async (brandSlug: string) => {
       let years: string | null = null;
       if (starts.length > 0) {
         const from = Math.min(...starts);
-        const to = open ? "prezent" : ends.length > 0 ? String(Math.max(...ends)) : null;
-        years = to ? `${from} – ${to}` : `din ${from}`;
+        const copy = catalogCopy(locale).common;
+        const to = open ? copy.present : ends.length > 0 ? String(Math.max(...ends)) : null;
+        years = to ? `${from} – ${to}` : copy.fromYear(from);
       }
       return { id: model.id, name: model.name, slug: slugify(model.name), productCount, years };
     })
@@ -128,14 +140,39 @@ export type PublicProduct = {
   code: string | null;
   description: string;
   inStock: boolean;
+  isLocal: boolean;
   fitLabel: string;
 };
+
+type LocalizablePublicProductRow = {
+  id: string;
+  externalCode: string | null;
+  description: string;
+  descriptionRu: string | null;
+  stock: number | null;
+  isLocal: boolean;
+  fitment: { label: string; labelRu: string | null };
+};
+
+export function localizePublicProduct(
+  product: LocalizablePublicProductRow,
+  locale: CatalogLocale,
+): PublicProduct {
+  return {
+    id: product.id,
+    code: product.externalCode,
+    description: localizedValue(locale, product.description, product.descriptionRu),
+    inStock: (product.stock ?? 0) > 0,
+    isLocal: product.isLocal,
+    fitLabel: localizedValue(locale, product.fitment.label, product.fitment.labelRu),
+  };
+}
 
 export type ModelTypeGroup = { type: string; slug: string; products: PublicProduct[] };
 
 export const getModelData = cache(
-  async (brandSlug: string, modelSlug: string) => {
-    const brand = await getBrandData(brandSlug);
+  async (brandSlug: string, modelSlug: string, locale: CatalogLocale = "ro") => {
+    const brand = await getBrandData(brandSlug, locale);
     if (!brand) return null;
     const modelEntry = brand.models.find((model) => model.slug === modelSlug);
     if (!modelEntry) return null;
@@ -155,17 +192,18 @@ export const getModelData = cache(
     for (const product of products) {
       const key = product.type.name;
       if (!groups.has(key)) {
-        groups.set(key, { type: key, slug: slugify(key), products: [] });
+        groups.set(key, {
+          type: localizedValue(locale, key, product.type.nameRu),
+          slug: slugify(key),
+          products: [],
+        });
       }
-      groups.get(key)!.products.push({
-        id: product.id,
-        code: product.externalCode,
-        description: product.description,
-        inStock: (product.stock ?? 0) > 0,
-        fitLabel:
-          product.productFitments.find((entry) => entry.fitment.carModelId === modelEntry.id)
-            ?.fitment.label ?? product.fitment.label,
-      });
+      const selectedFitment =
+        product.productFitments.find((entry) => entry.fitment.carModelId === modelEntry.id)
+          ?.fitment ?? product.fitment;
+      groups.get(key)!.products.push(
+        localizePublicProduct({ ...product, fitment: selectedFitment }, locale),
+      );
     }
 
     return {
@@ -184,7 +222,9 @@ export type ProductDetails = {
   description: string;
   notes: string | null;
   inStock: boolean;
+  isLocal: boolean;
   type: string;
+  typeSource: string;
   fitLabel: string;
   years: string | null;
   brand: { name: string; slug: string };
@@ -193,7 +233,7 @@ export type ProductDetails = {
 };
 
 export const getProductDetails = cache(
-  async (id: string): Promise<ProductDetails | null> => {
+  async (id: string, locale: CatalogLocale = "ro"): Promise<ProductDetails | null> => {
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
@@ -207,12 +247,13 @@ export const getProductDetails = cache(
     const carModel = fitment.carModel;
     let years: string | null = null;
     if (fitment.yearStart != null) {
+      const copy = catalogCopy(locale).common;
       const to = fitment.yearOpenEnded
-        ? "prezent"
+        ? copy.present
         : fitment.yearEnd != null
           ? String(fitment.yearEnd)
           : null;
-      years = to ? `${fitment.yearStart} – ${to}` : `din ${fitment.yearStart}`;
+      years = to ? `${fitment.yearStart} – ${to}` : copy.fromYear(fitment.yearStart);
     }
 
     const sameType = await prisma.product.findMany({
@@ -248,21 +289,22 @@ export const getProductDetails = cache(
     return {
       id: product.id,
       code: product.externalCode,
-      description: product.description,
-      notes: product.notes,
+      description: localizedValue(locale, product.description, product.descriptionRu),
+      notes:
+        locale === "ru"
+          ? product.notesRu?.trim() || product.notes
+          : product.notes,
       inStock: (product.stock ?? 0) > 0,
-      type: product.type.name,
-      fitLabel: fitment.label,
+      isLocal: product.isLocal,
+      type: localizedValue(locale, product.type.name, product.type.nameRu),
+      typeSource: product.type.name,
+      fitLabel: localizedValue(locale, fitment.label, fitment.labelRu),
       years,
       brand: { name: carModel.brand.name, slug: slugify(carModel.brand.name) },
       model: { name: carModel.name, slug: slugify(carModel.name) },
       related: related.map((entry) => ({
-        id: entry.id,
-        code: entry.externalCode,
-        description: entry.description,
-        inStock: (entry.stock ?? 0) > 0,
-        fitLabel: entry.fitment.label,
-        type: entry.type.name,
+        ...localizePublicProduct(entry, locale),
+        type: localizedValue(locale, entry.type.name, entry.type.nameRu),
       })),
     };
   },
@@ -276,7 +318,10 @@ export type SearchHit = PublicProduct & {
   modelSlug: string;
 };
 
-export async function searchPublicProducts(query: string): Promise<SearchHit[]> {
+export async function searchPublicProducts(
+  query: string,
+  locale: CatalogLocale = "ro",
+): Promise<SearchHit[]> {
   const terms = query.trim().split(/\s+/).filter((term) => term.length >= 2);
   if (terms.length === 0) return [];
   const products = await prisma.product.findMany({
@@ -284,7 +329,12 @@ export async function searchPublicProducts(query: string): Promise<SearchHit[]> 
       AND: terms.map((term) => ({
         OR: [
           { description: { contains: term, mode: "insensitive" as const } },
+          { descriptionRu: { contains: term, mode: "insensitive" as const } },
           { externalCode: { contains: term, mode: "insensitive" as const } },
+          { type: { name: { contains: term, mode: "insensitive" as const } } },
+          { type: { nameRu: { contains: term, mode: "insensitive" as const } } },
+          { fitment: { label: { contains: term, mode: "insensitive" as const } } },
+          { fitment: { labelRu: { contains: term, mode: "insensitive" as const } } },
           {
             fitment: {
               carModel: { name: { contains: term, mode: "insensitive" as const } },
@@ -325,12 +375,8 @@ export async function searchPublicProducts(query: string): Promise<SearchHit[]> 
     take: 80,
   });
   return products.map((product) => ({
-    id: product.id,
-    code: product.externalCode,
-    description: product.description,
-    inStock: (product.stock ?? 0) > 0,
-    fitLabel: product.fitment.label,
-    type: product.type.name,
+    ...localizePublicProduct(product, locale),
+    type: localizedValue(locale, product.type.name, product.type.nameRu),
     brand: product.fitment.carModel.brand.name,
     brandSlug: slugify(product.fitment.carModel.brand.name),
     model: product.fitment.carModel.name,

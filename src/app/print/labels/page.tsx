@@ -7,7 +7,7 @@ import {
   LABEL_PHONE,
   buildCombinedCompatibilityLabel,
   buildPartLabel,
-  upperLabelText,
+  buildProductCodeLabel,
 } from "@/lib/labels/format";
 import { LABEL_SIZES, type LabelSizeKey } from "@/lib/labels/layout";
 import { LabelControls } from "@/app/print/labels/label-controls";
@@ -19,6 +19,7 @@ type LabelsProps = {
     ids?: string;
     copies?: string;
     items?: string;
+    alt?: string;
     size?: string;
     layout?: string;
     skip?: string;
@@ -44,6 +45,15 @@ function parseItems(items?: string, ids?: string, copies?: string) {
   return map;
 }
 
+function parseAlternativeCodeIds(value?: string) {
+  return new Set(
+    (value ?? "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean),
+  );
+}
+
 /** Etichete produse — grilă exactă pe foaia autoadezivă A4 sau rolă (1/pagină). */
 export default async function LabelsPage({ searchParams }: LabelsProps) {
   const appUser = await getCurrentAppUser();
@@ -51,6 +61,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
 
   const params = await searchParams;
   const counts = parseItems(params.items, params.ids, params.copies);
+  const alternativeCodeIds = parseAlternativeCodeIds(params.alt);
   const size: LabelSizeKey = params.size === "s" || params.size === "m" ? params.size : "l";
   const layout = params.layout === "roll" ? "roll" : "grid";
   const dim = LABEL_SIZES[size];
@@ -74,6 +85,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
     Array.from({ length: counts.get(product.id) ?? 1 }, (_, copy) => ({
       product,
       copy,
+      includeAlternativeCode: alternativeCodeIds.has(product.id),
       compatibility: buildCombinedCompatibilityLabel(
         product.productFitments.map(({ fitment }) => ({
           brandName: fitment.carModel.brand.name,
@@ -163,6 +175,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
             code: p.externalCode ?? "—",
             name: p.description,
             count: counts.get(p.id) ?? 1,
+            includeAlternativeCode: alternativeCodeIds.has(p.id),
           }))}
         />
       </div>
@@ -178,6 +191,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
               key={`${slot.product.id}-${slot.copy}`}
               product={slot.product}
               compatibility={slot.compatibility}
+              includeAlternativeCode={slot.includeAlternativeCode}
               dim={dim}
             />
           ))}
@@ -191,6 +205,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
                   <LabelSticker
                     product={slot.product}
                     compatibility={slot.compatibility}
+                    includeAlternativeCode={slot.includeAlternativeCode}
                     dim={dim}
                   />
                 </div>
@@ -262,13 +277,18 @@ const productLabelInclude = {
 function LabelSticker({
   product,
   compatibility,
+  includeAlternativeCode,
   dim,
 }: {
   product: ProductWithRelations;
   compatibility: string;
+  includeAlternativeCode: boolean;
   dim: (typeof LABEL_SIZES)[LabelSizeKey];
 }) {
-  const code = upperLabelText(product.externalCode ?? "-");
+  const code = buildProductCodeLabel(
+    product.externalCode,
+    includeAlternativeCode ? product.alternativeCode : null,
+  );
   const part = buildPartLabel(product.type.name, product.description);
   const compatibilitySize = Math.max(
     dim.model * (compatibility.length > 55 ? 0.72 : compatibility.length > 35 ? 0.84 : 1),

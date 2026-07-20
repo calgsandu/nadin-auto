@@ -4,8 +4,11 @@ export const MAX_LABEL_COUNT = 50;
 export type LabelSelectionItem = {
   id: string;
   code: string;
+  alternativeCode: string;
   name: string;
+  compatibility: string;
   count: number;
+  includeAlternativeCode: boolean;
 };
 
 export function clampLabelCount(value: number) {
@@ -27,15 +30,35 @@ export function parseLabelSelection(value: string | null): LabelSelectionItem[] 
       let item: LabelSelectionItem | null = null;
 
       if (typeof entry === "string") {
-        item = { id: entry, code: "", name: "", count: 1 };
+        item = {
+          id: entry,
+          code: "",
+          alternativeCode: "",
+          name: "",
+          compatibility: "",
+          count: 1,
+          includeAlternativeCode: false,
+        };
       } else if (entry && typeof entry === "object") {
         const stored = entry as Record<string, unknown>;
         if (typeof stored.id === "string") {
+          const alternativeCode =
+            typeof stored.alternativeCode === "string"
+              ? stored.alternativeCode
+              : "";
           item = {
             id: stored.id,
             code: typeof stored.code === "string" ? stored.code : "",
+            alternativeCode,
             name: typeof stored.name === "string" ? stored.name : "",
+            compatibility:
+              typeof stored.compatibility === "string"
+                ? stored.compatibility
+                : "",
             count: clampLabelCount(Number(stored.count)),
+            includeAlternativeCode: Boolean(
+              alternativeCode.trim() && stored.includeAlternativeCode === true,
+            ),
           };
         }
       }
@@ -63,6 +86,23 @@ export function setLabelCount(
   );
 }
 
+export function setLabelAlternativeCode(
+  items: LabelSelectionItem[],
+  id: string,
+  include: boolean,
+) {
+  return items.map((item) =>
+    item.id === id
+      ? {
+          ...item,
+          includeAlternativeCode: Boolean(
+            include && item.alternativeCode.trim(),
+          ),
+        }
+      : item,
+  );
+}
+
 export function toggleLabelSelection(
   items: LabelSelectionItem[],
   item: LabelSelectionItem,
@@ -72,15 +112,40 @@ export function toggleLabelSelection(
 
   const index = items.findIndex((current) => current.id === item.id);
   if (index === -1) {
-    return [...items, { ...item, count: clampLabelCount(item.count) }];
+    return [
+      ...items,
+      {
+        ...item,
+        count: clampLabelCount(item.count),
+        includeAlternativeCode: Boolean(
+          item.includeAlternativeCode && item.alternativeCode.trim(),
+        ),
+      },
+    ];
   }
 
   const current = items[index];
-  if (current.code === item.code && current.name === item.name) return items;
+  if (
+    current.code === item.code &&
+    current.alternativeCode === item.alternativeCode &&
+    current.name === item.name &&
+    current.compatibility === item.compatibility
+  ) {
+    return items;
+  }
 
   return items.map((entry, entryIndex) =>
     entryIndex === index
-      ? { ...entry, code: item.code, name: item.name }
+      ? {
+          ...entry,
+          code: item.code,
+          alternativeCode: item.alternativeCode,
+          name: item.name,
+          compatibility: item.compatibility,
+          includeAlternativeCode: Boolean(
+            entry.includeAlternativeCode && item.alternativeCode.trim(),
+          ),
+        }
       : entry,
   );
 }
@@ -94,12 +159,27 @@ export function hydrateLabelSelection(
 
   const hydrated = items.map((item) => {
     const visible = visibleById.get(item.id);
-    if (!visible || (visible.code === item.code && visible.name === item.name)) {
+    if (
+      !visible ||
+      (visible.code === item.code &&
+        visible.alternativeCode === item.alternativeCode &&
+        visible.name === item.name &&
+        visible.compatibility === item.compatibility)
+    ) {
       return item;
     }
 
     changed = true;
-    return { ...item, code: visible.code, name: visible.name };
+    return {
+      ...item,
+      code: visible.code,
+      alternativeCode: visible.alternativeCode,
+      name: visible.name,
+      compatibility: visible.compatibility,
+      includeAlternativeCode: Boolean(
+        item.includeAlternativeCode && visible.alternativeCode.trim(),
+      ),
+    };
   });
 
   return changed ? hydrated : items;
@@ -111,6 +191,14 @@ export function buildLabelPrintQuery(items: LabelSelectionItem[]) {
     "items",
     items.map((item) => `${item.id}:${item.count}`).join(","),
   );
+  const alternativeIds = items
+    .filter(
+      (item) => item.includeAlternativeCode && item.alternativeCode.trim(),
+    )
+    .map((item) => item.id);
+  if (alternativeIds.length > 0) {
+    query.set("alt", alternativeIds.join(","));
+  }
   query.set("layout", "grid");
   return query;
 }

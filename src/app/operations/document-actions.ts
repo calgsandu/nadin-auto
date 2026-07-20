@@ -4,12 +4,29 @@ import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
-import { documentSnapshot, logAudit } from "@/lib/audit";
-import { aggregateRestockRequests } from "@/lib/operations/restock";
+import {
+  documentSnapshot,
+  logAudit,
+  logAuditRequired,
+} from "@/lib/audit";
+import {
+  aggregateRestockRequests,
+  reconcileSaleRestockTasks,
+} from "@/lib/operations/restock";
 import {
   ensureSupplierPartner,
   normalizeOptionalPartnerId,
 } from "@/lib/operations/supplier-selection";
+import {
+  assertCashRegisterDocumentType,
+  cashRegisterLabel,
+  parseOptionalCashRegistered,
+} from "@/lib/operations/cash-register";
+import {
+  assertSalePaymentMethodDocumentType,
+  parseOptionalSalePaymentMethod,
+  salePaymentMethodLabel,
+} from "@/lib/operations/sale-payment-method";
 
 export type DocumentActionState = { ok: boolean; message: string };
 
@@ -38,6 +55,106 @@ function fail(error: unknown): DocumentActionState {
 function readString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
+}
+
+export async function updateCashRegisteredAction(
+  _state: DocumentActionState,
+  formData: FormData,
+): Promise<DocumentActionState> {
+  try {
+    const user = await requireWrite();
+    const id = readString(formData, "id");
+    if (!id) throw new Error("Document lipsă.");
+    const cashRegistered = parseOptionalCashRegistered(
+      readString(formData, "cashRegistered"),
+    );
+    let changed = false;
+
+    await prisma.$transaction(async (tx) => {
+      const doc = await tx.stockDocument.findUnique({
+        where: { id },
+        select: { id: true, type: true, number: true, cashRegistered: true },
+      });
+      if (!doc) throw new Error("Document inexistent.");
+      assertCashRegisterDocumentType(doc.type);
+      if (doc.cashRegistered === cashRegistered) return;
+
+      await tx.stockDocument.update({
+        where: { id },
+        data: { cashRegistered },
+      });
+      await logAuditRequired(tx, user, {
+        action: "UPDATE",
+        entity: "StockDocument",
+        entityId: id,
+        summary: `Vânzare #${doc.number}: statut casă schimbat din „${cashRegisterLabel(doc.cashRegistered)}” în „${cashRegisterLabel(cashRegistered)}”`,
+        details: {
+          before: { cashRegistered: doc.cashRegistered },
+          after: { cashRegistered },
+        },
+      });
+      changed = true;
+    });
+
+    revalidatePath("/crm");
+    return {
+      ok: true,
+      message: changed ? "Statutul de casă a fost actualizat." : "Statutul de casă este deja setat astfel.",
+    };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function updateSalePaymentMethodAction(
+  _state: DocumentActionState,
+  formData: FormData,
+): Promise<DocumentActionState> {
+  try {
+    const user = await requireWrite();
+    const id = readString(formData, "id");
+    if (!id) throw new Error("Document lipsă.");
+    const paymentMethod = parseOptionalSalePaymentMethod(
+      readString(formData, "paymentMethod"),
+    );
+    let changed = false;
+
+    await prisma.$transaction(async (tx) => {
+      const doc = await tx.stockDocument.findUnique({
+        where: { id },
+        select: { id: true, type: true, number: true, paymentMethod: true },
+      });
+      if (!doc) throw new Error("Document inexistent.");
+      assertSalePaymentMethodDocumentType(doc.type);
+      if (doc.paymentMethod === paymentMethod) return;
+
+      await tx.stockDocument.update({
+        where: { id },
+        data: { paymentMethod },
+      });
+      await logAuditRequired(tx, user, {
+        action: "UPDATE",
+        entity: "StockDocument",
+        entityId: id,
+        summary: `Vânzare #${doc.number}: metoda de plată schimbată din „${salePaymentMethodLabel(doc.paymentMethod)}” în „${salePaymentMethodLabel(paymentMethod)}”`,
+        details: {
+          before: { paymentMethod: doc.paymentMethod },
+          after: { paymentMethod },
+        },
+      });
+      changed = true;
+    });
+
+    revalidatePath("/crm");
+    return {
+      ok: true,
+      message: changed
+        ? "Metoda de plată a fost actualizată."
+        : "Metoda de plată este deja setată astfel.",
+    };
+  } catch (error) {
+    return fail(error);
+  }
 }
 
 /**
@@ -87,7 +204,7 @@ export async function deleteDocumentAction(
         : [doc];
 
       for (const target of docsToDelete) {
-        await logAudit(tx, user, {
+        await logAuditRequired(tx, user, {
           action: "DELETE",
           entity: "StockDocument",
           entityId: target.id,
@@ -96,6 +213,8 @@ export async function deleteDocumentAction(
         });
 
         for (const line of target.lines) {
+          // Liniile externe nu au atins stocul — nu e nimic de reversat.
+          if (!line.productId) continue;
           const appliedEffect = target.type === "SALE" ? -line.quantity : line.quantity;
           const stock = await tx.warehouseStock.findUnique({
             where: { productId_warehouseId: { productId: line.productId, warehouseId: target.warehouseId } },
@@ -120,23 +239,9 @@ export async function deleteDocumentAction(
         await tx.stockDocument.delete({ where: { id: target.id } });
       }
 
-      // Retur șters = marfa e din nou „vândută" → reintră în coada 110A.
+      // Retur șters = recalculează exact ce a rămas de adus pentru vânzare.
       if (doc.type === "RETURN" && doc.sourceDocumentId) {
-        const sale = await tx.stockDocument.findUnique({
-          where: { id: doc.sourceDocumentId },
-          include: { warehouse: { select: { name: true } } },
-        });
-        if (sale && sale.warehouse.name === "Pavilion 110A") {
-          await tx.restockTask.createMany({
-            data: doc.lines.map((line) => ({
-              productId: line.productId,
-              warehouseId: sale.warehouseId,
-              sourceDocumentId: sale.id,
-              quantity: line.quantity,
-              requestedAt: new Date(),
-            })),
-          });
-        }
+        await reconcileSaleRestockTasks(tx, doc.sourceDocumentId);
       }
 
       if (docsToDelete.length > 1) {
@@ -144,7 +249,7 @@ export async function deleteDocumentAction(
       }
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message };
   } catch (error) {
     return fail(error);
@@ -168,6 +273,10 @@ export async function updateDocumentLinesAction(
     const productIds = formData.getAll("lineProductId").map((v) => String(v).trim());
     const quantities = formData.getAll("lineQuantity").map((v) => String(v));
     const prices = formData.getAll("linePrice").map((v) => String(v));
+    const externalNames = formData.getAll("lineExternalName").map((v) => String(v).trim());
+    const externalCodes = formData.getAll("lineExternalCode").map((v) => String(v).trim());
+    const externalSupplierIds = formData.getAll("lineExternalSupplierId").map((v) => String(v).trim());
+    const externalCosts = formData.getAll("lineExternalCostLei").map((v) => String(v));
 
     const dateRaw = readString(formData, "documentDate");
     const notes = readString(formData, "notes") || null;
@@ -183,8 +292,11 @@ export async function updateDocumentLinesAction(
       const quantity = Number(quantities[i]);
       const raw = (prices[i] ?? "").trim().replace(",", ".");
       const price = raw ? Number(raw) : null;
-      if (!productId) throw new Error(`Produs lipsă pe poziția ${i + 1}.`);
-      if (seenProducts.has(productId)) {
+      const externalName = externalNames[i] ?? "";
+      const rawCost = (externalCosts[i] ?? "").trim().replace(",", ".");
+      const externalCost = rawCost ? Number(rawCost) : null;
+      if (!productId && !externalName) throw new Error(`Produs lipsă pe poziția ${i + 1}.`);
+      if (productId && seenProducts.has(productId)) {
         throw new Error(`Produsul de pe poziția ${i + 1} este adăugat de mai multe ori.`);
       }
       if (!Number.isInteger(quantity) || quantity <= 0) {
@@ -193,8 +305,19 @@ export async function updateDocumentLinesAction(
       if (price !== null && (!Number.isFinite(price) || price < 0)) {
         throw new Error(`Preț invalid pe poziția ${i + 1}.`);
       }
-      seenProducts.add(productId);
-      return { productId, quantity, price };
+      if (externalCost !== null && (!Number.isFinite(externalCost) || externalCost < 0)) {
+        throw new Error(`Cost invalid pe poziția ${i + 1}.`);
+      }
+      if (productId) seenProducts.add(productId);
+      return {
+        productId: productId || null,
+        externalName: productId ? null : externalName || null,
+        externalCode: productId ? null : externalCodes[i] || null,
+        externalSupplierId: productId ? null : externalSupplierIds[i] || null,
+        externalCost: productId ? null : externalCost,
+        quantity,
+        price,
+      };
     });
     if (formLines.length === 0) throw new Error("Documentul trebuie să aibă cel puțin un produs.");
 
@@ -219,6 +342,78 @@ export async function updateDocumentLinesAction(
 
       const beforeSnapshot = documentSnapshot(doc);
       const isSale = doc.type === "SALE";
+      const returnPriceByProduct = new Map<string, number | null>();
+
+      if (doc.type === "RETURN") {
+        if (!doc.sourceDocumentId) {
+          throw new Error(
+            "Returul nu mai are legătura cu vânzarea sursă și nu poate fi editat.",
+          );
+        }
+        const lockedSale = await tx.$queryRaw<{ id: string }[]>`
+          SELECT id FROM "StockDocument"
+          WHERE id = ${doc.sourceDocumentId} AND type = 'SALE'
+          FOR UPDATE`;
+        if (lockedSale.length === 0) {
+          throw new Error("Vânzarea sursă a returului nu mai există.");
+        }
+        const sourceSale = await tx.stockDocument.findUnique({
+          where: { id: doc.sourceDocumentId },
+          include: { lines: true },
+        });
+        if (!sourceSale || sourceSale.type !== "SALE") {
+          throw new Error("Vânzarea sursă a returului nu mai există.");
+        }
+        if (sourceSale.warehouseId !== doc.warehouseId) {
+          throw new Error("Returul și vânzarea sursă au locații diferite.");
+        }
+        if (documentDate && documentDate < sourceSale.documentDate) {
+          throw new Error(
+            "Data returului nu poate fi înaintea datei vânzării.",
+          );
+        }
+
+        const otherReturnLines = await tx.stockDocumentLine.findMany({
+          where: {
+            document: {
+              type: "RETURN",
+              sourceDocumentId: doc.sourceDocumentId,
+              NOT: { id },
+            },
+          },
+          select: { productId: true, quantity: true },
+        });
+        const returnedElsewhere = new Map<string, number>();
+        for (const line of otherReturnLines) {
+          if (!line.productId) continue;
+          returnedElsewhere.set(
+            line.productId,
+            (returnedElsewhere.get(line.productId) ?? 0) + line.quantity,
+          );
+        }
+        const soldByProduct = new Map(
+          sourceSale.lines.map((line) => [line.productId, line]),
+        );
+        for (const line of formLines) {
+          const sold = line.productId ? soldByProduct.get(line.productId) : null;
+          if (!sold || !line.productId) {
+            throw new Error(
+              "Un produs din retur nu face parte din vânzarea sursă.",
+            );
+          }
+          const available =
+            sold.quantity - (returnedElsewhere.get(line.productId) ?? 0);
+          if (line.quantity > available) {
+            throw new Error(
+              `Cantitatea returnată depășește ce a rămas de returnat (${Math.max(available, 0)} din ${sold.quantity} vândute).`,
+            );
+          }
+          returnPriceByProduct.set(
+            line.productId,
+            sold.unitPriceEuro == null ? null : Number(sold.unitPriceEuro),
+          );
+        }
+      }
 
       // O vânzare nu poate scădea sub cantitățile deja returnate.
       if (isSale) {
@@ -228,6 +423,7 @@ export async function updateDocumentLinesAction(
         });
         const returnedByProduct = new Map<string, number>();
         for (const line of returnLines) {
+          if (!line.productId) continue;
           returnedByProduct.set(
             line.productId,
             (returnedByProduct.get(line.productId) ?? 0) + line.quantity,
@@ -252,15 +448,20 @@ export async function updateDocumentLinesAction(
       );
       const newLines = formLines.map((line) => ({
         ...line,
+        price:
+          doc.type === "RETURN"
+            ? (line.productId ? (returnPriceByProduct.get(line.productId) ?? null) : null)
+            : line.price,
         signedQuantity:
           doc.type === "ADJUSTMENT"
-            ? line.quantity * (signByProduct.get(line.productId) ?? 1)
+            ? line.quantity * ((line.productId ? signByProduct.get(line.productId) : null) ?? 1)
             : line.quantity,
       }));
 
-      // 1. Reverse old stock effect.
+      // 1. Reverse old stock effect (liniile externe n-au atins stocul).
       const touched = new Set<string>();
       for (const line of doc.lines) {
+        if (!line.productId) continue;
         const appliedEffect = isSale ? -line.quantity : line.quantity;
         const stock = await tx.warehouseStock.findUnique({
           where: { productId_warehouseId: { productId: line.productId, warehouseId: doc.warehouseId } },
@@ -279,11 +480,18 @@ export async function updateDocumentLinesAction(
           data: {
             documentId: id,
             productId: nl.productId,
+            externalName: nl.externalName,
+            externalCode: nl.externalCode,
+            externalSupplierId: nl.externalSupplierId,
             quantity: nl.signedQuantity,
             [priceField]: nl.price,
+            ...(nl.productId ? {} : { unitCostLei: nl.externalCost }),
           },
         });
         total += nl.quantity * (nl.price ?? 0);
+
+        // Liniile externe nu ating stocul.
+        if (!nl.productId) continue;
 
         // 3. Apply new stock effect (seed row from product.stock if missing).
         let stock = await tx.warehouseStock.findUnique({
@@ -332,6 +540,10 @@ export async function updateDocumentLinesAction(
         data: { documentDate, notes, totalLei: total, totalEuro: null, ...(partnerId !== undefined ? { partnerId } : {}) },
       });
 
+      if (doc.type === "RETURN" && doc.sourceDocumentId) {
+        await reconcileSaleRestockTasks(tx, doc.sourceDocumentId);
+      }
+
       if (isSale && doc.warehouse.name === "Pavilion 110A") {
         const existingRestockTasks = await tx.restockTask.count({
           where: { sourceDocumentId: id },
@@ -341,8 +553,11 @@ export async function updateDocumentLinesAction(
         });
 
         if (existingRestockTasks === 0 || removedPendingTasks.count > 0) {
+          const catalogLines = newLines.filter(
+            (line): line is typeof line & { productId: string } => line.productId != null,
+          );
           await tx.restockTask.createMany({
-            data: aggregateRestockRequests(newLines).map((line) => ({
+            data: aggregateRestockRequests(catalogLines).map((line) => ({
               productId: line.productId,
               warehouseId: doc.warehouseId,
               sourceDocumentId: id,
@@ -362,7 +577,7 @@ export async function updateDocumentLinesAction(
         },
       });
       if (updated) {
-        await logAudit(tx, user, {
+        await logAuditRequired(tx, user, {
           action: "UPDATE",
           entity: "StockDocument",
           entityId: id,
@@ -372,7 +587,7 @@ export async function updateDocumentLinesAction(
       }
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: "Document actualizat (linii + stoc)." };
   } catch (error) {
     return fail(error);
@@ -438,7 +653,7 @@ export async function updateDocumentHeaderAction(
       },
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: "Document actualizat." };
   } catch (error) {
     return fail(error);

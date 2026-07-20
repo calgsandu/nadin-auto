@@ -7,7 +7,14 @@ export async function getPaymentAccountsData() {
         warehouse: { select: { id: true, name: true } },
         partner: { select: { id: true, name: true } },
         saleDocument: { select: { id: true, number: true } },
-        lines: { orderBy: { createdAt: "asc" } },
+        lines: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            product: {
+              select: { fitment: { include: { carModel: { include: { brand: true } } } } },
+            },
+          },
+        },
       },
       orderBy: [{ issueDate: "desc" }, { number: "desc" }],
       take: 100,

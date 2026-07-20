@@ -4,6 +4,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { ActionFeedback } from "@/app/components/action-feedback";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
 import {
   deleteDocumentAction,
@@ -14,9 +15,19 @@ import type { SupplierOption } from "@/app/operations/stock-document-dialog";
 
 const initial: DocumentActionState = { ok: false, message: "" };
 const inputClassName =
-  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/30";
+  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30";
 
-export type DocLine = { productId: string; label: string; quantity: string; price: string };
+export type DocLine = {
+  productId: string;
+  label: string;
+  quantity: string;
+  price: string;
+  /** Linie externă (piesă de la furnizor, fără produs în catalog). */
+  externalName?: string;
+  externalCode?: string;
+  externalSupplierId?: string;
+  externalCost?: string;
+};
 type EditableLine = DocLine & { id: number };
 
 function normalizeQuantity(quantity: string) {
@@ -140,7 +151,11 @@ function EditPanel({
     setEditableLines((current) => current.filter((line) => line.id !== id));
   }
 
-  function setLineField(id: number, field: "quantity" | "price", value: string) {
+  function setLineField(
+    id: number,
+    field: "quantity" | "price" | "externalName" | "externalCode" | "externalCost",
+    value: string,
+  ) {
     setEditableLines((current) =>
       current.map((line) => (line.id === id ? { ...line, [field]: value } : line)),
     );
@@ -150,7 +165,7 @@ function EditPanel({
         <DrawerPortal>
           <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
             <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={() => setOpen(false)} />
-            <aside className="motion-drawer-panel relative flex h-full w-full max-w-4xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
                 <div>
                   <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">Document</p>
@@ -209,27 +224,62 @@ function EditPanel({
                     </button>
                   </div>
                   <div className="grid gap-3 p-3">
-                    {editableLines.map((line, index) => (
+                    {editableLines.map((line, index) => {
+                      const isExternal = !line.productId && Boolean(line.externalName);
+                      return (
                       <div
                         key={line.id}
-                        className="motion-line-item grid gap-3 rounded-md border border-[#efeeeb] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_5rem_8rem_2.75rem] md:items-start"
+                        className={`motion-line-item grid gap-3 rounded-md border p-3 md:items-start ${
+                          isExternal
+                            ? "border-[#dbebfe] bg-[#ffffff] md:grid-cols-[minmax(0,1fr)_5rem_7rem_8rem_2.75rem]"
+                            : "border-[#efeeeb] bg-[#ffffff] md:grid-cols-[minmax(0,1fr)_5rem_8rem_2.75rem]"
+                        }`}
                       >
                         <div>
-                          <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">
-                            Produs {index + 1}
+                          <p className={`mb-1.5 text-xs font-semibold ${isExternal ? "text-[#175cd3]" : "text-[#6f6b63]"}`}>
+                            {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : `Produs ${index + 1}`}
                           </p>
-                          <ProductSearchCombobox
-                            name="lineProductId"
-                            showHint={false}
-                            initialProduct={
-                              line.productId ? { id: line.productId, label: line.label } : null
-                            }
-                          />
+                          {isExternal ? (
+                            <>
+                              <input name="lineProductId" type="hidden" value="" />
+                              <input name="lineExternalSupplierId" type="hidden" value={line.externalSupplierId ?? ""} />
+                              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_8rem]">
+                                <input
+                                  className={inputClassName}
+                                  name="lineExternalName"
+                                  required
+                                  value={line.externalName ?? ""}
+                                  onChange={(event) => setLineField(line.id, "externalName", event.currentTarget.value)}
+                                />
+                                <input
+                                  className={inputClassName}
+                                  name="lineExternalCode"
+                                  placeholder="cod piesă"
+                                  value={line.externalCode ?? ""}
+                                  onChange={(event) => setLineField(line.id, "externalCode", event.currentTarget.value)}
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <input name="lineExternalName" type="hidden" value="" />
+                              <input name="lineExternalCode" type="hidden" value="" />
+                              <input name="lineExternalSupplierId" type="hidden" value="" />
+                              <input name="lineExternalCostLei" type="hidden" value="" />
+                              <ProductSearchCombobox
+                                name="lineProductId"
+                                showHint={false}
+                                initialProduct={
+                                  line.productId ? { id: line.productId, label: line.label } : null
+                                }
+                              />
+                            </>
+                          )}
                         </div>
                         <label className="grid gap-1.5 text-xs font-semibold text-[#6f6b63]">
                           Cantitate
                           <input
-                            className="h-11 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm text-[#1b1a17] outline-none focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/30"
+                            className="h-11 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm text-[#1b1a17] outline-none focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30"
                             name="lineQuantity"
                             type="number"
                             min={1}
@@ -237,10 +287,25 @@ function EditPanel({
                             onChange={(event) => setLineField(line.id, "quantity", event.currentTarget.value)}
                           />
                         </label>
+                        {isExternal ? (
+                          <label className="grid gap-1.5 text-xs font-semibold text-[#6f6b63]">
+                            Cost lei
+                            <input
+                              className="h-11 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm text-[#1b1a17] outline-none focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30"
+                              name="lineExternalCostLei"
+                              type="number"
+                              min={0}
+                              step="0.01"
+                              value={line.externalCost ?? ""}
+                              placeholder="achiziție"
+                              onChange={(event) => setLineField(line.id, "externalCost", event.currentTarget.value)}
+                            />
+                          </label>
+                        ) : null}
                         <label className="grid gap-1.5 text-xs font-semibold text-[#6f6b63]">
                           Preț lei
                           <input
-                            className="h-11 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm text-[#1b1a17] outline-none focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/30"
+                            className="h-11 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm text-[#1b1a17] outline-none focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30"
                             name="linePrice"
                             type="number"
                             min={0}
@@ -260,7 +325,8 @@ function EditPanel({
                           <Trash2 className="size-4" aria-hidden="true" />
                         </button>
                       </div>
-                    ))}
+                      );
+                    })}
                     {editableLines.length === 0 ? (
                       <div className="rounded-md border border-dashed border-[#e8e7e3] px-3 py-6 text-center text-sm text-[#6f6b63]">
                         Adaugă cel puțin un produs.
@@ -294,13 +360,11 @@ function SaveButton() {
 
 function DeleteForm({ id, title }: { id: string; title: string }) {
   const [state, formAction] = useActionState(deleteDocumentAction, initial);
-  useEffect(() => {
-    if (state.message && !state.ok) window.alert(state.message);
-  }, [state]);
   return (
-    <form action={formAction} onSubmit={(e) => { if (!window.confirm(`Ștergi ${title}? Stocul va fi reversat.`)) e.preventDefault(); }}>
+    <form className="grid justify-items-end gap-1" action={formAction} onSubmit={(e) => { if (!window.confirm(`Ștergi ${title}? Stocul va fi reversat.`)) e.preventDefault(); }}>
       <input type="hidden" name="id" value={id} />
       <DeleteButton />
+      <ActionFeedback state={state} compact />
     </form>
   );
 }

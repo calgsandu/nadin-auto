@@ -58,10 +58,10 @@ export function LoginForm() {
       <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#1b1a17] p-10 text-white md:flex">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#d97706]/20 blur-2xl"
+          className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#2e90fa]/20 blur-2xl"
         />
         <div className="relative">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.3em] text-[#d97706]">
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.3em] text-[#2e90fa]">
             Depozit · Produse auto
           </p>
           <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight">
@@ -75,7 +75,7 @@ export function LoginForm() {
           {["Catalog cu 1.900+ produse", "Recepții, vânzări și transferuri", "Acces controlat pentru personal"].map(
             (item) => (
               <li key={item} className="flex items-center gap-3">
-                <span className="size-1.5 shrink-0 rounded-full bg-[#d97706]" />
+                <span className="size-1.5 shrink-0 rounded-full bg-[#2e90fa]" />
                 {item}
               </li>
             ),
@@ -85,7 +85,7 @@ export function LoginForm() {
 
       <section className="bg-[#fafaf9] p-8 sm:p-10">
         <div className="md:hidden">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#92400e]">
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#175cd3]">
             Nadin Auto
           </p>
         </div>
@@ -162,7 +162,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const inputClassName =
-  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/30 placeholder:text-[#98948b]";
+  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30 placeholder:text-[#98948b]";
 
 function GoogleIcon() {
   return (

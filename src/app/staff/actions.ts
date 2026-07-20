@@ -88,7 +88,7 @@ export async function createStaffUserAction(
       summary: `Utilizator creat: ${input.username} (${input.role})`,
       details: { username: input.username, role: input.role },
     });
-    revalidatePath("/");
+    revalidatePath("/crm");
     return {
       ok: true,
       message: "Utilizatorul a fost creat.",
@@ -195,7 +195,7 @@ export async function setStaffActiveAction(
         await banAuthIdentity(target.authUserId);
         await revokeAuthSessions(target.authUserId);
       } catch {
-        revalidatePath("/");
+        revalidatePath("/crm");
         return {
           ok: false,
           message:
@@ -214,7 +214,7 @@ export async function setStaffActiveAction(
       summary: `${active ? "Cont reactivat" : "Cont dezactivat"}: ${target.username ?? target.name ?? target.id}`,
       details: { username: target.username, active },
     });
-    revalidatePath("/");
+    revalidatePath("/crm");
     return {
       ok: true,
       message: active ? "Contul a fost reactivat." : "Contul a fost dezactivat.",
@@ -259,7 +259,7 @@ export async function setUserRoleAction(
       }
       throw error;
     }
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: "Rolul a fost actualizat." };
   } catch (error) {
     return toActionError(error);

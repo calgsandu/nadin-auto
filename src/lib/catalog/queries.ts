@@ -21,6 +21,8 @@ export type CatalogSearchParams = {
   from?: string;
   to?: string;
   dpage?: string;
+  /** Vânzări: ziua selectată (YYYY-MM-DD). */
+  day?: string;
 };
 
 const PAGE_SIZE = 50;

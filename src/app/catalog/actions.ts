@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
-import { logAudit } from "@/lib/audit";
+import { logAudit, logAuditRequired } from "@/lib/audit";
 import {
   calculateWarehouseStockTotal,
   parseWarehouseStockAssignments,
@@ -42,8 +42,12 @@ export async function createProductAction(
           sourceRow: 0,
           sourceItem: null,
           externalCode: input.externalCode,
+          alternativeCode: input.alternativeCode,
           description: input.description,
-          notes: null,
+          descriptionRu: input.descriptionRu,
+          isLocal: input.isLocal,
+          notes: input.notes,
+          notesRu: input.notesRu,
           stock: 0,
           minStock: input.minStock,
           priceEuro: input.priceEuro,
@@ -58,7 +62,7 @@ export async function createProductAction(
       });
       const after = await saveWarehouseStocks(tx, created.id, warehouseAssignments);
 
-      await logAudit(tx, user, {
+      await logAuditRequired(tx, user, {
         action: "CREATE",
         entity: "Product",
         entityId: created.id,
@@ -70,7 +74,7 @@ export async function createProductAction(
       });
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: "Produsul a fost adăugat." };
   } catch (error) {
     return toActionError(error);
@@ -106,7 +110,12 @@ export async function updateProductAction(
         data: {
           manuallyEdited: true,
           externalCode: input.externalCode,
+          alternativeCode: input.alternativeCode,
           description: input.description,
+          descriptionRu: input.descriptionRu,
+          notes: input.notes,
+          notesRu: input.notesRu,
+          isLocal: input.isLocal,
           minStock: input.minStock,
           priceEuro: input.priceEuro,
           costLei: input.costLei,
@@ -122,7 +131,7 @@ export async function updateProductAction(
       });
       const after = await saveWarehouseStocks(tx, productId, warehouseAssignments);
 
-      await logAudit(tx, user, {
+      await logAuditRequired(tx, user, {
         action: "UPDATE",
         entity: "Product",
         entityId: productId,
@@ -139,7 +148,7 @@ export async function updateProductAction(
       });
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: "Produsul a fost salvat." };
   } catch (error) {
     return toActionError(error);
@@ -171,7 +180,7 @@ export async function deleteProductAction(
       details: { deleted: productAuditSnapshot(deleted) },
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: "Produsul a fost șters." };
   } catch (error) {
     return toActionError(error);
@@ -246,7 +255,11 @@ async function requireCatalogWrite() {
 
 function productAuditSnapshot(product: {
   externalCode: string | null;
+  alternativeCode?: string | null;
   description: string;
+  descriptionRu?: string | null;
+  notes?: string | null;
+  notesRu?: string | null;
   stock: number | null;
   priceEuro: { toString(): string } | number | null;
   costLei: { toString(): string } | number | null;
@@ -254,7 +267,11 @@ function productAuditSnapshot(product: {
 }) {
   return {
     externalCode: product.externalCode,
+    alternativeCode: product.alternativeCode ?? null,
     description: product.description,
+    descriptionRu: product.descriptionRu ?? null,
+    notes: product.notes ?? null,
+    notesRu: product.notesRu ?? null,
     stock: product.stock,
     priceEuro: product.priceEuro != null ? Number(product.priceEuro) : null,
     costLei: product.costLei != null ? Number(product.costLei) : null,
@@ -266,7 +283,11 @@ type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0
 
 async function parseProductForm(formData: FormData) {
   const externalCode = readString(formData, "externalCode");
+  const alternativeCode = readString(formData, "alternativeCode") || null;
   const description = readString(formData, "description");
+  const descriptionRu = readString(formData, "descriptionRu") || null;
+  const notes = readString(formData, "notes") || null;
+  const notesRu = readString(formData, "notesRu") || null;
   const brandId = readString(formData, "brandId");
   const modelId = readString(formData, "modelId");
   const typeId = readString(formData, "typeId");
@@ -284,6 +305,7 @@ async function parseProductForm(formData: FormData) {
   const salePriceRaw = readOptionalDecimal(formData, "salePriceLei");
   // Default sale price = double the acquisition cost, rounded to the nearest 50.
   const salePriceLei = salePriceRaw ?? computeSalePrice(costLei);
+  const isLocal = Boolean(formData.get("isLocal"));
 
   if (!description) {
     throw new Error("Descrierea este obligatorie.");
@@ -307,7 +329,12 @@ async function parseProductForm(formData: FormData) {
 
   return {
     externalCode,
+    alternativeCode,
     description,
+    descriptionRu,
+    notes,
+    notesRu,
+    isLocal,
     brandId,
     modelId,
     typeId,
@@ -334,6 +361,19 @@ async function findOrCreateFitment(input: Awaited<ReturnType<typeof parseProduct
     input.yearEnd,
     input.yearOpenEnded,
   );
+
+  // Match on model + years, not label: imported fitments use another label
+  // format ("MB SPRINTER /95-06/") and matching on label duplicated them.
+  const existing = await prisma.vehicleFitment.findFirst({
+    where: {
+      carModelId: model.id,
+      yearStart: input.yearStart,
+      yearEnd: input.yearEnd,
+      yearOpenEnded: input.yearOpenEnded,
+    },
+    orderBy: { createdAt: "asc" },
+  });
+  if (existing) return existing;
 
   return prisma.vehicleFitment.upsert({
     where: {

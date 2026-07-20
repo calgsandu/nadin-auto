@@ -24,7 +24,7 @@ type EditableLine = { id: number; quantity: string; price: string };
 
 const initialState: PaymentAccountActionState = { ok: false, message: "" };
 const inputClassName =
-  "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none placeholder:text-[#98948b] focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/25";
+  "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none placeholder:text-[#98948b] focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/25";
 
 export function PaymentAccountDialog({
   customers,

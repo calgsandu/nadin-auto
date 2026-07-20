@@ -42,6 +42,9 @@ export type StockDocumentLineMinAggregateOutputType = {
   id: string | null
   documentId: string | null
   productId: string | null
+  externalName: string | null
+  externalCode: string | null
+  externalSupplierId: string | null
   quantity: number | null
   unitPriceEuro: runtime.Decimal | null
   unitCostLei: runtime.Decimal | null
@@ -53,6 +56,9 @@ export type StockDocumentLineMaxAggregateOutputType = {
   id: string | null
   documentId: string | null
   productId: string | null
+  externalName: string | null
+  externalCode: string | null
+  externalSupplierId: string | null
   quantity: number | null
   unitPriceEuro: runtime.Decimal | null
   unitCostLei: runtime.Decimal | null
@@ -64,6 +70,9 @@ export type StockDocumentLineCountAggregateOutputType = {
   id: number
   documentId: number
   productId: number
+  externalName: number
+  externalCode: number
+  externalSupplierId: number
   quantity: number
   unitPriceEuro: number
   unitCostLei: number
@@ -89,6 +98,9 @@ export type StockDocumentLineMinAggregateInputType = {
   id?: true
   documentId?: true
   productId?: true
+  externalName?: true
+  externalCode?: true
+  externalSupplierId?: true
   quantity?: true
   unitPriceEuro?: true
   unitCostLei?: true
@@ -100,6 +112,9 @@ export type StockDocumentLineMaxAggregateInputType = {
   id?: true
   documentId?: true
   productId?: true
+  externalName?: true
+  externalCode?: true
+  externalSupplierId?: true
   quantity?: true
   unitPriceEuro?: true
   unitCostLei?: true
@@ -111,6 +126,9 @@ export type StockDocumentLineCountAggregateInputType = {
   id?: true
   documentId?: true
   productId?: true
+  externalName?: true
+  externalCode?: true
+  externalSupplierId?: true
   quantity?: true
   unitPriceEuro?: true
   unitCostLei?: true
@@ -208,7 +226,10 @@ export type StockDocumentLineGroupByArgs<ExtArgs extends runtime.Types.Extension
 export type StockDocumentLineGroupByOutputType = {
   id: string
   documentId: string
-  productId: string
+  productId: string | null
+  externalName: string | null
+  externalCode: string | null
+  externalSupplierId: string | null
   quantity: number
   unitPriceEuro: runtime.Decimal | null
   unitCostLei: runtime.Decimal | null
@@ -242,20 +263,27 @@ export type StockDocumentLineWhereInput = {
   NOT?: Prisma.StockDocumentLineWhereInput | Prisma.StockDocumentLineWhereInput[]
   id?: Prisma.StringFilter<"StockDocumentLine"> | string
   documentId?: Prisma.StringFilter<"StockDocumentLine"> | string
-  productId?: Prisma.StringFilter<"StockDocumentLine"> | string
+  productId?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
+  externalName?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
+  externalCode?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
+  externalSupplierId?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
   quantity?: Prisma.IntFilter<"StockDocumentLine"> | number
   unitPriceEuro?: Prisma.DecimalNullableFilter<"StockDocumentLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.DecimalNullableFilter<"StockDocumentLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"StockDocumentLine"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockDocumentLine"> | Date | string
   document?: Prisma.XOR<Prisma.StockDocumentScalarRelationFilter, Prisma.StockDocumentWhereInput>
-  product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
+  product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  externalSupplier?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
 }
 
 export type StockDocumentLineOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
-  productId?: Prisma.SortOrder
+  productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSupplierId?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   unitPriceEuro?: Prisma.SortOrderInput | Prisma.SortOrder
   unitCostLei?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -263,6 +291,7 @@ export type StockDocumentLineOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   document?: Prisma.StockDocumentOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
+  externalSupplier?: Prisma.PartnerOrderByWithRelationInput
 }
 
 export type StockDocumentLineWhereUniqueInput = Prisma.AtLeast<{
@@ -271,20 +300,27 @@ export type StockDocumentLineWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.StockDocumentLineWhereInput[]
   NOT?: Prisma.StockDocumentLineWhereInput | Prisma.StockDocumentLineWhereInput[]
   documentId?: Prisma.StringFilter<"StockDocumentLine"> | string
-  productId?: Prisma.StringFilter<"StockDocumentLine"> | string
+  productId?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
+  externalName?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
+  externalCode?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
+  externalSupplierId?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
   quantity?: Prisma.IntFilter<"StockDocumentLine"> | number
   unitPriceEuro?: Prisma.DecimalNullableFilter<"StockDocumentLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.DecimalNullableFilter<"StockDocumentLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"StockDocumentLine"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockDocumentLine"> | Date | string
   document?: Prisma.XOR<Prisma.StockDocumentScalarRelationFilter, Prisma.StockDocumentWhereInput>
-  product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
+  product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  externalSupplier?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
 }, "id">
 
 export type StockDocumentLineOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
-  productId?: Prisma.SortOrder
+  productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSupplierId?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   unitPriceEuro?: Prisma.SortOrderInput | Prisma.SortOrder
   unitCostLei?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -303,7 +339,10 @@ export type StockDocumentLineScalarWhereWithAggregatesInput = {
   NOT?: Prisma.StockDocumentLineScalarWhereWithAggregatesInput | Prisma.StockDocumentLineScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"StockDocumentLine"> | string
   documentId?: Prisma.StringWithAggregatesFilter<"StockDocumentLine"> | string
-  productId?: Prisma.StringWithAggregatesFilter<"StockDocumentLine"> | string
+  productId?: Prisma.StringNullableWithAggregatesFilter<"StockDocumentLine"> | string | null
+  externalName?: Prisma.StringNullableWithAggregatesFilter<"StockDocumentLine"> | string | null
+  externalCode?: Prisma.StringNullableWithAggregatesFilter<"StockDocumentLine"> | string | null
+  externalSupplierId?: Prisma.StringNullableWithAggregatesFilter<"StockDocumentLine"> | string | null
   quantity?: Prisma.IntWithAggregatesFilter<"StockDocumentLine"> | number
   unitPriceEuro?: Prisma.DecimalNullableWithAggregatesFilter<"StockDocumentLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.DecimalNullableWithAggregatesFilter<"StockDocumentLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -313,19 +352,25 @@ export type StockDocumentLineScalarWhereWithAggregatesInput = {
 
 export type StockDocumentLineCreateInput = {
   id?: string
+  externalName?: string | null
+  externalCode?: string | null
   quantity: number
   unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   document: Prisma.StockDocumentCreateNestedOneWithoutLinesInput
-  product: Prisma.ProductCreateNestedOneWithoutStockLinesInput
+  product?: Prisma.ProductCreateNestedOneWithoutStockLinesInput
+  externalSupplier?: Prisma.PartnerCreateNestedOneWithoutExternalLinesInput
 }
 
 export type StockDocumentLineUncheckedCreateInput = {
   id?: string
   documentId: string
-  productId: string
+  productId?: string | null
+  externalName?: string | null
+  externalCode?: string | null
+  externalSupplierId?: string | null
   quantity: number
   unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -335,19 +380,25 @@ export type StockDocumentLineUncheckedCreateInput = {
 
 export type StockDocumentLineUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   document?: Prisma.StockDocumentUpdateOneRequiredWithoutLinesNestedInput
-  product?: Prisma.ProductUpdateOneRequiredWithoutStockLinesNestedInput
+  product?: Prisma.ProductUpdateOneWithoutStockLinesNestedInput
+  externalSupplier?: Prisma.PartnerUpdateOneWithoutExternalLinesNestedInput
 }
 
 export type StockDocumentLineUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSupplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -358,7 +409,10 @@ export type StockDocumentLineUncheckedUpdateInput = {
 export type StockDocumentLineCreateManyInput = {
   id?: string
   documentId: string
-  productId: string
+  productId?: string | null
+  externalName?: string | null
+  externalCode?: string | null
+  externalSupplierId?: string | null
   quantity: number
   unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -368,6 +422,8 @@ export type StockDocumentLineCreateManyInput = {
 
 export type StockDocumentLineUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -378,7 +434,10 @@ export type StockDocumentLineUpdateManyMutationInput = {
 export type StockDocumentLineUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSupplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -400,6 +459,9 @@ export type StockDocumentLineCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  externalName?: Prisma.SortOrder
+  externalCode?: Prisma.SortOrder
+  externalSupplierId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   unitPriceEuro?: Prisma.SortOrder
   unitCostLei?: Prisma.SortOrder
@@ -417,6 +479,9 @@ export type StockDocumentLineMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  externalName?: Prisma.SortOrder
+  externalCode?: Prisma.SortOrder
+  externalSupplierId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   unitPriceEuro?: Prisma.SortOrder
   unitCostLei?: Prisma.SortOrder
@@ -428,6 +493,9 @@ export type StockDocumentLineMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  externalName?: Prisma.SortOrder
+  externalCode?: Prisma.SortOrder
+  externalSupplierId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   unitPriceEuro?: Prisma.SortOrder
   unitCostLei?: Prisma.SortOrder
@@ -483,6 +551,48 @@ export type StockDocumentLineUncheckedUpdateManyWithoutProductNestedInput = {
   deleteMany?: Prisma.StockDocumentLineScalarWhereInput | Prisma.StockDocumentLineScalarWhereInput[]
 }
 
+export type StockDocumentLineCreateNestedManyWithoutExternalSupplierInput = {
+  create?: Prisma.XOR<Prisma.StockDocumentLineCreateWithoutExternalSupplierInput, Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput> | Prisma.StockDocumentLineCreateWithoutExternalSupplierInput[] | Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput[]
+  connectOrCreate?: Prisma.StockDocumentLineCreateOrConnectWithoutExternalSupplierInput | Prisma.StockDocumentLineCreateOrConnectWithoutExternalSupplierInput[]
+  createMany?: Prisma.StockDocumentLineCreateManyExternalSupplierInputEnvelope
+  connect?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+}
+
+export type StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput = {
+  create?: Prisma.XOR<Prisma.StockDocumentLineCreateWithoutExternalSupplierInput, Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput> | Prisma.StockDocumentLineCreateWithoutExternalSupplierInput[] | Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput[]
+  connectOrCreate?: Prisma.StockDocumentLineCreateOrConnectWithoutExternalSupplierInput | Prisma.StockDocumentLineCreateOrConnectWithoutExternalSupplierInput[]
+  createMany?: Prisma.StockDocumentLineCreateManyExternalSupplierInputEnvelope
+  connect?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+}
+
+export type StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput = {
+  create?: Prisma.XOR<Prisma.StockDocumentLineCreateWithoutExternalSupplierInput, Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput> | Prisma.StockDocumentLineCreateWithoutExternalSupplierInput[] | Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput[]
+  connectOrCreate?: Prisma.StockDocumentLineCreateOrConnectWithoutExternalSupplierInput | Prisma.StockDocumentLineCreateOrConnectWithoutExternalSupplierInput[]
+  upsert?: Prisma.StockDocumentLineUpsertWithWhereUniqueWithoutExternalSupplierInput | Prisma.StockDocumentLineUpsertWithWhereUniqueWithoutExternalSupplierInput[]
+  createMany?: Prisma.StockDocumentLineCreateManyExternalSupplierInputEnvelope
+  set?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+  disconnect?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+  delete?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+  connect?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+  update?: Prisma.StockDocumentLineUpdateWithWhereUniqueWithoutExternalSupplierInput | Prisma.StockDocumentLineUpdateWithWhereUniqueWithoutExternalSupplierInput[]
+  updateMany?: Prisma.StockDocumentLineUpdateManyWithWhereWithoutExternalSupplierInput | Prisma.StockDocumentLineUpdateManyWithWhereWithoutExternalSupplierInput[]
+  deleteMany?: Prisma.StockDocumentLineScalarWhereInput | Prisma.StockDocumentLineScalarWhereInput[]
+}
+
+export type StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput = {
+  create?: Prisma.XOR<Prisma.StockDocumentLineCreateWithoutExternalSupplierInput, Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput> | Prisma.StockDocumentLineCreateWithoutExternalSupplierInput[] | Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput[]
+  connectOrCreate?: Prisma.StockDocumentLineCreateOrConnectWithoutExternalSupplierInput | Prisma.StockDocumentLineCreateOrConnectWithoutExternalSupplierInput[]
+  upsert?: Prisma.StockDocumentLineUpsertWithWhereUniqueWithoutExternalSupplierInput | Prisma.StockDocumentLineUpsertWithWhereUniqueWithoutExternalSupplierInput[]
+  createMany?: Prisma.StockDocumentLineCreateManyExternalSupplierInputEnvelope
+  set?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+  disconnect?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+  delete?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+  connect?: Prisma.StockDocumentLineWhereUniqueInput | Prisma.StockDocumentLineWhereUniqueInput[]
+  update?: Prisma.StockDocumentLineUpdateWithWhereUniqueWithoutExternalSupplierInput | Prisma.StockDocumentLineUpdateWithWhereUniqueWithoutExternalSupplierInput[]
+  updateMany?: Prisma.StockDocumentLineUpdateManyWithWhereWithoutExternalSupplierInput | Prisma.StockDocumentLineUpdateManyWithWhereWithoutExternalSupplierInput[]
+  deleteMany?: Prisma.StockDocumentLineScalarWhereInput | Prisma.StockDocumentLineScalarWhereInput[]
+}
+
 export type StockDocumentLineCreateNestedManyWithoutDocumentInput = {
   create?: Prisma.XOR<Prisma.StockDocumentLineCreateWithoutDocumentInput, Prisma.StockDocumentLineUncheckedCreateWithoutDocumentInput> | Prisma.StockDocumentLineCreateWithoutDocumentInput[] | Prisma.StockDocumentLineUncheckedCreateWithoutDocumentInput[]
   connectOrCreate?: Prisma.StockDocumentLineCreateOrConnectWithoutDocumentInput | Prisma.StockDocumentLineCreateOrConnectWithoutDocumentInput[]
@@ -527,17 +637,23 @@ export type StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput = {
 
 export type StockDocumentLineCreateWithoutProductInput = {
   id?: string
+  externalName?: string | null
+  externalCode?: string | null
   quantity: number
   unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   document: Prisma.StockDocumentCreateNestedOneWithoutLinesInput
+  externalSupplier?: Prisma.PartnerCreateNestedOneWithoutExternalLinesInput
 }
 
 export type StockDocumentLineUncheckedCreateWithoutProductInput = {
   id?: string
   documentId: string
+  externalName?: string | null
+  externalCode?: string | null
+  externalSupplierId?: string | null
   quantity: number
   unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -577,7 +693,10 @@ export type StockDocumentLineScalarWhereInput = {
   NOT?: Prisma.StockDocumentLineScalarWhereInput | Prisma.StockDocumentLineScalarWhereInput[]
   id?: Prisma.StringFilter<"StockDocumentLine"> | string
   documentId?: Prisma.StringFilter<"StockDocumentLine"> | string
-  productId?: Prisma.StringFilter<"StockDocumentLine"> | string
+  productId?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
+  externalName?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
+  externalCode?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
+  externalSupplierId?: Prisma.StringNullableFilter<"StockDocumentLine"> | string | null
   quantity?: Prisma.IntFilter<"StockDocumentLine"> | number
   unitPriceEuro?: Prisma.DecimalNullableFilter<"StockDocumentLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.DecimalNullableFilter<"StockDocumentLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -585,19 +704,77 @@ export type StockDocumentLineScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"StockDocumentLine"> | Date | string
 }
 
-export type StockDocumentLineCreateWithoutDocumentInput = {
+export type StockDocumentLineCreateWithoutExternalSupplierInput = {
   id?: string
+  externalName?: string | null
+  externalCode?: string | null
   quantity: number
   unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  product: Prisma.ProductCreateNestedOneWithoutStockLinesInput
+  document: Prisma.StockDocumentCreateNestedOneWithoutLinesInput
+  product?: Prisma.ProductCreateNestedOneWithoutStockLinesInput
+}
+
+export type StockDocumentLineUncheckedCreateWithoutExternalSupplierInput = {
+  id?: string
+  documentId: string
+  productId?: string | null
+  externalName?: string | null
+  externalCode?: string | null
+  quantity: number
+  unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StockDocumentLineCreateOrConnectWithoutExternalSupplierInput = {
+  where: Prisma.StockDocumentLineWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockDocumentLineCreateWithoutExternalSupplierInput, Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput>
+}
+
+export type StockDocumentLineCreateManyExternalSupplierInputEnvelope = {
+  data: Prisma.StockDocumentLineCreateManyExternalSupplierInput | Prisma.StockDocumentLineCreateManyExternalSupplierInput[]
+  skipDuplicates?: boolean
+}
+
+export type StockDocumentLineUpsertWithWhereUniqueWithoutExternalSupplierInput = {
+  where: Prisma.StockDocumentLineWhereUniqueInput
+  update: Prisma.XOR<Prisma.StockDocumentLineUpdateWithoutExternalSupplierInput, Prisma.StockDocumentLineUncheckedUpdateWithoutExternalSupplierInput>
+  create: Prisma.XOR<Prisma.StockDocumentLineCreateWithoutExternalSupplierInput, Prisma.StockDocumentLineUncheckedCreateWithoutExternalSupplierInput>
+}
+
+export type StockDocumentLineUpdateWithWhereUniqueWithoutExternalSupplierInput = {
+  where: Prisma.StockDocumentLineWhereUniqueInput
+  data: Prisma.XOR<Prisma.StockDocumentLineUpdateWithoutExternalSupplierInput, Prisma.StockDocumentLineUncheckedUpdateWithoutExternalSupplierInput>
+}
+
+export type StockDocumentLineUpdateManyWithWhereWithoutExternalSupplierInput = {
+  where: Prisma.StockDocumentLineScalarWhereInput
+  data: Prisma.XOR<Prisma.StockDocumentLineUpdateManyMutationInput, Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierInput>
+}
+
+export type StockDocumentLineCreateWithoutDocumentInput = {
+  id?: string
+  externalName?: string | null
+  externalCode?: string | null
+  quantity: number
+  unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product?: Prisma.ProductCreateNestedOneWithoutStockLinesInput
+  externalSupplier?: Prisma.PartnerCreateNestedOneWithoutExternalLinesInput
 }
 
 export type StockDocumentLineUncheckedCreateWithoutDocumentInput = {
   id?: string
-  productId: string
+  productId?: string | null
+  externalName?: string | null
+  externalCode?: string | null
+  externalSupplierId?: string | null
   quantity: number
   unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -634,6 +811,9 @@ export type StockDocumentLineUpdateManyWithWhereWithoutDocumentInput = {
 export type StockDocumentLineCreateManyProductInput = {
   id?: string
   documentId: string
+  externalName?: string | null
+  externalCode?: string | null
+  externalSupplierId?: string | null
   quantity: number
   unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -643,17 +823,23 @@ export type StockDocumentLineCreateManyProductInput = {
 
 export type StockDocumentLineUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   document?: Prisma.StockDocumentUpdateOneRequiredWithoutLinesNestedInput
+  externalSupplier?: Prisma.PartnerUpdateOneWithoutExternalLinesNestedInput
 }
 
 export type StockDocumentLineUncheckedUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSupplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -664,6 +850,61 @@ export type StockDocumentLineUncheckedUpdateWithoutProductInput = {
 export type StockDocumentLineUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSupplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StockDocumentLineCreateManyExternalSupplierInput = {
+  id?: string
+  documentId: string
+  productId?: string | null
+  externalName?: string | null
+  externalCode?: string | null
+  quantity: number
+  unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StockDocumentLineUpdateWithoutExternalSupplierInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  document?: Prisma.StockDocumentUpdateOneRequiredWithoutLinesNestedInput
+  product?: Prisma.ProductUpdateOneWithoutStockLinesNestedInput
+}
+
+export type StockDocumentLineUncheckedUpdateWithoutExternalSupplierInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -673,7 +914,10 @@ export type StockDocumentLineUncheckedUpdateManyWithoutProductInput = {
 
 export type StockDocumentLineCreateManyDocumentInput = {
   id?: string
-  productId: string
+  productId?: string | null
+  externalName?: string | null
+  externalCode?: string | null
+  externalSupplierId?: string | null
   quantity: number
   unitPriceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -683,17 +927,23 @@ export type StockDocumentLineCreateManyDocumentInput = {
 
 export type StockDocumentLineUpdateWithoutDocumentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneRequiredWithoutStockLinesNestedInput
+  product?: Prisma.ProductUpdateOneWithoutStockLinesNestedInput
+  externalSupplier?: Prisma.PartnerUpdateOneWithoutExternalLinesNestedInput
 }
 
 export type StockDocumentLineUncheckedUpdateWithoutDocumentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSupplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -703,7 +953,10 @@ export type StockDocumentLineUncheckedUpdateWithoutDocumentInput = {
 
 export type StockDocumentLineUncheckedUpdateManyWithoutDocumentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSupplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitPriceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitCostLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -717,45 +970,60 @@ export type StockDocumentLineSelect<ExtArgs extends runtime.Types.Extensions.Int
   id?: boolean
   documentId?: boolean
   productId?: boolean
+  externalName?: boolean
+  externalCode?: boolean
+  externalSupplierId?: boolean
   quantity?: boolean
   unitPriceEuro?: boolean
   unitCostLei?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   document?: boolean | Prisma.StockDocumentDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.StockDocumentLine$productArgs<ExtArgs>
+  externalSupplier?: boolean | Prisma.StockDocumentLine$externalSupplierArgs<ExtArgs>
 }, ExtArgs["result"]["stockDocumentLine"]>
 
 export type StockDocumentLineSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   documentId?: boolean
   productId?: boolean
+  externalName?: boolean
+  externalCode?: boolean
+  externalSupplierId?: boolean
   quantity?: boolean
   unitPriceEuro?: boolean
   unitCostLei?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   document?: boolean | Prisma.StockDocumentDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.StockDocumentLine$productArgs<ExtArgs>
+  externalSupplier?: boolean | Prisma.StockDocumentLine$externalSupplierArgs<ExtArgs>
 }, ExtArgs["result"]["stockDocumentLine"]>
 
 export type StockDocumentLineSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   documentId?: boolean
   productId?: boolean
+  externalName?: boolean
+  externalCode?: boolean
+  externalSupplierId?: boolean
   quantity?: boolean
   unitPriceEuro?: boolean
   unitCostLei?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   document?: boolean | Prisma.StockDocumentDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.StockDocumentLine$productArgs<ExtArgs>
+  externalSupplier?: boolean | Prisma.StockDocumentLine$externalSupplierArgs<ExtArgs>
 }, ExtArgs["result"]["stockDocumentLine"]>
 
 export type StockDocumentLineSelectScalar = {
   id?: boolean
   documentId?: boolean
   productId?: boolean
+  externalName?: boolean
+  externalCode?: boolean
+  externalSupplierId?: boolean
   quantity?: boolean
   unitPriceEuro?: boolean
   unitCostLei?: boolean
@@ -763,32 +1031,51 @@ export type StockDocumentLineSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StockDocumentLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "documentId" | "productId" | "quantity" | "unitPriceEuro" | "unitCostLei" | "createdAt" | "updatedAt", ExtArgs["result"]["stockDocumentLine"]>
+export type StockDocumentLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "documentId" | "productId" | "externalName" | "externalCode" | "externalSupplierId" | "quantity" | "unitPriceEuro" | "unitCostLei" | "createdAt" | "updatedAt", ExtArgs["result"]["stockDocumentLine"]>
 export type StockDocumentLineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   document?: boolean | Prisma.StockDocumentDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.StockDocumentLine$productArgs<ExtArgs>
+  externalSupplier?: boolean | Prisma.StockDocumentLine$externalSupplierArgs<ExtArgs>
 }
 export type StockDocumentLineIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   document?: boolean | Prisma.StockDocumentDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.StockDocumentLine$productArgs<ExtArgs>
+  externalSupplier?: boolean | Prisma.StockDocumentLine$externalSupplierArgs<ExtArgs>
 }
 export type StockDocumentLineIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   document?: boolean | Prisma.StockDocumentDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.StockDocumentLine$productArgs<ExtArgs>
+  externalSupplier?: boolean | Prisma.StockDocumentLine$externalSupplierArgs<ExtArgs>
 }
 
 export type $StockDocumentLinePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "StockDocumentLine"
   objects: {
     document: Prisma.$StockDocumentPayload<ExtArgs>
-    product: Prisma.$ProductPayload<ExtArgs>
+    product: Prisma.$ProductPayload<ExtArgs> | null
+    externalSupplier: Prisma.$PartnerPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     documentId: string
-    productId: string
+    /**
+     * null = linie externă (piesă de la furnizor, în afara catalogului propriu).
+     */
+    productId: string | null
+    /**
+     * Denumirea liberă a piesei externe; setată doar când productId e null.
+     */
+    externalName: string | null
+    /**
+     * Codul piesei externe (ex. codul Polcar/furnizor).
+     */
+    externalCode: string | null
+    externalSupplierId: string | null
     quantity: number
     unitPriceEuro: runtime.Decimal | null
+    /**
+     * Pe linii externe: cost de achiziție per bucată (marja = preț − cost).
+     */
     unitCostLei: runtime.Decimal | null
     createdAt: Date
     updatedAt: Date
@@ -1187,7 +1474,8 @@ readonly fields: StockDocumentLineFieldRefs;
 export interface Prisma__StockDocumentLineClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   document<T extends Prisma.StockDocumentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockDocumentDefaultArgs<ExtArgs>>): Prisma.Prisma__StockDocumentClient<runtime.Types.Result.GetResult<Prisma.$StockDocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  product<T extends Prisma.ProductDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  product<T extends Prisma.StockDocumentLine$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockDocumentLine$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  externalSupplier<T extends Prisma.StockDocumentLine$externalSupplierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockDocumentLine$externalSupplierArgs<ExtArgs>>): Prisma.Prisma__PartnerClient<runtime.Types.Result.GetResult<Prisma.$PartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1220,6 +1508,9 @@ export interface StockDocumentLineFieldRefs {
   readonly id: Prisma.FieldRef<"StockDocumentLine", 'String'>
   readonly documentId: Prisma.FieldRef<"StockDocumentLine", 'String'>
   readonly productId: Prisma.FieldRef<"StockDocumentLine", 'String'>
+  readonly externalName: Prisma.FieldRef<"StockDocumentLine", 'String'>
+  readonly externalCode: Prisma.FieldRef<"StockDocumentLine", 'String'>
+  readonly externalSupplierId: Prisma.FieldRef<"StockDocumentLine", 'String'>
   readonly quantity: Prisma.FieldRef<"StockDocumentLine", 'Int'>
   readonly unitPriceEuro: Prisma.FieldRef<"StockDocumentLine", 'Decimal'>
   readonly unitCostLei: Prisma.FieldRef<"StockDocumentLine", 'Decimal'>
@@ -1623,6 +1914,44 @@ export type StockDocumentLineDeleteManyArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many StockDocumentLines to delete.
    */
   limit?: number
+}
+
+/**
+ * StockDocumentLine.product
+ */
+export type StockDocumentLine$productArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Product
+   */
+  select?: Prisma.ProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Product
+   */
+  omit?: Prisma.ProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductInclude<ExtArgs> | null
+  where?: Prisma.ProductWhereInput
+}
+
+/**
+ * StockDocumentLine.externalSupplier
+ */
+export type StockDocumentLine$externalSupplierArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Partner
+   */
+  select?: Prisma.PartnerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Partner
+   */
+  omit?: Prisma.PartnerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PartnerInclude<ExtArgs> | null
+  where?: Prisma.PartnerWhereInput
 }
 
 /**

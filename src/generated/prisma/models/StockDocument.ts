@@ -50,6 +50,8 @@ export type StockDocumentMinAggregateOutputType = {
   notes: string | null
   totalEuro: runtime.Decimal | null
   totalLei: runtime.Decimal | null
+  cashRegistered: boolean | null
+  paymentMethod: $Enums.SalePaymentMethod | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +68,8 @@ export type StockDocumentMaxAggregateOutputType = {
   notes: string | null
   totalEuro: runtime.Decimal | null
   totalLei: runtime.Decimal | null
+  cashRegistered: boolean | null
+  paymentMethod: $Enums.SalePaymentMethod | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -82,6 +86,8 @@ export type StockDocumentCountAggregateOutputType = {
   notes: number
   totalEuro: number
   totalLei: number
+  cashRegistered: number
+  paymentMethod: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -112,6 +118,8 @@ export type StockDocumentMinAggregateInputType = {
   notes?: true
   totalEuro?: true
   totalLei?: true
+  cashRegistered?: true
+  paymentMethod?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -128,6 +136,8 @@ export type StockDocumentMaxAggregateInputType = {
   notes?: true
   totalEuro?: true
   totalLei?: true
+  cashRegistered?: true
+  paymentMethod?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -144,6 +154,8 @@ export type StockDocumentCountAggregateInputType = {
   notes?: true
   totalEuro?: true
   totalLei?: true
+  cashRegistered?: true
+  paymentMethod?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -247,6 +259,8 @@ export type StockDocumentGroupByOutputType = {
   notes: string | null
   totalEuro: runtime.Decimal | null
   totalLei: runtime.Decimal | null
+  cashRegistered: boolean | null
+  paymentMethod: $Enums.SalePaymentMethod | null
   createdAt: Date
   updatedAt: Date
   _count: StockDocumentCountAggregateOutputType | null
@@ -286,6 +300,8 @@ export type StockDocumentWhereInput = {
   notes?: Prisma.StringNullableFilter<"StockDocument"> | string | null
   totalEuro?: Prisma.DecimalNullableFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.DecimalNullableFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.BoolNullableFilter<"StockDocument"> | boolean | null
+  paymentMethod?: Prisma.EnumSalePaymentMethodNullableFilter<"StockDocument"> | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
   warehouse?: Prisma.XOR<Prisma.WarehouseScalarRelationFilter, Prisma.WarehouseWhereInput>
@@ -306,6 +322,8 @@ export type StockDocumentOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   totalEuro?: Prisma.SortOrderInput | Prisma.SortOrder
   totalLei?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashRegistered?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   warehouse?: Prisma.WarehouseOrderByWithRelationInput
@@ -330,6 +348,8 @@ export type StockDocumentWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"StockDocument"> | string | null
   totalEuro?: Prisma.DecimalNullableFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.DecimalNullableFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.BoolNullableFilter<"StockDocument"> | boolean | null
+  paymentMethod?: Prisma.EnumSalePaymentMethodNullableFilter<"StockDocument"> | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
   warehouse?: Prisma.XOR<Prisma.WarehouseScalarRelationFilter, Prisma.WarehouseWhereInput>
@@ -350,6 +370,8 @@ export type StockDocumentOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   totalEuro?: Prisma.SortOrderInput | Prisma.SortOrder
   totalLei?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashRegistered?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.StockDocumentCountOrderByAggregateInput
@@ -374,6 +396,8 @@ export type StockDocumentScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"StockDocument"> | string | null
   totalEuro?: Prisma.DecimalNullableWithAggregatesFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.DecimalNullableWithAggregatesFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.BoolNullableWithAggregatesFilter<"StockDocument"> | boolean | null
+  paymentMethod?: Prisma.EnumSalePaymentMethodNullableWithAggregatesFilter<"StockDocument"> | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"StockDocument"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"StockDocument"> | Date | string
 }
@@ -388,6 +412,8 @@ export type StockDocumentCreateInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
@@ -408,6 +434,8 @@ export type StockDocumentUncheckedCreateInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
@@ -424,6 +452,8 @@ export type StockDocumentUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
@@ -444,6 +474,8 @@ export type StockDocumentUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
@@ -462,6 +494,8 @@ export type StockDocumentCreateManyInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -476,6 +510,8 @@ export type StockDocumentUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -492,6 +528,8 @@ export type StockDocumentUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -523,6 +561,8 @@ export type StockDocumentCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   totalEuro?: Prisma.SortOrder
   totalLei?: Prisma.SortOrder
+  cashRegistered?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -545,6 +585,8 @@ export type StockDocumentMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   totalEuro?: Prisma.SortOrder
   totalLei?: Prisma.SortOrder
+  cashRegistered?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -561,6 +603,8 @@ export type StockDocumentMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   totalEuro?: Prisma.SortOrder
   totalLei?: Prisma.SortOrder
+  cashRegistered?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -669,6 +713,14 @@ export type EnumStockDocumentTypeFieldUpdateOperationsInput = {
   set?: $Enums.StockDocumentType
 }
 
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
+}
+
+export type NullableEnumSalePaymentMethodFieldUpdateOperationsInput = {
+  set?: $Enums.SalePaymentMethod | null
+}
+
 export type StockDocumentCreateNestedOneWithoutPaymentAccountInput = {
   create?: Prisma.XOR<Prisma.StockDocumentCreateWithoutPaymentAccountInput, Prisma.StockDocumentUncheckedCreateWithoutPaymentAccountInput>
   connectOrCreate?: Prisma.StockDocumentCreateOrConnectWithoutPaymentAccountInput
@@ -709,6 +761,8 @@ export type StockDocumentCreateWithoutWarehouseInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   partner?: Prisma.PartnerCreateNestedOneWithoutDocumentsInput
@@ -727,6 +781,8 @@ export type StockDocumentUncheckedCreateWithoutWarehouseInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
@@ -774,6 +830,8 @@ export type StockDocumentScalarWhereInput = {
   notes?: Prisma.StringNullableFilter<"StockDocument"> | string | null
   totalEuro?: Prisma.DecimalNullableFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.DecimalNullableFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.BoolNullableFilter<"StockDocument"> | boolean | null
+  paymentMethod?: Prisma.EnumSalePaymentMethodNullableFilter<"StockDocument"> | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
 }
@@ -788,6 +846,8 @@ export type StockDocumentCreateWithoutPartnerInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
@@ -806,6 +866,8 @@ export type StockDocumentUncheckedCreateWithoutPartnerInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
@@ -848,6 +910,8 @@ export type StockDocumentCreateWithoutPaymentAccountInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
@@ -867,6 +931,8 @@ export type StockDocumentUncheckedCreateWithoutPaymentAccountInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
@@ -898,6 +964,8 @@ export type StockDocumentUpdateWithoutPaymentAccountInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
@@ -917,6 +985,8 @@ export type StockDocumentUncheckedUpdateWithoutPaymentAccountInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
@@ -932,6 +1002,8 @@ export type StockDocumentCreateWithoutLinesInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
@@ -951,6 +1023,8 @@ export type StockDocumentUncheckedCreateWithoutLinesInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentAccount?: Prisma.PaymentAccountUncheckedCreateNestedOneWithoutSaleDocumentInput
@@ -982,6 +1056,8 @@ export type StockDocumentUpdateWithoutLinesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
@@ -1001,6 +1077,8 @@ export type StockDocumentUncheckedUpdateWithoutLinesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentAccount?: Prisma.PaymentAccountUncheckedUpdateOneWithoutSaleDocumentNestedInput
@@ -1017,6 +1095,8 @@ export type StockDocumentCreateManyWarehouseInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1031,6 +1111,8 @@ export type StockDocumentUpdateWithoutWarehouseInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.PartnerUpdateOneWithoutDocumentsNestedInput
@@ -1049,6 +1131,8 @@ export type StockDocumentUncheckedUpdateWithoutWarehouseInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
@@ -1066,6 +1150,8 @@ export type StockDocumentUncheckedUpdateManyWithoutWarehouseInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1081,6 +1167,8 @@ export type StockDocumentCreateManyPartnerInput = {
   notes?: string | null
   totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1095,6 +1183,8 @@ export type StockDocumentUpdateWithoutPartnerInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
@@ -1113,6 +1203,8 @@ export type StockDocumentUncheckedUpdateWithoutPartnerInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
@@ -1130,6 +1222,8 @@ export type StockDocumentUncheckedUpdateManyWithoutPartnerInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1177,6 +1271,8 @@ export type StockDocumentSelect<ExtArgs extends runtime.Types.Extensions.Interna
   notes?: boolean
   totalEuro?: boolean
   totalLei?: boolean
+  cashRegistered?: boolean
+  paymentMethod?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
@@ -1198,6 +1294,8 @@ export type StockDocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   notes?: boolean
   totalEuro?: boolean
   totalLei?: boolean
+  cashRegistered?: boolean
+  paymentMethod?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
@@ -1216,6 +1314,8 @@ export type StockDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   notes?: boolean
   totalEuro?: boolean
   totalLei?: boolean
+  cashRegistered?: boolean
+  paymentMethod?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
@@ -1234,11 +1334,13 @@ export type StockDocumentSelectScalar = {
   notes?: boolean
   totalEuro?: boolean
   totalLei?: boolean
+  cashRegistered?: boolean
+  paymentMethod?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type StockDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "number" | "documentDate" | "warehouseId" | "partnerId" | "sourceDocumentId" | "transferGroupId" | "notes" | "totalEuro" | "totalLei" | "createdAt" | "updatedAt", ExtArgs["result"]["stockDocument"]>
+export type StockDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "number" | "documentDate" | "warehouseId" | "partnerId" | "sourceDocumentId" | "transferGroupId" | "notes" | "totalEuro" | "totalLei" | "cashRegistered" | "paymentMethod" | "createdAt" | "updatedAt", ExtArgs["result"]["stockDocument"]>
 export type StockDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
   partner?: boolean | Prisma.StockDocument$partnerArgs<ExtArgs>
@@ -1281,6 +1383,14 @@ export type $StockDocumentPayload<ExtArgs extends runtime.Types.Extensions.Inter
     notes: string | null
     totalEuro: runtime.Decimal | null
     totalLei: runtime.Decimal | null
+    /**
+     * SALE: true = bătută în casa de marcat, false = nebătută, null = nespecificat.
+     */
+    cashRegistered: boolean | null
+    /**
+     * SALE: CASH/CARD; null = vânzare istorică sau nespecificată.
+     */
+    paymentMethod: $Enums.SalePaymentMethod | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["stockDocument"]>
@@ -1721,6 +1831,8 @@ export interface StockDocumentFieldRefs {
   readonly notes: Prisma.FieldRef<"StockDocument", 'String'>
   readonly totalEuro: Prisma.FieldRef<"StockDocument", 'Decimal'>
   readonly totalLei: Prisma.FieldRef<"StockDocument", 'Decimal'>
+  readonly cashRegistered: Prisma.FieldRef<"StockDocument", 'Boolean'>
+  readonly paymentMethod: Prisma.FieldRef<"StockDocument", 'SalePaymentMethod'>
   readonly createdAt: Prisma.FieldRef<"StockDocument", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"StockDocument", 'DateTime'>
 }

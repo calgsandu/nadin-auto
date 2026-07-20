@@ -20,6 +20,11 @@ export function assertCanFulfillPaymentAccount(account: PaymentAccountState) {
 
 export function assertCanCancelPaymentAccount(account: PaymentAccountState) {
   assertActive(account);
+  if (account.paidAt) {
+    throw new Error(
+      "Contul achitat nu poate fi anulat fără o rambursare înregistrată.",
+    );
+  }
   if (account.fulfilledAt) {
     throw new Error("Contul nu poate fi anulat după ce marfa a fost predată.");
   }

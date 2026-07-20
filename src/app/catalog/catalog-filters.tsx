@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Brand, CarModel, ProductType } from "@/generated/prisma/client";
+import { crmCatalogFilterHref } from "@/lib/crm/urls";
 
 type CatalogFiltersProps = {
   brands: Brand[];
@@ -32,7 +33,7 @@ export function CatalogFilters({
       next.delete("model");
     }
 
-    router.push(`/?${next.toString()}`);
+    router.push(crmCatalogFilterHref(next));
   }
 
   return (

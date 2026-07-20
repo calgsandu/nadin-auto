@@ -34,6 +34,11 @@ export type AuditLogMinAggregateOutputType = {
   entityId: string | null
   summary: string | null
   createdAt: Date | null
+  reviewStatus: $Enums.ReviewStatus | null
+  reviewedById: string | null
+  reviewedByName: string | null
+  reviewedAt: Date | null
+  reviewNote: string | null
 }
 
 export type AuditLogMaxAggregateOutputType = {
@@ -46,6 +51,11 @@ export type AuditLogMaxAggregateOutputType = {
   entityId: string | null
   summary: string | null
   createdAt: Date | null
+  reviewStatus: $Enums.ReviewStatus | null
+  reviewedById: string | null
+  reviewedByName: string | null
+  reviewedAt: Date | null
+  reviewNote: string | null
 }
 
 export type AuditLogCountAggregateOutputType = {
@@ -59,6 +69,11 @@ export type AuditLogCountAggregateOutputType = {
   summary: number
   details: number
   createdAt: number
+  reviewStatus: number
+  reviewedById: number
+  reviewedByName: number
+  reviewedAt: number
+  reviewNote: number
   _all: number
 }
 
@@ -73,6 +88,11 @@ export type AuditLogMinAggregateInputType = {
   entityId?: true
   summary?: true
   createdAt?: true
+  reviewStatus?: true
+  reviewedById?: true
+  reviewedByName?: true
+  reviewedAt?: true
+  reviewNote?: true
 }
 
 export type AuditLogMaxAggregateInputType = {
@@ -85,6 +105,11 @@ export type AuditLogMaxAggregateInputType = {
   entityId?: true
   summary?: true
   createdAt?: true
+  reviewStatus?: true
+  reviewedById?: true
+  reviewedByName?: true
+  reviewedAt?: true
+  reviewNote?: true
 }
 
 export type AuditLogCountAggregateInputType = {
@@ -98,6 +123,11 @@ export type AuditLogCountAggregateInputType = {
   summary?: true
   details?: true
   createdAt?: true
+  reviewStatus?: true
+  reviewedById?: true
+  reviewedByName?: true
+  reviewedAt?: true
+  reviewNote?: true
   _all?: true
 }
 
@@ -184,6 +214,11 @@ export type AuditLogGroupByOutputType = {
   summary: string
   details: runtime.JsonValue | null
   createdAt: Date
+  reviewStatus: $Enums.ReviewStatus
+  reviewedById: string | null
+  reviewedByName: string | null
+  reviewedAt: Date | null
+  reviewNote: string | null
   _count: AuditLogCountAggregateOutputType | null
   _min: AuditLogMinAggregateOutputType | null
   _max: AuditLogMaxAggregateOutputType | null
@@ -218,6 +253,11 @@ export type AuditLogWhereInput = {
   summary?: Prisma.StringFilter<"AuditLog"> | string
   details?: Prisma.JsonNullableFilter<"AuditLog">
   createdAt?: Prisma.DateTimeFilter<"AuditLog"> | Date | string
+  reviewStatus?: Prisma.EnumReviewStatusFilter<"AuditLog"> | $Enums.ReviewStatus
+  reviewedById?: Prisma.StringNullableFilter<"AuditLog"> | string | null
+  reviewedByName?: Prisma.StringNullableFilter<"AuditLog"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"AuditLog"> | Date | string | null
+  reviewNote?: Prisma.StringNullableFilter<"AuditLog"> | string | null
 }
 
 export type AuditLogOrderByWithRelationInput = {
@@ -231,6 +271,11 @@ export type AuditLogOrderByWithRelationInput = {
   summary?: Prisma.SortOrder
   details?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewNote?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type AuditLogWhereUniqueInput = Prisma.AtLeast<{
@@ -247,6 +292,11 @@ export type AuditLogWhereUniqueInput = Prisma.AtLeast<{
   summary?: Prisma.StringFilter<"AuditLog"> | string
   details?: Prisma.JsonNullableFilter<"AuditLog">
   createdAt?: Prisma.DateTimeFilter<"AuditLog"> | Date | string
+  reviewStatus?: Prisma.EnumReviewStatusFilter<"AuditLog"> | $Enums.ReviewStatus
+  reviewedById?: Prisma.StringNullableFilter<"AuditLog"> | string | null
+  reviewedByName?: Prisma.StringNullableFilter<"AuditLog"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"AuditLog"> | Date | string | null
+  reviewNote?: Prisma.StringNullableFilter<"AuditLog"> | string | null
 }, "id">
 
 export type AuditLogOrderByWithAggregationInput = {
@@ -260,6 +310,11 @@ export type AuditLogOrderByWithAggregationInput = {
   summary?: Prisma.SortOrder
   details?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewNote?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AuditLogCountOrderByAggregateInput
   _max?: Prisma.AuditLogMaxOrderByAggregateInput
   _min?: Prisma.AuditLogMinOrderByAggregateInput
@@ -279,6 +334,11 @@ export type AuditLogScalarWhereWithAggregatesInput = {
   summary?: Prisma.StringWithAggregatesFilter<"AuditLog"> | string
   details?: Prisma.JsonNullableWithAggregatesFilter<"AuditLog">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AuditLog"> | Date | string
+  reviewStatus?: Prisma.EnumReviewStatusWithAggregatesFilter<"AuditLog"> | $Enums.ReviewStatus
+  reviewedById?: Prisma.StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+  reviewedByName?: Prisma.StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AuditLog"> | Date | string | null
+  reviewNote?: Prisma.StringNullableWithAggregatesFilter<"AuditLog"> | string | null
 }
 
 export type AuditLogCreateInput = {
@@ -292,6 +352,11 @@ export type AuditLogCreateInput = {
   summary: string
   details?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  reviewStatus?: $Enums.ReviewStatus
+  reviewedById?: string | null
+  reviewedByName?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
 }
 
 export type AuditLogUncheckedCreateInput = {
@@ -305,6 +370,11 @@ export type AuditLogUncheckedCreateInput = {
   summary: string
   details?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  reviewStatus?: $Enums.ReviewStatus
+  reviewedById?: string | null
+  reviewedByName?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
 }
 
 export type AuditLogUpdateInput = {
@@ -318,6 +388,11 @@ export type AuditLogUpdateInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reviewStatus?: Prisma.EnumReviewStatusFieldUpdateOperationsInput | $Enums.ReviewStatus
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AuditLogUncheckedUpdateInput = {
@@ -331,6 +406,11 @@ export type AuditLogUncheckedUpdateInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reviewStatus?: Prisma.EnumReviewStatusFieldUpdateOperationsInput | $Enums.ReviewStatus
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AuditLogCreateManyInput = {
@@ -344,6 +424,11 @@ export type AuditLogCreateManyInput = {
   summary: string
   details?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  reviewStatus?: $Enums.ReviewStatus
+  reviewedById?: string | null
+  reviewedByName?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
 }
 
 export type AuditLogUpdateManyMutationInput = {
@@ -357,6 +442,11 @@ export type AuditLogUpdateManyMutationInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reviewStatus?: Prisma.EnumReviewStatusFieldUpdateOperationsInput | $Enums.ReviewStatus
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AuditLogUncheckedUpdateManyInput = {
@@ -370,6 +460,11 @@ export type AuditLogUncheckedUpdateManyInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reviewStatus?: Prisma.EnumReviewStatusFieldUpdateOperationsInput | $Enums.ReviewStatus
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AuditLogCountOrderByAggregateInput = {
@@ -383,6 +478,11 @@ export type AuditLogCountOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   details?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  reviewedByName?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
+  reviewNote?: Prisma.SortOrder
 }
 
 export type AuditLogMaxOrderByAggregateInput = {
@@ -395,6 +495,11 @@ export type AuditLogMaxOrderByAggregateInput = {
   entityId?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  reviewedByName?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
+  reviewNote?: Prisma.SortOrder
 }
 
 export type AuditLogMinOrderByAggregateInput = {
@@ -407,6 +512,11 @@ export type AuditLogMinOrderByAggregateInput = {
   entityId?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  reviewedByName?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
+  reviewNote?: Prisma.SortOrder
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -425,6 +535,14 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type EnumReviewStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ReviewStatus
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 
 
 export type AuditLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -438,6 +556,11 @@ export type AuditLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   summary?: boolean
   details?: boolean
   createdAt?: boolean
+  reviewStatus?: boolean
+  reviewedById?: boolean
+  reviewedByName?: boolean
+  reviewedAt?: boolean
+  reviewNote?: boolean
 }, ExtArgs["result"]["auditLog"]>
 
 export type AuditLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -451,6 +574,11 @@ export type AuditLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   summary?: boolean
   details?: boolean
   createdAt?: boolean
+  reviewStatus?: boolean
+  reviewedById?: boolean
+  reviewedByName?: boolean
+  reviewedAt?: boolean
+  reviewNote?: boolean
 }, ExtArgs["result"]["auditLog"]>
 
 export type AuditLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -464,6 +592,11 @@ export type AuditLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   summary?: boolean
   details?: boolean
   createdAt?: boolean
+  reviewStatus?: boolean
+  reviewedById?: boolean
+  reviewedByName?: boolean
+  reviewedAt?: boolean
+  reviewNote?: boolean
 }, ExtArgs["result"]["auditLog"]>
 
 export type AuditLogSelectScalar = {
@@ -477,9 +610,14 @@ export type AuditLogSelectScalar = {
   summary?: boolean
   details?: boolean
   createdAt?: boolean
+  reviewStatus?: boolean
+  reviewedById?: boolean
+  reviewedByName?: boolean
+  reviewedAt?: boolean
+  reviewNote?: boolean
 }
 
-export type AuditLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "userName" | "userEmail" | "action" | "entity" | "entityId" | "summary" | "details" | "createdAt", ExtArgs["result"]["auditLog"]>
+export type AuditLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "userName" | "userEmail" | "action" | "entity" | "entityId" | "summary" | "details" | "createdAt" | "reviewStatus" | "reviewedById" | "reviewedByName" | "reviewedAt" | "reviewNote", ExtArgs["result"]["auditLog"]>
 
 export type $AuditLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AuditLog"
@@ -495,6 +633,14 @@ export type $AuditLogPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     summary: string
     details: runtime.JsonValue | null
     createdAt: Date
+    /**
+     * Aprobarea directorului: ANGAJAT → PENDING, DIRECTOR/ADMIN → auto-APPROVED.
+     */
+    reviewStatus: $Enums.ReviewStatus
+    reviewedById: string | null
+    reviewedByName: string | null
+    reviewedAt: Date | null
+    reviewNote: string | null
   }, ExtArgs["result"]["auditLog"]>
   composites: {}
 }
@@ -928,6 +1074,11 @@ export interface AuditLogFieldRefs {
   readonly summary: Prisma.FieldRef<"AuditLog", 'String'>
   readonly details: Prisma.FieldRef<"AuditLog", 'Json'>
   readonly createdAt: Prisma.FieldRef<"AuditLog", 'DateTime'>
+  readonly reviewStatus: Prisma.FieldRef<"AuditLog", 'ReviewStatus'>
+  readonly reviewedById: Prisma.FieldRef<"AuditLog", 'String'>
+  readonly reviewedByName: Prisma.FieldRef<"AuditLog", 'String'>
+  readonly reviewedAt: Prisma.FieldRef<"AuditLog", 'DateTime'>
+  readonly reviewNote: Prisma.FieldRef<"AuditLog", 'String'>
 }
     
 

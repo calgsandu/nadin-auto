@@ -4,6 +4,7 @@ import { useActionState, useEffect, type ReactNode } from "react";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   createBrandAction,
   updateBrandAction,
@@ -22,7 +23,7 @@ type Action = (state: AdminActionState, fd: FormData) => Promise<AdminActionStat
 
 const initial: AdminActionState = { ok: false, message: "" };
 const inputClassName =
-  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#d97706] focus:ring-2 focus:ring-[#d97706]/30 placeholder:text-[#98948b]";
+  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30 placeholder:text-[#98948b]";
 
 function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary" | "row"; onClick: () => void }) {
   return (
@@ -140,14 +141,16 @@ export function NameDialog({
   triggerLabel,
   triggerKind = "primary",
   placeholder,
+  translated = false,
 }: {
   entityName: string;
-  entity?: { id: string; name: string };
+  entity?: { id: string; name: string; nameRu?: string | null };
   createAction: Action;
   updateAction: Action;
   triggerLabel: string;
   triggerKind?: "primary" | "row";
   placeholder?: string;
+  translated?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -165,6 +168,16 @@ export function NameDialog({
         <Field label="Nume">
           <input className={inputClassName} name="name" defaultValue={entity?.name ?? ""} placeholder={placeholder} required />
         </Field>
+        {translated ? (
+          <Field label="Nume în rusă">
+            <input
+              className={inputClassName}
+              name="nameRu"
+              defaultValue={entity?.nameRu ?? ""}
+              placeholder="ex. Порог, Крыло, Фара"
+            />
+          </Field>
+        ) : null}
       </Drawer>
     </>
   );
@@ -174,8 +187,8 @@ export function BrandDialog(props: Omit<Parameters<typeof NameDialog>[0], "entit
   return <NameDialog {...props} entityName="Brand" createAction={createBrandAction} updateAction={updateBrandAction} placeholder="ex. Volkswagen" />;
 }
 
-export function TypeDialog(props: Omit<Parameters<typeof NameDialog>[0], "entityName" | "createAction" | "updateAction" | "placeholder">) {
-  return <NameDialog {...props} entityName="Tip produs" createAction={createTypeAction} updateAction={updateTypeAction} placeholder="ex. Prag, Aripă, Far" />;
+export function TypeDialog(props: Omit<Parameters<typeof NameDialog>[0], "entityName" | "createAction" | "updateAction" | "placeholder" | "translated">) {
+  return <NameDialog {...props} entityName="Tip produs" createAction={createTypeAction} updateAction={updateTypeAction} placeholder="ex. Prag, Aripă, Far" translated />;
 }
 
 /* --------------------------------- Warehouse --------------------------------- */
@@ -271,6 +284,7 @@ export function FitmentDialog({
     id: string;
     carModelId: string;
     label: string;
+    labelRu: string | null;
     yearStart: number | null;
     yearEnd: number | null;
     yearOpenEnded: boolean;
@@ -302,6 +316,9 @@ export function FitmentDialog({
         <Field label="Etichetă (generație)">
           <input className={inputClassName} name="label" defaultValue={fitment?.label ?? ""} placeholder="ex. B6 (2005-2010)" required />
         </Field>
+        <Field label="Etichetă în rusă">
+          <input className={inputClassName} name="labelRu" defaultValue={fitment?.labelRu ?? ""} placeholder="ex. все годы" />
+        </Field>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="An început">
             <input className={inputClassName} name="yearStart" defaultValue={fitment?.yearStart ?? ""} inputMode="numeric" placeholder="2005" />
@@ -331,19 +348,17 @@ export function AdminDeleteButton({
 }) {
   const [state, formAction] = useActionState(action, initial);
 
-  useEffect(() => {
-    if (state.message && !state.ok) window.alert(state.message);
-  }, [state]);
-
   return (
     <form
       action={formAction}
+      className="grid justify-items-end gap-1"
       onSubmit={(e) => {
         if (!window.confirm(`Ștergi ${confirmLabel}?`)) e.preventDefault();
       }}
     >
       <input type="hidden" name="id" value={id} />
       <DeleteSubmit />
+      <ActionFeedback state={state} compact />
     </form>
   );
 }

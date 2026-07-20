@@ -45,6 +45,14 @@ export const StockDocumentType = {
 export type StockDocumentType = (typeof StockDocumentType)[keyof typeof StockDocumentType]
 
 
+export const SalePaymentMethod = {
+  CASH: 'CASH',
+  CARD: 'CARD'
+} as const
+
+export type SalePaymentMethod = (typeof SalePaymentMethod)[keyof typeof SalePaymentMethod]
+
+
 export const RestockTaskStatus = {
   PENDING: 'PENDING',
   DELIVERED: 'DELIVERED',
@@ -78,3 +86,41 @@ export const AuditAction = {
 } as const
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction]
+
+
+export const ReviewStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  FLAGGED: 'FLAGGED'
+} as const
+
+export type ReviewStatus = (typeof ReviewStatus)[keyof typeof ReviewStatus]
+
+
+export const PendingOperationKind = {
+  SALE: 'SALE',
+  PAYMENT_ACCOUNT_FULFILLMENT: 'PAYMENT_ACCOUNT_FULFILLMENT'
+} as const
+
+export type PendingOperationKind = (typeof PendingOperationKind)[keyof typeof PendingOperationKind]
+
+
+export const PendingOperationStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type PendingOperationStatus = (typeof PendingOperationStatus)[keyof typeof PendingOperationStatus]
+
+
+export const ExternalOrderStatus = {
+  CERERE: 'CERERE',
+  OFERTAT: 'OFERTAT',
+  CONFIRMAT: 'CONFIRMAT',
+  RECEPTIONAT: 'RECEPTIONAT',
+  LIVRAT: 'LIVRAT',
+  ANULAT: 'ANULAT'
+} as const
+
+export type ExternalOrderStatus = (typeof ExternalOrderStatus)[keyof typeof ExternalOrderStatus]

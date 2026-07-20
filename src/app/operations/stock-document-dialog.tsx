@@ -82,7 +82,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
             type="button"
             onClick={() => setOpen(false)}
           />
-          <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+          <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
             <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
               <div>
                 <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
@@ -102,7 +102,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
             </div>
 
             <form action={formAction} className="grid gap-6 px-6 py-6">
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <Field label="Data documentului">
                   <input
                     className={inputClassName}
@@ -319,7 +319,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
             type="button"
             onClick={() => setOpen(false)}
           />
-          <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+          <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
             <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
               <div>
                 <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
@@ -339,7 +339,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
             </div>
 
             <form action={formAction} className="grid gap-6 px-6 py-6">
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                 <Field label="Data transferului">
                   <input
                     className={inputClassName}
@@ -472,19 +472,36 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   );
 }
 
+type SaleLineState = {
+  id: number;
+  /** Linie externă = piesă de la furnizor, în afara catalogului propriu. */
+  external: boolean;
+  productId: string;
+  qty: string;
+  price: string;
+  name: string;
+  code: string;
+  supplierId: string;
+  cost: string;
+};
+
+function emptySaleLine(id: number, external = false): SaleLineState {
+  return { id, external, productId: "", qty: "", price: "", name: "", code: "", supplierId: "", cost: "" };
+}
+
 export function StockSaleDialog({
   warehouses,
   customers = [],
+  suppliers = [],
 }: {
   warehouses: WarehouseOption[];
   customers?: SupplierOption[];
+  suppliers?: SupplierOption[];
 }) {
   const [open, setOpen] = useState(false);
   const [newClient, setNewClient] = useState(false);
   const nextLineId = useRef(2);
-  const [lines, setLines] = useState<{ id: number; productId: string; qty: string; price: string }[]>([
-    { id: 1, productId: "", qty: "", price: "" },
-  ]);
+  const [lines, setLines] = useState<SaleLineState[]>([emptySaleLine(1)]);
   async function saleAction(previousState: OperationActionState, formData: FormData) {
     const nextState = await createSaleAction(previousState, formData);
 
@@ -492,7 +509,7 @@ export function StockSaleDialog({
       setOpen(false);
       setNewClient(false);
       nextLineId.current = 2;
-      setLines([{ id: 1, productId: "", qty: "", price: "" }]);
+      setLines([emptySaleLine(1)]);
     }
 
     return nextState;
@@ -505,17 +522,21 @@ export function StockSaleDialog({
     "";
   const today = useMemo(() => formatDateInputValue(new Date()), []);
 
-  function addLine() {
+  function addLine(external = false) {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [...current, { id, productId: "", qty: "", price: "" }]);
+    setLines((current) => [...current, emptySaleLine(id, external)]);
   }
 
   function removeLine(id: number) {
     setLines((current) => current.filter((line) => line.id !== id));
   }
 
-  function setLineField(id: number, field: "qty" | "price", value: string) {
+  function setLineField(
+    id: number,
+    field: "qty" | "price" | "name" | "code" | "supplierId" | "cost",
+    value: string,
+  ) {
     setLines((current) => current.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
   }
 
@@ -554,7 +575,7 @@ export function StockSaleDialog({
             type="button"
             onClick={() => setOpen(false)}
           />
-          <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+          <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
             <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
               <div>
                 <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
@@ -605,6 +626,30 @@ export function StockSaleDialog({
                     </button>
                   </div>
                 </Field>
+                <Field label="Bătut în casa de marcat?">
+                  <select
+                    className={inputClassName}
+                    defaultValue=""
+                    name="cashRegistered"
+                    required
+                  >
+                    <option value="" disabled>Alege Da sau Nu</option>
+                    <option value="yes">Da</option>
+                    <option value="no">Nu</option>
+                  </select>
+                </Field>
+                <Field label="Metoda de plată">
+                  <select
+                    className={inputClassName}
+                    defaultValue=""
+                    name="paymentMethod"
+                    required
+                  >
+                    <option value="" disabled>Alege Cash sau Card</option>
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                  </select>
+                </Field>
               </div>
               <section className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
                 <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
@@ -612,19 +657,124 @@ export function StockSaleDialog({
                     <h3 className="font-semibold text-[#1b1a17]">Produse vândute</h3>
                     <p className="text-xs text-[#6f6b63]">Vânzările din 110A intră automat în lista De adus.</p>
                   </div>
-                  <button className={secondaryButtonClassName} type="button" onClick={addLine}>
-                    <Plus className="size-4" aria-hidden="true" /> Adaugă produs
-                  </button>
+                  <div className="flex gap-2">
+                    <button className={secondaryButtonClassName} type="button" onClick={() => addLine(false)}>
+                      <Plus className="size-4" aria-hidden="true" /> Adaugă produs
+                    </button>
+                    <button className={secondaryButtonClassName} type="button" onClick={() => addLine(true)}>
+                      <Plus className="size-4" aria-hidden="true" /> Piesă externă
+                    </button>
+                  </div>
                 </div>
                 <div className="grid gap-3 p-3">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
                     const lineTva = lineVal / 6;
                     const lineNet = lineVal - lineTva;
+                    if (line.external) {
+                      const marja = ((Number(line.price) || 0) - (Number(line.cost) || 0)) * (Number(line.qty) || 0);
+                      return (
+                        <div key={line.id} className="motion-line-item grid gap-3 rounded-md border border-[#dbebfe] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_7rem_10rem_5rem_7rem_8rem_2.75rem] md:items-start">
+                          <div>
+                            <p className="mb-1.5 text-xs font-semibold text-[#175cd3]">
+                              Piesă externă {index + 1} · de la furnizor, nu intră în catalog/stoc
+                            </p>
+                            <input name="productId" type="hidden" value="" />
+                            <input
+                              className={inputClassName}
+                              name="externalName"
+                              placeholder="denumirea piesei (ex. Aripă față stânga Sprinter)"
+                              required
+                              value={line.name}
+                              onChange={(e) => setLineField(line.id, "name", e.currentTarget.value)}
+                            />
+                          </div>
+                          <Field label="Cod piesă">
+                            <input
+                              className={inputClassName}
+                              name="externalCode"
+                              placeholder="ex. 506502"
+                              required
+                              value={line.code}
+                              onChange={(e) => setLineField(line.id, "code", e.currentTarget.value)}
+                            />
+                          </Field>
+                          <Field label="Furnizor">
+                            <select
+                              className={inputClassName}
+                              name="externalSupplierId"
+                              value={line.supplierId}
+                              onChange={(e) => setLineField(line.id, "supplierId", e.currentTarget.value)}
+                            >
+                              <option value="">Fără furnizor</option>
+                              {suppliers.map((supplier) => (
+                                <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
+                              ))}
+                            </select>
+                          </Field>
+                          <Field label="Cantitate">
+                            <input
+                              className={inputClassName}
+                              inputMode="numeric"
+                              min={1}
+                              name="quantity"
+                              required
+                              type="number"
+                              value={line.qty}
+                              onChange={(e) => setLineField(line.id, "qty", e.currentTarget.value)}
+                            />
+                          </Field>
+                          <Field label="Cost lei / buc">
+                            <input
+                              className={inputClassName}
+                              inputMode="decimal"
+                              min={0}
+                              name="externalCostLei"
+                              placeholder="achiziție"
+                              step="0.01"
+                              type="number"
+                              value={line.cost}
+                              onChange={(e) => setLineField(line.id, "cost", e.currentTarget.value)}
+                            />
+                          </Field>
+                          <Field label="Preț lei / buc">
+                            <input
+                              className={inputClassName}
+                              inputMode="decimal"
+                              min={0}
+                              name="unitPriceEuro"
+                              required
+                              step="0.01"
+                              type="number"
+                              value={line.price}
+                              onChange={(e) => setLineField(line.id, "price", e.currentTarget.value)}
+                            />
+                            {line.cost ? (
+                              <span className="font-mono text-[11px] text-[#6f6b63]">
+                                marjă {money(marja)} lei
+                              </span>
+                            ) : null}
+                          </Field>
+                          <button
+                            aria-label={`Șterge poziția ${index + 1}`}
+                            className={dangerButtonClassName}
+                            disabled={lines.length === 1}
+                            type="button"
+                            onClick={() => removeLine(line.id)}
+                          >
+                            <Trash2 className="size-4" aria-hidden="true" />
+                          </button>
+                        </div>
+                      );
+                    }
                     return (
                     <div key={line.id} className="motion-line-item grid gap-3 rounded-md border border-[#efeeeb] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_5rem_8rem_12rem_2.75rem] md:items-start">
                       <div>
                         <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
+                        <input name="externalName" type="hidden" value="" />
+                        <input name="externalCode" type="hidden" value="" />
+                        <input name="externalSupplierId" type="hidden" value="" />
+                        <input name="externalCostLei" type="hidden" value="" />
                         <ProductSearchCombobox
                           excludedProductIds={lines.filter((item) => item.id !== line.id).map((item) => item.productId)}
                           showHint={false}

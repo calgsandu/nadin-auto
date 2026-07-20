@@ -49,11 +49,15 @@ export type ProductMinAggregateOutputType = {
   importKey: string | null
   source: $Enums.ProductSource | null
   manuallyEdited: boolean | null
+  isLocal: boolean | null
   sourceRow: number | null
   sourceItem: string | null
   externalCode: string | null
+  alternativeCode: string | null
   description: string | null
+  descriptionRu: string | null
   notes: string | null
+  notesRu: string | null
   stock: number | null
   minStock: number | null
   priceEuro: runtime.Decimal | null
@@ -70,11 +74,15 @@ export type ProductMaxAggregateOutputType = {
   importKey: string | null
   source: $Enums.ProductSource | null
   manuallyEdited: boolean | null
+  isLocal: boolean | null
   sourceRow: number | null
   sourceItem: string | null
   externalCode: string | null
+  alternativeCode: string | null
   description: string | null
+  descriptionRu: string | null
   notes: string | null
+  notesRu: string | null
   stock: number | null
   minStock: number | null
   priceEuro: runtime.Decimal | null
@@ -91,11 +99,15 @@ export type ProductCountAggregateOutputType = {
   importKey: number
   source: number
   manuallyEdited: number
+  isLocal: number
   sourceRow: number
   sourceItem: number
   externalCode: number
+  alternativeCode: number
   description: number
+  descriptionRu: number
   notes: number
+  notesRu: number
   stock: number
   minStock: number
   priceEuro: number
@@ -132,11 +144,15 @@ export type ProductMinAggregateInputType = {
   importKey?: true
   source?: true
   manuallyEdited?: true
+  isLocal?: true
   sourceRow?: true
   sourceItem?: true
   externalCode?: true
+  alternativeCode?: true
   description?: true
+  descriptionRu?: true
   notes?: true
+  notesRu?: true
   stock?: true
   minStock?: true
   priceEuro?: true
@@ -153,11 +169,15 @@ export type ProductMaxAggregateInputType = {
   importKey?: true
   source?: true
   manuallyEdited?: true
+  isLocal?: true
   sourceRow?: true
   sourceItem?: true
   externalCode?: true
+  alternativeCode?: true
   description?: true
+  descriptionRu?: true
   notes?: true
+  notesRu?: true
   stock?: true
   minStock?: true
   priceEuro?: true
@@ -174,11 +194,15 @@ export type ProductCountAggregateInputType = {
   importKey?: true
   source?: true
   manuallyEdited?: true
+  isLocal?: true
   sourceRow?: true
   sourceItem?: true
   externalCode?: true
+  alternativeCode?: true
   description?: true
+  descriptionRu?: true
   notes?: true
+  notesRu?: true
   stock?: true
   minStock?: true
   priceEuro?: true
@@ -282,11 +306,15 @@ export type ProductGroupByOutputType = {
   importKey: string
   source: $Enums.ProductSource
   manuallyEdited: boolean
+  isLocal: boolean
   sourceRow: number
   sourceItem: string | null
   externalCode: string | null
+  alternativeCode: string | null
   description: string
+  descriptionRu: string | null
   notes: string | null
+  notesRu: string | null
   stock: number | null
   minStock: number | null
   priceEuro: runtime.Decimal | null
@@ -326,11 +354,15 @@ export type ProductWhereInput = {
   importKey?: Prisma.StringFilter<"Product"> | string
   source?: Prisma.EnumProductSourceFilter<"Product"> | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFilter<"Product"> | boolean
+  isLocal?: Prisma.BoolFilter<"Product"> | boolean
   sourceRow?: Prisma.IntFilter<"Product"> | number
   sourceItem?: Prisma.StringNullableFilter<"Product"> | string | null
   externalCode?: Prisma.StringNullableFilter<"Product"> | string | null
+  alternativeCode?: Prisma.StringNullableFilter<"Product"> | string | null
   description?: Prisma.StringFilter<"Product"> | string
+  descriptionRu?: Prisma.StringNullableFilter<"Product"> | string | null
   notes?: Prisma.StringNullableFilter<"Product"> | string | null
+  notesRu?: Prisma.StringNullableFilter<"Product"> | string | null
   stock?: Prisma.IntNullableFilter<"Product"> | number | null
   minStock?: Prisma.IntNullableFilter<"Product"> | number | null
   priceEuro?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -354,11 +386,15 @@ export type ProductOrderByWithRelationInput = {
   importKey?: Prisma.SortOrder
   source?: Prisma.SortOrder
   manuallyEdited?: Prisma.SortOrder
+  isLocal?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
   sourceItem?: Prisma.SortOrderInput | Prisma.SortOrder
   externalCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  alternativeCode?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionRu?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  notesRu?: Prisma.SortOrderInput | Prisma.SortOrder
   stock?: Prisma.SortOrderInput | Prisma.SortOrder
   minStock?: Prisma.SortOrderInput | Prisma.SortOrder
   priceEuro?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -385,11 +421,15 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   source?: Prisma.EnumProductSourceFilter<"Product"> | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFilter<"Product"> | boolean
+  isLocal?: Prisma.BoolFilter<"Product"> | boolean
   sourceRow?: Prisma.IntFilter<"Product"> | number
   sourceItem?: Prisma.StringNullableFilter<"Product"> | string | null
   externalCode?: Prisma.StringNullableFilter<"Product"> | string | null
+  alternativeCode?: Prisma.StringNullableFilter<"Product"> | string | null
   description?: Prisma.StringFilter<"Product"> | string
+  descriptionRu?: Prisma.StringNullableFilter<"Product"> | string | null
   notes?: Prisma.StringNullableFilter<"Product"> | string | null
+  notesRu?: Prisma.StringNullableFilter<"Product"> | string | null
   stock?: Prisma.IntNullableFilter<"Product"> | number | null
   minStock?: Prisma.IntNullableFilter<"Product"> | number | null
   priceEuro?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -413,11 +453,15 @@ export type ProductOrderByWithAggregationInput = {
   importKey?: Prisma.SortOrder
   source?: Prisma.SortOrder
   manuallyEdited?: Prisma.SortOrder
+  isLocal?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
   sourceItem?: Prisma.SortOrderInput | Prisma.SortOrder
   externalCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  alternativeCode?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionRu?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  notesRu?: Prisma.SortOrderInput | Prisma.SortOrder
   stock?: Prisma.SortOrderInput | Prisma.SortOrder
   minStock?: Prisma.SortOrderInput | Prisma.SortOrder
   priceEuro?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -442,11 +486,15 @@ export type ProductScalarWhereWithAggregatesInput = {
   importKey?: Prisma.StringWithAggregatesFilter<"Product"> | string
   source?: Prisma.EnumProductSourceWithAggregatesFilter<"Product"> | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
+  isLocal?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   sourceRow?: Prisma.IntWithAggregatesFilter<"Product"> | number
   sourceItem?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   externalCode?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
+  alternativeCode?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   description?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  descriptionRu?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
+  notesRu?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   stock?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
   minStock?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
   priceEuro?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -463,11 +511,15 @@ export type ProductCreateInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -489,11 +541,15 @@ export type ProductUncheckedCreateInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -515,11 +571,15 @@ export type ProductUpdateInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -541,11 +601,15 @@ export type ProductUncheckedUpdateInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -567,11 +631,15 @@ export type ProductCreateManyInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -588,11 +656,15 @@ export type ProductUpdateManyMutationInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -607,11 +679,15 @@ export type ProductUncheckedUpdateManyInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -638,11 +714,15 @@ export type ProductCountOrderByAggregateInput = {
   importKey?: Prisma.SortOrder
   source?: Prisma.SortOrder
   manuallyEdited?: Prisma.SortOrder
+  isLocal?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
   sourceItem?: Prisma.SortOrder
   externalCode?: Prisma.SortOrder
+  alternativeCode?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionRu?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  notesRu?: Prisma.SortOrder
   stock?: Prisma.SortOrder
   minStock?: Prisma.SortOrder
   priceEuro?: Prisma.SortOrder
@@ -668,11 +748,15 @@ export type ProductMaxOrderByAggregateInput = {
   importKey?: Prisma.SortOrder
   source?: Prisma.SortOrder
   manuallyEdited?: Prisma.SortOrder
+  isLocal?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
   sourceItem?: Prisma.SortOrder
   externalCode?: Prisma.SortOrder
+  alternativeCode?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionRu?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  notesRu?: Prisma.SortOrder
   stock?: Prisma.SortOrder
   minStock?: Prisma.SortOrder
   priceEuro?: Prisma.SortOrder
@@ -689,11 +773,15 @@ export type ProductMinOrderByAggregateInput = {
   importKey?: Prisma.SortOrder
   source?: Prisma.SortOrder
   manuallyEdited?: Prisma.SortOrder
+  isLocal?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
   sourceItem?: Prisma.SortOrder
   externalCode?: Prisma.SortOrder
+  alternativeCode?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  descriptionRu?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  notesRu?: Prisma.SortOrder
   stock?: Prisma.SortOrder
   minStock?: Prisma.SortOrder
   priceEuro?: Prisma.SortOrder
@@ -717,6 +805,11 @@ export type ProductSumOrderByAggregateInput = {
 export type ProductScalarRelationFilter = {
   is?: Prisma.ProductWhereInput
   isNot?: Prisma.ProductWhereInput
+}
+
+export type ProductNullableScalarRelationFilter = {
+  is?: Prisma.ProductWhereInput | null
+  isNot?: Prisma.ProductWhereInput | null
 }
 
 export type ProductCreateNestedManyWithoutFitmentInput = {
@@ -871,10 +964,12 @@ export type ProductCreateNestedOneWithoutStockLinesInput = {
   connect?: Prisma.ProductWhereUniqueInput
 }
 
-export type ProductUpdateOneRequiredWithoutStockLinesNestedInput = {
+export type ProductUpdateOneWithoutStockLinesNestedInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutStockLinesInput, Prisma.ProductUncheckedCreateWithoutStockLinesInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutStockLinesInput
   upsert?: Prisma.ProductUpsertWithoutStockLinesInput
+  disconnect?: Prisma.ProductWhereInput | boolean
+  delete?: Prisma.ProductWhereInput | boolean
   connect?: Prisma.ProductWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutStockLinesInput, Prisma.ProductUpdateWithoutStockLinesInput>, Prisma.ProductUncheckedUpdateWithoutStockLinesInput>
 }
@@ -898,11 +993,15 @@ export type ProductCreateWithoutFitmentInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -923,11 +1022,15 @@ export type ProductUncheckedCreateWithoutFitmentInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -977,11 +1080,15 @@ export type ProductScalarWhereInput = {
   importKey?: Prisma.StringFilter<"Product"> | string
   source?: Prisma.EnumProductSourceFilter<"Product"> | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFilter<"Product"> | boolean
+  isLocal?: Prisma.BoolFilter<"Product"> | boolean
   sourceRow?: Prisma.IntFilter<"Product"> | number
   sourceItem?: Prisma.StringNullableFilter<"Product"> | string | null
   externalCode?: Prisma.StringNullableFilter<"Product"> | string | null
+  alternativeCode?: Prisma.StringNullableFilter<"Product"> | string | null
   description?: Prisma.StringFilter<"Product"> | string
+  descriptionRu?: Prisma.StringNullableFilter<"Product"> | string | null
   notes?: Prisma.StringNullableFilter<"Product"> | string | null
+  notesRu?: Prisma.StringNullableFilter<"Product"> | string | null
   stock?: Prisma.IntNullableFilter<"Product"> | number | null
   minStock?: Prisma.IntNullableFilter<"Product"> | number | null
   priceEuro?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -998,11 +1105,15 @@ export type ProductCreateWithoutTypeInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1023,11 +1134,15 @@ export type ProductUncheckedCreateWithoutTypeInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1074,11 +1189,15 @@ export type ProductCreateWithoutProductFitmentsInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1099,11 +1218,15 @@ export type ProductUncheckedCreateWithoutProductFitmentsInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1140,11 +1263,15 @@ export type ProductUpdateWithoutProductFitmentsInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1165,11 +1292,15 @@ export type ProductUncheckedUpdateWithoutProductFitmentsInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1190,11 +1321,15 @@ export type ProductCreateWithoutWarehouseStocksInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1215,11 +1350,15 @@ export type ProductUncheckedCreateWithoutWarehouseStocksInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1256,11 +1395,15 @@ export type ProductUpdateWithoutWarehouseStocksInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1281,11 +1424,15 @@ export type ProductUncheckedUpdateWithoutWarehouseStocksInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1306,11 +1453,15 @@ export type ProductCreateWithoutPaymentAccountLinesInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1331,11 +1482,15 @@ export type ProductUncheckedCreateWithoutPaymentAccountLinesInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1372,11 +1527,15 @@ export type ProductUpdateWithoutPaymentAccountLinesInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1397,11 +1556,15 @@ export type ProductUncheckedUpdateWithoutPaymentAccountLinesInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1422,11 +1585,15 @@ export type ProductCreateWithoutStockLinesInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1447,11 +1614,15 @@ export type ProductUncheckedCreateWithoutStockLinesInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1488,11 +1659,15 @@ export type ProductUpdateWithoutStockLinesInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1513,11 +1688,15 @@ export type ProductUncheckedUpdateWithoutStockLinesInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1538,11 +1717,15 @@ export type ProductCreateWithoutRestockTasksInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1563,11 +1746,15 @@ export type ProductUncheckedCreateWithoutRestockTasksInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1604,11 +1791,15 @@ export type ProductUpdateWithoutRestockTasksInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1629,11 +1820,15 @@ export type ProductUncheckedUpdateWithoutRestockTasksInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1654,11 +1849,15 @@ export type ProductCreateManyFitmentInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1674,11 +1873,15 @@ export type ProductUpdateWithoutFitmentInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1699,11 +1902,15 @@ export type ProductUncheckedUpdateWithoutFitmentInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1724,11 +1931,15 @@ export type ProductUncheckedUpdateManyWithoutFitmentInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1744,11 +1955,15 @@ export type ProductCreateManyTypeInput = {
   importKey: string
   source?: $Enums.ProductSource
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow: number
   sourceItem?: string | null
   externalCode?: string | null
+  alternativeCode?: string | null
   description: string
+  descriptionRu?: string | null
   notes?: string | null
+  notesRu?: string | null
   stock?: number | null
   minStock?: number | null
   priceEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1764,11 +1979,15 @@ export type ProductUpdateWithoutTypeInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1789,11 +2008,15 @@ export type ProductUncheckedUpdateWithoutTypeInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1814,11 +2037,15 @@ export type ProductUncheckedUpdateManyWithoutTypeInput = {
   importKey?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumProductSourceFieldUpdateOperationsInput | $Enums.ProductSource
   manuallyEdited?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isLocal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sourceRow?: Prisma.IntFieldUpdateOperationsInput | number
   sourceItem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alternativeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notesRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1901,11 +2128,15 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   importKey?: boolean
   source?: boolean
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow?: boolean
   sourceItem?: boolean
   externalCode?: boolean
+  alternativeCode?: boolean
   description?: boolean
+  descriptionRu?: boolean
   notes?: boolean
+  notesRu?: boolean
   stock?: boolean
   minStock?: boolean
   priceEuro?: boolean
@@ -1930,11 +2161,15 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   importKey?: boolean
   source?: boolean
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow?: boolean
   sourceItem?: boolean
   externalCode?: boolean
+  alternativeCode?: boolean
   description?: boolean
+  descriptionRu?: boolean
   notes?: boolean
+  notesRu?: boolean
   stock?: boolean
   minStock?: boolean
   priceEuro?: boolean
@@ -1953,11 +2188,15 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   importKey?: boolean
   source?: boolean
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow?: boolean
   sourceItem?: boolean
   externalCode?: boolean
+  alternativeCode?: boolean
   description?: boolean
+  descriptionRu?: boolean
   notes?: boolean
+  notesRu?: boolean
   stock?: boolean
   minStock?: boolean
   priceEuro?: boolean
@@ -1976,11 +2215,15 @@ export type ProductSelectScalar = {
   importKey?: boolean
   source?: boolean
   manuallyEdited?: boolean
+  isLocal?: boolean
   sourceRow?: boolean
   sourceItem?: boolean
   externalCode?: boolean
+  alternativeCode?: boolean
   description?: boolean
+  descriptionRu?: boolean
   notes?: boolean
+  notesRu?: boolean
   stock?: boolean
   minStock?: boolean
   priceEuro?: boolean
@@ -1992,7 +2235,7 @@ export type ProductSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importKey" | "source" | "manuallyEdited" | "sourceRow" | "sourceItem" | "externalCode" | "description" | "notes" | "stock" | "minStock" | "priceEuro" | "costLei" | "salePriceLei" | "fitmentId" | "typeId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importKey" | "source" | "manuallyEdited" | "isLocal" | "sourceRow" | "sourceItem" | "externalCode" | "alternativeCode" | "description" | "descriptionRu" | "notes" | "notesRu" | "stock" | "minStock" | "priceEuro" | "costLei" | "salePriceLei" | "fitmentId" | "typeId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fitment?: boolean | Prisma.VehicleFitmentDefaultArgs<ExtArgs>
   productFitments?: boolean | Prisma.Product$productFitmentsArgs<ExtArgs>
@@ -2028,11 +2271,18 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     importKey: string
     source: $Enums.ProductSource
     manuallyEdited: boolean
+    /**
+     * Piesă fabricată local (manufactura proprie), nu importată.
+     */
+    isLocal: boolean
     sourceRow: number
     sourceItem: string | null
     externalCode: string | null
+    alternativeCode: string | null
     description: string
+    descriptionRu: string | null
     notes: string | null
+    notesRu: string | null
     stock: number | null
     /**
      * Prag de alertă stoc minim; null = pragul implicit (3).
@@ -2479,11 +2729,15 @@ export interface ProductFieldRefs {
   readonly importKey: Prisma.FieldRef<"Product", 'String'>
   readonly source: Prisma.FieldRef<"Product", 'ProductSource'>
   readonly manuallyEdited: Prisma.FieldRef<"Product", 'Boolean'>
+  readonly isLocal: Prisma.FieldRef<"Product", 'Boolean'>
   readonly sourceRow: Prisma.FieldRef<"Product", 'Int'>
   readonly sourceItem: Prisma.FieldRef<"Product", 'String'>
   readonly externalCode: Prisma.FieldRef<"Product", 'String'>
+  readonly alternativeCode: Prisma.FieldRef<"Product", 'String'>
   readonly description: Prisma.FieldRef<"Product", 'String'>
+  readonly descriptionRu: Prisma.FieldRef<"Product", 'String'>
   readonly notes: Prisma.FieldRef<"Product", 'String'>
+  readonly notesRu: Prisma.FieldRef<"Product", 'String'>
   readonly stock: Prisma.FieldRef<"Product", 'Int'>
   readonly minStock: Prisma.FieldRef<"Product", 'Int'>
   readonly priceEuro: Prisma.FieldRef<"Product", 'Decimal'>

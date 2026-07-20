@@ -6,12 +6,16 @@ export function validatePositiveQuantity(quantity: number) {
   }
 }
 
-export function validateSaleAvailability(currentQuantity: number, requestedQuantity: number) {
+export function validateSaleAvailability(
+  currentQuantity: number,
+  requestedQuantity: number,
+  productLabel?: string,
+) {
   validatePositiveQuantity(requestedQuantity);
 
   if (currentQuantity < requestedQuantity) {
     throw new Error(
-      `Stoc insuficient în locația selectată. Disponibil: ${currentQuantity}, cerut: ${requestedQuantity}.`,
+      `Stoc insuficient${productLabel ? ` pentru ${productLabel}` : ""} în locația selectată. Disponibil: ${currentQuantity}, cerut: ${requestedQuantity}.`,
     );
   }
 }

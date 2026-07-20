@@ -54,6 +54,17 @@ export function buildPartLabel(typeName: string, description: string) {
   return `${type} ${desc}`;
 }
 
+export function buildProductCodeLabel(
+  primaryCode: string | null | undefined,
+  alternativeCode: string | null | undefined,
+) {
+  const codes = [primaryCode, alternativeCode]
+    .map(upperLabelText)
+    .filter(Boolean);
+
+  return codes.join(" / ") || "-";
+}
+
 export function upperLabelText(value: string | null | undefined) {
   return normalizeWhitespace(value ?? "").toLocaleUpperCase("ro");
 }

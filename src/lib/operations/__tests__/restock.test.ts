@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import {
   aggregateRestockRequests,
   splitRestockTasksByStatus,
@@ -15,6 +17,19 @@ assert.deepEqual(
     { productId: "product-b", quantity: 1 },
   ],
 );
+
+for (const file of [
+  "src/app/operations/actions.ts",
+  "src/app/operations/document-actions.ts",
+  "src/app/istoric/actions.ts",
+]) {
+  const source = readFileSync(path.join(process.cwd(), file), "utf8");
+  assert.match(
+    source,
+    /reconcileSaleRestockTasks/,
+    `${file} trebuie să recalculeze coada De adus după retur`,
+  );
+}
 
 assert.deepEqual(
   splitRestockTasksByStatus([

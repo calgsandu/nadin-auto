@@ -50,7 +50,7 @@ export async function getDocumentsData(params: DocumentsSearchParams = {}) {
         warehouse: true,
         partner: true,
         _count: { select: { lines: true } },
-        lines: { include: { product: true }, take: 200 },
+        lines: { include: { product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } } }, take: 200 },
       },
     }),
     prisma.stockDocument.count({ where }),

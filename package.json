@@ -8,9 +8,11 @@
     "dev:http": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "tsx --env-file=.env --test",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "stock:migrate": "tsx scripts/migrate-product-warehouse-stock.ts",
+    "catalog:backfill-ru": "tsx scripts/backfill-russian-catalog.ts",
     "db:push": "prisma db push",
     "staff:bootstrap": "tsx scripts/bootstrap-staff-accounts.ts",
     "import:products": "tsx scripts/import-products.ts"

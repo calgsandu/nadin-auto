@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { aggregateSoldProducts, groupSalesByPeriod } from "@/lib/operations/sales";
+import type { VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
+import { aggregateSoldProducts } from "@/lib/operations/sales";
 import {
   aggregateRestockRequests,
   splitRestockTasksByStatus,
@@ -34,9 +35,6 @@ export async function getOperationsData() {
     restockTasks,
     suppliers,
     customers,
-    salesTotalsByMonth,
-    salesTotalsByYear,
-    salesAllTime,
   ] = await Promise.all([
     prisma.stockDocument.findMany({
       where: {
@@ -49,7 +47,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: true,
+            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
         },
       },
@@ -69,7 +67,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: true,
+            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
         },
       },
@@ -85,7 +83,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: true,
+            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
         },
       },
@@ -96,7 +94,7 @@ export async function getOperationsData() {
       include: {
         warehouse: true,
         partner: true,
-        lines: { include: { product: true } },
+        lines: { include: { product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } } } },
       },
       orderBy: [{ documentDate: "desc" }, { number: "desc" }],
       take: 50,
@@ -110,7 +108,7 @@ export async function getOperationsData() {
             },
           },
           include: {
-            product: true,
+            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
           orderBy: [{ requestedAt: "asc" }, { createdAt: "asc" }],
         })
@@ -125,62 +123,28 @@ export async function getOperationsData() {
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),
-    prisma.$queryRaw<{ key: string; cnt: number; total: number }[]>`
-      SELECT to_char(date_trunc('month', "documentDate"), 'YYYY-MM') AS key,
-             COUNT(*)::int AS cnt,
-             COALESCE(SUM(COALESCE("totalLei", "totalEuro")), 0)::float AS total
-      FROM "StockDocument"
-      WHERE type = 'SALE'
-      GROUP BY 1 ORDER BY 1 DESC LIMIT 24`,
-    prisma.$queryRaw<{ key: string; cnt: number; total: number }[]>`
-      SELECT to_char(date_trunc('year', "documentDate"), 'YYYY') AS key,
-             COUNT(*)::int AS cnt,
-             COALESCE(SUM(COALESCE("totalLei", "totalEuro")), 0)::float AS total
-      FROM "StockDocument"
-      WHERE type = 'SALE'
-      GROUP BY 1 ORDER BY 1 DESC`,
-    prisma.$queryRaw<{ cnt: number; total: number }[]>`
-      SELECT COUNT(*)::int AS cnt,
-             COALESCE(SUM(COALESCE("totalLei", "totalEuro")), 0)::float AS total
-      FROM "StockDocument"
-      WHERE type = 'SALE'`,
   ]);
 
   const salesFrom110AToday = salesToday.filter(
     (sale) => sale.warehouse.name === "Pavilion 110A",
   );
-  const soldToday = aggregateSoldProducts(
-    salesFrom110AToday.flatMap((sale) => sale.lines),
-  );
+  // „De adus" numără doar liniile de catalog — cele externe n-au stoc de refăcut.
+  const catalogLinesToday = salesFrom110AToday
+    .flatMap((sale) => sale.lines)
+    .filter(
+      (line): line is typeof line & { productId: string } => line.productId != null,
+    );
+  const soldToday = aggregateSoldProducts(catalogLinesToday);
   const soldProductById = new Map(
-    salesFrom110AToday
-      .flatMap((sale) => sale.lines)
-      .map((line) => [line.productId, line.product]),
+    catalogLinesToday.map((line) => [line.productId, line.product]),
   );
   const restockByStatus = splitRestockTasksByStatus(restockTasks);
-
-  const monthLabel = new Intl.DateTimeFormat("ro-MD", { month: "long", year: "numeric" });
 
   return {
     warehouses,
     recentDocuments,
     salesToday,
     salesArchive,
-    salesByDay: groupSalesByPeriod(salesArchive, "day"),
-    salesTotalsByMonth: salesTotalsByMonth.map((row) => ({
-      key: row.key,
-      label: monthLabel.format(new Date(`${row.key}-01T12:00:00`)),
-      count: row.cnt,
-      totalLei: row.total,
-    })),
-    salesTotalsByYear: salesTotalsByYear.map((row) => ({
-      key: row.key,
-      label: row.key,
-      count: row.cnt,
-      totalLei: row.total,
-    })),
-    salesAllTimeCount: salesAllTime[0]?.cnt ?? 0,
-    salesAllTimeLei: salesAllTime[0]?.total ?? 0,
     soldToday: soldToday.map((line) => ({
       ...line,
       product: soldProductById.get(line.productId)!,
@@ -212,7 +176,12 @@ export async function getInventoryData(warehouseParam?: string) {
         where: { warehouseId: selected.id, quantity: { not: 0 } },
         include: {
           product: {
-            select: { externalCode: true, description: true, salePriceLei: true },
+            select: {
+              externalCode: true,
+              description: true,
+              salePriceLei: true,
+              fitment: { include: { carModel: { include: { brand: true } } } },
+            },
           },
         },
         orderBy: { product: { description: "asc" } },
@@ -230,7 +199,7 @@ function summarizeRestockTasks<
     warehouseId: string;
     quantity: number;
     requestedAt: Date;
-    product: { externalCode: string | null; description: string };
+    product: { externalCode: string | null; description: string; fitment: VehicleFitmentInfo };
   },
 >(tasks: T[]) {
   const productById = new Map(tasks.map((task) => [task.productId, task.product]));
@@ -295,3 +264,55 @@ function getTodayRange() {
   end.setDate(end.getDate() + 1);
   return { start, end };
 }
+
+function localDayKey(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+/** Vânzările unei zile (implicit azi) + totalul lunii din care face parte ziua. */
+export async function getSalesDayData(dayParam?: string) {
+  const parsed = /^\d{4}-\d{2}-\d{2}$/.test(dayParam ?? "")
+    ? new Date(`${dayParam}T00:00:00`)
+    : null;
+  const start = parsed && !Number.isNaN(parsed.getTime()) ? parsed : new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  const monthStart = new Date(start.getFullYear(), start.getMonth(), 1);
+  const monthEnd = new Date(start.getFullYear(), start.getMonth() + 1, 1);
+
+  const [sales, monthTotals] = await Promise.all([
+    prisma.stockDocument.findMany({
+      where: {
+        type: "SALE",
+        documentDate: { gte: start, lt: end },
+      },
+      include: {
+        warehouse: true,
+        partner: true,
+        lines: {
+          include: {
+            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
+          },
+        },
+      },
+      orderBy: [{ documentDate: "desc" }, { number: "desc" }],
+    }),
+    prisma.$queryRaw<{ cnt: number; total: number }[]>`
+      SELECT COUNT(*)::int AS cnt,
+             COALESCE(SUM(COALESCE("totalLei", "totalEuro")), 0)::float AS total
+      FROM "StockDocument"
+      WHERE type = 'SALE'
+        AND "documentDate" >= ${monthStart}
+        AND "documentDate" < ${monthEnd}`,
+  ]);
+
+  return {
+    dayKey: localDayKey(start),
+    sales,
+    monthCount: monthTotals[0]?.cnt ?? 0,
+    monthLei: monthTotals[0]?.total ?? 0,
+  };
+}
+
+export type SalesDayData = Awaited<ReturnType<typeof getSalesDayData>>;

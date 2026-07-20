@@ -6,7 +6,7 @@ export const STAFF_ROLES: readonly AppRole[] = ["ADMIN"];
 export const ALL_ROLES: readonly AppRole[] = ["ADMIN", "DIRECTOR", "ANGAJAT"];
 
 /** Secțiunile pe care un ANGAJAT le poate deschide: produse în stoc + vânzări. */
-export const EMPLOYEE_SECTIONS: readonly WorkspaceSectionId[] = ["produse", "vanzari", "conturi-plata"];
+export const EMPLOYEE_SECTIONS: readonly WorkspaceSectionId[] = ["produse", "vanzari", "la-comanda", "conturi-plata"];
 
 export function canWriteCatalog(role: AppRole | null | undefined) {
   return role ? WRITE_ROLES.includes(role) : false;
@@ -25,8 +25,14 @@ export function canViewSection(
   if (!role) return false;
   if (section === "personal") return canManageStaff(role);
   if (section === "istoric") return canWriteCatalog(role);
+  if (section === "aprobari") return canReviewOperations(role);
   if (role === "ANGAJAT") return EMPLOYEE_SECTIONS.includes(section);
   return true;
+}
+
+/** Doar DIRECTOR/ADMIN aprobă sau semnalează operațiunile angajaților. */
+export function canReviewOperations(role: AppRole | null | undefined) {
+  return role ? WRITE_ROLES.includes(role) : false;
 }
 
 /** Only ADMIN may view/administer the Personal section and change roles. */

@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   AuditLog: 'AuditLog',
+  PendingOperation: 'PendingOperation',
   AppUser: 'AppUser',
   Brand: 'Brand',
   CarModel: 'CarModel',
@@ -395,6 +396,7 @@ export const ModelName = {
   Warehouse: 'Warehouse',
   WarehouseStock: 'WarehouseStock',
   Partner: 'Partner',
+  ExternalOrder: 'ExternalOrder',
   StockDocument: 'StockDocument',
   PaymentAccount: 'PaymentAccount',
   PaymentAccountLine: 'PaymentAccountLine',
@@ -415,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "auditLog" | "appUser" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
+    modelProps: "auditLog" | "pendingOperation" | "appUser" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "externalOrder" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -490,6 +492,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AuditLogCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AuditLogCountAggregateOutputType> | number
+        }
+      }
+    }
+    PendingOperation: {
+      payload: Prisma.$PendingOperationPayload<ExtArgs>
+      fields: Prisma.PendingOperationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PendingOperationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PendingOperationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload>
+        }
+        findFirst: {
+          args: Prisma.PendingOperationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PendingOperationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload>
+        }
+        findMany: {
+          args: Prisma.PendingOperationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload>[]
+        }
+        create: {
+          args: Prisma.PendingOperationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload>
+        }
+        createMany: {
+          args: Prisma.PendingOperationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PendingOperationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload>[]
+        }
+        delete: {
+          args: Prisma.PendingOperationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload>
+        }
+        update: {
+          args: Prisma.PendingOperationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload>
+        }
+        deleteMany: {
+          args: Prisma.PendingOperationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PendingOperationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PendingOperationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload>[]
+        }
+        upsert: {
+          args: Prisma.PendingOperationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PendingOperationPayload>
+        }
+        aggregate: {
+          args: Prisma.PendingOperationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePendingOperation>
+        }
+        groupBy: {
+          args: Prisma.PendingOperationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PendingOperationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PendingOperationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PendingOperationCountAggregateOutputType> | number
         }
       }
     }
@@ -1233,6 +1309,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ExternalOrder: {
+      payload: Prisma.$ExternalOrderPayload<ExtArgs>
+      fields: Prisma.ExternalOrderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExternalOrderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExternalOrderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload>
+        }
+        findFirst: {
+          args: Prisma.ExternalOrderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExternalOrderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload>
+        }
+        findMany: {
+          args: Prisma.ExternalOrderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload>[]
+        }
+        create: {
+          args: Prisma.ExternalOrderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload>
+        }
+        createMany: {
+          args: Prisma.ExternalOrderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ExternalOrderCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload>[]
+        }
+        delete: {
+          args: Prisma.ExternalOrderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload>
+        }
+        update: {
+          args: Prisma.ExternalOrderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload>
+        }
+        deleteMany: {
+          args: Prisma.ExternalOrderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExternalOrderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ExternalOrderUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload>[]
+        }
+        upsert: {
+          args: Prisma.ExternalOrderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalOrderPayload>
+        }
+        aggregate: {
+          args: Prisma.ExternalOrderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExternalOrder>
+        }
+        groupBy: {
+          args: Prisma.ExternalOrderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExternalOrderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExternalOrderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExternalOrderCountAggregateOutputType> | number
+        }
+      }
+    }
     StockDocument: {
       payload: Prisma.$StockDocumentPayload<ExtArgs>
       fields: Prisma.StockDocumentFieldRefs
@@ -1652,10 +1802,39 @@ export const AuditLogScalarFieldEnum = {
   entityId: 'entityId',
   summary: 'summary',
   details: 'details',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  reviewStatus: 'reviewStatus',
+  reviewedById: 'reviewedById',
+  reviewedByName: 'reviewedByName',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote'
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const PendingOperationScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  status: 'status',
+  requestedById: 'requestedById',
+  requestedByName: 'requestedByName',
+  requestedByEmail: 'requestedByEmail',
+  requestedByRole: 'requestedByRole',
+  summary: 'summary',
+  payload: 'payload',
+  activeKey: 'activeKey',
+  reviewedById: 'reviewedById',
+  reviewedByName: 'reviewedByName',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  appliedEntityId: 'appliedEntityId',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PendingOperationScalarFieldEnum = (typeof PendingOperationScalarFieldEnum)[keyof typeof PendingOperationScalarFieldEnum]
 
 
 export const AppUserScalarFieldEnum = {
@@ -1698,6 +1877,7 @@ export const VehicleFitmentScalarFieldEnum = {
   id: 'id',
   carModelId: 'carModelId',
   label: 'label',
+  labelRu: 'labelRu',
   yearStart: 'yearStart',
   yearEnd: 'yearEnd',
   yearOpenEnded: 'yearOpenEnded',
@@ -1711,6 +1891,7 @@ export type VehicleFitmentScalarFieldEnum = (typeof VehicleFitmentScalarFieldEnu
 export const ProductTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  nameRu: 'nameRu',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1723,11 +1904,15 @@ export const ProductScalarFieldEnum = {
   importKey: 'importKey',
   source: 'source',
   manuallyEdited: 'manuallyEdited',
+  isLocal: 'isLocal',
   sourceRow: 'sourceRow',
   sourceItem: 'sourceItem',
   externalCode: 'externalCode',
+  alternativeCode: 'alternativeCode',
   description: 'description',
+  descriptionRu: 'descriptionRu',
   notes: 'notes',
+  notesRu: 'notesRu',
   stock: 'stock',
   minStock: 'minStock',
   priceEuro: 'priceEuro',
@@ -1794,6 +1979,32 @@ export const PartnerScalarFieldEnum = {
 export type PartnerScalarFieldEnum = (typeof PartnerScalarFieldEnum)[keyof typeof PartnerScalarFieldEnum]
 
 
+export const ExternalOrderScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  status: 'status',
+  customerName: 'customerName',
+  customerPhone: 'customerPhone',
+  productName: 'productName',
+  productCode: 'productCode',
+  quantity: 'quantity',
+  supplierId: 'supplierId',
+  supplierPriceLei: 'supplierPriceLei',
+  salePriceLei: 'salePriceLei',
+  offerValidUntil: 'offerValidUntil',
+  notes: 'notes',
+  quotedAt: 'quotedAt',
+  confirmedAt: 'confirmedAt',
+  receivedAt: 'receivedAt',
+  deliveredAt: 'deliveredAt',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExternalOrderScalarFieldEnum = (typeof ExternalOrderScalarFieldEnum)[keyof typeof ExternalOrderScalarFieldEnum]
+
+
 export const StockDocumentScalarFieldEnum = {
   id: 'id',
   type: 'type',
@@ -1806,6 +2017,8 @@ export const StockDocumentScalarFieldEnum = {
   notes: 'notes',
   totalEuro: 'totalEuro',
   totalLei: 'totalLei',
+  cashRegistered: 'cashRegistered',
+  paymentMethod: 'paymentMethod',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1874,6 +2087,9 @@ export const StockDocumentLineScalarFieldEnum = {
   id: 'id',
   documentId: 'documentId',
   productId: 'productId',
+  externalName: 'externalName',
+  externalCode: 'externalCode',
+  externalSupplierId: 'externalSupplierId',
   quantity: 'quantity',
   unitPriceEuro: 'unitPriceEuro',
   unitCostLei: 'unitCostLei',
@@ -1914,6 +2130,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2004,6 +2227,48 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'ReviewStatus'
+ */
+export type EnumReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReviewStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ReviewStatus[]'
+ */
+export type ListEnumReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReviewStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PendingOperationKind'
+ */
+export type EnumPendingOperationKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PendingOperationKind'>
+    
+
+
+/**
+ * Reference to a field of type 'PendingOperationKind[]'
+ */
+export type ListEnumPendingOperationKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PendingOperationKind[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PendingOperationStatus'
+ */
+export type EnumPendingOperationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PendingOperationStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PendingOperationStatus[]'
+ */
+export type ListEnumPendingOperationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PendingOperationStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'AppRole'
  */
 export type EnumAppRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AppRole'>
@@ -2081,6 +2346,20 @@ export type ListEnumPartnerKindFieldRefInput<$PrismaModel> = FieldRefInputType<$
 
 
 /**
+ * Reference to a field of type 'ExternalOrderStatus'
+ */
+export type EnumExternalOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExternalOrderStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ExternalOrderStatus[]'
+ */
+export type ListEnumExternalOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExternalOrderStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'StockDocumentType'
  */
 export type EnumStockDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StockDocumentType'>
@@ -2091,6 +2370,20 @@ export type EnumStockDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType
  * Reference to a field of type 'StockDocumentType[]'
  */
 export type ListEnumStockDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StockDocumentType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SalePaymentMethod'
+ */
+export type EnumSalePaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalePaymentMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'SalePaymentMethod[]'
+ */
+export type ListEnumSalePaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalePaymentMethod[]'>
     
 
 
@@ -2260,6 +2553,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   auditLog?: Prisma.AuditLogOmit
+  pendingOperation?: Prisma.PendingOperationOmit
   appUser?: Prisma.AppUserOmit
   brand?: Prisma.BrandOmit
   carModel?: Prisma.CarModelOmit
@@ -2270,6 +2564,7 @@ export type GlobalOmitConfig = {
   warehouse?: Prisma.WarehouseOmit
   warehouseStock?: Prisma.WarehouseStockOmit
   partner?: Prisma.PartnerOmit
+  externalOrder?: Prisma.ExternalOrderOmit
   stockDocument?: Prisma.StockDocumentOmit
   paymentAccount?: Prisma.PaymentAccountOmit
   paymentAccountLine?: Prisma.PaymentAccountLineOmit

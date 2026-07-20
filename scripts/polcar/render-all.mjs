@@ -21,7 +21,7 @@ async function render([code, u]) {
     await fetch(`http://127.0.0.1:${port}/json/close/${tid}`).catch(()=>{});
     if (photo) out[code] = photo;
     process.stderr.write(photo ? "." : "x");
-  } catch (e) { process.stderr.write("E"); }
+  } catch { process.stderr.write("E"); }
 }
 
 let i = 0;

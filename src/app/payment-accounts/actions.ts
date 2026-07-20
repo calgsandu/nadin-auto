@@ -2,15 +2,20 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import type { Prisma } from "@/generated/prisma/client";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { logAudit } from "@/lib/audit";
 import { COMPANY } from "@/lib/company";
 import { prisma } from "@/lib/prisma";
 import { canCreateSales, canWriteCatalog } from "@/lib/roles";
-import { validateSaleAvailability } from "@/lib/operations/inventory";
-import { aggregateRestockRequests } from "@/lib/operations/restock";
-import { buildPaymentAccountSaleData } from "@/lib/payment-accounts/fulfill";
+import {
+  executePaymentAccountFulfillment,
+  fulfillmentRequestSummary,
+  validatePaymentFulfillmentRequest,
+} from "@/lib/payment-accounts/execute-fulfillment";
+import {
+  enqueuePaymentFulfillmentRequest,
+  shouldQueueStockOperation,
+} from "@/lib/pending-operations/queue";
 import {
   assertCanCancelPaymentAccount,
   assertCanMarkPaymentAccountPaid,
@@ -143,7 +148,7 @@ export async function createPaymentAccountAction(
       summary: `Cont de plată #${created.number} emis pentru ${created.customerName} (${Number(created.totalGross)} lei)`,
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: `Contul de plată #${created.number} a fost emis.` };
   } catch (error) {
     return toActionError(error);
@@ -177,7 +182,7 @@ export async function markPaymentAccountPaidAction(
       entityId: id,
       summary: `Cont de plată #${account.number} marcat achitat`,
     });
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: `Contul #${account.number} a fost marcat achitat.` };
   } catch (error) {
     return toActionError(error);
@@ -200,7 +205,7 @@ export async function cancelPaymentAccountAction(
 
     const cancelledAt = new Date();
     const updated = await prisma.paymentAccount.updateMany({
-      where: { id, cancelledAt: null, fulfilledAt: null },
+      where: { id, cancelledAt: null, fulfilledAt: null, paidAt: null },
       data: { cancelledAt, status: "CANCELLED" },
     });
     if (updated.count !== 1) throw new Error("Starea contului s-a schimbat între timp. Reîncarcă pagina.");
@@ -211,7 +216,7 @@ export async function cancelPaymentAccountAction(
       entityId: id,
       summary: `Cont de plată #${account.number} anulat`,
     });
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: `Contul #${account.number} a fost anulat.` };
   } catch (error) {
     return toActionError(error);
@@ -225,98 +230,29 @@ export async function fulfillPaymentAccountAction(
   try {
     const user = await requirePaymentAccountWrite();
     const id = readId(formData);
-    const result = await prisma.$transaction(async (tx) => {
-      const locked = await tx.$queryRaw<{ id: string }[]>`
-        SELECT id FROM "PaymentAccount" WHERE id = ${id} FOR UPDATE`;
-      if (locked.length === 0) throw new Error("Contul de plată nu există.");
-
-      const account = await tx.paymentAccount.findUnique({
-        where: { id },
-        include: { lines: true, warehouse: { select: { name: true } } },
-      });
-      if (!account) throw new Error("Contul de plată nu există.");
-
-      const now = new Date();
-      const saleData = buildPaymentAccountSaleData(
-        {
-          id: account.id,
+    if (shouldQueueStockOperation(user.role)) {
+      const account = await validatePaymentFulfillmentRequest(prisma, id);
+      await enqueuePaymentFulfillmentRequest(
+        user,
+        { paymentAccountId: id },
+        fulfillmentRequestSummary({
           number: account.number,
-          warehouseId: account.warehouseId,
-          partnerId: account.partnerId,
-          cancelledAt: account.cancelledAt,
-          fulfilledAt: account.fulfilledAt,
+          customerName: account.customerName,
           totalGross: Number(account.totalGross),
-          notes: account.notes,
-          lines: account.lines.map((line) => ({
-            productId: line.productId,
-            quantity: line.quantity,
-            unitPriceGross: Number(line.unitPriceGross),
-          })),
-        },
-        now,
+        }),
       );
+      revalidatePath("/crm");
+      return {
+        ok: true,
+        message:
+          "Cererea de predare a fost trimisă spre aprobare. Stocul nu a fost modificat.",
+      };
+    }
 
-      const stocks = new Map<string, { id: string; quantity: number }>();
-      for (const line of saleData.lines) {
-        const stock = await ensureWarehouseStockRow(tx, line.productId, saleData.warehouseId);
-        validateSaleAvailability(stock.quantity, line.quantity);
-        stocks.set(line.productId, stock);
-      }
-
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('stockdoc:SALE'))`;
-      const lastSale = await tx.stockDocument.findFirst({
-        where: { type: "SALE" },
-        orderBy: { number: "desc" },
-        select: { number: true },
-      });
-      const sale = await tx.stockDocument.create({
-        data: {
-          ...saleData,
-          number: (lastSale?.number ?? 0) + 1,
-          lines: { create: saleData.lines },
-        },
-      });
-
-      if (account.warehouse.name === "Pavilion 110A") {
-        await tx.restockTask.createMany({
-          data: aggregateRestockRequests(saleData.lines).map((line) => ({
-            productId: line.productId,
-            warehouseId: account.warehouseId,
-            sourceDocumentId: sale.id,
-            quantity: line.quantity,
-            requestedAt: now,
-          })),
-        });
-      }
-
-      for (const line of saleData.lines) {
-        const stock = stocks.get(line.productId)!;
-        const rows = await tx.$queryRaw<{ quantity: number }[]>`
-          UPDATE "WarehouseStock"
-          SET quantity = quantity - ${line.quantity}, "updatedAt" = now()
-          WHERE id = ${stock.id} AND quantity >= ${line.quantity}
-          RETURNING quantity`;
-        if (rows.length !== 1) {
-          throw new Error("Stoc insuficient în locația selectată (modificat între timp).");
-        }
-        await syncProductAggregateStock(tx, line.productId);
-      }
-
-      await tx.paymentAccount.update({
-        where: { id },
-        data: { fulfilledAt: now, saleDocumentId: sale.id },
-      });
-      await logAudit(tx, user, {
-        action: "CREATE",
-        entity: "StockDocument",
-        entityId: sale.id,
-        summary: `Vânzare #${sale.number} creată din contul de plată #${account.number}`,
-      });
-
-      return { accountNumber: account.number, saleNumber: sale.number };
-    });
-
-    revalidatePath("/");
+    const result = await prisma.$transaction((tx) =>
+      executePaymentAccountFulfillment(tx, user, id),
+    );
+    revalidatePath("/crm");
     return {
       ok: true,
       message: `Marfa a fost predată. Vânzarea #${result.saleNumber} a fost creată din contul #${result.accountNumber}.`,
@@ -415,7 +351,7 @@ export async function submitPaymentAccountToEFacturaAction(
     }
 
     if (!success) {
-      revalidatePath("/");
+      revalidatePath("/crm");
       return { ok: false, message };
     }
 
@@ -425,13 +361,13 @@ export async function submitPaymentAccountToEFacturaAction(
       entityId: id,
       summary: `Cont de plată #${account.number} trimis nesemnat către SIA e-Factura`,
     });
-    revalidatePath("/");
+    revalidatePath("/crm");
     return {
       ok: true,
       message: `Contul #${account.number} a fost transmis. Semnează factura în SIA e-Factura.`,
     };
   } catch (error) {
-    revalidatePath("/");
+    revalidatePath("/crm");
     return toActionError(error);
   }
 }
@@ -455,36 +391,6 @@ function readId(formData: FormData) {
   const id = typeof value === "string" ? value.trim() : "";
   if (!id) throw new Error("Lipsește contul de plată.");
   return id;
-}
-
-async function ensureWarehouseStockRow(
-  tx: Prisma.TransactionClient,
-  productId: string,
-  warehouseId: string,
-) {
-  const existing = await tx.warehouseStock.findUnique({
-    where: { productId_warehouseId: { productId, warehouseId } },
-  });
-  if (existing) return existing;
-
-  const otherRows = await tx.warehouseStock.count({ where: { productId } });
-  const product = otherRows === 0
-    ? await tx.product.findUnique({ where: { id: productId }, select: { stock: true } })
-    : null;
-  return tx.warehouseStock.create({
-    data: { productId, warehouseId, quantity: product?.stock ?? 0 },
-  });
-}
-
-async function syncProductAggregateStock(tx: Prisma.TransactionClient, productId: string) {
-  const stocks = await tx.warehouseStock.findMany({ where: { productId }, select: { quantity: true } });
-  await tx.product.update({
-    where: { id: productId },
-    data: {
-      stock: stocks.reduce((sum, stock) => sum + stock.quantity, 0),
-      manuallyEdited: true,
-    },
-  });
 }
 
 function toActionError(error: unknown): PaymentAccountActionState {

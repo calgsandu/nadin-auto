@@ -102,8 +102,8 @@ export async function GET() {
     ...documents.flatMap((d) =>
       d.lines.map((line) => [
         `${d.type} #${d.number}`,
-        line.product.externalCode ?? "",
-        line.product.description,
+        line.product?.externalCode ?? line.externalCode ?? "",
+        line.product?.description ?? `${line.externalName ?? "Piesă externă"} (extern)`,
         line.quantity,
         num(line.unitPriceEuro),
         num(line.unitCostLei),

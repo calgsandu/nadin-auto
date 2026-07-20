@@ -118,8 +118,8 @@ export function createPaymentAccountPdf(account: PaymentAccountPdfData) {
   pdf.text(`Director: ${COMPANY.director}`, left, signatureY, { width: 230 });
   pdf.text(`Contabil-șef: ${COMPANY.chiefAccountant}`, 325, signatureY, { width: 230 });
   const disclaimerY = signatureY + 48;
-  pdf.roundedRect(left, disclaimerY, fullWidth, 38, 4).fillAndStroke("#fffbeb", "#f2b23e");
-  pdf.font("bold").fontSize(8.5).fillColor("#92400e").text(
+  pdf.roundedRect(left, disclaimerY, fullWidth, 38, 4).fillAndStroke("#f0f7ff", "#7cb8f5");
+  pdf.font("bold").fontSize(8.5).fillColor("#175cd3").text(
     "DOCUMENT COMERCIAL · NU REPREZINTĂ FACTURĂ FISCALĂ",
     left + 10,
     disclaimerY + 7,

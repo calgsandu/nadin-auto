@@ -1,27 +1,26 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { deleteProductAction, type CatalogActionState } from "@/app/catalog/actions";
+import { ActionFeedback } from "@/app/components/action-feedback";
 
 const initialState: CatalogActionState = { ok: false, message: "" };
 
 export function ProductDeleteButton({ productId, label }: { productId: string; label: string }) {
   const [state, formAction] = useActionState(deleteProductAction, initialState);
 
-  useEffect(() => {
-    if (state.message && !state.ok) window.alert(state.message);
-  }, [state]);
-
   return (
     <form
       action={formAction}
+      className="grid justify-items-end gap-1"
       onSubmit={(e) => {
         if (!window.confirm(`Ștergi produsul „${label}”?`)) e.preventDefault();
       }}
     >
       <input type="hidden" name="productId" value={productId} />
       <DeleteButton />
+      <ActionFeedback state={state} compact />
     </form>
   );
 }

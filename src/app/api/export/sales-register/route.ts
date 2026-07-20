@@ -11,6 +11,7 @@ import {
   pdfResponse,
   type PdfColumn,
 } from "@/lib/export/pdf";
+import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,7 @@ function parseDate(value: string | null, fallback: Date) {
 type RegisterRow = {
   date: Date;
   document: string;
+  paymentMethod: string;
   buyer: string;
   code: string;
   description: string;
@@ -78,9 +80,13 @@ export async function GET(request: Request) {
       return {
         date: doc.documentDate,
         document: label,
+        paymentMethod:
+          doc.type === "SALE"
+            ? salePaymentMethodLabel(doc.paymentMethod)
+            : "Nespecificat",
         buyer: doc.partner?.name ?? "Consumator final",
-        code: line.product.externalCode ?? "—",
-        description: line.product.description,
+        code: line.product?.externalCode ?? line.externalCode ?? (line.product ? "—" : "extern"),
+        description: line.product?.description ?? line.externalName ?? "Piesă externă",
         quantity: sign * line.quantity,
         unitPrice: unit,
         value: sign * unit * line.quantity,
@@ -100,6 +106,7 @@ export async function GET(request: Request) {
       "Nr. crt.",
       "Data",
       "Document",
+      "Metoda plății",
       "Cumpărător",
       "Cod",
       "Denumirea mărfii",
@@ -123,6 +130,7 @@ export async function GET(request: Request) {
         index + 1,
         dateFmt.format(row.date),
         row.document,
+        row.paymentMethod,
         row.buyer,
         row.code,
         row.description,
@@ -134,13 +142,13 @@ export async function GET(request: Request) {
       ]),
       [],
       [
-        "", "", "", "", "", "TOTAL", "",
+        "", "", "", "", "", "", "TOTAL", "",
         totalQuantity, "",
         Math.round(totalValue * 100) / 100,
         COMPANY.vatPayer ? tva : "",
       ],
       ...(COMPANY.vatPayer
-        ? [["", "", "", "", "", "Valoarea fără TVA", "", "", "", net, ""]]
+        ? [["", "", "", "", "", "", "Valoarea fără TVA", "", "", "", net, ""]]
         : []),
     ];
 
@@ -149,6 +157,7 @@ export async function GET(request: Request) {
       { wch: 7 },
       { wch: 11 },
       { wch: 14 },
+      { wch: 13 },
       { wch: 22 },
       { wch: 14 },
       { wch: 44 },
@@ -173,20 +182,22 @@ export async function GET(request: Request) {
 
   const columns: PdfColumn[] = [
     { header: "Nr.", width: 24, align: "center" },
-    { header: "Data", width: 52 },
-    { header: "Document", width: 58 },
-    { header: "Cumpărător", width: 74 },
-    { header: "Cod", width: 52 },
-    { header: "Denumirea mărfii", width: 128 },
-    { header: "Cant.", width: 32, align: "right" },
-    { header: "Preț (lei)", width: 47, align: "right" },
-    { header: "Valoare (lei)", width: 48, align: "right" },
+    { header: "Data", width: 48 },
+    { header: "Document", width: 52 },
+    { header: "Plată", width: 38 },
+    { header: "Cumpărător", width: 65 },
+    { header: "Cod", width: 45 },
+    { header: "Denumirea mărfii", width: 110 },
+    { header: "Cant.", width: 30, align: "right" },
+    { header: "Preț (lei)", width: 44, align: "right" },
+    { header: "Valoare (lei)", width: 47, align: "right" },
   ];
 
   const tableRows = rows.map((row, index) => [
     String(index + 1),
     dateFmt.format(row.date),
     row.document,
+    row.paymentMethod,
     row.buyer,
     row.code,
     row.description,
@@ -195,13 +206,13 @@ export async function GET(request: Request) {
     pdfMoney.format(row.value),
   ]);
   tableRows.push(
-    ["", "", "", "", "", "TOTAL", String(totalQuantity), "", pdfMoney.format(totalValue)],
+    ["", "", "", "", "", "", "TOTAL", String(totalQuantity), "", pdfMoney.format(totalValue)],
   );
   const boldRow = tableRows.length - 1;
   if (COMPANY.vatPayer) {
     tableRows.push(
-      ["", "", "", "", "", "din care TVA (÷6)", "", "", pdfMoney.format(tva)],
-      ["", "", "", "", "", "Valoarea fără TVA", "", "", pdfMoney.format(net)],
+      ["", "", "", "", "", "", "din care TVA (÷6)", "", "", pdfMoney.format(tva)],
+      ["", "", "", "", "", "", "Valoarea fără TVA", "", "", pdfMoney.format(net)],
     );
   }
 

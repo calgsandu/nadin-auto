@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { restoreDocumentAction, type RestoreActionState } from "@/app/istoric/actions";
+import { ActionFeedback } from "@/app/components/action-feedback";
 
 const initial: RestoreActionState = { ok: false, message: "" };
 
@@ -10,13 +11,10 @@ const initial: RestoreActionState = { ok: false, message: "" };
 export function RestoreButton({ auditId, title }: { auditId: string; title: string }) {
   const [state, formAction] = useActionState(restoreDocumentAction, initial);
 
-  useEffect(() => {
-    if (state.message) window.alert(state.message);
-  }, [state]);
-
   return (
     <form
       action={formAction}
+      className="grid justify-items-end gap-1"
       onSubmit={(e) => {
         if (!window.confirm(`Restaurezi documentul șters (${title})? Stocul va fi re-aplicat.`)) {
           e.preventDefault();
@@ -25,6 +23,7 @@ export function RestoreButton({ auditId, title }: { auditId: string; title: stri
     >
       <input type="hidden" name="auditId" value={auditId} />
       <SubmitButton />
+      <ActionFeedback state={state} compact />
     </form>
   );
 }

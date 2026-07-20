@@ -5,6 +5,7 @@ import {
   hydrateLabelSelection,
   parseLabelSelection,
   serializeLabelSelection,
+  setLabelAlternativeCode,
   setLabelCount,
   toggleLabelSelection,
 } from "../label-selection";
@@ -14,14 +15,22 @@ test("parses stored selection items and clamps their counts", () => {
     parseLabelSelection(
       '[{"id":"p1","code":"A","name":"Aripă","count":70}]',
     ),
-    [{ id: "p1", code: "A", name: "Aripă", count: 50 }],
+    [{
+      id: "p1",
+      code: "A",
+      alternativeCode: "",
+      name: "Aripă",
+      compatibility: "",
+      count: 50,
+      includeAlternativeCode: false,
+    }],
   );
 });
 
 test("migrates legacy id arrays with one copy", () => {
   assert.deepEqual(parseLabelSelection('["p1","p2"]'), [
-    { id: "p1", code: "", name: "", count: 1 },
-    { id: "p2", code: "", name: "", count: 1 },
+    { id: "p1", code: "", alternativeCode: "", name: "", compatibility: "", count: 1, includeAlternativeCode: false },
+    { id: "p2", code: "", alternativeCode: "", name: "", compatibility: "", count: 1, includeAlternativeCode: false },
   ]);
 });
 
@@ -36,14 +45,14 @@ test("deduplicates stored products and keeps the latest data", () => {
     parseLabelSelection(
       '[{"id":"p1","code":"A","name":"Aripă","count":2},{"id":"p1","code":"B","name":"Bară","count":3}]',
     ),
-    [{ id: "p1", code: "B", name: "Bară", count: 3 }],
+    [{ id: "p1", code: "B", alternativeCode: "", name: "Bară", compatibility: "", count: 3, includeAlternativeCode: false }],
   );
 });
 
 test("updates one quantity without changing selection order", () => {
   const items = [
-    { id: "p1", code: "A", name: "Aripă", count: 1 },
-    { id: "p2", code: "B", name: "Bară", count: 2 },
+    { id: "p1", code: "A", alternativeCode: "", name: "Aripă", compatibility: "", count: 1, includeAlternativeCode: false },
+    { id: "p2", code: "B", alternativeCode: "", name: "Bară", compatibility: "", count: 2, includeAlternativeCode: false },
   ];
 
   assert.deepEqual(setLabelCount(items, "p1", 3), [
@@ -56,8 +65,8 @@ test("updates one quantity without changing selection order", () => {
 
 test("serializes selection and builds the print query", () => {
   const items = [
-    { id: "p1", code: "A", name: "Aripă", count: 3 },
-    { id: "p2", code: "B", name: "Bară", count: 1 },
+    { id: "p1", code: "A", alternativeCode: "", name: "Aripă", compatibility: "", count: 3, includeAlternativeCode: false },
+    { id: "p2", code: "B", alternativeCode: "", name: "Bară", compatibility: "", count: 1, includeAlternativeCode: false },
   ];
 
   assert.deepEqual(parseLabelSelection(serializeLabelSelection(items)), items);
@@ -66,8 +75,8 @@ test("serializes selection and builds the print query", () => {
 });
 
 test("adds and removes a product while preserving its count", () => {
-  const first = { id: "p1", code: "A", name: "Aripă", count: 4 };
-  const second = { id: "p2", code: "B", name: "Bară", count: 1 };
+  const first = { id: "p1", code: "A", alternativeCode: "", name: "Aripă", compatibility: "", count: 4, includeAlternativeCode: false };
+  const second = { id: "p2", code: "B", alternativeCode: "", name: "Bară", compatibility: "", count: 1, includeAlternativeCode: false };
 
   assert.deepEqual(toggleLabelSelection([first], second, true), [first, second]);
   assert.deepEqual(
@@ -78,11 +87,87 @@ test("adds and removes a product while preserving its count", () => {
 });
 
 test("hydrates legacy product metadata from visible rows", () => {
-  const stored = [{ id: "p1", code: "", name: "", count: 3 }];
-  const visible = [{ id: "p1", code: "A", name: "Aripă", count: 1 }];
+  const stored = [{ id: "p1", code: "", alternativeCode: "", name: "", compatibility: "", count: 3, includeAlternativeCode: false }];
+  const visible = [{ id: "p1", code: "A", alternativeCode: "SUP-A", name: "Aripă", compatibility: "", count: 1, includeAlternativeCode: false }];
 
   assert.deepEqual(hydrateLabelSelection(stored, visible), [
-    { id: "p1", code: "A", name: "Aripă", count: 3 },
+    { id: "p1", code: "A", alternativeCode: "SUP-A", name: "Aripă", compatibility: "", count: 3, includeAlternativeCode: false },
   ]);
   assert.equal(hydrateLabelSelection(visible, visible), visible);
+});
+
+test("stores compatibility details for the compact label selector", () => {
+  const compatibility = "AUDI A4 · Ani 1994–2000";
+  assert.deepEqual(
+    parseLabelSelection(
+      `[{"id":"p1","code":"A","name":"Prag","compatibility":"${compatibility}","count":2}]`,
+    ),
+    [{ id: "p1", code: "A", alternativeCode: "", name: "Prag", compatibility, count: 2, includeAlternativeCode: false }],
+  );
+
+  assert.deepEqual(
+    hydrateLabelSelection(
+      [{ id: "p1", code: "A", alternativeCode: "", name: "Prag", compatibility: "", count: 2, includeAlternativeCode: false }],
+      [{ id: "p1", code: "A", alternativeCode: "", name: "Prag", compatibility, count: 1, includeAlternativeCode: false }],
+    ),
+    [{ id: "p1", code: "A", alternativeCode: "", name: "Prag", compatibility, count: 2, includeAlternativeCode: false }],
+  );
+});
+
+test("enables the alternative code only for products that have one", () => {
+  const withAlternative = {
+    id: "p1",
+    code: "A",
+    alternativeCode: "SUP-A",
+    name: "Aripă",
+    compatibility: "",
+    count: 1,
+    includeAlternativeCode: false,
+  };
+
+  assert.equal(
+    setLabelAlternativeCode([withAlternative], "p1", true)[0]
+      ?.includeAlternativeCode,
+    true,
+  );
+  assert.equal(
+    setLabelAlternativeCode(
+      [{ ...withAlternative, alternativeCode: "" }],
+      "p1",
+      true,
+    )[0]?.includeAlternativeCode,
+    false,
+  );
+});
+
+test("prints alternative codes only for explicitly enabled products", () => {
+  const items = [
+    {
+      id: "p1",
+      code: "A",
+      alternativeCode: "SUP-A",
+      name: "Aripă",
+      compatibility: "",
+      count: 2,
+      includeAlternativeCode: true,
+    },
+    {
+      id: "p2",
+      code: "B",
+      alternativeCode: "SUP-B",
+      name: "Bară",
+      compatibility: "",
+      count: 1,
+      includeAlternativeCode: false,
+    },
+  ];
+
+  assert.equal(buildLabelPrintQuery(items).get("items"), "p1:2,p2:1");
+  assert.equal(buildLabelPrintQuery(items).get("alt"), "p1");
+  assert.equal(
+    buildLabelPrintQuery(
+      items.map((item) => ({ ...item, includeAlternativeCode: false })),
+    ).has("alt"),
+    false,
+  );
 });

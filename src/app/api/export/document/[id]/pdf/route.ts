@@ -10,6 +10,7 @@ import {
   pdfResponse,
   type PdfColumn,
 } from "@/lib/export/pdf";
+import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,9 @@ export async function GET(
     `${isOutgoing ? "Cumpărător" : "Furnizor"}: ${doc.partner?.name ?? "Consumator final"}` +
       (doc.partner?.phone ? ` · tel. ${doc.partner.phone}` : ""),
   );
+  if (doc.type === "SALE") {
+    pdf.text(`Metoda de plată: ${salePaymentMethodLabel(doc.paymentMethod)}`);
+  }
   if (doc.notes) pdf.text(`Mențiuni: ${doc.notes}`);
   pdf.moveDown(0.8);
 
@@ -79,8 +83,8 @@ export async function GET(
     total += value;
     return [
       String(index + 1),
-      line.product.externalCode ?? "—",
-      line.product.description,
+      line.product?.externalCode ?? line.externalCode ?? (line.product ? "—" : "extern"),
+      line.product?.description ?? line.externalName ?? "Piesă externă",
       "buc.",
       String(line.quantity),
       pdfMoney.format(unit),

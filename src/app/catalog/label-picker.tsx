@@ -10,6 +10,7 @@ import {
   MIN_LABEL_COUNT,
   parseLabelSelection,
   serializeLabelSelection,
+  setLabelAlternativeCode,
   setLabelCount,
   toggleLabelSelection,
   type LabelSelectionItem,
@@ -56,8 +57,11 @@ export function LabelPicker({ children }: { children: ReactNode }) {
       return {
         id: box.dataset.labelId!,
         code: box.dataset.labelCode ?? "",
+        alternativeCode: box.dataset.labelAlternativeCode ?? "",
         name: box.dataset.labelName ?? "",
+        compatibility: box.dataset.labelCompatibility ?? "",
         count: 1,
+        includeAlternativeCode: false,
       };
     });
 
@@ -84,8 +88,11 @@ export function LabelPicker({ children }: { children: ReactNode }) {
           {
             id,
             code: box.dataset.labelCode ?? "",
+            alternativeCode: box.dataset.labelAlternativeCode ?? "",
             name: box.dataset.labelName ?? "",
+            compatibility: box.dataset.labelCompatibility ?? "",
             count: 1,
+            includeAlternativeCode: false,
           },
           box.checked,
         );
@@ -122,6 +129,14 @@ export function LabelPicker({ children }: { children: ReactNode }) {
   function updateCount(id: string, count: number) {
     setSelected((current) => {
       const next = setLabelCount(current, id, count);
+      saveSelection(next);
+      return next;
+    });
+  }
+
+  function updateAlternativeCode(id: string, include: boolean) {
+    setSelected((current) => {
+      const next = setLabelAlternativeCode(current, id, include);
       saveSelection(next);
       return next;
     });
@@ -187,6 +202,36 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                               <p className="mt-0.5 truncate text-xs text-[#777269]">
                                 {item.name || "Produs selectat"}
                               </p>
+                              {item.compatibility ? (
+                                <p className="mt-0.5 truncate text-[11px] text-[#98948b]">
+                                  {item.compatibility}
+                                </p>
+                              ) : null}
+                              <label
+                                className={`mt-1.5 inline-flex items-center gap-1.5 text-[11px] ${
+                                  item.alternativeCode
+                                    ? "cursor-pointer text-[#5f5b53]"
+                                    : "cursor-not-allowed text-[#aaa69e]"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={item.includeAlternativeCode}
+                                  disabled={!item.alternativeCode}
+                                  onChange={(event) =>
+                                    updateAlternativeCode(
+                                      item.id,
+                                      event.currentTarget.checked,
+                                    )
+                                  }
+                                  className="size-3.5 accent-[#1b1a17]"
+                                />
+                                <span>
+                                  {item.alternativeCode
+                                    ? `Include cod alternativ (${item.alternativeCode})`
+                                    : "Fără cod alternativ"}
+                                </span>
+                              </label>
                             </div>
 
                             <div className="flex items-center gap-1.5">

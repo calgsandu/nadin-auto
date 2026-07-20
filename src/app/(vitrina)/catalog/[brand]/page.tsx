@@ -4,14 +4,40 @@ import { notFound } from "next/navigation";
 import { getBrandData, getShowroomData } from "@/lib/vitrina/queries";
 import { brandLogo, modelImage } from "@/lib/vitrina/images";
 import { Reveal, StaggerGroup } from "../motion";
+import type { Metadata } from "next";
+import {
+  catalogCopy,
+  catalogHref,
+  catalogNumberFormat,
+} from "@/lib/vitrina/i18n";
+import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
 
 export const revalidate = 3600;
 
-const numberFormat = new Intl.NumberFormat("ro-RO");
-
 export async function generateStaticParams() {
-  const { brands } = await getShowroomData();
+  const { brands } = await getShowroomData("ro");
   return brands.map((brand) => ({ brand: brand.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ brand: string }>;
+}): Promise<Metadata> {
+  const [{ brand: brandSlug }, locale] = await Promise.all([
+    params,
+    getRequestCatalogLocale(),
+  ]);
+  const brand = await getBrandData(brandSlug, locale);
+  if (!brand) return {};
+  const suffix = `/${brandSlug}`;
+  return {
+    title: locale === "ru" ? `${brand.name}: кузовные детали — Nadin Auto` : `${brand.name}: piese de caroserie — Nadin Auto`,
+    alternates: {
+      canonical: catalogHref(locale, suffix),
+      languages: { ro: catalogHref("ro", suffix), ru: catalogHref("ru", suffix) },
+    },
+  };
 }
 
 export default async function BrandPage({
@@ -19,8 +45,13 @@ export default async function BrandPage({
 }: {
   params: Promise<{ brand: string }>;
 }) {
-  const { brand: brandSlug } = await params;
-  const brand = await getBrandData(brandSlug);
+  const [{ brand: brandSlug }, locale] = await Promise.all([
+    params,
+    getRequestCatalogLocale(),
+  ]);
+  const copy = catalogCopy(locale);
+  const numberFormat = catalogNumberFormat(locale);
+  const brand = await getBrandData(brandSlug, locale);
   if (!brand || brand.models.length === 0) notFound();
 
   const total = brand.models.reduce((sum, model) => sum + model.productCount, 0);
@@ -28,24 +59,24 @@ export default async function BrandPage({
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-white/10">
+      <section className="relative overflow-hidden border-b border-black/10">
         <p
           aria-hidden
-          className="pointer-events-none absolute -bottom-8 left-0 select-none whitespace-nowrap text-[22vw] font-bold leading-none tracking-tighter text-white/[0.03]"
+          className="pointer-events-none absolute -bottom-8 left-0 select-none whitespace-nowrap text-[22vw] font-bold leading-none tracking-tighter text-black/[0.04]"
         >
           {brand.name}
         </p>
         <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-36 md:pb-24 md:pt-44">
           <Reveal>
-            <p className="text-sm text-[#8f887c]">
-              <Link href="/catalog" className="transition-colors hover:text-[#f4f1ea]">
-                Catalog
+            <p className="text-sm text-[#6f6a61]">
+              <Link href={catalogHref(locale)} className="transition-colors hover:text-[#1b1a17]">
+                {copy.common.catalog}
               </Link>{" "}
               / {brand.name}
             </p>
             <div className="mt-4 flex items-center gap-5">
               {logo ? (
-                <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-white/95 p-3 md:size-24">
+                <span className="grid size-20 shrink-0 place-items-center rounded-2xl border border-black/10 bg-white p-3 md:size-24">
                   <Image
                     src={logo}
                     alt={brand.name}
@@ -59,8 +90,8 @@ export default async function BrandPage({
                 {brand.name}
               </h1>
             </div>
-            <p className="mt-4 text-base text-[#b5afa4] md:text-lg">
-              {brand.models.length} modele · {numberFormat.format(total)} piese
+            <p className="mt-4 text-base text-[#57534a] md:text-lg">
+              {copy.common.models(brand.models.length)} · {copy.common.parts(total)}
             </p>
           </Reveal>
         </div>
@@ -73,9 +104,9 @@ export default async function BrandPage({
             return (
               <Link
                 key={model.slug}
-                href={`/catalog/${brand.slug}/${model.slug}`}
+                href={catalogHref(locale, `/${brand.slug}/${model.slug}`)}
                 data-stagger
-                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] transition-colors hover:border-[#d97706]/60"
+                className="group overflow-hidden rounded-2xl border border-black/10 bg-white transition-colors hover:border-[#2e90fa]/60"
               >
                 {photo ? (
                   <div className="relative aspect-[4/3] overflow-hidden bg-white">
@@ -90,14 +121,14 @@ export default async function BrandPage({
                 ) : null}
                 <div className="flex items-center justify-between gap-4 p-6">
                   <div className="min-w-0">
-                    <p className="truncate text-xl font-semibold tracking-tight group-hover:text-[#d97706]">
+                    <p className="truncate text-xl font-semibold tracking-tight group-hover:text-[#2e90fa]">
                       {model.name}
                     </p>
-                    <p className="mt-2 font-mono text-xs text-[#8f887c]">
-                      {model.years ?? "toți anii"}
+                    <p className="mt-2 font-mono text-xs text-[#6f6a61]">
+                      {model.years ?? copy.common.allYears}
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-full border border-white/10 px-3 py-1.5 font-mono text-xs text-[#b5afa4]">
+                  <span className="shrink-0 rounded-full border border-black/10 px-3 py-1.5 font-mono text-xs text-[#57534a]">
                     {numberFormat.format(model.productCount)}
                   </span>
                 </div>

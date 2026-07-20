@@ -4,11 +4,18 @@ import { useState } from "react";
 import { Download, FileText, History } from "lucide-react";
 import Link from "next/link";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { cashRegisterLabel } from "@/lib/operations/cash-register";
+import {
+  salePaymentMethodLabel,
+  type SalePaymentMethodStatus,
+} from "@/lib/operations/sale-payment-method";
 
 export type DocumentDetailsLine = {
   id: string;
   code: string | null;
   description: string;
+  /** Marca + model + ani (din fitmentul principal al produsului); null pe linii externe. */
+  vehicle: string | null;
   quantity: number;
   price: number | null;
 };
@@ -26,6 +33,9 @@ export type DocumentDetailsValue = {
   createdAt: string;
   updatedAt: string;
   totalLei: number;
+  isSale: boolean;
+  cashRegistered: boolean | null;
+  paymentMethod: SalePaymentMethodStatus;
   lines: DocumentDetailsLine[];
   /** ADMIN/DIRECTOR: arată exporturile PDF/XLSX + linkul spre istoric. */
   canExport: boolean;
@@ -75,7 +85,7 @@ function DetailsPanel({
           aria-label="Închide"
           onClick={onClose}
         />
-        <aside className="motion-drawer-panel relative flex h-full w-full max-w-3xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+        <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
           <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
             <div>
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
@@ -107,6 +117,18 @@ function DetailsPanel({
                 }
               />
               <MetaItem label="Note" value={details.notes || "—"} />
+              {details.isSale ? (
+                <>
+                  <MetaItem
+                    label="Statut casă"
+                    value={cashRegisterLabel(details.cashRegistered)}
+                  />
+                  <MetaItem
+                    label="Metoda de plată"
+                    value={salePaymentMethodLabel(details.paymentMethod)}
+                  />
+                </>
+              ) : null}
               <MetaItem label="Creat în sistem" value={details.createdAt} />
               <MetaItem label="Ultima modificare" value={details.updatedAt} />
             </dl>
@@ -130,7 +152,14 @@ function DetailsPanel({
                     {details.lines.map((line) => (
                       <tr key={line.id} className="border-t border-[#efeeeb]">
                         <td className="px-3 py-2 font-mono text-xs">{line.code ?? "—"}</td>
-                        <td className="px-3 py-2">{line.description}</td>
+                        <td className="px-3 py-2">
+                          {line.description}
+                          {line.vehicle ? (
+                            <span className="mt-0.5 block text-xs text-[#6f6b63]">
+                              {line.vehicle}
+                            </span>
+                          ) : null}
+                        </td>
                         <td className="px-3 py-2 text-right font-mono">{line.quantity}</td>
                         <td className="px-3 py-2 text-right font-mono">
                           {line.price != null ? money.format(line.price) : "—"}
@@ -180,7 +209,7 @@ function DetailsPanel({
                   <Download className="size-4" aria-hidden="true" /> Excel intern
                 </a>
                 <Link
-                  href={`/?section=istoric&doc=${details.id}`}
+                  href={`/crm?section=istoric&doc=${details.id}`}
                   className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                 >
                   <History className="size-4" aria-hidden="true" /> Istoric modificări

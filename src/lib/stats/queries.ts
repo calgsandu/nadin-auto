@@ -20,7 +20,10 @@ export async function getStatsData() {
           select: {
             quantity: true,
             unitPriceEuro: true,
+            unitCostLei: true,
             productId: true,
+            externalName: true,
+            externalCode: true,
             product: {
               select: { description: true, externalCode: true, costLei: true },
             },
@@ -40,11 +43,16 @@ export async function getStatsData() {
     lines: sale.lines.map((line) => ({
       quantity: line.quantity,
       unitPriceLei: Number(line.unitPriceEuro ?? 0),
-      unitCostLei: Number(line.product.costLei ?? 0),
-      productId: line.productId,
-      productLabel: line.product.externalCode
-        ? `${line.product.externalCode} · ${line.product.description}`
-        : line.product.description,
+      // Liniile externe își poartă costul de achiziție pe linie, nu pe produs.
+      unitCostLei: line.product
+        ? Number(line.product.costLei ?? 0)
+        : Number(line.unitCostLei ?? 0),
+      productId: line.productId ?? `extern:${line.externalName ?? "?"}`,
+      productLabel: line.product
+        ? line.product.externalCode
+          ? `${line.product.externalCode} · ${line.product.description}`
+          : line.product.description
+        : `${line.externalCode ? `${line.externalCode} · ` : ""}${line.externalName ?? "Piesă externă"} (extern)`,
     })),
   }));
 

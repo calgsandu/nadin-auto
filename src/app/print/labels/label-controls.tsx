@@ -18,7 +18,23 @@ export type LabelItem = {
   code: string;
   name: string;
   count: number;
+  includeAlternativeCode: boolean;
 };
+
+function setAlternativeCodeParam(
+  next: URLSearchParams,
+  items: LabelItem[],
+) {
+  const ids = items
+    .filter((item) => item.includeAlternativeCode)
+    .map((item) => item.id);
+
+  if (ids.length > 0) {
+    next.set("alt", ids.join(","));
+  } else {
+    next.delete("alt");
+  }
+}
 
 export function LabelControls({
   size,
@@ -40,6 +56,7 @@ export function LabelControls({
     next.delete("ids");
     next.delete("copies");
     next.set("items", items.map((it) => `${it.id}:${it.count}`).join(","));
+    setAlternativeCodeParam(next, items);
     mutate(next);
     router.replace(`/print/labels?${next.toString()}`);
   }
@@ -57,17 +74,25 @@ export function LabelControls({
   }
 
   function remove(id: string) {
-    navigate((next) =>
+    const remaining = items.filter((it) => it.id !== id);
+    navigate((next) => {
       next.set(
         "items",
-        items.filter((it) => it.id !== id).map((it) => `${it.id}:${it.count}`).join(","),
-      ),
-    );
+        remaining.map((it) => `${it.id}:${it.count}`).join(","),
+      );
+      setAlternativeCodeParam(next, remaining);
+    });
   }
 
   const pdfHref = () => {
     const p = new URLSearchParams();
     p.set("items", items.map((it) => `${it.id}:${it.count}`).join(","));
+    const alternativeIds = items
+      .filter((item) => item.includeAlternativeCode)
+      .map((item) => item.id);
+    if (alternativeIds.length > 0) {
+      p.set("alt", alternativeIds.join(","));
+    }
     p.set("size", size);
     p.set("layout", layout);
     if (layout === "grid") p.set("skip", String(skip));

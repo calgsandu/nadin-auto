@@ -18,7 +18,12 @@ export function buildCompatibilityLines(
   const unique = new Map<string, CompatibilityInput>();
 
   for (const compatibility of compatibilities) {
-    unique.set(compatibility.id, compatibility);
+    // Imported fitments and app-created fitments can share the same
+    // brand/model/years under different labels — dedupe on what we display.
+    unique.set(
+      `${compatibility.brandName}|${compatibility.modelName}|${formatCompatibilityYears(compatibility)}`,
+      compatibility,
+    );
   }
 
   return [...unique.values()]

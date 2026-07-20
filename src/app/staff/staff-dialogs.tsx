@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useState, type ReactNode } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   createStaffUserAction,
   resetStaffPasswordAction,
@@ -107,13 +108,10 @@ function ResetPasswordDrawer({ userId, username, onClose }: { userId: string; us
 export function StaffActiveButton({ userId, active, label }: { userId: string; active: boolean; label: string }) {
   const [state, formAction] = useActionState(setStaffActiveAction, initialState);
 
-  useEffect(() => {
-    if (state.message && !state.ok) window.alert(state.message);
-  }, [state]);
-
   return (
     <form
       action={formAction}
+      className="grid justify-items-end gap-1"
       onSubmit={(event) => {
         const action = active ? "dezactivezi" : "reactivezi";
         if (!window.confirm(`Sigur ${action} contul „${label}”?`)) event.preventDefault();
@@ -122,6 +120,7 @@ export function StaffActiveButton({ userId, active, label }: { userId: string; a
       <input type="hidden" name="userId" value={userId} />
       <input type="hidden" name="active" value={active ? "false" : "true"} />
       <ActiveSubmit active={active} />
+      <ActionFeedback state={state} compact />
     </form>
   );
 }
@@ -172,7 +171,7 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
   const [copied, setCopied] = useState(false);
   return (
     <div className="grid gap-4">
-      <div className="rounded-lg border border-[#f2b23e] bg-[#fffbeb] p-4 text-sm text-[#78350f]">
+      <div className="rounded-lg border border-[#7cb8f5] bg-[#f0f7ff] p-4 text-sm text-[#194185]">
         Copiază parola acum. După închiderea ferestrei nu mai poate fi afișată.
       </div>
       <div className="flex items-center gap-2 rounded-lg border border-[#e8e7e3] bg-white p-3">

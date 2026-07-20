@@ -26,5 +26,9 @@ assert.throws(
   () => assertCanCancelPaymentAccount({ ...active, fulfilledAt: new Date() }),
   /predată/,
 );
+assert.throws(
+  () => assertCanCancelPaymentAccount({ ...active, paidAt: new Date() }),
+  /achitat/,
+);
 
 console.log("payment account status tests passed");

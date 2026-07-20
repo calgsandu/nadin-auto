@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canCreateSales, canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
-import { logAudit } from "@/lib/audit";
+import { logAuditRequired } from "@/lib/audit";
 import {
   calculateNextQuantity,
   validateDifferentWarehouses,
@@ -16,13 +16,21 @@ import {
   parseReceiptLines,
 } from "@/lib/operations/receipt-lines";
 import { parseTransferLines } from "@/lib/operations/transfer-lines";
+import { parseSaleLines } from "@/lib/operations/sales";
+import { parseRequiredCashRegistered } from "@/lib/operations/cash-register";
+import { parseRequiredSalePaymentMethod } from "@/lib/operations/sale-payment-method";
+import { reconcileSaleRestockTasks } from "@/lib/operations/restock";
 import {
-  calculateSaleTotalEuro,
-  parseSaleLines,
-} from "@/lib/operations/sales";
-import { aggregateRestockRequests } from "@/lib/operations/restock";
+  executeSale,
+  saleRequestSummary,
+  validateSaleRequest,
+} from "@/lib/operations/execute-sale";
+import { parsePendingOperationPayload } from "@/lib/pending-operations/payload";
 import {
-  ensureCustomerPartner,
+  enqueueSaleRequest,
+  shouldQueueStockOperation,
+} from "@/lib/pending-operations/queue";
+import {
   ensureSupplierPartner,
   normalizeOptionalPartnerId,
 } from "@/lib/operations/supplier-selection";
@@ -95,7 +103,7 @@ export async function createReceiptAction(
         await syncProductAggregateStock(tx, line.productId);
       }
 
-      await logAudit(tx, user, {
+      await logAuditRequired(tx, user, {
         action: "CREATE",
         entity: "StockDocument",
         entityId: document.id,
@@ -106,7 +114,7 @@ export async function createReceiptAction(
       return document;
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return {
       ok: true,
       message: `Recepția a fost salvată cu ${lines.length} produse.`,
@@ -199,7 +207,7 @@ export async function createTransferAction(
         select: { id: true, name: true },
       });
       const nameOf = (id: string) => warehouseNames.find((w) => w.id === id)?.name ?? id;
-      await logAudit(tx, user, {
+      await logAuditRequired(tx, user, {
         action: "CREATE",
         entity: "StockDocument",
         summary: `Transfer #${firstNumber}/#${firstNumber + 1} creat (${lines.length} produse): ${nameOf(sourceWarehouseId)} → ${nameOf(destinationWarehouseId)}`,
@@ -207,7 +215,7 @@ export async function createTransferAction(
       });
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return {
       ok: true,
       message: `Transferul a fost salvat cu ${lines.length} produse.`,
@@ -228,113 +236,67 @@ export async function createSaleAction(
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
     const newCustomerName = readString(formData, "newCustomerName");
     const notes = readString(formData, "notes");
+    const cashRegistered = parseRequiredCashRegistered(
+      readString(formData, "cashRegistered"),
+    );
+    const paymentMethod = parseRequiredSalePaymentMethod(
+      readString(formData, "paymentMethod"),
+    );
     const lines = parseSaleLines({
       productIds: readStrings(formData, "productId"),
       quantities: readStrings(formData, "quantity"),
       unitPricesEuro: readStrings(formData, "unitPriceEuro"),
+      externalNames: readStrings(formData, "externalName"),
+      externalCodes: readStrings(formData, "externalCode"),
+      externalSupplierIds: readStrings(formData, "externalSupplierId"),
+      externalCostsLei: readStrings(formData, "externalCostLei"),
     });
 
-    if (!warehouseId) {
-      throw new Error("Alege locația.");
+    const parsed = parsePendingOperationPayload("SALE", {
+      warehouseId,
+      documentDate: documentDate.toISOString().slice(0, 10),
+      partnerId: selectedPartnerId,
+      newCustomerName,
+      notes,
+      cashRegistered,
+      paymentMethod,
+      lines: lines.map((line) => ({
+        productId: line.productId,
+        externalName: line.externalName,
+        externalCode: line.externalCode,
+        externalSupplierId: line.externalSupplierId,
+        unitCostLei: line.unitCostLei,
+        quantity: line.quantity,
+        unitPriceLei: Number(line.unitPriceEuro ?? 0),
+      })),
+    });
+    if (parsed.kind !== "SALE") {
+      throw new Error("Cererea de vânzare nu este validă.");
+    }
+    const payload = parsed.payload;
+
+    if (shouldQueueStockOperation(user.role)) {
+      const warehouse = await validateSaleRequest(prisma, payload);
+      await enqueueSaleRequest(
+        user,
+        payload,
+        saleRequestSummary(payload, warehouse.name),
+      );
+      revalidatePath("/crm");
+      return {
+        ok: true,
+        message:
+          "Cererea de vânzare a fost trimisă spre aprobare. Stocul nu a fost modificat.",
+      };
     }
 
-    await prisma.$transaction(async (tx) => {
-      const warehouse = await tx.warehouse.findUnique({
-        where: { id: warehouseId },
-        select: { name: true },
-      });
-
-      if (!warehouse) {
-        throw new Error("Locația aleasă nu există.");
-      }
-
-      let partnerId: string | null;
-      if (newCustomerName) {
-        const existing = await tx.partner.findUnique({
-          where: { name: newCustomerName },
-          select: { id: true, kind: true },
-        });
-        if (existing) {
-          if (existing.kind === "SUPPLIER") {
-            await tx.partner.update({
-              where: { id: existing.id },
-              data: { kind: "BOTH" },
-            });
-          }
-          partnerId = existing.id;
-        } else {
-          const created = await tx.partner.create({
-            data: { name: newCustomerName, kind: "CUSTOMER" },
-            select: { id: true },
-          });
-          partnerId = created.id;
-        }
-      } else {
-        const partner = selectedPartnerId
-          ? await tx.partner.findUnique({
-              where: { id: selectedPartnerId },
-              select: { id: true, kind: true },
-            })
-          : null;
-        partnerId = ensureCustomerPartner(partner, selectedPartnerId);
-      }
-
-      for (const line of lines) {
-        const stock = await ensureWarehouseStockRow(tx, line.productId, warehouseId);
-        validateSaleAvailability(stock.quantity, line.quantity);
-      }
-
-      const document = await tx.stockDocument.create({
-        data: {
-          type: "SALE",
-          number: await nextDocumentNumber(tx, "SALE"),
-          documentDate,
-          warehouseId,
-          partnerId,
-          notes,
-          // Sales are priced in lei (MDL); the per-line value carries lei.
-          totalLei: calculateSaleTotalEuro(lines),
-          lines: {
-            create: lines,
-          },
-        },
-      });
-
-      if (warehouse.name === RESTOCK_WAREHOUSE_NAME) {
-        await tx.restockTask.createMany({
-          data: aggregateRestockRequests(lines).map((line) => ({
-            productId: line.productId,
-            warehouseId,
-            sourceDocumentId: document.id,
-            quantity: line.quantity,
-            requestedAt: documentDate,
-          })),
-        });
-      }
-
-      for (const line of lines) {
-        await updateWarehouseStock(tx, {
-          productId: line.productId,
-          warehouseId,
-          quantity: line.quantity,
-          kind: "SALE",
-        });
-        await syncProductAggregateStock(tx, line.productId);
-      }
-
-      await logAudit(tx, user, {
-        action: "CREATE",
-        entity: "StockDocument",
-        entityId: document.id,
-        summary: `Vânzare #${document.number} creată (${lines.length} produse, ${Number(document.totalLei ?? 0)} lei) — ${warehouse.name}`,
-        details: { lines },
-      });
-    });
-
-    revalidatePath("/");
+    const sale = await prisma.$transaction((tx) =>
+      executeSale(tx, user, payload),
+    );
+    revalidatePath("/crm");
     return {
       ok: true,
-      message: `Vânzarea a fost salvată cu ${lines.length} produse.`,
+      message: `Vânzarea #${sale.number} a fost salvată cu ${lines.length} produse.`,
     };
   } catch (error) {
     return toActionError(error);
@@ -357,18 +319,42 @@ export async function createReturnAction(
       throw new Error("Alege vânzarea pentru retur.");
     }
 
-    const lines = productIds
-      .map((productId, index) => ({
-        productId: productId.trim(),
-        quantity: Number(quantities[index] ?? ""),
-      }))
-      .filter((line) => line.productId && line.quantity > 0);
+    const selectedProducts = new Set<string>();
+    const lines = productIds.flatMap((rawProductId, index) => {
+      const productId = rawProductId.trim();
+      const rawQuantity = (quantities[index] ?? "").trim();
+      const quantity = Number(rawQuantity);
+      if (!rawQuantity || quantity === 0) return [];
+      if (!productId) {
+        throw new Error(`Produs lipsă pe poziția ${index + 1}.`);
+      }
+      if (!Number.isInteger(quantity) || quantity < 0) {
+        throw new Error(
+          `Cantitatea de retur de pe poziția ${index + 1} trebuie să fie un număr întreg pozitiv.`,
+        );
+      }
+      if (selectedProducts.has(productId)) {
+        throw new Error(
+          `Produsul de pe poziția ${index + 1} este adăugat de mai multe ori.`,
+        );
+      }
+      selectedProducts.add(productId);
+      return [{ productId, quantity }];
+    });
 
     if (lines.length === 0) {
       throw new Error("Alege cel puțin un produs cu cantitate pentru retur.");
     }
 
     await prisma.$transaction(async (tx) => {
+      const lockedSale = await tx.$queryRaw<{ id: string }[]>`
+        SELECT id FROM "StockDocument"
+        WHERE id = ${saleDocumentId} AND type = 'SALE'
+        FOR UPDATE`;
+      if (lockedSale.length === 0) {
+        throw new Error("Vânzarea aleasă nu există.");
+      }
+
       const sale = await tx.stockDocument.findUnique({
         where: { id: saleDocumentId },
         include: { lines: true },
@@ -376,6 +362,11 @@ export async function createReturnAction(
 
       if (!sale || sale.type !== "SALE") {
         throw new Error("Vânzarea aleasă nu există.");
+      }
+      if (documentDate < sale.documentDate) {
+        throw new Error(
+          "Data returului nu poate fi înaintea datei vânzării.",
+        );
       }
 
       const soldByProduct = new Map(
@@ -390,6 +381,7 @@ export async function createReturnAction(
       });
       const alreadyReturned = new Map<string, number>();
       for (const line of priorReturnLines) {
+        if (!line.productId) continue;
         alreadyReturned.set(
           line.productId,
           (alreadyReturned.get(line.productId) ?? 0) + line.quantity,
@@ -433,7 +425,7 @@ export async function createReturnAction(
         },
       });
 
-      await logAudit(tx, user, {
+      await logAuditRequired(tx, user, {
         action: "CREATE",
         entity: "StockDocument",
         entityId: returnDoc.id,
@@ -449,31 +441,11 @@ export async function createReturnAction(
           kind: "RETURN",
         });
         await syncProductAggregateStock(tx, line.productId);
-
-        // The product came back, so it no longer needs restocking in 110A:
-        // shrink (or drop) the pending task created by the source sale.
-        const task = await tx.restockTask.findFirst({
-          where: {
-            sourceDocumentId: sale.id,
-            productId: line.productId,
-            status: "PENDING",
-          },
-        });
-        if (task) {
-          const remaining = task.quantity - line.quantity;
-          if (remaining > 0) {
-            await tx.restockTask.update({
-              where: { id: task.id },
-              data: { quantity: remaining },
-            });
-          } else {
-            await tx.restockTask.delete({ where: { id: task.id } });
-          }
-        }
       }
+      await reconcileSaleRestockTasks(tx, sale.id);
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return {
       ok: true,
       message: `Returul a fost salvat cu ${lines.length} produse.`,
@@ -547,7 +519,7 @@ export async function createInventoryAction(
         include: { warehouse: { select: { name: true } } },
       });
 
-      await logAudit(tx, user, {
+      await logAuditRequired(tx, user, {
         action: "CREATE",
         entity: "StockDocument",
         entityId: inventoryDoc.id,
@@ -567,7 +539,7 @@ export async function createInventoryAction(
       adjustedCount = diffs.length;
     });
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return {
       ok: true,
       message: `Inventarul a fost salvat: ${adjustedCount} poziții ajustate.`,
@@ -625,7 +597,7 @@ async function markRestockTasks(
       throw new Error("Nu mai există produse active pentru această poziție.");
     }
 
-    revalidatePath("/");
+    revalidatePath("/crm");
     return { ok: true, message: successMessage };
   } catch (error) {
     return toActionError(error);
@@ -652,8 +624,6 @@ async function requireSalesWrite() {
 }
 
 type StockDocumentKind = "RECEIPT" | "ADJUSTMENT" | "SALE" | "RETURN";
-const RESTOCK_WAREHOUSE_NAME = "Pavilion 110A";
-
 async function nextDocumentNumber(tx: TransactionClient, type: StockDocumentKind) {
   // Advisory lock per tip de document: două tranzacții simultane nu mai pot
   // lua același număr (unique [type, number] ar fi respins una din ele urât).

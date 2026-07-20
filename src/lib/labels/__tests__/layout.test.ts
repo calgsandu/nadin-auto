@@ -4,6 +4,7 @@ import {
   LABEL_COMPATIBILITY_PREFIX,
   LABEL_PHONE,
   buildCombinedCompatibilityLabel,
+  buildProductCodeLabel,
 } from "@/lib/labels/format";
 import { LABEL_SIZES } from "@/lib/labels/layout";
 
@@ -24,6 +25,13 @@ assert.equal(large.w * large.cols + large.mx * 2, 210);
 assert.equal(large.my + large.h * large.rows + large.gy * (large.rows - 1), 295.7);
 assert.equal(LABEL_PHONE, "0 (68) 677885");
 assert.equal(LABEL_COMPATIBILITY_PREFIX, "Piesă auto compatibilă cu modelul");
+assert.equal(
+  buildProductCodeLabel("p12013 1", "supplier 42"),
+  "P12013 1 / SUPPLIER 42",
+);
+assert.equal(buildProductCodeLabel("p12013 1", null), "P12013 1");
+assert.equal(buildProductCodeLabel(" ", "supplier 42"), "SUPPLIER 42");
+assert.equal(buildProductCodeLabel(null, null), "-");
 assert.equal(
   buildCombinedCompatibilityLabel([
     {

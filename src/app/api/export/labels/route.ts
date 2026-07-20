@@ -7,7 +7,7 @@ import {
   LABEL_PHONE,
   buildCombinedCompatibilityLabel,
   buildPartLabel,
-  upperLabelText,
+  buildProductCodeLabel,
 } from "@/lib/labels/format";
 import { LABEL_SIZES, type LabelSizeKey } from "@/lib/labels/layout";
 
@@ -34,11 +34,21 @@ function parseItems(items: string | null, ids: string | null, copies: string | n
   return map;
 }
 
+function parseAlternativeCodeIds(value: string | null) {
+  return new Set(
+    (value ?? "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean),
+  );
+}
+
 export async function GET(request: NextRequest) {
   await requireCurrentAppUser();
 
   const sp = request.nextUrl.searchParams;
   const counts = parseItems(sp.get("items"), sp.get("ids"), sp.get("copies"));
+  const alternativeCodeIds = parseAlternativeCodeIds(sp.get("alt"));
   const sizeKey: LabelSizeKey =
     sp.get("size") === "s" || sp.get("size") === "m" ? (sp.get("size") as LabelSizeKey) : "l";
   const layout = sp.get("layout") === "roll" ? "roll" : "grid";
@@ -64,10 +74,14 @@ export async function GET(request: NextRequest) {
     .map((id) => fetched.find((p) => p.id === id))
     .filter((p): p is (typeof fetched)[number] => Boolean(p));
 
-  type Label = (typeof products)[number] & { compatibility: string };
+  type Label = (typeof products)[number] & {
+    compatibility: string;
+    includeAlternativeCode: boolean;
+  };
   const labels: Label[] = products.flatMap((p) =>
     Array.from({ length: counts.get(p.id) ?? 1 }, () => ({
       ...p,
+      includeAlternativeCode: alternativeCodeIds.has(p.id),
       compatibility: buildCombinedCompatibilityLabel(
         p.productFitments.map(({ fitment }) => ({
           brandName: fitment.carModel.brand.name,
@@ -114,7 +128,10 @@ export async function GET(request: NextRequest) {
     const desc = dim.desc * PX;
     const phone = dim.phone * PX;
 
-    const codeText = upperLabelText(product.externalCode ?? "-");
+    const codeText = buildProductCodeLabel(
+      product.externalCode,
+      product.includeAlternativeCode ? product.alternativeCode : null,
+    );
     const part = buildPartLabel(product.type.name, product.description);
 
     doc.font("bold").fontSize(code).fillColor("#111");

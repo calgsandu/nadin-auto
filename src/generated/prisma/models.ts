@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/AuditLog'
+export type * from './models/PendingOperation'
 export type * from './models/AppUser'
 export type * from './models/Brand'
 export type * from './models/CarModel'
@@ -19,6 +20,7 @@ export type * from './models/ProductFitment'
 export type * from './models/Warehouse'
 export type * from './models/WarehouseStock'
 export type * from './models/Partner'
+export type * from './models/ExternalOrder'
 export type * from './models/StockDocument'
 export type * from './models/PaymentAccount'
 export type * from './models/PaymentAccountLine'

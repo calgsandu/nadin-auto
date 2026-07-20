@@ -23,6 +23,11 @@ export * from './enums';
  */
 export type AuditLog = Prisma.AuditLogModel
 /**
+ * Model PendingOperation
+ * 
+ */
+export type PendingOperation = Prisma.PendingOperationModel
+/**
  * Model AppUser
  * 
  */
@@ -72,6 +77,12 @@ export type WarehouseStock = Prisma.WarehouseStockModel
  * 
  */
 export type Partner = Prisma.PartnerModel
+/**
+ * Model ExternalOrder
+ * Comandă la furnizor extern (back-to-back): piesa NU intră în catalog/stoc,
+ * dar păstrăm clientul, furnizorul, costul și marja pentru trasabilitate.
+ */
+export type ExternalOrder = Prisma.ExternalOrderModel
 /**
  * Model StockDocument
  * 

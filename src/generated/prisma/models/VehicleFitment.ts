@@ -40,6 +40,7 @@ export type VehicleFitmentMinAggregateOutputType = {
   id: string | null
   carModelId: string | null
   label: string | null
+  labelRu: string | null
   yearStart: number | null
   yearEnd: number | null
   yearOpenEnded: boolean | null
@@ -51,6 +52,7 @@ export type VehicleFitmentMaxAggregateOutputType = {
   id: string | null
   carModelId: string | null
   label: string | null
+  labelRu: string | null
   yearStart: number | null
   yearEnd: number | null
   yearOpenEnded: boolean | null
@@ -62,6 +64,7 @@ export type VehicleFitmentCountAggregateOutputType = {
   id: number
   carModelId: number
   label: number
+  labelRu: number
   yearStart: number
   yearEnd: number
   yearOpenEnded: number
@@ -85,6 +88,7 @@ export type VehicleFitmentMinAggregateInputType = {
   id?: true
   carModelId?: true
   label?: true
+  labelRu?: true
   yearStart?: true
   yearEnd?: true
   yearOpenEnded?: true
@@ -96,6 +100,7 @@ export type VehicleFitmentMaxAggregateInputType = {
   id?: true
   carModelId?: true
   label?: true
+  labelRu?: true
   yearStart?: true
   yearEnd?: true
   yearOpenEnded?: true
@@ -107,6 +112,7 @@ export type VehicleFitmentCountAggregateInputType = {
   id?: true
   carModelId?: true
   label?: true
+  labelRu?: true
   yearStart?: true
   yearEnd?: true
   yearOpenEnded?: true
@@ -205,6 +211,7 @@ export type VehicleFitmentGroupByOutputType = {
   id: string
   carModelId: string
   label: string
+  labelRu: string | null
   yearStart: number | null
   yearEnd: number | null
   yearOpenEnded: boolean
@@ -239,6 +246,7 @@ export type VehicleFitmentWhereInput = {
   id?: Prisma.StringFilter<"VehicleFitment"> | string
   carModelId?: Prisma.StringFilter<"VehicleFitment"> | string
   label?: Prisma.StringFilter<"VehicleFitment"> | string
+  labelRu?: Prisma.StringNullableFilter<"VehicleFitment"> | string | null
   yearStart?: Prisma.IntNullableFilter<"VehicleFitment"> | number | null
   yearEnd?: Prisma.IntNullableFilter<"VehicleFitment"> | number | null
   yearOpenEnded?: Prisma.BoolFilter<"VehicleFitment"> | boolean
@@ -253,6 +261,7 @@ export type VehicleFitmentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   carModelId?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  labelRu?: Prisma.SortOrderInput | Prisma.SortOrder
   yearStart?: Prisma.SortOrderInput | Prisma.SortOrder
   yearEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   yearOpenEnded?: Prisma.SortOrder
@@ -271,6 +280,7 @@ export type VehicleFitmentWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.VehicleFitmentWhereInput | Prisma.VehicleFitmentWhereInput[]
   carModelId?: Prisma.StringFilter<"VehicleFitment"> | string
   label?: Prisma.StringFilter<"VehicleFitment"> | string
+  labelRu?: Prisma.StringNullableFilter<"VehicleFitment"> | string | null
   yearStart?: Prisma.IntNullableFilter<"VehicleFitment"> | number | null
   yearEnd?: Prisma.IntNullableFilter<"VehicleFitment"> | number | null
   yearOpenEnded?: Prisma.BoolFilter<"VehicleFitment"> | boolean
@@ -285,6 +295,7 @@ export type VehicleFitmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   carModelId?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  labelRu?: Prisma.SortOrderInput | Prisma.SortOrder
   yearStart?: Prisma.SortOrderInput | Prisma.SortOrder
   yearEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   yearOpenEnded?: Prisma.SortOrder
@@ -304,6 +315,7 @@ export type VehicleFitmentScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"VehicleFitment"> | string
   carModelId?: Prisma.StringWithAggregatesFilter<"VehicleFitment"> | string
   label?: Prisma.StringWithAggregatesFilter<"VehicleFitment"> | string
+  labelRu?: Prisma.StringNullableWithAggregatesFilter<"VehicleFitment"> | string | null
   yearStart?: Prisma.IntNullableWithAggregatesFilter<"VehicleFitment"> | number | null
   yearEnd?: Prisma.IntNullableWithAggregatesFilter<"VehicleFitment"> | number | null
   yearOpenEnded?: Prisma.BoolWithAggregatesFilter<"VehicleFitment"> | boolean
@@ -314,6 +326,7 @@ export type VehicleFitmentScalarWhereWithAggregatesInput = {
 export type VehicleFitmentCreateInput = {
   id?: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -328,6 +341,7 @@ export type VehicleFitmentUncheckedCreateInput = {
   id?: string
   carModelId: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -340,6 +354,7 @@ export type VehicleFitmentUncheckedCreateInput = {
 export type VehicleFitmentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -354,6 +369,7 @@ export type VehicleFitmentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   carModelId?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -367,6 +383,7 @@ export type VehicleFitmentCreateManyInput = {
   id?: string
   carModelId: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -377,6 +394,7 @@ export type VehicleFitmentCreateManyInput = {
 export type VehicleFitmentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -388,6 +406,7 @@ export type VehicleFitmentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   carModelId?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -414,6 +433,7 @@ export type VehicleFitmentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   carModelId?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  labelRu?: Prisma.SortOrder
   yearStart?: Prisma.SortOrder
   yearEnd?: Prisma.SortOrder
   yearOpenEnded?: Prisma.SortOrder
@@ -430,6 +450,7 @@ export type VehicleFitmentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   carModelId?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  labelRu?: Prisma.SortOrder
   yearStart?: Prisma.SortOrder
   yearEnd?: Prisma.SortOrder
   yearOpenEnded?: Prisma.SortOrder
@@ -441,6 +462,7 @@ export type VehicleFitmentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   carModelId?: Prisma.SortOrder
   label?: Prisma.SortOrder
+  labelRu?: Prisma.SortOrder
   yearStart?: Prisma.SortOrder
   yearEnd?: Prisma.SortOrder
   yearOpenEnded?: Prisma.SortOrder
@@ -539,6 +561,7 @@ export type VehicleFitmentUpdateOneRequiredWithoutProductFitmentsNestedInput = {
 export type VehicleFitmentCreateWithoutCarModelInput = {
   id?: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -551,6 +574,7 @@ export type VehicleFitmentCreateWithoutCarModelInput = {
 export type VehicleFitmentUncheckedCreateWithoutCarModelInput = {
   id?: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -593,6 +617,7 @@ export type VehicleFitmentScalarWhereInput = {
   id?: Prisma.StringFilter<"VehicleFitment"> | string
   carModelId?: Prisma.StringFilter<"VehicleFitment"> | string
   label?: Prisma.StringFilter<"VehicleFitment"> | string
+  labelRu?: Prisma.StringNullableFilter<"VehicleFitment"> | string | null
   yearStart?: Prisma.IntNullableFilter<"VehicleFitment"> | number | null
   yearEnd?: Prisma.IntNullableFilter<"VehicleFitment"> | number | null
   yearOpenEnded?: Prisma.BoolFilter<"VehicleFitment"> | boolean
@@ -603,6 +628,7 @@ export type VehicleFitmentScalarWhereInput = {
 export type VehicleFitmentCreateWithoutProductsInput = {
   id?: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -616,6 +642,7 @@ export type VehicleFitmentUncheckedCreateWithoutProductsInput = {
   id?: string
   carModelId: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -643,6 +670,7 @@ export type VehicleFitmentUpdateToOneWithWhereWithoutProductsInput = {
 export type VehicleFitmentUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -656,6 +684,7 @@ export type VehicleFitmentUncheckedUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   carModelId?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -667,6 +696,7 @@ export type VehicleFitmentUncheckedUpdateWithoutProductsInput = {
 export type VehicleFitmentCreateWithoutProductFitmentsInput = {
   id?: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -680,6 +710,7 @@ export type VehicleFitmentUncheckedCreateWithoutProductFitmentsInput = {
   id?: string
   carModelId: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -707,6 +738,7 @@ export type VehicleFitmentUpdateToOneWithWhereWithoutProductFitmentsInput = {
 export type VehicleFitmentUpdateWithoutProductFitmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -720,6 +752,7 @@ export type VehicleFitmentUncheckedUpdateWithoutProductFitmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   carModelId?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -731,6 +764,7 @@ export type VehicleFitmentUncheckedUpdateWithoutProductFitmentsInput = {
 export type VehicleFitmentCreateManyCarModelInput = {
   id?: string
   label: string
+  labelRu?: string | null
   yearStart?: number | null
   yearEnd?: number | null
   yearOpenEnded?: boolean
@@ -741,6 +775,7 @@ export type VehicleFitmentCreateManyCarModelInput = {
 export type VehicleFitmentUpdateWithoutCarModelInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -753,6 +788,7 @@ export type VehicleFitmentUpdateWithoutCarModelInput = {
 export type VehicleFitmentUncheckedUpdateWithoutCarModelInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -765,6 +801,7 @@ export type VehicleFitmentUncheckedUpdateWithoutCarModelInput = {
 export type VehicleFitmentUncheckedUpdateManyWithoutCarModelInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.StringFieldUpdateOperationsInput | string
+  labelRu?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   yearStart?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearEnd?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   yearOpenEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -816,6 +853,7 @@ export type VehicleFitmentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   id?: boolean
   carModelId?: boolean
   label?: boolean
+  labelRu?: boolean
   yearStart?: boolean
   yearEnd?: boolean
   yearOpenEnded?: boolean
@@ -831,6 +869,7 @@ export type VehicleFitmentSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   carModelId?: boolean
   label?: boolean
+  labelRu?: boolean
   yearStart?: boolean
   yearEnd?: boolean
   yearOpenEnded?: boolean
@@ -843,6 +882,7 @@ export type VehicleFitmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   carModelId?: boolean
   label?: boolean
+  labelRu?: boolean
   yearStart?: boolean
   yearEnd?: boolean
   yearOpenEnded?: boolean
@@ -855,6 +895,7 @@ export type VehicleFitmentSelectScalar = {
   id?: boolean
   carModelId?: boolean
   label?: boolean
+  labelRu?: boolean
   yearStart?: boolean
   yearEnd?: boolean
   yearOpenEnded?: boolean
@@ -862,7 +903,7 @@ export type VehicleFitmentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type VehicleFitmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "carModelId" | "label" | "yearStart" | "yearEnd" | "yearOpenEnded" | "createdAt" | "updatedAt", ExtArgs["result"]["vehicleFitment"]>
+export type VehicleFitmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "carModelId" | "label" | "labelRu" | "yearStart" | "yearEnd" | "yearOpenEnded" | "createdAt" | "updatedAt", ExtArgs["result"]["vehicleFitment"]>
 export type VehicleFitmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   carModel?: boolean | Prisma.CarModelDefaultArgs<ExtArgs>
   products?: boolean | Prisma.VehicleFitment$productsArgs<ExtArgs>
@@ -887,6 +928,7 @@ export type $VehicleFitmentPayload<ExtArgs extends runtime.Types.Extensions.Inte
     id: string
     carModelId: string
     label: string
+    labelRu: string | null
     yearStart: number | null
     yearEnd: number | null
     yearOpenEnded: boolean
@@ -1321,6 +1363,7 @@ export interface VehicleFitmentFieldRefs {
   readonly id: Prisma.FieldRef<"VehicleFitment", 'String'>
   readonly carModelId: Prisma.FieldRef<"VehicleFitment", 'String'>
   readonly label: Prisma.FieldRef<"VehicleFitment", 'String'>
+  readonly labelRu: Prisma.FieldRef<"VehicleFitment", 'String'>
   readonly yearStart: Prisma.FieldRef<"VehicleFitment", 'Int'>
   readonly yearEnd: Prisma.FieldRef<"VehicleFitment", 'Int'>
   readonly yearOpenEnded: Prisma.FieldRef<"VehicleFitment", 'Boolean'>

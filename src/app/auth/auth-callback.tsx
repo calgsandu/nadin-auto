@@ -49,7 +49,7 @@ export function AuthCallback() {
           <p className="text-sm text-[#b91c1c]">Autentificarea nu s-a finalizat.</p>
           <Link
             href="/auth/sign-in"
-            className="text-sm font-semibold text-[#1b1a17] underline decoration-[#d97706] underline-offset-4"
+            className="text-sm font-semibold text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
           >
             Înapoi la autentificare
           </Link>
@@ -58,7 +58,7 @@ export function AuthCallback() {
         <>
           <span
             aria-hidden
-            className="size-8 animate-spin rounded-full border-2 border-[#e8e7e3] border-t-[#d97706]"
+            className="size-8 animate-spin rounded-full border-2 border-[#e8e7e3] border-t-[#2e90fa]"
           />
           <p className="text-sm text-[#6f6b63]">Te conectăm...</p>
         </>

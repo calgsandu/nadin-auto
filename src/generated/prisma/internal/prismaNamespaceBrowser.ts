@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   AuditLog: 'AuditLog',
+  PendingOperation: 'PendingOperation',
   AppUser: 'AppUser',
   Brand: 'Brand',
   CarModel: 'CarModel',
@@ -62,6 +63,7 @@ export const ModelName = {
   Warehouse: 'Warehouse',
   WarehouseStock: 'WarehouseStock',
   Partner: 'Partner',
+  ExternalOrder: 'ExternalOrder',
   StockDocument: 'StockDocument',
   PaymentAccount: 'PaymentAccount',
   PaymentAccountLine: 'PaymentAccountLine',
@@ -95,10 +97,39 @@ export const AuditLogScalarFieldEnum = {
   entityId: 'entityId',
   summary: 'summary',
   details: 'details',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  reviewStatus: 'reviewStatus',
+  reviewedById: 'reviewedById',
+  reviewedByName: 'reviewedByName',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote'
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const PendingOperationScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  status: 'status',
+  requestedById: 'requestedById',
+  requestedByName: 'requestedByName',
+  requestedByEmail: 'requestedByEmail',
+  requestedByRole: 'requestedByRole',
+  summary: 'summary',
+  payload: 'payload',
+  activeKey: 'activeKey',
+  reviewedById: 'reviewedById',
+  reviewedByName: 'reviewedByName',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  appliedEntityId: 'appliedEntityId',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PendingOperationScalarFieldEnum = (typeof PendingOperationScalarFieldEnum)[keyof typeof PendingOperationScalarFieldEnum]
 
 
 export const AppUserScalarFieldEnum = {
@@ -141,6 +172,7 @@ export const VehicleFitmentScalarFieldEnum = {
   id: 'id',
   carModelId: 'carModelId',
   label: 'label',
+  labelRu: 'labelRu',
   yearStart: 'yearStart',
   yearEnd: 'yearEnd',
   yearOpenEnded: 'yearOpenEnded',
@@ -154,6 +186,7 @@ export type VehicleFitmentScalarFieldEnum = (typeof VehicleFitmentScalarFieldEnu
 export const ProductTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  nameRu: 'nameRu',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -166,11 +199,15 @@ export const ProductScalarFieldEnum = {
   importKey: 'importKey',
   source: 'source',
   manuallyEdited: 'manuallyEdited',
+  isLocal: 'isLocal',
   sourceRow: 'sourceRow',
   sourceItem: 'sourceItem',
   externalCode: 'externalCode',
+  alternativeCode: 'alternativeCode',
   description: 'description',
+  descriptionRu: 'descriptionRu',
   notes: 'notes',
+  notesRu: 'notesRu',
   stock: 'stock',
   minStock: 'minStock',
   priceEuro: 'priceEuro',
@@ -237,6 +274,32 @@ export const PartnerScalarFieldEnum = {
 export type PartnerScalarFieldEnum = (typeof PartnerScalarFieldEnum)[keyof typeof PartnerScalarFieldEnum]
 
 
+export const ExternalOrderScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  status: 'status',
+  customerName: 'customerName',
+  customerPhone: 'customerPhone',
+  productName: 'productName',
+  productCode: 'productCode',
+  quantity: 'quantity',
+  supplierId: 'supplierId',
+  supplierPriceLei: 'supplierPriceLei',
+  salePriceLei: 'salePriceLei',
+  offerValidUntil: 'offerValidUntil',
+  notes: 'notes',
+  quotedAt: 'quotedAt',
+  confirmedAt: 'confirmedAt',
+  receivedAt: 'receivedAt',
+  deliveredAt: 'deliveredAt',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExternalOrderScalarFieldEnum = (typeof ExternalOrderScalarFieldEnum)[keyof typeof ExternalOrderScalarFieldEnum]
+
+
 export const StockDocumentScalarFieldEnum = {
   id: 'id',
   type: 'type',
@@ -249,6 +312,8 @@ export const StockDocumentScalarFieldEnum = {
   notes: 'notes',
   totalEuro: 'totalEuro',
   totalLei: 'totalLei',
+  cashRegistered: 'cashRegistered',
+  paymentMethod: 'paymentMethod',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -317,6 +382,9 @@ export const StockDocumentLineScalarFieldEnum = {
   id: 'id',
   documentId: 'documentId',
   productId: 'productId',
+  externalName: 'externalName',
+  externalCode: 'externalCode',
+  externalSupplierId: 'externalSupplierId',
   quantity: 'quantity',
   unitPriceEuro: 'unitPriceEuro',
   unitCostLei: 'unitCostLei',
@@ -357,6 +425,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import {
   markRestockDeliveredAction,
   markRestockUnavailableAction,
   type OperationActionState,
 } from "@/app/operations/actions";
+import { ActionFeedback } from "@/app/components/action-feedback";
 
 const initialState: OperationActionState = { ok: false, message: "" };
 
@@ -28,14 +29,8 @@ export function RestockCheckbox({
   const [state, formAction] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (state.message && !state.ok) {
-      window.alert(state.message);
-    }
-  }, [state]);
-
   return (
-    <form ref={formRef} action={formAction}>
+    <form ref={formRef} action={formAction} className="grid justify-items-end gap-1">
       <input type="hidden" name="productId" value={productId} />
       <input type="hidden" name="warehouseId" value={warehouseId} />
       <CheckboxInput
@@ -44,6 +39,7 @@ export function RestockCheckbox({
           formRef.current?.requestSubmit();
         }}
       />
+      <ActionFeedback state={state} compact />
     </form>
   );
 }
