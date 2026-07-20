@@ -69,6 +69,10 @@ export function hashToken(token: string) {
   return sha256("token:", token);
 }
 
+export function hashEnrollmentActivationCode(normalizedCode: string) {
+  return sha256("nadin-auto:2fa-enrollment-grant:", normalizedCode);
+}
+
 export function hashNeonSessionId(sessionId: string) {
   return sha256("neon-session:", sessionId);
 }

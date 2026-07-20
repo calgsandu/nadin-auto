@@ -42,6 +42,7 @@ export type TwoFactorCredentialMinAggregateOutputType = {
   setupExpiresAt: Date | null
   verifiedAt: Date | null
   lastAcceptedStep: bigint | null
+  enrollmentAuthSessionHash: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +55,7 @@ export type TwoFactorCredentialMaxAggregateOutputType = {
   setupExpiresAt: Date | null
   verifiedAt: Date | null
   lastAcceptedStep: bigint | null
+  enrollmentAuthSessionHash: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +68,7 @@ export type TwoFactorCredentialCountAggregateOutputType = {
   setupExpiresAt: number
   verifiedAt: number
   lastAcceptedStep: number
+  enrollmentAuthSessionHash: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -88,6 +91,7 @@ export type TwoFactorCredentialMinAggregateInputType = {
   setupExpiresAt?: true
   verifiedAt?: true
   lastAcceptedStep?: true
+  enrollmentAuthSessionHash?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +104,7 @@ export type TwoFactorCredentialMaxAggregateInputType = {
   setupExpiresAt?: true
   verifiedAt?: true
   lastAcceptedStep?: true
+  enrollmentAuthSessionHash?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +117,7 @@ export type TwoFactorCredentialCountAggregateInputType = {
   setupExpiresAt?: true
   verifiedAt?: true
   lastAcceptedStep?: true
+  enrollmentAuthSessionHash?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -211,6 +217,7 @@ export type TwoFactorCredentialGroupByOutputType = {
   setupExpiresAt: Date | null
   verifiedAt: Date | null
   lastAcceptedStep: bigint | null
+  enrollmentAuthSessionHash: string | null
   createdAt: Date
   updatedAt: Date
   _count: TwoFactorCredentialCountAggregateOutputType | null
@@ -246,6 +253,7 @@ export type TwoFactorCredentialWhereInput = {
   setupExpiresAt?: Prisma.DateTimeNullableFilter<"TwoFactorCredential"> | Date | string | null
   verifiedAt?: Prisma.DateTimeNullableFilter<"TwoFactorCredential"> | Date | string | null
   lastAcceptedStep?: Prisma.BigIntNullableFilter<"TwoFactorCredential"> | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.StringNullableFilter<"TwoFactorCredential"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TwoFactorCredential"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"TwoFactorCredential"> | Date | string
   appUser?: Prisma.XOR<Prisma.AppUserScalarRelationFilter, Prisma.AppUserWhereInput>
@@ -261,6 +269,7 @@ export type TwoFactorCredentialOrderByWithRelationInput = {
   setupExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastAcceptedStep?: Prisma.SortOrderInput | Prisma.SortOrder
+  enrollmentAuthSessionHash?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   appUser?: Prisma.AppUserOrderByWithRelationInput
@@ -279,6 +288,7 @@ export type TwoFactorCredentialWhereUniqueInput = Prisma.AtLeast<{
   setupExpiresAt?: Prisma.DateTimeNullableFilter<"TwoFactorCredential"> | Date | string | null
   verifiedAt?: Prisma.DateTimeNullableFilter<"TwoFactorCredential"> | Date | string | null
   lastAcceptedStep?: Prisma.BigIntNullableFilter<"TwoFactorCredential"> | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.StringNullableFilter<"TwoFactorCredential"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TwoFactorCredential"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"TwoFactorCredential"> | Date | string
   appUser?: Prisma.XOR<Prisma.AppUserScalarRelationFilter, Prisma.AppUserWhereInput>
@@ -294,6 +304,7 @@ export type TwoFactorCredentialOrderByWithAggregationInput = {
   setupExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastAcceptedStep?: Prisma.SortOrderInput | Prisma.SortOrder
+  enrollmentAuthSessionHash?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TwoFactorCredentialCountOrderByAggregateInput
@@ -314,6 +325,7 @@ export type TwoFactorCredentialScalarWhereWithAggregatesInput = {
   setupExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"TwoFactorCredential"> | Date | string | null
   verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"TwoFactorCredential"> | Date | string | null
   lastAcceptedStep?: Prisma.BigIntNullableWithAggregatesFilter<"TwoFactorCredential"> | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.StringNullableWithAggregatesFilter<"TwoFactorCredential"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TwoFactorCredential"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"TwoFactorCredential"> | Date | string
 }
@@ -325,6 +337,7 @@ export type TwoFactorCredentialCreateInput = {
   setupExpiresAt?: Date | string | null
   verifiedAt?: Date | string | null
   lastAcceptedStep?: bigint | number | null
+  enrollmentAuthSessionHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   appUser: Prisma.AppUserCreateNestedOneWithoutTwoFactorCredentialInput
@@ -340,6 +353,7 @@ export type TwoFactorCredentialUncheckedCreateInput = {
   setupExpiresAt?: Date | string | null
   verifiedAt?: Date | string | null
   lastAcceptedStep?: bigint | number | null
+  enrollmentAuthSessionHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessionProofs?: Prisma.TwoFactorSessionProofUncheckedCreateNestedManyWithoutCredentialInput
@@ -353,6 +367,7 @@ export type TwoFactorCredentialUpdateInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appUser?: Prisma.AppUserUpdateOneRequiredWithoutTwoFactorCredentialNestedInput
@@ -368,6 +383,7 @@ export type TwoFactorCredentialUncheckedUpdateInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionProofs?: Prisma.TwoFactorSessionProofUncheckedUpdateManyWithoutCredentialNestedInput
@@ -382,6 +398,7 @@ export type TwoFactorCredentialCreateManyInput = {
   setupExpiresAt?: Date | string | null
   verifiedAt?: Date | string | null
   lastAcceptedStep?: bigint | number | null
+  enrollmentAuthSessionHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -393,6 +410,7 @@ export type TwoFactorCredentialUpdateManyMutationInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -405,6 +423,7 @@ export type TwoFactorCredentialUncheckedUpdateManyInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -422,6 +441,7 @@ export type TwoFactorCredentialCountOrderByAggregateInput = {
   setupExpiresAt?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   lastAcceptedStep?: Prisma.SortOrder
+  enrollmentAuthSessionHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -438,6 +458,7 @@ export type TwoFactorCredentialMaxOrderByAggregateInput = {
   setupExpiresAt?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   lastAcceptedStep?: Prisma.SortOrder
+  enrollmentAuthSessionHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -450,6 +471,7 @@ export type TwoFactorCredentialMinOrderByAggregateInput = {
   setupExpiresAt?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   lastAcceptedStep?: Prisma.SortOrder
+  enrollmentAuthSessionHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -542,6 +564,7 @@ export type TwoFactorCredentialCreateWithoutAppUserInput = {
   setupExpiresAt?: Date | string | null
   verifiedAt?: Date | string | null
   lastAcceptedStep?: bigint | number | null
+  enrollmentAuthSessionHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessionProofs?: Prisma.TwoFactorSessionProofCreateNestedManyWithoutCredentialInput
@@ -555,6 +578,7 @@ export type TwoFactorCredentialUncheckedCreateWithoutAppUserInput = {
   setupExpiresAt?: Date | string | null
   verifiedAt?: Date | string | null
   lastAcceptedStep?: bigint | number | null
+  enrollmentAuthSessionHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessionProofs?: Prisma.TwoFactorSessionProofUncheckedCreateNestedManyWithoutCredentialInput
@@ -584,6 +608,7 @@ export type TwoFactorCredentialUpdateWithoutAppUserInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionProofs?: Prisma.TwoFactorSessionProofUpdateManyWithoutCredentialNestedInput
@@ -597,6 +622,7 @@ export type TwoFactorCredentialUncheckedUpdateWithoutAppUserInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionProofs?: Prisma.TwoFactorSessionProofUncheckedUpdateManyWithoutCredentialNestedInput
@@ -610,6 +636,7 @@ export type TwoFactorCredentialCreateWithoutSessionProofsInput = {
   setupExpiresAt?: Date | string | null
   verifiedAt?: Date | string | null
   lastAcceptedStep?: bigint | number | null
+  enrollmentAuthSessionHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   appUser: Prisma.AppUserCreateNestedOneWithoutTwoFactorCredentialInput
@@ -624,6 +651,7 @@ export type TwoFactorCredentialUncheckedCreateWithoutSessionProofsInput = {
   setupExpiresAt?: Date | string | null
   verifiedAt?: Date | string | null
   lastAcceptedStep?: bigint | number | null
+  enrollmentAuthSessionHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   trustedDevices?: Prisma.TrustedDeviceUncheckedCreateNestedManyWithoutCredentialInput
@@ -652,6 +680,7 @@ export type TwoFactorCredentialUpdateWithoutSessionProofsInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appUser?: Prisma.AppUserUpdateOneRequiredWithoutTwoFactorCredentialNestedInput
@@ -666,6 +695,7 @@ export type TwoFactorCredentialUncheckedUpdateWithoutSessionProofsInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trustedDevices?: Prisma.TrustedDeviceUncheckedUpdateManyWithoutCredentialNestedInput
@@ -678,6 +708,7 @@ export type TwoFactorCredentialCreateWithoutTrustedDevicesInput = {
   setupExpiresAt?: Date | string | null
   verifiedAt?: Date | string | null
   lastAcceptedStep?: bigint | number | null
+  enrollmentAuthSessionHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   appUser: Prisma.AppUserCreateNestedOneWithoutTwoFactorCredentialInput
@@ -692,6 +723,7 @@ export type TwoFactorCredentialUncheckedCreateWithoutTrustedDevicesInput = {
   setupExpiresAt?: Date | string | null
   verifiedAt?: Date | string | null
   lastAcceptedStep?: bigint | number | null
+  enrollmentAuthSessionHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessionProofs?: Prisma.TwoFactorSessionProofUncheckedCreateNestedManyWithoutCredentialInput
@@ -720,6 +752,7 @@ export type TwoFactorCredentialUpdateWithoutTrustedDevicesInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appUser?: Prisma.AppUserUpdateOneRequiredWithoutTwoFactorCredentialNestedInput
@@ -734,6 +767,7 @@ export type TwoFactorCredentialUncheckedUpdateWithoutTrustedDevicesInput = {
   setupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastAcceptedStep?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  enrollmentAuthSessionHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionProofs?: Prisma.TwoFactorSessionProofUncheckedUpdateManyWithoutCredentialNestedInput
@@ -787,6 +821,7 @@ export type TwoFactorCredentialSelect<ExtArgs extends runtime.Types.Extensions.I
   setupExpiresAt?: boolean
   verifiedAt?: boolean
   lastAcceptedStep?: boolean
+  enrollmentAuthSessionHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   appUser?: boolean | Prisma.AppUserDefaultArgs<ExtArgs>
@@ -803,6 +838,7 @@ export type TwoFactorCredentialSelectCreateManyAndReturn<ExtArgs extends runtime
   setupExpiresAt?: boolean
   verifiedAt?: boolean
   lastAcceptedStep?: boolean
+  enrollmentAuthSessionHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   appUser?: boolean | Prisma.AppUserDefaultArgs<ExtArgs>
@@ -816,6 +852,7 @@ export type TwoFactorCredentialSelectUpdateManyAndReturn<ExtArgs extends runtime
   setupExpiresAt?: boolean
   verifiedAt?: boolean
   lastAcceptedStep?: boolean
+  enrollmentAuthSessionHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   appUser?: boolean | Prisma.AppUserDefaultArgs<ExtArgs>
@@ -829,11 +866,12 @@ export type TwoFactorCredentialSelectScalar = {
   setupExpiresAt?: boolean
   verifiedAt?: boolean
   lastAcceptedStep?: boolean
+  enrollmentAuthSessionHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TwoFactorCredentialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "appUserId" | "status" | "encryptedSecret" | "setupExpiresAt" | "verifiedAt" | "lastAcceptedStep" | "createdAt" | "updatedAt", ExtArgs["result"]["twoFactorCredential"]>
+export type TwoFactorCredentialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "appUserId" | "status" | "encryptedSecret" | "setupExpiresAt" | "verifiedAt" | "lastAcceptedStep" | "enrollmentAuthSessionHash" | "createdAt" | "updatedAt", ExtArgs["result"]["twoFactorCredential"]>
 export type TwoFactorCredentialInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   appUser?: boolean | Prisma.AppUserDefaultArgs<ExtArgs>
   sessionProofs?: boolean | Prisma.TwoFactorCredential$sessionProofsArgs<ExtArgs>
@@ -862,6 +900,7 @@ export type $TwoFactorCredentialPayload<ExtArgs extends runtime.Types.Extensions
     setupExpiresAt: Date | null
     verifiedAt: Date | null
     lastAcceptedStep: bigint | null
+    enrollmentAuthSessionHash: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["twoFactorCredential"]>
@@ -1297,6 +1336,7 @@ export interface TwoFactorCredentialFieldRefs {
   readonly setupExpiresAt: Prisma.FieldRef<"TwoFactorCredential", 'DateTime'>
   readonly verifiedAt: Prisma.FieldRef<"TwoFactorCredential", 'DateTime'>
   readonly lastAcceptedStep: Prisma.FieldRef<"TwoFactorCredential", 'BigInt'>
+  readonly enrollmentAuthSessionHash: Prisma.FieldRef<"TwoFactorCredential", 'String'>
   readonly createdAt: Prisma.FieldRef<"TwoFactorCredential", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"TwoFactorCredential", 'DateTime'>
 }

@@ -55,6 +55,7 @@ export const ModelName = {
   PendingOperation: 'PendingOperation',
   AppUser: 'AppUser',
   TwoFactorCredential: 'TwoFactorCredential',
+  TwoFactorEnrollmentGrant: 'TwoFactorEnrollmentGrant',
   TwoFactorSessionProof: 'TwoFactorSessionProof',
   TrustedDevice: 'TrustedDevice',
   TwoFactorRateLimit: 'TwoFactorRateLimit',
@@ -160,11 +161,23 @@ export const TwoFactorCredentialScalarFieldEnum = {
   setupExpiresAt: 'setupExpiresAt',
   verifiedAt: 'verifiedAt',
   lastAcceptedStep: 'lastAcceptedStep',
+  enrollmentAuthSessionHash: 'enrollmentAuthSessionHash',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TwoFactorCredentialScalarFieldEnum = (typeof TwoFactorCredentialScalarFieldEnum)[keyof typeof TwoFactorCredentialScalarFieldEnum]
+
+
+export const TwoFactorEnrollmentGrantScalarFieldEnum = {
+  id: 'id',
+  appUserId: 'appUserId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TwoFactorEnrollmentGrantScalarFieldEnum = (typeof TwoFactorEnrollmentGrantScalarFieldEnum)[keyof typeof TwoFactorEnrollmentGrantScalarFieldEnum]
 
 
 export const TwoFactorSessionProofScalarFieldEnum = {

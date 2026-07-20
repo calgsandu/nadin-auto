@@ -62,6 +62,11 @@ export type AppUser = Prisma.AppUserModel
  */
 export type TwoFactorCredential = Prisma.TwoFactorCredentialModel
 /**
+ * Model TwoFactorEnrollmentGrant
+ *
+ */
+export type TwoFactorEnrollmentGrant = Prisma.TwoFactorEnrollmentGrantModel
+/**
  * Model TwoFactorSessionProof
  * 
  */

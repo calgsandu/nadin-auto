@@ -388,6 +388,7 @@ export const ModelName = {
   PendingOperation: 'PendingOperation',
   AppUser: 'AppUser',
   TwoFactorCredential: 'TwoFactorCredential',
+  TwoFactorEnrollmentGrant: 'TwoFactorEnrollmentGrant',
   TwoFactorSessionProof: 'TwoFactorSessionProof',
   TrustedDevice: 'TrustedDevice',
   TwoFactorRateLimit: 'TwoFactorRateLimit',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "auditLog" | "pendingOperation" | "appUser" | "twoFactorCredential" | "twoFactorSessionProof" | "trustedDevice" | "twoFactorRateLimit" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "externalOrder" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
+    modelProps: "auditLog" | "pendingOperation" | "appUser" | "twoFactorCredential" | "twoFactorEnrollmentGrant" | "twoFactorSessionProof" | "trustedDevice" | "twoFactorRateLimit" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "externalOrder" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -718,6 +719,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TwoFactorCredentialCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TwoFactorCredentialCountAggregateOutputType> | number
+        }
+      }
+    }
+    TwoFactorEnrollmentGrant: {
+      payload: Prisma.$TwoFactorEnrollmentGrantPayload<ExtArgs>
+      fields: Prisma.TwoFactorEnrollmentGrantFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TwoFactorEnrollmentGrantFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TwoFactorEnrollmentGrantFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload>
+        }
+        findFirst: {
+          args: Prisma.TwoFactorEnrollmentGrantFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TwoFactorEnrollmentGrantFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload>
+        }
+        findMany: {
+          args: Prisma.TwoFactorEnrollmentGrantFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload>[]
+        }
+        create: {
+          args: Prisma.TwoFactorEnrollmentGrantCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload>
+        }
+        createMany: {
+          args: Prisma.TwoFactorEnrollmentGrantCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TwoFactorEnrollmentGrantCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload>[]
+        }
+        delete: {
+          args: Prisma.TwoFactorEnrollmentGrantDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload>
+        }
+        update: {
+          args: Prisma.TwoFactorEnrollmentGrantUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload>
+        }
+        deleteMany: {
+          args: Prisma.TwoFactorEnrollmentGrantDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TwoFactorEnrollmentGrantUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TwoFactorEnrollmentGrantUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload>[]
+        }
+        upsert: {
+          args: Prisma.TwoFactorEnrollmentGrantUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TwoFactorEnrollmentGrantPayload>
+        }
+        aggregate: {
+          args: Prisma.TwoFactorEnrollmentGrantAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTwoFactorEnrollmentGrant>
+        }
+        groupBy: {
+          args: Prisma.TwoFactorEnrollmentGrantGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TwoFactorEnrollmentGrantGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TwoFactorEnrollmentGrantCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TwoFactorEnrollmentGrantCountAggregateOutputType> | number
         }
       }
     }
@@ -2161,11 +2236,23 @@ export const TwoFactorCredentialScalarFieldEnum = {
   setupExpiresAt: 'setupExpiresAt',
   verifiedAt: 'verifiedAt',
   lastAcceptedStep: 'lastAcceptedStep',
+  enrollmentAuthSessionHash: 'enrollmentAuthSessionHash',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TwoFactorCredentialScalarFieldEnum = (typeof TwoFactorCredentialScalarFieldEnum)[keyof typeof TwoFactorCredentialScalarFieldEnum]
+
+
+export const TwoFactorEnrollmentGrantScalarFieldEnum = {
+  id: 'id',
+  appUserId: 'appUserId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TwoFactorEnrollmentGrantScalarFieldEnum = (typeof TwoFactorEnrollmentGrantScalarFieldEnum)[keyof typeof TwoFactorEnrollmentGrantScalarFieldEnum]
 
 
 export const TwoFactorSessionProofScalarFieldEnum = {
@@ -2953,6 +3040,7 @@ export type GlobalOmitConfig = {
   pendingOperation?: Prisma.PendingOperationOmit
   appUser?: Prisma.AppUserOmit
   twoFactorCredential?: Prisma.TwoFactorCredentialOmit
+  twoFactorEnrollmentGrant?: Prisma.TwoFactorEnrollmentGrantOmit
   twoFactorSessionProof?: Prisma.TwoFactorSessionProofOmit
   trustedDevice?: Prisma.TrustedDeviceOmit
   twoFactorRateLimit?: Prisma.TwoFactorRateLimitOmit
