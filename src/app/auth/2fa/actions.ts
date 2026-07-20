@@ -12,13 +12,7 @@ import { getPrimaryAuthContext } from "@/lib/auth/two-factor/primary";
 import { trustedClientIp, TwoFactorLockedError } from "@/lib/auth/two-factor/rate-limit";
 import { twoFactorCookieOptions } from "@/lib/auth/two-factor/session";
 import { verifyActiveTotp } from "@/lib/auth/two-factor/verification";
-
-export type TwoFactorFormState = { ok: boolean; message: string };
-
-export const initialTwoFactorFormState: TwoFactorFormState = {
-  ok: false,
-  message: "",
-};
+import type { TwoFactorFormState } from "@/app/auth/2fa/form-state";
 
 function safeTwoFactorError(error: unknown): TwoFactorFormState {
   if (error instanceof InvalidTotpCodeError || error instanceof TwoFactorLockedError) {

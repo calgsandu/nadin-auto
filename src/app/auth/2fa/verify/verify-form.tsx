@@ -1,10 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  initialTwoFactorFormState,
-  verifyTwoFactorAction,
-} from "@/app/auth/2fa/actions";
+import { verifyTwoFactorAction } from "@/app/auth/2fa/actions";
+import { initialTwoFactorFormState } from "@/app/auth/2fa/form-state";
 
 export function VerifyForm({ credentialId }: { credentialId: string }) {
   const [state, action, pending] = useActionState(

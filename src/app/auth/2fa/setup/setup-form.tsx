@@ -3,9 +3,9 @@
 import { useActionState } from "react";
 import {
   confirmTwoFactorEnrollmentAction,
-  initialTwoFactorFormState,
   regenerateTwoFactorEnrollmentAction,
 } from "@/app/auth/2fa/actions";
+import { initialTwoFactorFormState } from "@/app/auth/2fa/form-state";
 
 export function SetupForm({
   credentialId,

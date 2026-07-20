@@ -14,3 +14,19 @@ test("setup renders a server-generated QR and safe manual enrollment controls", 
   assert.doesNotMatch(page, /redirect\([^)]*(?:secret|otpauth)/i);
   assert.doesNotMatch(form, /href=[^\n]*(?:secret|otpauth)/i);
 });
+
+test("the use-server module exports only server actions at runtime", () => {
+  const actions = readFileSync("src/app/auth/2fa/actions.ts", "utf8");
+  const setupForm = readFileSync(
+    "src/app/auth/2fa/setup/setup-form.tsx",
+    "utf8",
+  );
+  const verifyForm = readFileSync(
+    "src/app/auth/2fa/verify/verify-form.tsx",
+    "utf8",
+  );
+
+  assert.doesNotMatch(actions, /export const initialTwoFactorFormState/);
+  assert.match(setupForm, /@\/app\/auth\/2fa\/form-state/);
+  assert.match(verifyForm, /@\/app\/auth\/2fa\/form-state/);
+});
