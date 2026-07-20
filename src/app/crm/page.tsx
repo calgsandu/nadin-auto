@@ -83,7 +83,7 @@ import {
   deleteTypeAction,
   deleteWarehouseAction,
 } from "@/app/admin/actions";
-import { getCurrentAppUser } from "@/lib/auth/access";
+import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 import { getCatalogData, type CatalogSearchParams } from "@/lib/catalog/queries";
 import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
 import {
@@ -173,11 +173,10 @@ const CATALOG_ADMIN_SECTIONS = new Set<WorkspaceSectionId>([
 ]);
 
 export default async function Home({ searchParams }: HomeProps) {
-  const appUser = await getCurrentAppUser();
-
-  if (!appUser) {
-    redirect("/auth/sign-in");
-  }
+  const authState = await getAuthAccessState();
+  if (authState.kind === "UNAUTHENTICATED") redirect("/auth/sign-in");
+  if (authState.kind !== "AUTHENTICATED") redirect("/auth/2fa/continue");
+  const appUser = authState.primary.appUser;
 
   const params = await searchParams;
   const activeSectionId = resolveSection(params.section);

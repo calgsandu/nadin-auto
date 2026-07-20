@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
-import { getCurrentAppUser } from "@/lib/auth/access";
 import { resolveRootDestination } from "@/lib/auth/root-destination";
+import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 
 export const dynamic = "force-dynamic";
 
 export default async function RootPage() {
-  redirect(resolveRootDestination(await getCurrentAppUser()));
+  const state = await getAuthAccessState();
+  redirect(resolveRootDestination(state.kind));
 }

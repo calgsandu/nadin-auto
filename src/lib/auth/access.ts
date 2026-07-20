@@ -1,6 +1,5 @@
-import { auth } from "@/lib/auth/server";
-import { findActiveAppUser } from "@/lib/users";
 import type { AppRole } from "@/generated/prisma/enums";
+import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 
 export type CurrentAppUser = {
   id: string;
@@ -13,14 +12,9 @@ export type CurrentAppUser = {
 };
 
 export async function getCurrentAppUser(): Promise<CurrentAppUser | null> {
-  const { data: session } = await auth.getSession();
-
-  if (!session?.user) {
-    return null;
-  }
-
-  const appUser = await findActiveAppUser(session.user.id);
-  if (!appUser) return null;
+  const state = await getAuthAccessState();
+  if (state.kind !== "AUTHENTICATED") return null;
+  const appUser = state.primary.appUser;
 
   return {
     id: appUser.id,
@@ -37,7 +31,7 @@ export async function requireCurrentAppUser() {
   const appUser = await getCurrentAppUser();
 
   if (!appUser) {
-    throw new Error("Trebuie să fii autentificat.");
+    throw new Error("Trebuie să finalizezi autentificarea în doi pași.");
   }
 
   return appUser;

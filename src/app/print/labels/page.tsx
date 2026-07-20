@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import type { Prisma } from "@/generated/prisma/client";
-import { getCurrentAppUser } from "@/lib/auth/access";
+import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 import { prisma } from "@/lib/prisma";
 import {
   LABEL_COMPATIBILITY_PREFIX,
@@ -56,8 +56,9 @@ function parseAlternativeCodeIds(value?: string) {
 
 /** Etichete produse — grilă exactă pe foaia autoadezivă A4 sau rolă (1/pagină). */
 export default async function LabelsPage({ searchParams }: LabelsProps) {
-  const appUser = await getCurrentAppUser();
-  if (!appUser) redirect("/auth/sign-in");
+  const authState = await getAuthAccessState();
+  if (authState.kind === "UNAUTHENTICATED") redirect("/auth/sign-in");
+  if (authState.kind !== "AUTHENTICATED") redirect("/auth/2fa/continue");
 
   const params = await searchParams;
   const counts = parseItems(params.items, params.ids, params.copies);
