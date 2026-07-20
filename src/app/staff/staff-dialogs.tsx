@@ -7,6 +7,7 @@ import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   createStaffUserAction,
   resetStaffPasswordAction,
+  resetStaffTwoFactorAction,
   setStaffActiveAction,
   type StaffActionState,
 } from "@/app/staff/actions";
@@ -101,6 +102,60 @@ function ResetPasswordDrawer({ userId, username, onClose }: { userId: string; us
           <DrawerActions onClose={onClose} submitLabel="Resetează parola" />
         </form>
       )}
+    </StaffDrawer>
+  );
+}
+
+export function ResetTwoFactorDialog({ userId, username }: { userId: string; username: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <RowButton onClick={() => setOpen(true)}>Resetează 2FA</RowButton>
+      {open ? (
+        <ResetTwoFactorDrawer
+          userId={userId}
+          username={username}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function ResetTwoFactorDrawer({
+  userId,
+  username,
+  onClose,
+}: {
+  userId: string;
+  username: string;
+  onClose: () => void;
+}) {
+  const [state, formAction] = useActionState(resetStaffTwoFactorAction, initialState);
+
+  return (
+    <StaffDrawer title={`Resetare 2FA · ${username}`} onClose={onClose}>
+      <form action={formAction} className="grid gap-5">
+        <input type="hidden" name="userId" value={userId} />
+        <input type="hidden" name="username" value={username} />
+        <div className="rounded-lg border border-[#fca5a5] bg-[#fef2f2] p-4 text-sm leading-6 text-[#991b1b]">
+          Resetarea invalidează toate sesiunile 2FA și dispozitivele memorate. Utilizatorul
+          va trebui să configureze din nou aplicația de autentificare.
+        </div>
+        <Field label={`Scrie exact „${username}” pentru confirmare`}>
+          <input
+            className={inputClassName}
+            name="confirmation"
+            required
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            placeholder={username}
+          />
+        </Field>
+        <ActionMessage state={state} />
+        <DrawerActions onClose={onClose} submitLabel="Resetează 2FA" />
+      </form>
     </StaffDrawer>
   );
 }

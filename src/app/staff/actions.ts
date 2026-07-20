@@ -8,11 +8,12 @@ import {
   wouldRemoveLastAdmin,
 } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
-import { logAudit } from "@/lib/audit";
+import { logAudit, logAuditRequired } from "@/lib/audit";
 import { technicalEmailForUsername } from "@/lib/auth/username";
 import {
   clearSecondFactorSessions,
   clearTrustedDevices,
+  resetTwoFactorCredential,
 } from "@/lib/auth/two-factor/reset";
 import {
   banAuthIdentity,
@@ -28,6 +29,7 @@ import {
   parseCreateStaffInput,
   needsPasswordMigration,
   parsePassword,
+  parseTwoFactorResetConfirmation,
   parseUserId,
   toAuthRole,
 } from "@/lib/staff/validate";
@@ -173,6 +175,55 @@ export async function resetStaffPasswordAction(
         ? "Contul a fost migrat la autentificare cu username și parolă. Autentifică-te din nou."
         : "Parola a fost resetată.",
       revealedPassword: password,
+    };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
+export async function resetStaffTwoFactorAction(
+  _state: StaffActionState,
+  formData: FormData,
+): Promise<StaffActionState> {
+  try {
+    const admin = await requireStaffAdmin();
+    const input = parseTwoFactorResetConfirmation(formData);
+    const target = await prisma.appUser.findUnique({ where: { id: input.userId } });
+
+    if (!target) throw new Error("Utilizatorul nu există.");
+    if (target.id === admin.id) {
+      throw new Error("Nu îți poți reseta propriul cod 2FA din administrare.");
+    }
+    if (!target.username || target.username !== input.username) {
+      throw new Error("Confirmarea nu corespunde utilizatorului selectat.");
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await resetTwoFactorCredential(tx, target.id, new Date());
+      await logAuditRequired(tx, admin, {
+        action: "UPDATE",
+        entity: "AppUser",
+        entityId: target.id,
+        summary: `2FA resetat pentru ${target.username}`,
+        details: { username: target.username, twoFactorReset: true },
+      });
+    });
+
+    try {
+      await revokeAuthSessions(target.authUserId);
+    } catch {
+      revalidatePath("/crm");
+      return {
+        ok: false,
+        message:
+          "2FA a fost resetat și accesul local a fost blocat, dar sesiunile Neon Auth nu au putut fi revocate. Sincronizarea trebuie reîncercată.",
+      };
+    }
+
+    revalidatePath("/crm");
+    return {
+      ok: true,
+      message: "2FA a fost resetat. Utilizatorul trebuie să îl configureze din nou.",
     };
   } catch (error) {
     return toActionError(error);

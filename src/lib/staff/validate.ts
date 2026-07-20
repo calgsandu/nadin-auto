@@ -8,6 +8,11 @@ function readString(formData: FormData, key: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function readRawString(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value : "";
+}
+
 export function parsePassword(value: string) {
   if (value.length < 8) {
     throw new Error("Parola trebuie să aibă cel puțin 8 caractere.");
@@ -41,6 +46,20 @@ export function parseUserId(formData: FormData) {
   const userId = readString(formData, "userId");
   if (!userId) throw new Error("Lipsește utilizatorul.");
   return userId;
+}
+
+export function parseTwoFactorResetConfirmation(formData: FormData) {
+  const userId = readString(formData, "userId");
+  const username = normalizeUsername(readString(formData, "username"));
+  const confirmation = readRawString(formData, "confirmation");
+
+  if (!userId) throw new Error("Lipsește utilizatorul.");
+  if (!username) throw new Error("Utilizatorul nu are un username valid.");
+  if (confirmation !== username) {
+    throw new Error("Confirmarea trebuie să coincidă exact cu numele de utilizator.");
+  }
+
+  return { userId, username };
 }
 
 export function needsPasswordMigration(providerIds: string[]) {

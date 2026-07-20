@@ -66,6 +66,7 @@ import { RoleForm } from "@/app/staff/role-form";
 import {
   CreateStaffDialog,
   ResetPasswordDialog,
+  ResetTwoFactorDialog,
   StaffActiveButton,
 } from "@/app/staff/staff-dialogs";
 import {
@@ -2693,13 +2694,14 @@ function StaffWorkspace({
     <section className="motion-page p-4 lg:p-5">
       <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
                 <TableHead>Nume</TableHead>
                 <TableHead>Utilizator</TableHead>
                 <TableHead>Rol curent</TableHead>
                 <TableHead>Stare</TableHead>
+                <TableHead>2FA</TableHead>
                 <TableHead align="right">Acțiuni</TableHead>
               </tr>
             </thead>
@@ -2727,6 +2729,23 @@ function StaffWorkspace({
                       {user.active ? "Activ" : "Dezactivat"}
                     </span>
                   </TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        user.twoFactorStatus === "ACTIVE"
+                          ? "bg-[#f0fdf4] text-[#166534]"
+                          : user.twoFactorStatus === "PENDING"
+                            ? "bg-[#fff7ed] text-[#9a3412]"
+                            : "bg-[#f5f5f4] text-[#57534e]"
+                      }`}
+                    >
+                      {user.twoFactorStatus === "ACTIVE"
+                        ? "Activ"
+                        : user.twoFactorStatus === "PENDING"
+                          ? "În configurare"
+                          : "Neconfigurat"}
+                    </span>
+                  </TableCell>
                   <TableCell align="right">
                     <div className="flex flex-wrap justify-end gap-2">
                       <RoleForm userId={user.id} currentRole={user.role} />
@@ -2734,6 +2753,11 @@ function StaffWorkspace({
                         userId={user.id}
                         username={user.username ?? user.name ?? user.id}
                       />
+                      {user.id !== currentUserId &&
+                      user.twoFactorStatus !== "NOT_CONFIGURED" &&
+                      user.username ? (
+                        <ResetTwoFactorDialog userId={user.id} username={user.username} />
+                      ) : null}
                       {user.id !== currentUserId ? (
                         <StaffActiveButton
                           userId={user.id}
