@@ -16,6 +16,7 @@ test("blocks a user session after five failures for fifteen minutes", () => {
     state = nextFailureState(state, start, USER_SESSION_POLICY);
   }
 
+  assert.ok(state);
   assert.equal(state.failures, 5);
   assert.equal(state.blockedUntil?.toISOString(), "2026-07-20T10:15:00.000Z");
   assert.equal(
@@ -35,6 +36,7 @@ test("blocks an IP after twenty-five failures and resets an expired window", () 
     state = nextFailureState(state, start, IP_POLICY);
   }
 
+  assert.ok(state);
   assert.equal(state.blockedUntil?.toISOString(), "2026-07-20T10:15:00.000Z");
   assert.equal(
     nextFailureState(state, new Date("2026-07-20T10:11:00.000Z"), IP_POLICY).failures,
