@@ -1,13 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import * as OTPAuth from "otpauth";
-import { createTotpEnrollment, matchTotpStep } from "@/lib/auth/two-factor/totp";
+import {
+  createTotpEnrollment,
+  createTotpUri,
+  matchTotpStep,
+} from "@/lib/auth/two-factor/totp";
 
 test("creates an authenticator-compatible Nadin Auto enrollment", () => {
   const { secret, uri } = createTotpEnrollment("ion");
 
   assert.match(secret, /^[A-Z2-7]+$/);
   assert.match(uri, /^otpauth:\/\/totp\/Nadin%20Auto:ion\?/);
+  assert.equal(createTotpUri(secret, "ion"), uri);
 });
 
 test("accepts six-digit SHA1 codes only inside a one-step window", () => {

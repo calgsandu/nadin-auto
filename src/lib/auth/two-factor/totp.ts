@@ -17,7 +17,11 @@ function createTotp(username: string, secret: string) {
 
 export function createTotpEnrollment(username: string) {
   const secret = new OTPAuth.Secret({ size: 20 }).base32;
-  return { secret, uri: createTotp(username, secret).toString() };
+  return { secret, uri: createTotpUri(secret, username) };
+}
+
+export function createTotpUri(secret: string, username: string) {
+  return createTotp(username, secret).toString();
 }
 
 export function matchTotpStep(
