@@ -8,6 +8,7 @@ import { normalizeUsername } from "@/lib/auth/username";
 import { performLogout } from "@/app/auth/logout";
 import { readTwoFactorConfig } from "@/lib/auth/two-factor/config";
 import { hashToken } from "@/lib/auth/two-factor/crypto";
+import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 import {
   getUsernameValidationMessage,
   type AuthFormState,
@@ -70,4 +71,27 @@ export async function logoutAction() {
     signOut: () => auth.signOut(),
     redirect,
   });
+}
+
+export async function forgetCurrentTrustedDeviceAction(): Promise<void> {
+  const state = await getAuthAccessState();
+  if (state.kind !== "AUTHENTICATED") {
+    throw new Error("Trebuie să finalizezi autentificarea în doi pași.");
+  }
+
+  const config = readTwoFactorConfig();
+  const cookieStore = await cookies();
+  try {
+    const rawToken = cookieStore.get(config.trustedCookieName)?.value;
+    if (rawToken) {
+      await prisma.trustedDevice.deleteMany({
+        where: {
+          appUserId: state.primary.appUser.id,
+          tokenHash: hashToken(rawToken),
+        },
+      });
+    }
+  } finally {
+    cookieStore.delete(config.trustedCookieName);
+  }
 }

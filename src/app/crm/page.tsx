@@ -24,6 +24,7 @@ import {
 import { logoutAction } from "@/app/auth/actions";
 import { LocalBadge } from "@/app/components/local-badge";
 import { ChangePasswordDialog } from "@/app/account/change-password-dialog";
+import { TrustedDeviceControl } from "@/app/account/trusted-device-control";
 import { SidebarCollapseButton } from "./sidebar-collapse";
 import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
@@ -379,6 +380,7 @@ function Sidebar({
             {role}
           </div>
           <ChangePasswordDialog compact />
+          <TrustedDeviceControl compact />
           <LogoutButton compact />
         </div>
       </div>
@@ -425,6 +427,7 @@ function Sidebar({
           </div>
           <div className="crm-account-actions flex items-center gap-1.5">
             <ChangePasswordDialog compact />
+            <TrustedDeviceControl compact />
             <LogoutButton compact />
           </div>
         </div>
