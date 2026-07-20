@@ -14,7 +14,9 @@ test("own password change clears trusted devices but preserves the current proof
   const body = functionBody(source, "changeOwnPasswordAction");
 
   assert.match(body, /clearTrustedDevices/);
+  assert.match(body, /clearEnrollmentGrant\(tx, current\.id\)/);
   assert.ok(body.indexOf("clearTrustedDevices") < body.indexOf("auth.changePassword"));
+  assert.ok(body.indexOf("clearEnrollmentGrant") < body.indexOf("auth.changePassword"));
   assert.doesNotMatch(body, /clearSecondFactorSessions/);
   assert.doesNotMatch(body, /resetTwoFactorCredential/);
 });
@@ -25,8 +27,11 @@ test("administrator password reset revokes local trust before changing Neon iden
 
   assert.match(body, /clearTrustedDevices/);
   assert.match(body, /clearSecondFactorSessions/);
+  assert.match(body, /clearEnrollmentGrant\(tx, target\.id\)/);
   assert.ok(body.indexOf("clearSecondFactorSessions") < body.indexOf("createAuthIdentity"));
   assert.ok(body.indexOf("clearSecondFactorSessions") < body.indexOf("setAuthPassword"));
+  assert.ok(body.indexOf("clearEnrollmentGrant") < body.indexOf("createAuthIdentity"));
+  assert.ok(body.indexOf("clearEnrollmentGrant") < body.indexOf("setAuthPassword"));
   assert.doesNotMatch(body, /resetTwoFactorCredential/);
 });
 
@@ -38,6 +43,11 @@ test("deactivation blocks locally and clears trust before Neon ban and revocatio
   assert.match(body, /active:\s*false/);
   assert.match(body, /clearTrustedDevices/);
   assert.match(body, /clearSecondFactorSessions/);
+  assert.match(body, /clearEnrollmentGrant\(tx, target\.id\)/);
   assert.ok(body.indexOf("clearSecondFactorSessions") < body.indexOf("banAuthIdentity"));
-  assert.doesNotMatch(body, /issueTrustedDevice|resetTwoFactorCredential/);
+  assert.ok(body.indexOf("clearEnrollmentGrant") < body.indexOf("banAuthIdentity"));
+  assert.doesNotMatch(
+    body,
+    /issueTrustedDevice|resetTwoFactorCredential|replaceEnrollmentGrant/,
+  );
 });

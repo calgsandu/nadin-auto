@@ -15,7 +15,10 @@ import {
   clearTrustedDevices,
   resetTwoFactorCredential,
 } from "@/lib/auth/two-factor/reset";
-import { replaceEnrollmentGrant } from "@/lib/auth/two-factor/enrollment-grant";
+import {
+  clearEnrollmentGrant,
+  replaceEnrollmentGrant,
+} from "@/lib/auth/two-factor/enrollment-grant";
 import {
   banAuthIdentity,
   createAuthIdentity,
@@ -141,6 +144,7 @@ export async function resetStaffPasswordAction(
       throw new Error("Contul trebuie să aibă un username înainte de migrare.");
     }
     await prisma.$transaction(async (tx) => {
+      await clearEnrollmentGrant(tx, target.id);
       await clearTrustedDevices(tx, target.id);
       await clearSecondFactorSessions(tx, target.id);
     });
@@ -328,6 +332,7 @@ export async function setStaffActiveAction(
         });
         await clearTrustedDevices(tx, target.id);
         await clearSecondFactorSessions(tx, target.id);
+        await clearEnrollmentGrant(tx, target.id);
       });
       try {
         await banAuthIdentity(target.authUserId);

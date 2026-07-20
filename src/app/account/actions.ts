@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth/server";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { clearTrustedDevices } from "@/lib/auth/two-factor/reset";
+import { clearEnrollmentGrant } from "@/lib/auth/two-factor/enrollment-grant";
 import { prisma } from "@/lib/prisma";
 import { validatePasswordChange } from "@/app/auth/form-state";
 
@@ -24,7 +25,10 @@ export async function changeOwnPasswordAction(
     );
     if (validationError) return { ok: false, message: validationError };
 
-    await prisma.$transaction((tx) => clearTrustedDevices(tx, current.id));
+    await prisma.$transaction(async (tx) => {
+      await clearEnrollmentGrant(tx, current.id);
+      await clearTrustedDevices(tx, current.id);
+    });
     const result = await auth.changePassword({
       currentPassword,
       newPassword,
