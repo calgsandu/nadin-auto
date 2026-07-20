@@ -9,6 +9,17 @@ import {
 
 const TRUSTED_DEVICE_MS = 30 * 24 * 60 * 60_000;
 
+export type TrustedDeviceRotationStore = {
+  rotate(input: {
+    presentedTokenHash: string;
+    replacementTokenHash: string;
+    appUserId: string;
+    credentialId: string;
+    now: Date;
+    replacementExpiresAt: Date;
+  }): Promise<boolean>;
+};
+
 type ProofBinding = {
   rawToken: string;
   appUserId: string;
@@ -81,7 +92,7 @@ export async function issueTrustedDevice(input: {
 }) {
   const now = input.now ?? new Date();
   const rawToken = generateOpaqueToken();
-  const expiresAt = new Date(now.getTime() + TRUSTED_DEVICE_MS);
+  const expiresAt = trustedDeviceExpiry(now);
   await prisma.trustedDevice.create({
     data: {
       appUserId: input.appUserId,
@@ -92,6 +103,81 @@ export async function issueTrustedDevice(input: {
     },
   });
   return { rawToken, expiresAt };
+}
+
+export function trustedDeviceExpiry(now: Date) {
+  return new Date(now.getTime() + TRUSTED_DEVICE_MS);
+}
+
+export function trustedDeviceMatches(
+  device: {
+    tokenHash: string;
+    appUserId: string;
+    credentialId: string;
+    expiresAt: Date;
+  },
+  input: {
+    rawToken: string;
+    appUserId: string;
+    credentialId: string;
+    now: Date;
+  },
+) {
+  return (
+    equalHash(device.tokenHash, hashToken(input.rawToken))
+    && device.appUserId === input.appUserId
+    && device.credentialId === input.credentialId
+    && device.expiresAt.getTime() > input.now.getTime()
+  );
+}
+
+const prismaTrustedDeviceRotationStore: TrustedDeviceRotationStore = {
+  async rotate(input) {
+    return prisma.$transaction(async (tx) => {
+      const consumed = await tx.trustedDevice.deleteMany({
+        where: {
+          tokenHash: input.presentedTokenHash,
+          appUserId: input.appUserId,
+          credentialId: input.credentialId,
+          expiresAt: { gt: input.now },
+        },
+      });
+      if (consumed.count !== 1) return false;
+      await tx.trustedDevice.create({
+        data: {
+          tokenHash: input.replacementTokenHash,
+          appUserId: input.appUserId,
+          credentialId: input.credentialId,
+          expiresAt: input.replacementExpiresAt,
+          lastUsedAt: input.now,
+        },
+      });
+      return true;
+    });
+  },
+};
+
+export async function consumeAndRotateTrustedDevice(
+  input: {
+    rawToken: string;
+    appUserId: string;
+    credentialId: string;
+    now?: Date;
+  },
+  store: TrustedDeviceRotationStore = prismaTrustedDeviceRotationStore,
+) {
+  const now = input.now ?? new Date();
+  const rawToken = generateOpaqueToken();
+  const expiresAt = trustedDeviceExpiry(now);
+  const rotated = await store.rotate({
+    presentedTokenHash: hashToken(input.rawToken),
+    replacementTokenHash: hashToken(rawToken),
+    appUserId: input.appUserId,
+    credentialId: input.credentialId,
+    now,
+    replacementExpiresAt: expiresAt,
+  });
+  return rotated ? { rawToken, expiresAt } : null;
 }
 
 export function twoFactorCookieOptions(expiresAt: Date) {
