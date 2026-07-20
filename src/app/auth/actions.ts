@@ -1,10 +1,13 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/server";
 import { prisma } from "@/lib/prisma";
 import { normalizeUsername } from "@/lib/auth/username";
 import { performLogout } from "@/app/auth/logout";
+import { readTwoFactorConfig } from "@/lib/auth/two-factor/config";
+import { hashToken } from "@/lib/auth/two-factor/crypto";
 import {
   getUsernameValidationMessage,
   type AuthFormState,
@@ -32,7 +35,7 @@ export async function authenticateWithUsername(
     const result = await auth.signIn.email({
       email: appUser.email,
       password,
-      callbackURL: "/",
+      callbackURL: "/auth/2fa/continue",
     });
 
     if (result?.error) {
@@ -42,11 +45,28 @@ export async function authenticateWithUsername(
     return { error: INVALID_CREDENTIALS };
   }
 
-  redirect("/");
+  redirect("/auth/2fa/continue");
 }
 
 export async function logoutAction() {
   await performLogout({
+    clearSecondFactor: async () => {
+      const config = readTwoFactorConfig();
+      const cookieStore = await cookies();
+      try {
+        const rawToken = cookieStore.get(config.proofCookieName)?.value;
+        if (rawToken) {
+          await prisma.twoFactorSessionProof.deleteMany({
+            where: { tokenHash: hashToken(rawToken) },
+          });
+        }
+      } finally {
+        cookieStore.delete(config.proofCookieName);
+      }
+    },
+    reportCleanupError: (error) => {
+      console.error("[2fa] logout cleanup failed", error);
+    },
     signOut: () => auth.signOut(),
     redirect,
   });

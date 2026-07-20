@@ -9,7 +9,8 @@ import { authClient } from "@/lib/auth/client";
  * This route is NOT behind the auth middleware, so it always renders — letting the
  * client exchange the verifier with a same-site request (which carries the
  * `__Secure-neon-auth.session_challange` cookie that a cross-site redirect to a
- * protected route would drop). Once the session is established we go to "/".
+ * protected route would drop). Once the session is established we enter the
+ * application-level second-factor dispatcher.
  */
 export function AuthCallback() {
   const [failed, setFailed] = useState(false);
@@ -25,7 +26,7 @@ export function AuthCallback() {
           const result = await authClient.getSession();
           const session = (result as { data?: unknown })?.data ?? result;
           if (session && typeof session === "object" && "user" in session) {
-            if (!cancelled) window.location.assign("/");
+            if (!cancelled) window.location.assign("/auth/2fa/continue");
             return;
           }
         } catch {
