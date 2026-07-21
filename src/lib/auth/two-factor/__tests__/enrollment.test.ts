@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { resolveEnrollmentSetupKind } from "@/lib/auth/two-factor/enrollment";
 
@@ -90,5 +91,25 @@ test("refuses to replace an active credential", () => {
       now,
     ),
     "REJECT_ACTIVE",
+  );
+});
+
+test("successful TOTP activation permanently closes initial bootstrap atomically", () => {
+  const source = readFileSync("src/lib/auth/two-factor/enrollment.ts", "utf8");
+  const confirm = source.indexOf("confirmPendingEnrollment");
+  const transaction = source.indexOf("prisma.$transaction", confirm);
+  const activation = source.indexOf("twoFactorCredential.updateMany", transaction);
+  const marker = source.indexOf("applicationSecurityState.upsert", activation);
+  const audit = source.indexOf("logAuditRequired", marker);
+
+  assert.ok(transaction >= 0 && activation > transaction);
+  assert.ok(marker > activation && audit > marker);
+  assert.match(
+    source.slice(marker, audit),
+    /twoFactorBootstrapCompletedAt:\s*now/,
+  );
+  assert.doesNotMatch(
+    source.slice(marker, audit),
+    /data:\s*\{[^}]*twoFactorBootstrapCompletedAt:\s*null/s,
   );
 });

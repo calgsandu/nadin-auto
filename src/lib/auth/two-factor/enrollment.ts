@@ -20,7 +20,10 @@ import {
 import { issueSessionProof, issueTrustedDevice } from "./session";
 import { createTotpEnrollment, createTotpUri, matchTotpStep } from "./totp";
 import type { PrimaryAuthContext } from "./types";
-import { getInitialTwoFactorBootstrapEligibility } from "./bootstrap";
+import {
+  APPLICATION_SECURITY_STATE_ID,
+  getInitialTwoFactorBootstrapEligibility,
+} from "./bootstrap";
 
 const SETUP_LIFETIME_MS = 15 * 60_000;
 
@@ -411,6 +414,21 @@ export async function confirmPendingEnrollment(input: {
     if (activated.count !== 1) {
       throw new InvalidTotpCodeError("Configurarea s-a schimbat. Reîncarcă pagina.");
     }
+    await tx.applicationSecurityState.upsert({
+      where: { id: APPLICATION_SECURITY_STATE_ID },
+      create: {
+        id: APPLICATION_SECURITY_STATE_ID,
+        twoFactorBootstrapCompletedAt: now,
+      },
+      update: {},
+    });
+    await tx.applicationSecurityState.updateMany({
+      where: {
+        id: APPLICATION_SECURITY_STATE_ID,
+        twoFactorBootstrapCompletedAt: null,
+      },
+      data: { twoFactorBootstrapCompletedAt: now },
+    });
     await logAuditRequired(tx, currentUser, {
       action: "UPDATE",
       entity: "TwoFactorCredential",
