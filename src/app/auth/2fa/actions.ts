@@ -9,6 +9,10 @@ import {
   regeneratePendingEnrollment,
   startPendingEnrollmentWithActivationCode,
 } from "@/lib/auth/two-factor/enrollment";
+import {
+  InitialTwoFactorBootstrapUnavailableError,
+  startInitialTwoFactorBootstrap,
+} from "@/lib/auth/two-factor/bootstrap";
 import { readTwoFactorConfig } from "@/lib/auth/two-factor/config";
 import { getPrimaryAuthContext } from "@/lib/auth/two-factor/primary";
 import { trustedClientIp, TwoFactorLockedError } from "@/lib/auth/two-factor/rate-limit";
@@ -19,6 +23,7 @@ import type { TwoFactorFormState } from "@/app/auth/2fa/form-state";
 function safeTwoFactorError(error: unknown): TwoFactorFormState {
   if (
     error instanceof InvalidEnrollmentActivationCodeError
+    || error instanceof InitialTwoFactorBootstrapUnavailableError
     || error instanceof InvalidTotpCodeError
     || error instanceof TwoFactorLockedError
   ) {
@@ -26,6 +31,23 @@ function safeTwoFactorError(error: unknown): TwoFactorFormState {
   }
   console.error("[2fa] verificarea a eșuat", error);
   return { ok: false, message: "Verificarea nu a putut fi finalizată. Încearcă din nou." };
+}
+
+export async function startInitialTwoFactorBootstrapAction(
+  _previous: TwoFactorFormState,
+): Promise<TwoFactorFormState> {
+  void _previous;
+  const primary = await getPrimaryAuthContext();
+  if (!primary) {
+    return { ok: false, message: "Sesiunea a expirat. Autentifică-te din nou." };
+  }
+
+  try {
+    await startInitialTwoFactorBootstrap({ primary });
+  } catch (error) {
+    return safeTwoFactorError(error);
+  }
+  redirect("/auth/2fa/setup");
 }
 
 export async function activateTwoFactorEnrollmentAction(

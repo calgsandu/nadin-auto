@@ -5,6 +5,7 @@ import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 import { getEnrollmentSetupState } from "@/lib/auth/two-factor/enrollment";
 import { TwoFactorShell } from "../two-factor-shell";
 import { ActivationForm } from "./activation-form";
+import { BootstrapForm } from "./bootstrap-form";
 import { SetupForm } from "./setup-form";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,16 @@ export default async function TwoFactorSetupPage() {
   if (state.kind === "AUTHENTICATED") redirect("/crm");
 
   const setup = await getEnrollmentSetupState(state.primary);
+  if (setup.kind === "BOOTSTRAP_AVAILABLE") {
+    return (
+      <TwoFactorShell
+        title="Inițializează Authenticator"
+        description="Fiind primul administrator, poți configura primul factor secundar fără un cod emis de alt administrator."
+      >
+        <BootstrapForm />
+      </TwoFactorShell>
+    );
+  }
   if (setup.kind === "ACTIVATION_REQUIRED") {
     return (
       <TwoFactorShell
