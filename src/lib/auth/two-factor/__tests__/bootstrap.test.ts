@@ -85,4 +85,8 @@ test("bootstrap enrollment revalidates and creates the pending credential serial
   assert.match(source, /TWO_FACTOR_BOOTSTRAP_STARTED/);
   assert.match(source, /logAuditRequired/);
   assert.doesNotMatch(source, /consumeEnrollmentGrant/);
+  assert.doesNotMatch(
+    source,
+    /where:\s*\{\s*role:\s*["']ADMIN["'],\s*active:\s*true,\s*username:/s,
+  );
 });

@@ -61,7 +61,7 @@ export async function getInitialTwoFactorBootstrapEligibility(
         select: { id: true, role: true, active: true, username: true },
       }),
       prisma.appUser.findFirst({
-        where: { role: "ADMIN", active: true, username: { not: null } },
+        where: { role: "ADMIN", active: true },
         orderBy: [{ createdAt: "asc" }, { id: "asc" }],
         select: { id: true },
       }),
@@ -130,7 +130,7 @@ export async function startInitialTwoFactorBootstrap(input: {
         }
 
         const firstActiveAdmin = await tx.appUser.findFirst({
-          where: { role: "ADMIN", active: true, username: { not: null } },
+          where: { role: "ADMIN", active: true },
           orderBy: [{ createdAt: "asc" }, { id: "asc" }],
           select: { id: true },
         });
