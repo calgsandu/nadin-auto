@@ -27,11 +27,37 @@ Validează și aplică schema numai pe ramura Neon/backup-ul pregătit:
 pnpm exec prisma validate
 pnpm prisma:generate
 pnpm db:push
+pnpm 2fa:backfill-bootstrap
 pnpm staff:reset-2fa --help
 ```
 
+Comanda de backfill este idempotentă. Dacă instalarea are deja cel puțin o
+credențială 2FA activă, ea închide permanent bootstrap-ul inițial din browser și
+trebuie rulată după aplicarea schemei, înainte de publicarea noului cod. Dacă nu
+există nicio credențială activă, nu scrie markerul și păstrează bootstrap-ul
+disponibil pentru primul administrator.
+
 Ultima comandă trebuie testată într-un shell interactiv care va fi disponibil
 și în incident. `--help` nu accesează și nu modifică baza de date.
+
+## Primul administrator
+
+Dacă sistemul nu a avut încă nicio configurare 2FA, primul administrator activ,
+stabilit după data creării contului și apoi după ID, vede butonul
+„Inițializează 2FA” după autentificarea principală. Butonul creează un setup
+temporar legat de sesiunea curentă; simpla încărcare a paginii nu creează și nu
+rotește secretul.
+
+Administratorul scanează QR-ul și confirmă primul cod TOTP. Confirmarea activează
+credentialul și închide bootstrap-ul din browser permanent, în aceeași
+tranzacție. Conturile ulterioare folosesc codul unic emis din Personal. O
+resetare ulterioară nu redeschide bootstrap-ul; unicul administrator recuperează
+accesul cu procedura break-glass documentată mai jos.
+
+Verifică acest flux și dintr-un browser de telefon: autentificare Google,
+inițializare, scanare QR, confirmare TOTP și o autentificare nouă care cere codul
+TOTP. Dacă dispatcher-ul nu poate verifica sesiunea, aplicația afișează pagina de
+recuperare cu opțiuni de retry și autentificare nouă, nu un ecran gol.
 
 ## Lansare
 
