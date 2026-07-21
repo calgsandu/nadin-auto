@@ -392,6 +392,7 @@ export const ModelName = {
   TwoFactorSessionProof: 'TwoFactorSessionProof',
   TrustedDevice: 'TrustedDevice',
   TwoFactorRateLimit: 'TwoFactorRateLimit',
+  ApplicationSecurityState: 'ApplicationSecurityState',
   Brand: 'Brand',
   CarModel: 'CarModel',
   VehicleFitment: 'VehicleFitment',
@@ -422,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "auditLog" | "pendingOperation" | "appUser" | "twoFactorCredential" | "twoFactorEnrollmentGrant" | "twoFactorSessionProof" | "trustedDevice" | "twoFactorRateLimit" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "externalOrder" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
+    modelProps: "auditLog" | "pendingOperation" | "appUser" | "twoFactorCredential" | "twoFactorEnrollmentGrant" | "twoFactorSessionProof" | "trustedDevice" | "twoFactorRateLimit" | "applicationSecurityState" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "externalOrder" | "stockDocument" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1015,6 +1016,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TwoFactorRateLimitCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TwoFactorRateLimitCountAggregateOutputType> | number
+        }
+      }
+    }
+    ApplicationSecurityState: {
+      payload: Prisma.$ApplicationSecurityStatePayload<ExtArgs>
+      fields: Prisma.ApplicationSecurityStateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ApplicationSecurityStateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ApplicationSecurityStateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload>
+        }
+        findFirst: {
+          args: Prisma.ApplicationSecurityStateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ApplicationSecurityStateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload>
+        }
+        findMany: {
+          args: Prisma.ApplicationSecurityStateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload>[]
+        }
+        create: {
+          args: Prisma.ApplicationSecurityStateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload>
+        }
+        createMany: {
+          args: Prisma.ApplicationSecurityStateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ApplicationSecurityStateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload>[]
+        }
+        delete: {
+          args: Prisma.ApplicationSecurityStateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload>
+        }
+        update: {
+          args: Prisma.ApplicationSecurityStateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload>
+        }
+        deleteMany: {
+          args: Prisma.ApplicationSecurityStateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ApplicationSecurityStateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ApplicationSecurityStateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload>[]
+        }
+        upsert: {
+          args: Prisma.ApplicationSecurityStateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationSecurityStatePayload>
+        }
+        aggregate: {
+          args: Prisma.ApplicationSecurityStateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateApplicationSecurityState>
+        }
+        groupBy: {
+          args: Prisma.ApplicationSecurityStateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApplicationSecurityStateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ApplicationSecurityStateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApplicationSecurityStateCountAggregateOutputType> | number
         }
       }
     }
@@ -2294,6 +2369,16 @@ export const TwoFactorRateLimitScalarFieldEnum = {
 export type TwoFactorRateLimitScalarFieldEnum = (typeof TwoFactorRateLimitScalarFieldEnum)[keyof typeof TwoFactorRateLimitScalarFieldEnum]
 
 
+export const ApplicationSecurityStateScalarFieldEnum = {
+  id: 'id',
+  twoFactorBootstrapCompletedAt: 'twoFactorBootstrapCompletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApplicationSecurityStateScalarFieldEnum = (typeof ApplicationSecurityStateScalarFieldEnum)[keyof typeof ApplicationSecurityStateScalarFieldEnum]
+
+
 export const BrandScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -3044,6 +3129,7 @@ export type GlobalOmitConfig = {
   twoFactorSessionProof?: Prisma.TwoFactorSessionProofOmit
   trustedDevice?: Prisma.TrustedDeviceOmit
   twoFactorRateLimit?: Prisma.TwoFactorRateLimitOmit
+  applicationSecurityState?: Prisma.ApplicationSecurityStateOmit
   brand?: Prisma.BrandOmit
   carModel?: Prisma.CarModelOmit
   vehicleFitment?: Prisma.VehicleFitmentOmit

@@ -235,6 +235,13 @@ model TwoFactorRateLimit {
   @@index([updatedAt])
 }
 
+model ApplicationSecurityState {
+  id                            String    @id
+  twoFactorBootstrapCompletedAt DateTime?
+  createdAt                     DateTime  @default(now())
+  updatedAt                     DateTime  @updatedAt
+}
+
 model Brand {
   id        String     @id @default(cuid())
   name      String     @unique

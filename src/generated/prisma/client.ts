@@ -82,6 +82,11 @@ export type TrustedDevice = Prisma.TrustedDeviceModel
  */
 export type TwoFactorRateLimit = Prisma.TwoFactorRateLimitModel
 /**
+ * Model ApplicationSecurityState
+ *
+ */
+export type ApplicationSecurityState = Prisma.ApplicationSecurityStateModel
+/**
  * Model Brand
  * 
  */

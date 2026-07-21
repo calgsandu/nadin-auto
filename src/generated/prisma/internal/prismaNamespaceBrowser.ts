@@ -59,6 +59,7 @@ export const ModelName = {
   TwoFactorSessionProof: 'TwoFactorSessionProof',
   TrustedDevice: 'TrustedDevice',
   TwoFactorRateLimit: 'TwoFactorRateLimit',
+  ApplicationSecurityState: 'ApplicationSecurityState',
   Brand: 'Brand',
   CarModel: 'CarModel',
   VehicleFitment: 'VehicleFitment',
@@ -217,6 +218,16 @@ export const TwoFactorRateLimitScalarFieldEnum = {
 } as const
 
 export type TwoFactorRateLimitScalarFieldEnum = (typeof TwoFactorRateLimitScalarFieldEnum)[keyof typeof TwoFactorRateLimitScalarFieldEnum]
+
+
+export const ApplicationSecurityStateScalarFieldEnum = {
+  id: 'id',
+  twoFactorBootstrapCompletedAt: 'twoFactorBootstrapCompletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApplicationSecurityStateScalarFieldEnum = (typeof ApplicationSecurityStateScalarFieldEnum)[keyof typeof ApplicationSecurityStateScalarFieldEnum]
 
 
 export const BrandScalarFieldEnum = {
