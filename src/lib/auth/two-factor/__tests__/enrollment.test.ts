@@ -5,7 +5,17 @@ import { resolveEnrollmentSetupKind } from "@/lib/auth/two-factor/enrollment";
 const now = new Date("2026-07-20T12:00:00.000Z");
 
 test("requires an administrator activation code when no credential exists", () => {
-  assert.equal(resolveEnrollmentSetupKind(null, "session_hash", now), "ACTIVATION_REQUIRED");
+  assert.equal(
+    resolveEnrollmentSetupKind(null, "session_hash", now, false),
+    "ACTIVATION_REQUIRED",
+  );
+});
+
+test("offers bootstrap when the first administrator is eligible", () => {
+  assert.equal(
+    resolveEnrollmentSetupKind(null, "session_hash", now, true),
+    "BOOTSTRAP_AVAILABLE",
+  );
 });
 
 test("reveals enrollment only to the exact bound session before expiry", () => {

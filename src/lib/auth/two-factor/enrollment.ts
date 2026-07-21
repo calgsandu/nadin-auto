@@ -20,6 +20,7 @@ import {
 import { issueSessionProof, issueTrustedDevice } from "./session";
 import { createTotpEnrollment, createTotpUri, matchTotpStep } from "./totp";
 import type { PrimaryAuthContext } from "./types";
+import { getInitialTwoFactorBootstrapEligibility } from "./bootstrap";
 
 const SETUP_LIFETIME_MS = 15 * 60_000;
 
@@ -31,6 +32,7 @@ type PendingCredential = {
 
 export type EnrollmentSetupState =
   | { kind: "ACTIVATION_REQUIRED" }
+  | { kind: "BOOTSTRAP_AVAILABLE" }
   | { kind: "READY"; enrollment: TotpEnrollmentView };
 
 export type TotpEnrollmentView = {
@@ -65,14 +67,21 @@ export function resolveEnrollmentSetupKind(
   credential: PendingCredential | null,
   authSessionHash: string,
   now: Date,
+  bootstrapEligible = false,
 ) {
-  if (!credential) return "ACTIVATION_REQUIRED" as const;
+  if (!credential) {
+    return bootstrapEligible
+      ? "BOOTSTRAP_AVAILABLE" as const
+      : "ACTIVATION_REQUIRED" as const;
+  }
   if (credential.status === "ACTIVE") return "REJECT_ACTIVE" as const;
-  return credential.setupExpiresAt
+  const ready = credential.setupExpiresAt
     && credential.setupExpiresAt > now
     && credential.enrollmentAuthSessionHash
-    && hashesEqual(credential.enrollmentAuthSessionHash, authSessionHash)
-    ? "READY" as const
+    && hashesEqual(credential.enrollmentAuthSessionHash, authSessionHash);
+  if (ready) return "READY" as const;
+  return bootstrapEligible
+    ? "BOOTSTRAP_AVAILABLE" as const
     : "ACTIVATION_REQUIRED" as const;
 }
 
@@ -120,9 +129,31 @@ export async function getEnrollmentSetupState(
       enrollmentAuthSessionHash: true,
     },
   });
-  const decision = resolveEnrollmentSetupKind(current, authSessionHash, now);
+  let decision = resolveEnrollmentSetupKind(current, authSessionHash, now);
   if (decision === "REJECT_ACTIVE") {
     throw new Error("Authenticator este deja configurat pentru acest cont.");
+  }
+  if (decision === "ACTIVATION_REQUIRED") {
+    const hasForeignLivePendingCredential = Boolean(
+      current?.status === "PENDING"
+        && current.setupExpiresAt
+        && current.setupExpiresAt > now
+        && current.enrollmentAuthSessionHash
+        && !hashesEqual(current.enrollmentAuthSessionHash, authSessionHash),
+    );
+    const bootstrapEligible = await getInitialTwoFactorBootstrapEligibility(
+      primary,
+      hasForeignLivePendingCredential,
+    );
+    decision = resolveEnrollmentSetupKind(
+      current,
+      authSessionHash,
+      now,
+      bootstrapEligible,
+    );
+  }
+  if (decision === "BOOTSTRAP_AVAILABLE") {
+    return { kind: "BOOTSTRAP_AVAILABLE" };
   }
   if (decision === "ACTIVATION_REQUIRED" || !current) {
     return { kind: "ACTIVATION_REQUIRED" };
