@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+  bootstrapSetupExpiry,
   isInitialTwoFactorBootstrapEligible,
   type BootstrapEligibilityInput,
 } from "@/lib/auth/two-factor/bootstrap";
@@ -60,3 +62,27 @@ for (const [name, input] of rejected) {
     assert.equal(isInitialTwoFactorBootstrapEligible(input), false);
   });
 }
+
+test("bootstrap setup expires exactly fifteen minutes after it starts", () => {
+  const now = new Date("2026-07-21T12:00:00.000Z");
+  assert.equal(
+    bootstrapSetupExpiry(now).toISOString(),
+    "2026-07-21T12:15:00.000Z",
+  );
+});
+
+test("bootstrap enrollment revalidates and creates the pending credential serializably", () => {
+  const source = readFileSync("src/lib/auth/two-factor/bootstrap.ts", "utf8");
+  assert.match(source, /isolationLevel:\s*["']Serializable["']/);
+  assert.match(
+    source,
+    /orderBy:\s*\[\{\s*createdAt:\s*["']asc["']\s*\},\s*\{\s*id:\s*["']asc["']/s,
+  );
+  assert.match(source, /status:\s*["']ACTIVE["']/);
+  assert.match(source, /twoFactorCredential\.deleteMany/);
+  assert.match(source, /twoFactorCredential\.create/);
+  assert.match(source, /enrollmentAuthSessionHash:\s*hashNeonSessionId/);
+  assert.match(source, /TWO_FACTOR_BOOTSTRAP_STARTED/);
+  assert.match(source, /logAuditRequired/);
+  assert.doesNotMatch(source, /consumeEnrollmentGrant/);
+});
