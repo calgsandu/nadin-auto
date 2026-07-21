@@ -8,7 +8,7 @@ import {
   twoFactorCookieOptions,
 } from "@/lib/auth/two-factor/session";
 
-export async function GET(request: NextRequest) {
+async function continueAfterPrimaryAuth(request: NextRequest) {
   const state = await getAuthAccessState();
 
   switch (state.kind) {
@@ -55,5 +55,16 @@ export async function GET(request: NextRequest) {
       );
       return response;
     }
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    return await continueAfterPrimaryAuth(request);
+  } catch (error) {
+    console.error("[2fa] continuation failed", {
+      name: error instanceof Error ? error.name : "UnknownError",
+    });
+    return NextResponse.redirect(new URL("/auth/2fa/error", request.url));
   }
 }
