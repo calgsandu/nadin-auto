@@ -495,11 +495,14 @@ export async function createInventoryAction(
     let adjustedCount = 0;
     await prisma.$transaction(async (tx) => {
       const diffs: { productId: string; quantity: number }[] = [];
+      // Snapshot pentru istoric: în sistem vs numărat (liniile păstrează doar diferența).
+      const counts: { productId: string; before: number; counted: number }[] = [];
       for (const line of lines) {
         const stock = await ensureWarehouseStockRow(tx, line.productId, warehouseId);
         const diff = line.counted - stock.quantity;
         if (diff !== 0) {
           diffs.push({ productId: line.productId, quantity: diff });
+          counts.push({ productId: line.productId, before: stock.quantity, counted: line.counted });
         }
       }
 
@@ -524,7 +527,7 @@ export async function createInventoryAction(
         entity: "StockDocument",
         entityId: inventoryDoc.id,
         summary: `Inventar #${inventoryDoc.number} salvat (${diffs.length} poziții ajustate) — ${inventoryDoc.warehouse.name}`,
-        details: { diffs },
+        details: { diffs, counts },
       });
 
       for (const diff of diffs) {

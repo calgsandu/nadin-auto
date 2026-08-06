@@ -11,6 +11,8 @@ export type CatalogSearchParams = {
   section?: string;
   /** Selected warehouse for the inventory section. */
   wh?: string;
+  /** Inventar: pagina din lista de inventare (intervalul vine din from/to). */
+  ipage?: string;
   /** Audit history: filter by document id. */
   doc?: string;
   /** Audit history: filter by action (CREATE/UPDATE/DELETE). */

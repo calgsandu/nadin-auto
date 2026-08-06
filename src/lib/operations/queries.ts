@@ -5,6 +5,11 @@ import {
   aggregateRestockRequests,
   splitRestockTasksByStatus,
 } from "@/lib/operations/restock";
+import {
+  INVENTORY_PAGE_SIZE,
+  inventoryWhere,
+  normalizeInventoryPage,
+} from "@/lib/operations/inventory-filter";
 
 export async function getOperationsData() {
   await ensureDefaultWarehouses();
@@ -157,8 +162,13 @@ export async function getOperationsData() {
   };
 }
 
-/** Stock rows for one warehouse (inventory check). */
-export async function getInventoryData(warehouseParam?: string) {
+/** Stock rows for one warehouse (inventory check) + inventarele trecute, filtrate pe perioadă. */
+export async function getInventoryData(params: {
+  wh?: string;
+  from?: string;
+  to?: string;
+  ipage?: string;
+} = {}) {
   await ensureDefaultWarehouses();
 
   const warehouses = await prisma.warehouse.findMany({
@@ -166,7 +176,7 @@ export async function getInventoryData(warehouseParam?: string) {
     orderBy: [{ isDefault: "desc" }, { name: "asc" }],
   });
   const selected =
-    warehouses.find((warehouse) => warehouse.id === warehouseParam) ??
+    warehouses.find((warehouse) => warehouse.id === params.wh) ??
     warehouses.find((warehouse) => warehouse.name === "Pavilion 110A") ??
     warehouses[0] ??
     null;
@@ -188,7 +198,49 @@ export async function getInventoryData(warehouseParam?: string) {
       })
     : [];
 
-  return { warehouses, selected, stocks };
+  const page = normalizeInventoryPage(params.ipage);
+  const where = selected
+    ? inventoryWhere({ warehouseId: selected.id, from: params.from, to: params.to })
+    : null;
+
+  const [operations, total] = where
+    ? await Promise.all([
+        prisma.stockDocument.findMany({
+          where,
+          include: {
+            warehouse: { select: { name: true } },
+            partner: { select: { id: true, name: true, phone: true } },
+            lines: {
+              include: {
+                product: {
+                  select: {
+                    description: true,
+                    externalCode: true,
+                    fitment: { include: { carModel: { include: { brand: true } } } },
+                  },
+                },
+              },
+            },
+          },
+          orderBy: [{ documentDate: "desc" }, { number: "desc" }],
+          skip: (page - 1) * INVENTORY_PAGE_SIZE,
+          take: INVENTORY_PAGE_SIZE,
+        }),
+        prisma.stockDocument.count({ where }),
+      ])
+    : [[], 0];
+
+  return {
+    warehouses,
+    selected,
+    stocks,
+    operations,
+    total,
+    page,
+    pageSize: INVENTORY_PAGE_SIZE,
+    pageCount: Math.max(Math.ceil(total / INVENTORY_PAGE_SIZE), 1),
+    filters: { from: params.from ?? "", to: params.to ?? "" },
+  };
 }
 
 export type InventoryData = Awaited<ReturnType<typeof getInventoryData>>;

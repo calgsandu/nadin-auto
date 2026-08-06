@@ -66,6 +66,20 @@ export function crmDocumentsHref(values: {
   });
 }
 
+export function crmInventoryHref(values: {
+  wh?: string;
+  from?: string;
+  to?: string;
+  ipage?: number;
+}) {
+  return crmHref("inventar", {
+    wh: values.wh,
+    from: values.from,
+    to: values.to,
+    ipage: values.ipage && values.ipage > 1 ? values.ipage : undefined,
+  });
+}
+
 export function crmAuditHref(values: { act?: string; doc?: string }) {
   return crmHref("istoric", values);
 }

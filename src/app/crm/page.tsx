@@ -93,6 +93,7 @@ import {
   crmAuditHref,
   crmCatalogPageHref,
   crmDocumentsHref,
+  crmInventoryHref,
   crmSectionHref,
 } from "@/lib/crm/urls";
 import {
@@ -226,7 +227,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const statsPromise =
     activeSectionId === "statistici" ? getStatsData() : null;
   const inventoryPromise =
-    activeSectionId === "inventar" ? getInventoryData(params.wh) : null;
+    activeSectionId === "inventar" ? getInventoryData(params) : null;
   const auditPromise =
     activeSectionId === "istoric"
       ? getAuditData({ doc: params.doc, act: params.act })
@@ -2356,7 +2357,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
           return (
             <Link
               key={warehouse.id}
-              href={`/crm?section=inventar&wh=${warehouse.id}`}
+              href={crmInventoryHref({ wh: warehouse.id, ...data.filters })}
               className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
                 active
                   ? "border-[#1b1a17] bg-[#1b1a17] text-white"
@@ -2429,8 +2430,191 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
           </table>
         </div>
       </div>
+
+      <InventoryOperationsTable data={data} canModify={canModify} />
     </section>
   );
+}
+
+/** Inventarele trecute ale depozitului selectat: filtre, detalii, export, editare, ștergere. */
+function InventoryOperationsTable({
+  data,
+  canModify,
+}: {
+  data: InventoryData;
+  canModify: boolean;
+}) {
+  const { operations, filters, page, pageCount, total, pageSize, selected } = data;
+  const filterInputCls =
+    "h-10 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
+  const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, total);
+  const exportQuery = new URLSearchParams({
+    wh: selected?.id ?? "",
+    ...(filters.from ? { from: filters.from } : {}),
+    ...(filters.to ? { to: filters.to } : {}),
+  }).toString();
+
+  return (
+    <div className="grid gap-3">
+      <form
+        action="/crm"
+        method="get"
+        className="flex flex-wrap items-end gap-2 rounded-xl border border-[#e8e7e3] bg-white px-3 py-3"
+      >
+        <input type="hidden" name="section" value="inventar" />
+        <input type="hidden" name="wh" value={selected?.id ?? ""} />
+        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+          De la
+          <input className={filterInputCls} type="date" name="from" defaultValue={filters.from} />
+        </label>
+        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+          Până la
+          <input className={filterInputCls} type="date" name="to" defaultValue={filters.to} />
+        </label>
+        <button
+          type="submit"
+          className="button-primary h-10 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
+        >
+          Filtrează
+        </button>
+        <Link
+          href={crmInventoryHref({ wh: selected?.id })}
+          className="h-10 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
+        >
+          Resetează
+        </Link>
+        {canModify && selected ? (
+          <div className="flex gap-2">
+            <a
+              href={`/api/export/inventory?${exportQuery}`}
+              className="button-secondary inline-flex h-10 items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+            >
+              <Download className="size-4" aria-hidden="true" /> Toate (Excel)
+            </a>
+            <a
+              href={`/api/export/inventory?${exportQuery}&format=pdf`}
+              className="button-secondary inline-flex h-10 items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+            >
+              <FileText className="size-4" aria-hidden="true" /> Toate (PDF)
+            </a>
+          </div>
+        ) : null}
+        <span className="ml-auto text-sm text-[#6f6b63]">
+          {start}-{end} din {formatNumber(total)} inventare
+        </span>
+      </form>
+
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+        <div className="border-b border-[#e8e7e3] px-4 py-3">
+          <h2 className="font-semibold text-[#1b1a17]">Inventare efectuate</h2>
+        </div>
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[860px] border-collapse text-left text-sm">
+          <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <tr>
+              <TableHead>Data</TableHead>
+              <TableHead>Document</TableHead>
+              <TableHead align="right">Poziții</TableHead>
+              <TableHead align="right">Plus</TableHead>
+              <TableHead align="right">Minus</TableHead>
+              <TableHead align="right">Net</TableHead>
+              <TableHead>Notițe</TableHead>
+              <TableHead align="right">Acțiuni</TableHead>
+            </tr>
+          </thead>
+          <tbody>
+            {operations.length > 0 ? (
+              operations.map((operation) => {
+                const plus = operation.lines.reduce((sum, line) => sum + Math.max(line.quantity, 0), 0);
+                const minus = operation.lines.reduce((sum, line) => sum + Math.min(line.quantity, 0), 0);
+                const docLines = toDocLines(operation);
+                return (
+                  <tr key={operation.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
+                    <TableCell>{formatDate(operation.documentDate)}</TableCell>
+                    <TableCell className="font-semibold">Inventar #{operation.number}</TableCell>
+                    <TableCell align="right" className="font-mono">{formatNumber(operation.lines.length)}</TableCell>
+                    <TableCell align="right" className="font-mono text-[#15803d]">{plus > 0 ? `+${plus}` : "—"}</TableCell>
+                    <TableCell align="right" className="font-mono text-[#b91c1c]">{minus < 0 ? minus : "—"}</TableCell>
+                    <TableCell align="right" className="font-mono font-semibold">{signedNumber(plus + minus)}</TableCell>
+                    <TableCell className="text-[#6f6b63]">
+                      {operation.notes?.replace(/^Inventar:?\s*/, "") || "—"}
+                    </TableCell>
+                    <TableCell align="right">
+                      <div className="flex justify-end gap-2">
+                        <DocumentDetailsButton details={toDocumentDetails(operation, canModify)} />
+                        {canModify ? (
+                          <>
+                            <a
+                              href={`/api/export/inventory/${operation.id}`}
+                              className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                            >
+                              <Download className="size-3.5" aria-hidden="true" /> Excel
+                            </a>
+                            <a
+                              href={`/api/export/inventory/${operation.id}?format=pdf`}
+                              className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                            >
+                              <FileText className="size-3.5" aria-hidden="true" /> PDF
+                            </a>
+                            <DocumentRowActions
+                              id={operation.id}
+                              title={`Inventar #${operation.number}`}
+                              documentDate={operation.documentDate.toISOString().slice(0, 10)}
+                              documentType={operation.type}
+                              notes={operation.notes ?? ""}
+                              partnerId={operation.partner?.id ?? ""}
+                              partnerName={operation.partner?.name ?? ""}
+                              // Semnul diferenței se păstrează server-side; îl arătăm în etichetă.
+                              lines={docLines.map((line, index) => ({
+                                ...line,
+                                label: `${operation.lines[index].quantity < 0 ? "−" : "+"} ${line.label}`,
+                              }))}
+                            />
+                          </>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={8}>
+                  Nu există inventare salvate pentru filtrele curente.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      {pageCount > 1 ? (
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <p className="text-[#6f6b63]">
+            Pagina {page} din {pageCount}
+          </p>
+          <div className="flex gap-2">
+            <PagerLink
+              disabled={page <= 1}
+              href={crmInventoryHref({ wh: selected?.id, ...filters, ipage: page - 1 })}
+              label="Înapoi"
+            />
+            <PagerLink
+              disabled={page >= pageCount}
+              href={crmInventoryHref({ wh: selected?.id, ...filters, ipage: page + 1 })}
+              label="Înainte"
+            />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function signedNumber(value: number) {
+  return value > 0 ? `+${value}` : String(value);
 }
 
 function StatsWorkspace({ data, canModify }: { data: StatsData; canModify: boolean }) {
