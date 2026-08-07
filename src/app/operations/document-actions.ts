@@ -33,6 +33,15 @@ export type DocumentActionState = { ok: boolean; message: string };
 
 const FALLBACK: DocumentActionState = { ok: false, message: "Operațiunea a eșuat." };
 
+/**
+ * Tranzacțiile care umblă pe liniile unui document fac câteva tururi spre Neon
+ * pentru fiecare produs, deci trec de limita implicită de 5 s la documentele
+ * lungi (inventare). Aceeași marjă ca la salvarea inventarului.
+ * ponytail: marjă lărgită, nu batching — dacă apar documente de sute de linii,
+ * refolosește ensureWarehouseStockRows/applyWarehouseStockDeltas din actions.ts.
+ */
+const DOCUMENT_TX_OPTIONS = { timeout: 30_000, maxWait: 10_000 } as const;
+
 async function requireWrite() {
   const user = await requireCurrentAppUser();
   if (!canWriteCatalog(user.role)) {
@@ -248,7 +257,8 @@ export async function deleteDocumentAction(
       if (docsToDelete.length > 1) {
         message = "Transfer șters (ambele jumătăți) și stoc reversat.";
       }
-    });
+    // Reversarea merge linie cu linie: documentele lungi depășesc cele 5 s implicite.
+    }, DOCUMENT_TX_OPTIONS);
 
     revalidatePath("/crm");
     return { ok: true, message };
@@ -623,7 +633,9 @@ export async function updateDocumentLinesAction(
           details: { before: beforeSnapshot, after: documentSnapshot(updated) },
         });
       }
-    });
+    // Fiecare linie face un tur spre Neon la reversare și la re-aplicare:
+    // un inventar cu zeci de poziții trece lejer de cele 5 s implicite.
+    }, DOCUMENT_TX_OPTIONS);
 
     revalidatePath("/crm");
     return { ok: true, message: "Document actualizat (linii + stoc)." };
