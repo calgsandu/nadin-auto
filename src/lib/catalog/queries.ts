@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { findMatchingProductIds } from "@/lib/catalog/product-match";
 import type { Prisma } from "@/generated/prisma/client";
 
 export type CatalogSearchParams = {
@@ -38,7 +39,9 @@ export async function getCatalogData(
   params: CatalogSearchParams,
   options: CatalogOptions = {},
 ) {
-  const baseWhere = buildProductWhere(params);
+  const query = params.q?.trim() ?? "";
+  const matchedIds = query ? await findMatchingProductIds(query) : null;
+  const baseWhere = buildProductWhere(params, matchedIds);
   const where: Prisma.ProductWhereInput = options.onlyInStock
     ? { AND: [baseWhere, { stock: { gt: 0 } }] }
     : baseWhere;
@@ -157,36 +160,19 @@ function normalizePage(page: string | undefined) {
   return value;
 }
 
-export function buildProductWhere(params: CatalogSearchParams): Prisma.ProductWhereInput {
+/**
+ * `matchedIds` vine din `findMatchingProductIds` (cod fără spații + termeni fără
+ * diacritice); e null când căutarea nu e folosită.
+ */
+export function buildProductWhere(
+  params: CatalogSearchParams,
+  matchedIds: string[] | null = null,
+): Prisma.ProductWhereInput {
   const filters: Prisma.ProductWhereInput[] = [];
-  const q = params.q?.trim();
   const year = params.year ? Number(params.year) : null;
 
-  if (q) {
-    filters.push({
-      OR: [
-        { externalCode: { contains: q, mode: "insensitive" } },
-        { description: { contains: q, mode: "insensitive" } },
-        ...compatibleFitmentFilter({ label: { contains: q, mode: "insensitive" } }).OR!,
-        ...compatibleFitmentFilter({
-          carModel: { name: { contains: q, mode: "insensitive" } },
-        }).OR!,
-        {
-          fitment: {
-            carModel: { brand: { name: { contains: q, mode: "insensitive" } } },
-          },
-        },
-        {
-          productFitments: {
-            some: {
-              fitment: {
-                carModel: { brand: { name: { contains: q, mode: "insensitive" } } },
-              },
-            },
-          },
-        },
-      ],
-    });
+  if (matchedIds) {
+    filters.push({ id: { in: matchedIds } });
   }
 
   if (params.brand) {

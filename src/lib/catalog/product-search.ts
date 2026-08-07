@@ -1,5 +1,3 @@
-import type { Prisma } from "@/generated/prisma/client";
-
 export const PRODUCT_SEARCH_LIMIT = 20;
 
 export type ProductSearchResult = {
@@ -35,47 +33,6 @@ export function normalizeProductSearchQuery(query: string) {
   const normalized = query.trim().replace(/\s+/g, " ").slice(0, 20);
 
   return normalized.length >= 3 ? normalized : "";
-}
-
-export function buildProductSearchWhere(query: string): Prisma.ProductWhereInput {
-  return {
-    OR: [
-      { externalCode: { contains: query, mode: "insensitive" } },
-      { description: { contains: query, mode: "insensitive" } },
-      { fitment: { label: { contains: query, mode: "insensitive" } } },
-      {
-        productFitments: {
-          some: { fitment: { label: { contains: query, mode: "insensitive" } } },
-        },
-      },
-      { fitment: { carModel: { name: { contains: query, mode: "insensitive" } } } },
-      {
-        productFitments: {
-          some: {
-            fitment: { carModel: { name: { contains: query, mode: "insensitive" } } },
-          },
-        },
-      },
-      {
-        fitment: {
-          carModel: {
-            brand: { name: { contains: query, mode: "insensitive" } },
-          },
-        },
-      },
-      {
-        productFitments: {
-          some: {
-            fitment: {
-              carModel: {
-                brand: { name: { contains: query, mode: "insensitive" } },
-              },
-            },
-          },
-        },
-      },
-    ],
-  };
 }
 
 export function formatProductSearchLabel(

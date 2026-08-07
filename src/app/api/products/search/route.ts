@@ -3,11 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import {
-  buildProductSearchWhere,
   normalizeProductSearchQuery,
   PRODUCT_SEARCH_LIMIT,
   toProductSearchResult,
 } from "@/lib/catalog/product-search";
+import { findMatchingProductIds } from "@/lib/catalog/product-match";
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentAppUser();
@@ -19,8 +19,13 @@ export async function GET(request: NextRequest) {
   const query = normalizeProductSearchQuery(
     request.nextUrl.searchParams.get("q") ?? "",
   );
+  const matchedIds = query ? await findMatchingProductIds(query) : null;
+  if (matchedIds && matchedIds.length === 0) {
+    return Response.json({ products: [] });
+  }
+
   const products = await prisma.product.findMany({
-    where: query ? buildProductSearchWhere(query) : undefined,
+    where: matchedIds ? { id: { in: matchedIds } } : undefined,
     include: {
       type: true,
       fitment: {
