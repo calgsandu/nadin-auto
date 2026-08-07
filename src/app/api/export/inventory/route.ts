@@ -5,6 +5,7 @@ import { COMPANY } from "@/lib/company";
 import { XLSX, xlsxResponse } from "@/lib/export/xlsx";
 import { createPdf, drawDocumentHeader, drawTable, pdfResponse, type PdfColumn } from "@/lib/export/pdf";
 import { inventoryWhere } from "@/lib/operations/inventory-filter";
+import { productLineSubtitle } from "@/lib/catalog/product-line-label";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,18 @@ export async function GET(request: Request) {
   const documents = await prisma.stockDocument.findMany({
     where: inventoryWhere({ warehouseId, from, to }),
     include: {
-      lines: { include: { product: { select: { description: true, externalCode: true } } } },
+      lines: {
+        include: {
+          product: {
+            select: {
+              description: true,
+              externalCode: true,
+              type: { select: { name: true } },
+              fitment: { include: { carModel: { include: { brand: true } } } },
+            },
+          },
+        },
+      },
     },
     orderBy: [{ documentDate: "asc" }, { number: "asc" }],
   });
@@ -44,7 +56,9 @@ export async function GET(request: Request) {
       date: dateFormat.format(doc.documentDate),
       number: doc.number,
       code: line.product?.externalCode ?? line.externalCode ?? "—",
-      name: line.product?.description ?? line.externalName ?? "Piesă externă",
+      name: line.product
+        ? [line.product.description, productLineSubtitle(line.product)].filter(Boolean).join(" — ")
+        : (line.externalName ?? "Piesă externă"),
       diff: line.quantity,
     })),
   );

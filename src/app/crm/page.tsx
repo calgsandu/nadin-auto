@@ -27,6 +27,7 @@ import { ChangePasswordDialog } from "@/app/account/change-password-dialog";
 import { TrustedDeviceControl } from "@/app/account/trusted-device-control";
 import { SidebarCollapseButton } from "./sidebar-collapse";
 import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
+import { productLineLabel, productLineSubtitle } from "@/lib/catalog/product-line-label";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
 import {
   ProductFormDialog,
@@ -898,8 +899,17 @@ type SaleLineWithProduct = {
 };
 
 /** Rând secundar gri cu marca + model + ani sub denumirea produsului. */
-function VehicleSubline({ fitment }: { fitment: VehicleFitmentInfo | null | undefined }) {
-  const label = vehicleLabel(fitment);
+/** Subtitlul unei linii de produs: „MARCĂ MODEL ani · tip". */
+function VehicleSubline({
+  fitment,
+  product,
+}: {
+  fitment?: VehicleFitmentInfo | null;
+  product?: { externalCode: string | null; description: string; type?: { name: string } | null; fitment?: VehicleFitmentInfo | null } | null;
+}) {
+  const label = product
+    ? productLineSubtitle(product)
+    : vehicleLabel(fitment);
   return label ? <span className="block text-xs font-normal text-[#6f6b63]">{label}</span> : null;
 }
 
@@ -947,7 +957,7 @@ function SaleLines({ lines }: { lines: SaleLineWithProduct[] }) {
                 {formatMoney(sold)} lei{marked ? (diff < 0 ? " ↓" : " ↑") : ""}
               </span>
             ) : null}
-            <VehicleSubline fitment={line.product?.fitment} />
+            <VehicleSubline product={line.product} />
           </span>
         );
       })}
@@ -1031,7 +1041,7 @@ function ReturnsWorkspace({
                             {line.product?.externalCode ? `${line.product.externalCode} · ` : ""}
                             {line.product?.description ?? line.externalName ?? "Piesă externă"}
                             <span className="font-mono text-[#6f6b63]"> x{line.quantity}</span>
-                            <VehicleSubline fitment={line.product?.fitment} />
+                            <VehicleSubline product={line.product} />
                           </span>
                         ))}
                       </div>
@@ -1119,7 +1129,7 @@ function RestockWorkspace({
                     </TableCell>
                     <TableCell className="font-medium">
                       {line.product.description}
-                      <VehicleSubline fitment={line.product.fitment} />
+                      <VehicleSubline product={line.product} />
                     </TableCell>
                     <TableCell align="right" className="font-mono">{formatNumber(line.taskCount)}</TableCell>
                     <TableCell align="right" className="font-mono font-semibold">{formatNumber(line.quantity)}</TableCell>
@@ -1194,7 +1204,7 @@ function UnavailableRestockWorkspace({ operations }: { operations: OperationsDat
                     </TableCell>
                     <TableCell className="font-medium">
                       {line.product.description}
-                      <VehicleSubline fitment={line.product.fitment} />
+                      <VehicleSubline product={line.product} />
                     </TableCell>
                     <TableCell align="right" className="font-mono font-semibold">{formatNumber(line.quantity)}</TableCell>
                     <TableCell>{formatDate(line.latestRequestedAt)}</TableCell>
@@ -1481,7 +1491,12 @@ function toDocLines(doc: {
     quantity: number;
     unitPriceEuro: { toString(): string } | null;
     unitCostLei: { toString(): string } | null;
-    product: { description: string; externalCode: string | null } | null;
+    product: {
+      description: string;
+      externalCode: string | null;
+      type?: { name: string } | null;
+      fitment?: VehicleFitmentInfo | null;
+    } | null;
   }[];
 }) {
   const usesSalePrice = doc.type === "SALE" || doc.type === "RETURN";
@@ -1489,8 +1504,9 @@ function toDocLines(doc: {
     const price = usesSalePrice ? l.unitPriceEuro : l.unitCostLei;
     return {
       productId: l.productId ?? "",
+      // Aceeași etichetă ca la căutarea din dialogul de creare: cod, mașină, tip, denumire.
       label: l.product
-        ? `${l.product.externalCode ? `${l.product.externalCode} · ` : ""}${l.product.description}`
+        ? productLineLabel(l.product)
         : `${l.externalCode ? `${l.externalCode} · ` : ""}${l.externalName ?? "Piesă externă"}`,
       quantity: String(l.quantity),
       price: price != null ? String(price) : "",
@@ -1576,7 +1592,7 @@ function toDocumentDetails(
         id: line.id,
         code: line.product?.externalCode ?? line.externalCode ?? (line.product ? null : "extern"),
         description: line.product?.description ?? line.externalName ?? "Piesă externă",
-        vehicle: vehicleLabel(line.product?.fitment),
+        vehicle: line.product ? productLineSubtitle(line.product) : null,
         quantity: line.quantity,
         price: price != null ? Number(price) : null,
       };
@@ -1664,7 +1680,7 @@ function RecentDocumentsTable({
                             ? line.product.description
                             : `${line.externalCode ? `${line.externalCode} · ` : ""}${line.externalName ?? "Piesă externă"}`}
                           <span className="font-mono text-[#6f6b63]"> x{line.quantity}</span>
-                          <VehicleSubline fitment={line.product?.fitment} />
+                          <VehicleSubline product={line.product} />
                         </span>
                       ))}
                     </div>
@@ -2419,7 +2435,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
                     </TableCell>
                     <TableCell className="font-medium">
                       {row.product.description}
-                      <VehicleSubline fitment={row.product.fitment} />
+                      <VehicleSubline product={row.product} />
                     </TableCell>
                     <TableCell align="right" className="font-mono">
                       {row.product.salePriceLei != null ? `${formatMoney(row.product.salePriceLei)} lei` : "—"}

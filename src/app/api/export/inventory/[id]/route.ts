@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { COMPANY } from "@/lib/company";
 import { XLSX, xlsxResponse } from "@/lib/export/xlsx";
 import { createPdf, drawDocumentHeader, drawTable, pdfResponse, type PdfColumn } from "@/lib/export/pdf";
+import { productLineSubtitle } from "@/lib/catalog/product-line-label";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,16 @@ export async function GET(
     include: {
       warehouse: { select: { name: true } },
       lines: {
-        include: { product: { select: { description: true, externalCode: true } } },
+        include: {
+          product: {
+            select: {
+              description: true,
+              externalCode: true,
+              type: { select: { name: true } },
+              fitment: { include: { carModel: { include: { brand: true } } } },
+            },
+          },
+        },
       },
     },
   });
@@ -41,7 +51,9 @@ export async function GET(
   const rows = doc.lines.map((line, index) => ({
     index: index + 1,
     code: line.product?.externalCode ?? line.externalCode ?? "—",
-    name: line.product?.description ?? line.externalName ?? "Piesă externă",
+    name: line.product
+      ? [line.product.description, productLineSubtitle(line.product)].filter(Boolean).join(" — ")
+      : (line.externalName ?? "Piesă externă"),
     diff: line.quantity,
   }));
   const plus = rows.reduce((sum, row) => sum + (row.diff > 0 ? row.diff : 0), 0);

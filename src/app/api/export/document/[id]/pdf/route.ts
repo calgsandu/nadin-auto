@@ -11,6 +11,7 @@ import {
   type PdfColumn,
 } from "@/lib/export/pdf";
 import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
+import { productLineSubtitle } from "@/lib/catalog/product-line-label";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export async function GET(
 
   const doc = await prisma.stockDocument.findUnique({
     where: { id },
-    include: { warehouse: true, partner: true, lines: { include: { product: true } } },
+    include: { warehouse: true, partner: true, lines: { include: { product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } } } } },
   });
   if (!doc) return new Response("Document inexistent", { status: 404 });
 
@@ -86,7 +87,9 @@ export async function GET(
     return [
       String(index + 1),
       line.product?.externalCode ?? line.externalCode ?? (line.product ? "—" : "extern"),
-      line.product?.description ?? line.externalName ?? "Piesă externă",
+      line.product
+        ? [line.product.description, productLineSubtitle(line.product)].filter(Boolean).join(" — ")
+        : (line.externalName ?? "Piesă externă"),
       "buc.",
       String(line.quantity),
       pdfMoney.format(unit),

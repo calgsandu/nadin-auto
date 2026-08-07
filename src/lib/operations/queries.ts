@@ -54,7 +54,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
         },
       },
@@ -71,7 +71,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
         },
       },
@@ -91,7 +91,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
         },
       },
@@ -107,7 +107,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
         },
       },
@@ -118,7 +118,7 @@ export async function getOperationsData() {
       include: {
         warehouse: true,
         partner: true,
-        lines: { include: { product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } } } },
+        lines: { include: { product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } } } },
       },
       orderBy: [{ documentDate: "desc" }, { number: "desc" }],
       take: 50,
@@ -132,7 +132,7 @@ export async function getOperationsData() {
             },
           },
           include: {
-            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
           orderBy: [{ requestedAt: "asc" }, { createdAt: "asc" }],
         })
@@ -243,6 +243,7 @@ export async function getInventoryData(params: {
                   select: {
                     description: true,
                     externalCode: true,
+                    type: { select: { name: true } },
                     fitment: { include: { carModel: { include: { brand: true } } } },
                   },
                 },
@@ -278,7 +279,12 @@ function summarizeRestockTasks<
     warehouseId: string;
     quantity: number;
     requestedAt: Date;
-    product: { externalCode: string | null; description: string; fitment: VehicleFitmentInfo };
+    product: {
+      externalCode: string | null;
+      description: string;
+      type?: { name: string } | null;
+      fitment: VehicleFitmentInfo;
+    };
   },
 >(tasks: T[]) {
   const productById = new Map(tasks.map((task) => [task.productId, task.product]));
@@ -371,7 +377,7 @@ export async function getSalesDayData(dayParam?: string) {
         partner: true,
         lines: {
           include: {
-            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
           },
         },
       },
