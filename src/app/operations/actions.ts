@@ -35,6 +35,11 @@ import {
   normalizeOptionalPartnerId,
 } from "@/lib/operations/supplier-selection";
 import { applyReceiptCost, type CostUpdate } from "@/lib/operations/receipt-cost";
+import {
+  applyWarehouseStockDeltas,
+  ensureWarehouseStockRows,
+  syncProductAggregateStocks,
+} from "@/lib/operations/stock-mutations";
 
 export type OperationActionState = {
   ok: boolean;
@@ -502,15 +507,23 @@ export async function createInventoryAction(
 
     let adjustedCount = 0;
     await prisma.$transaction(async (tx) => {
+      // Un inventar are zeci de poziții: se lucrează pe loturi, altfel tranzacția
+      // depășește limita de timp înainte să apuce să scrie ceva.
+      const quantities = await ensureWarehouseStockRows(
+        tx,
+        lines.map((line) => line.productId),
+        warehouseId,
+      );
+
       const diffs: { productId: string; quantity: number }[] = [];
       // Snapshot pentru istoric: în sistem vs numărat (liniile păstrează doar diferența).
       const counts: { productId: string; before: number; counted: number }[] = [];
       for (const line of lines) {
-        const stock = await ensureWarehouseStockRow(tx, line.productId, warehouseId);
-        const diff = line.counted - stock.quantity;
+        const before = quantities.get(line.productId) ?? 0;
+        const diff = line.counted - before;
         if (diff !== 0) {
           diffs.push({ productId: line.productId, quantity: diff });
-          counts.push({ productId: line.productId, before: stock.quantity, counted: line.counted });
+          counts.push({ productId: line.productId, before, counted: line.counted });
         }
       }
 
@@ -538,17 +551,11 @@ export async function createInventoryAction(
         details: { diffs, counts },
       });
 
-      for (const diff of diffs) {
-        await updateWarehouseStock(tx, {
-          productId: diff.productId,
-          warehouseId,
-          quantity: diff.quantity,
-          kind: "ADJUSTMENT",
-        });
-        await syncProductAggregateStock(tx, diff.productId);
-      }
+      await applyWarehouseStockDeltas(tx, warehouseId, diffs);
+      await syncProductAggregateStocks(tx, diffs.map((diff) => diff.productId));
       adjustedCount = diffs.length;
-    });
+    // Marjă peste cele 5 s implicite: inventarele mari plus latența spre Neon.
+    }, { timeout: 30_000, maxWait: 10_000 });
 
     revalidatePath("/crm");
     return {
