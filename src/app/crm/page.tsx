@@ -2407,16 +2407,28 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
         </div>
       ) : null}
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="border-b border-[#e8e7e3] px-4 py-3">
-          <h2 className="font-semibold text-[#1b1a17]">
-            Stoc în sistem — {data.selected?.name ?? "fără depozit"}
-          </h2>
-          <p className="mt-1 text-sm text-[#6f6b63]">
-            Numără fizic produsele și folosește „Corectează stocul” pentru diferențe.
-          </p>
-        </div>
-        <div className="overflow-x-auto">
+      <InventoryOperationsTable data={data} canModify={canModify} />
+
+      <details className="motion-card group overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+        <summary className="cursor-pointer list-none px-4 py-3 marker:content-none">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="font-semibold text-[#1b1a17]">
+                Stoc în sistem — {data.selected?.name ?? "fără depozit"}
+              </h2>
+              <p className="mt-1 text-sm text-[#6f6b63]">
+                {formatNumber(data.stocks.length)} poziții · {formatNumber(totalQuantity)} bucăți
+              </p>
+            </div>
+            <span className="shrink-0 text-sm font-semibold text-[#6f6b63] group-open:hidden">
+              Arată
+            </span>
+            <span className="hidden shrink-0 text-sm font-semibold text-[#6f6b63] group-open:inline">
+              Ascunde
+            </span>
+          </div>
+        </summary>
+        <div className="overflow-x-auto border-t border-[#e8e7e3]">
           <table className="w-full min-w-[900px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
               <tr>
@@ -2455,9 +2467,8 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
             </tbody>
           </table>
         </div>
-      </div>
+      </details>
 
-      <InventoryOperationsTable data={data} canModify={canModify} />
     </section>
   );
 }
