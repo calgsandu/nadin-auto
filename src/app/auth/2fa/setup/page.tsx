@@ -28,10 +28,14 @@ export default async function TwoFactorSetupPage() {
     );
   }
   if (setup.kind === "ACTIVATION_REQUIRED") {
+    // Codul e legat de contul conectat: dacă cineva îl introduce fiind logat cu
+    // alt cont, e respins. De aceea scriem aici pentru cine se configurează.
+    const account =
+      state.primary.appUser.username ?? state.primary.appUser.email ?? "contul curent";
     return (
       <TwoFactorShell
         title="Activează Authenticator"
-        description="Pentru securitate, configurarea 2FA începe numai cu un cod unic primit de la administrator pe un canal separat."
+        description={`Configurezi 2FA pentru „${account}”. Codul unic este emis de administrator pentru acest cont și expiră în 15 minute.`}
       >
         <ActivationForm />
       </TwoFactorShell>
