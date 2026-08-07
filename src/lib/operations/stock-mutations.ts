@@ -124,30 +124,51 @@ export async function ensureWarehouseStockRows(
   return quantities;
 }
 
-/** Aplică toate diferențele dintr-un depozit într-un singur UPDATE. */
+/**
+ * Aplică toate diferențele dintr-un depozit într-un singur UPDATE.
+ *
+ * `allowNegative` e pentru reversarea unui document care se mută în alt
+ * depozit: marfa poate fi între timp vândută din cel vechi, iar reversarea a
+ * avut dintotdeauna voie să-l ducă sub zero. Fiecare produs trebuie să apară
+ * o SINGURĂ dată — un UPDATE ... FROM (VALUES …) cu chei duplicate ar aplica
+ * doar una dintre potriviri, deci cantitățile se însumează înainte de apel.
+ */
 export async function applyWarehouseStockDeltas(
   tx: Prisma.TransactionClient,
   warehouseId: string,
   deltas: { productId: string; quantity: number }[],
+  options: { allowNegative?: boolean } = {},
 ) {
   if (deltas.length === 0) return;
 
   const values = deltas.map(
     (delta) => Prisma.sql`(${delta.productId}::text, ${delta.quantity}::int)`,
   );
+  const floor = options.allowNegative ? Prisma.empty : Prisma.sql`AND w.quantity + v.delta >= 0`;
   const updated = await tx.$executeRaw`
     UPDATE "WarehouseStock" w
     SET quantity = w.quantity + v.delta, "updatedAt" = now()
     FROM (VALUES ${Prisma.join(values)}) AS v(product_id, delta)
     WHERE w."productId" = v.product_id
       AND w."warehouseId" = ${warehouseId}
-      AND w.quantity + v.delta >= 0`;
+      ${floor}`;
 
   if (updated !== deltas.length) {
     throw new Error(
       "Stoc insuficient în locația selectată pentru cel puțin un produs (modificat între timp).",
     );
   }
+}
+
+/** Însumează cantitățile pe produs — un produs poate apărea pe mai multe linii. */
+export function sumDeltasByProduct(
+  entries: { productId: string; quantity: number }[],
+): { productId: string; quantity: number }[] {
+  const totals = new Map<string, number>();
+  for (const entry of entries) {
+    totals.set(entry.productId, (totals.get(entry.productId) ?? 0) + entry.quantity);
+  }
+  return [...totals].map(([productId, quantity]) => ({ productId, quantity }));
 }
 
 /** Recalculează `Product.stock` pentru toate produsele atinse, într-un singur UPDATE. */

@@ -20,6 +20,12 @@ import {
 import { applyReceiptCost } from "@/lib/operations/receipt-cost";
 import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
 import {
+  applyWarehouseStockDeltas,
+  ensureWarehouseStockRows,
+  sumDeltasByProduct,
+  syncProductAggregateStocks,
+} from "@/lib/operations/stock-mutations";
+import {
   assertCashRegisterDocumentType,
   cashRegisterLabel,
   parseOptionalCashRegistered,
@@ -215,27 +221,35 @@ export async function deleteDocumentAction(
           details: { deleted: documentSnapshot(target) },
         });
 
-        for (const line of target.lines) {
-          // Liniile externe nu au atins stocul — nu e nimic de reversat.
-          if (!line.productId) continue;
-          const appliedEffect = target.type === "SALE" ? -line.quantity : line.quantity;
-          const stock = await tx.warehouseStock.findUnique({
-            where: { productId_warehouseId: { productId: line.productId, warehouseId: target.warehouseId } },
+        // Reversarea pe loturi: rând cu rând, documentele lungi treceau de
+        // limita tranzacției. Liniile externe nu au atins stocul — nimic de dat
+        // înapoi. Stocul poate coborî sub zero (marfa a plecat între timp),
+        // exact ca înainte.
+        const reversals = sumDeltasByProduct(
+          target.lines.flatMap((line) =>
+            line.productId
+              ? [
+                  {
+                    productId: line.productId,
+                    quantity: target.type === "SALE" ? line.quantity : -line.quantity,
+                  },
+                ]
+              : [],
+          ),
+        );
+        if (reversals.length > 0) {
+          await ensureWarehouseStockRows(
+            tx,
+            reversals.map((delta) => delta.productId),
+            target.warehouseId,
+          );
+          await applyWarehouseStockDeltas(tx, target.warehouseId, reversals, {
+            allowNegative: true,
           });
-          if (stock) {
-            await tx.warehouseStock.update({
-              where: { id: stock.id },
-              data: { quantity: stock.quantity - appliedEffect },
-            });
-          }
-          const stocks = await tx.warehouseStock.findMany({
-            where: { productId: line.productId },
-            select: { quantity: true },
-          });
-          await tx.product.update({
-            where: { id: line.productId },
-            data: { stock: stocks.reduce((sum, s) => sum + s.quantity, 0) },
-          });
+          await syncProductAggregateStocks(
+            tx,
+            reversals.map((delta) => delta.productId),
+          );
         }
 
         await tx.restockTask.deleteMany({ where: { sourceDocumentId: target.id } });
@@ -485,75 +499,69 @@ export async function updateDocumentLinesAction(
         signedQuantity: line.quantity,
       }));
 
-      // 1. Reverse old stock effect (liniile externe n-au atins stocul).
-      const touched = new Set<string>();
-      for (const line of doc.lines) {
-        if (!line.productId) continue;
-        const appliedEffect = isSale ? -line.quantity : line.quantity;
-        const stock = await tx.warehouseStock.findUnique({
-          where: { productId_warehouseId: { productId: line.productId, warehouseId: doc.warehouseId } },
-        });
-        if (stock) {
-          await tx.warehouseStock.update({ where: { id: stock.id }, data: { quantity: stock.quantity - appliedEffect } });
-        }
-        touched.add(line.productId);
-      }
-
-      // 2. Replace lines.
+      // 1. Replace lines (liniile externe n-au productId și nu ating stocul).
       await tx.stockDocumentLine.deleteMany({ where: { documentId: id } });
-      let total = 0;
-      for (const nl of newLines) {
-        await tx.stockDocumentLine.create({
-          data: {
-            documentId: id,
-            productId: nl.productId,
-            externalName: nl.externalName,
-            externalCode: nl.externalCode,
-            externalSupplierId: nl.externalSupplierId,
-            quantity: nl.signedQuantity,
-            [priceField]: nl.price,
-            ...(nl.productId ? {} : { unitCostLei: nl.externalCost }),
-          },
-        });
-        total += nl.quantity * (nl.price ?? 0);
+      await tx.stockDocumentLine.createMany({
+        data: newLines.map((nl) => ({
+          documentId: id,
+          productId: nl.productId,
+          externalName: nl.externalName,
+          externalCode: nl.externalCode,
+          externalSupplierId: nl.externalSupplierId,
+          quantity: nl.signedQuantity,
+          [priceField]: nl.price,
+          ...(nl.productId ? {} : { unitCostLei: nl.externalCost }),
+        })),
+      });
+      const total = newLines.reduce((sum, nl) => sum + nl.quantity * (nl.price ?? 0), 0);
 
-        // Liniile externe nu ating stocul.
-        if (!nl.productId) continue;
+      // 2. Stocul, pe loturi: fiecare produs făcea până acum 3-4 drumuri
+      // separate la Neon, iar documentele lungi treceau de limita tranzacției.
+      // Efectul vechi se anulează, cel nou se aplică; când documentul rămâne în
+      // același depozit cele două se însumează, deci un rând care coboară sub
+      // zero doar între timp nu mai blochează editarea.
+      const reversals = sumDeltasByProduct(
+        doc.lines.flatMap((line) =>
+          line.productId
+            ? [{ productId: line.productId, quantity: isSale ? line.quantity : -line.quantity }]
+            : [],
+        ),
+      );
+      const applications = sumDeltasByProduct(
+        newLines.flatMap((nl) =>
+          nl.productId
+            ? [{ productId: nl.productId, quantity: isSale ? -nl.quantity : nl.signedQuantity }]
+            : [],
+        ),
+      );
+      const touched = new Set(
+        [...reversals, ...applications].map((delta) => delta.productId),
+      );
 
-        // 3. Apply new stock effect (seed row from product.stock if missing).
-        let stock = await tx.warehouseStock.findUnique({
-          where: { productId_warehouseId: { productId: nl.productId, warehouseId: targetWarehouseId } },
-        });
-        if (!stock) {
-          // First-ever row seeds from product.stock; later rows start at 0
-          // (product.stock is already the sum of existing rows — see actions.ts).
-          const otherRows = await tx.warehouseStock.count({ where: { productId: nl.productId } });
-          const product =
-            otherRows === 0
-              ? await tx.product.findUnique({ where: { id: nl.productId }, select: { stock: true } })
-              : null;
-          stock = await tx.warehouseStock.create({
-            data: { productId: nl.productId, warehouseId: targetWarehouseId, quantity: product?.stock ?? 0 },
-          });
-        }
-        const next = isSale ? stock.quantity - nl.quantity : stock.quantity + nl.signedQuantity;
-        if (next < 0) throw new Error(`Stoc insuficient pentru un produs din document.`);
-        await tx.warehouseStock.update({ where: { id: stock.id }, data: { quantity: next } });
-        touched.add(nl.productId);
+      if (targetWarehouseId === doc.warehouseId) {
+        const net = sumDeltasByProduct([...reversals, ...applications]);
+        await ensureWarehouseStockRows(tx, [...touched], targetWarehouseId);
+        await applyWarehouseStockDeltas(tx, targetWarehouseId, net);
+      } else {
+        // Mutare: marfa poate fi între timp plecată din depozitul vechi, iar
+        // reversarea a avut dintotdeauna voie să-l ducă sub zero.
+        await ensureWarehouseStockRows(tx, reversals.map((d) => d.productId), doc.warehouseId);
+        await applyWarehouseStockDeltas(tx, doc.warehouseId, reversals, { allowNegative: true });
+        await ensureWarehouseStockRows(tx, applications.map((d) => d.productId), targetWarehouseId);
+        await applyWarehouseStockDeltas(tx, targetWarehouseId, applications);
       }
 
-      // 3b. Recepția editată rescrie costul produsului, ca la creare.
+      // 3. Recepția editată rescrie costul produsului, ca la creare.
+      // ponytail: rămâne linie cu linie — prețul se scrie per produs, cu reguli
+      // proprii. Recepțiile de sute de linii cer întâi batching aici.
       if (doc.type === "RECEIPT") {
         for (const nl of newLines) {
           if (nl.productId) await applyReceiptCost(tx, nl.productId, nl.price);
         }
       }
 
-      // 4. Resync product aggregate stock for every touched product.
-      for (const productId of touched) {
-        const stocks = await tx.warehouseStock.findMany({ where: { productId }, select: { quantity: true } });
-        await tx.product.update({ where: { id: productId }, data: { stock: stocks.reduce((s, x) => s + x.quantity, 0) } });
-      }
+      // 4. Stocul agregat al produselor atinse, într-un singur UPDATE.
+      await syncProductAggregateStocks(tx, [...touched]);
 
       // 5. Header + total (lei).
       let partnerId: string | null | undefined = undefined;

@@ -7,8 +7,9 @@
  * pornesc toate acțiunile: marja stă puțin sub el, ca documentul prea lung să
  * pice cu mesajul Prisma, nu cu un 504 mut. Pe Vercel Pro urcă amândouă la 300.
  *
- * ponytail: marjă lărgită, nu batching — la sute de linii tot nu ajunge;
- * refolosește atunci ensureWarehouseStockRows/applyWarehouseStockDeltas din
- * operations/actions.ts, care scriu toate liniile din câteva query-uri.
+ * Stocul se scrie acum pe loturi (stock-mutations.ts), deci marja e plasă de
+ * siguranță, nu limita de zi cu zi. Ce a rămas per produs: `applyReceiptCost`
+ * la editarea recepțiilor — de trecut pe loturi dacă acelea ajung la sute de
+ * linii.
  */
 export const DOCUMENT_TX_OPTIONS = { timeout: 55_000, maxWait: 15_000 } as const;
