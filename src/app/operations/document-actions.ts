@@ -18,6 +18,7 @@ import {
   normalizeOptionalPartnerId,
 } from "@/lib/operations/supplier-selection";
 import { applyReceiptCost } from "@/lib/operations/receipt-cost";
+import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
 import {
   assertCashRegisterDocumentType,
   cashRegisterLabel,
@@ -33,14 +34,6 @@ export type DocumentActionState = { ok: boolean; message: string };
 
 const FALLBACK: DocumentActionState = { ok: false, message: "Operațiunea a eșuat." };
 
-/**
- * Tranzacțiile care umblă pe liniile unui document fac câteva tururi spre Neon
- * pentru fiecare produs, deci trec de limita implicită de 5 s la documentele
- * lungi (inventare). Aceeași marjă ca la salvarea inventarului.
- * ponytail: marjă lărgită, nu batching — dacă apar documente de sute de linii,
- * refolosește ensureWarehouseStockRows/applyWarehouseStockDeltas din actions.ts.
- */
-const DOCUMENT_TX_OPTIONS = { timeout: 30_000, maxWait: 10_000 } as const;
 
 async function requireWrite() {
   const user = await requireCurrentAppUser();

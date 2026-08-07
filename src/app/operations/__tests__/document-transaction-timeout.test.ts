@@ -1,25 +1,44 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
 
-const actions = readFileSync(
-  fileURLToPath(new URL("../document-actions.ts", import.meta.url)),
-  "utf8",
+const read = (path: string) =>
+  readFileSync(fileURLToPath(new URL(path, import.meta.url)), "utf8");
+
+const documentActions = read("../document-actions.ts");
+const actions = read("../actions.ts");
+const crmPage = read("../../crm/page.tsx");
+
+// Plafonul cererii pe Vercel: tranzacția trebuie să pice cu mesajul Prisma
+// înainte ca funcția să fie tăiată cu un 504 mut.
+const maxDuration = Number(crmPage.match(/export const maxDuration = (\d+)/)?.[1]);
+assert.ok(
+  Number.isInteger(maxDuration),
+  "Pagina /crm trebuie să declare maxDuration — altfel Vercel taie la 15 s implicit.",
+);
+assert.ok(
+  DOCUMENT_TX_OPTIONS.timeout < maxDuration * 1000,
+  `Marja tranzacției (${DOCUMENT_TX_OPTIONS.timeout} ms) trebuie să stea sub maxDuration (${maxDuration} s).`,
+);
+assert.ok(
+  DOCUMENT_TX_OPTIONS.timeout > 5_000,
+  "Marja trebuie să depășească limita implicită Prisma de 5 s.",
 );
 
-assert.match(
-  actions,
-  /const DOCUMENT_TX_OPTIONS = \{ timeout: 30_000, maxWait: 10_000 \}/,
-  "Marja de timp pentru tranzacțiile pe linii trebuie să rămână peste cele 5 s implicite.",
-);
+// Tranzacțiile care scriu stoc linie cu linie depășesc limita implicită la
+// documentele lungi — fiecare trebuie să primească marja comună.
+const perLineTransactions = [
+  ["../document-actions.ts", documentActions, "deleteDocumentAction"],
+  ["../document-actions.ts", documentActions, "updateDocumentLinesAction"],
+  ["../actions.ts", actions, "createInventoryAction"],
+] as const;
 
-// Tranzacțiile care reversează și re-aplică stoc linie cu linie depășesc limita
-// implicită la documentele lungi — fiecare trebuie să primească marja.
-for (const action of ["deleteDocumentAction", "updateDocumentLinesAction"]) {
-  const start = actions.indexOf(`export async function ${action}`);
-  assert.ok(start >= 0, `Trebuie să existe acțiunea ${action}.`);
-  const next = actions.indexOf("export async function ", start + 1);
-  const body = actions.slice(start, next === -1 ? undefined : next);
+for (const [file, source, action] of perLineTransactions) {
+  const start = source.indexOf(`export async function ${action}`);
+  assert.ok(start >= 0, `Trebuie să existe acțiunea ${action} în ${file}.`);
+  const next = source.indexOf("export async function ", start + 1);
+  const body = source.slice(start, next === -1 ? undefined : next);
 
   assert.match(body, /prisma\.\$transaction/, `${action} trebuie să ruleze în tranzacție.`);
   assert.match(

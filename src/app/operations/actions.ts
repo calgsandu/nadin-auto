@@ -20,6 +20,7 @@ import { parseSaleLines } from "@/lib/operations/sales";
 import { parseRequiredCashRegistered } from "@/lib/operations/cash-register";
 import { parseRequiredSalePaymentMethod } from "@/lib/operations/sale-payment-method";
 import { reconcileSaleRestockTasks } from "@/lib/operations/restock";
+import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
 import {
   executeSale,
   saleRequestSummary,
@@ -555,7 +556,7 @@ export async function createInventoryAction(
       await syncProductAggregateStocks(tx, diffs.map((diff) => diff.productId));
       adjustedCount = diffs.length;
     // Marjă peste cele 5 s implicite: inventarele mari plus latența spre Neon.
-    }, { timeout: 30_000, maxWait: 10_000 });
+    }, DOCUMENT_TX_OPTIONS);
 
     revalidatePath("/crm");
     return {

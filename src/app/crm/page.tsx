@@ -149,6 +149,12 @@ import type { AppRole } from "@/generated/prisma/enums";
 
 export const dynamic = "force-dynamic";
 
+// Acțiunile de document pornesc de aici, iar Vercel taie funcția la 15 s
+// implicit — documentele lungi mureau cu 504 înainte ca tranzacția să termine.
+// 60 s e maximul pe planul Hobby; pe Pro se poate urca până la 300
+// (ridică atunci și DOCUMENT_TX_OPTIONS din operations/document-actions.ts).
+export const maxDuration = 60;
+
 type HomeProps = {
   searchParams: Promise<CatalogSearchParams>;
 };
