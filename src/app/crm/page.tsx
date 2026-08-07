@@ -1462,6 +1462,7 @@ function StockWorkspace({
         documents={documents}
         canModify={canModify}
         suppliers={suppliers}
+        warehouses={warehouses}
         emptyText={isReceipts ? "Nicio recepție înregistrată." : "Niciun transfer înregistrat."}
       />
     </section>
@@ -1636,11 +1637,13 @@ function RecentDocumentsTable({
   documents,
   canModify = false,
   suppliers = [],
+  warehouses = [],
   emptyText = "Nu există documente încă.",
 }: {
   documents: OperationsData["receipts"];
   canModify?: boolean;
   suppliers?: SupplierOption[];
+  warehouses?: WarehouseOption[];
   emptyText?: string;
 }) {
   return (
@@ -1732,6 +1735,8 @@ function RecentDocumentsTable({
                         partnerId={document.partner?.id ?? ""}
                         partnerName={document.partner?.name ?? ""}
                         suppliers={suppliers}
+                        warehouses={warehouses}
+                        warehouseId={document.warehouseId}
                         lines={toDocLines(document)}
                         isTransfer={Boolean(document.transferGroupId)}
                       />
@@ -1932,7 +1937,7 @@ function CatalogAdminWorkspace({
 }
 
 function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModify: boolean }) {
-  const { documents, filters, partners, page, pageCount, total, pageSize } = data;
+  const { documents, filters, partners, warehouses, page, pageCount, total, pageSize } = data;
   const filterInputCls =
     "h-10 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
@@ -2076,6 +2081,8 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                           notes={d.notes ?? ""}
                           partnerId={d.partner?.id ?? ""}
                           partnerName={d.partner?.name ?? ""}
+                          warehouses={warehouses}
+                          warehouseId={d.warehouseId}
                           lines={toDocLines(d)}
                           isTransfer={Boolean(d.transferGroupId)}
                         />
@@ -2482,6 +2489,10 @@ function InventoryOperationsTable({
   canModify: boolean;
 }) {
   const { operations, filters, page, pageCount, total, pageSize, selected } = data;
+  const warehouseOptions = data.warehouses.map((warehouse) => ({
+    id: warehouse.id,
+    name: warehouse.name,
+  }));
   const filterInputCls =
     "h-10 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
@@ -2602,6 +2613,8 @@ function InventoryOperationsTable({
                               notes={operation.notes ?? ""}
                               partnerId={operation.partner?.id ?? ""}
                               partnerName={operation.partner?.name ?? ""}
+                              warehouses={warehouseOptions}
+                              warehouseId={operation.warehouseId}
                               lines={docLines}
                             />
                           </>

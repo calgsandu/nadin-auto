@@ -282,6 +282,7 @@ export async function updateDocumentLinesAction(
     const dateRaw = readString(formData, "documentDate");
     const notes = readString(formData, "notes") || null;
     const partnerName = readString(formData, "partnerName");
+    const requestedWarehouseId = readString(formData, "warehouseId");
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
     const documentDate = dateRaw ? new Date(`${dateRaw}T12:00:00`) : undefined;
     if (documentDate && Number.isNaN(documentDate.getTime())) {
@@ -345,6 +346,26 @@ export async function updateDocumentLinesAction(
 
       const beforeSnapshot = documentSnapshot(doc);
       const isSale = doc.type === "SALE";
+
+      // Mutarea documentului în alt depozit: stocul se reversează în depozitul
+      // vechi și se aplică în cel nou. Vânzările și retururile rămân pe loc —
+      // acolo atârnă coada „De adus 110A" și legătura cu vânzarea sursă.
+      let targetWarehouseId = doc.warehouseId;
+      let movedTo: string | null = null;
+      if (requestedWarehouseId && requestedWarehouseId !== doc.warehouseId) {
+        if (doc.type !== "RECEIPT" && doc.type !== "ADJUSTMENT") {
+          throw new Error(
+            "Doar recepțiile și inventarele pot fi mutate în alt depozit. Șterge documentul și creează-l din nou.",
+          );
+        }
+        const target = await tx.warehouse.findFirst({
+          where: { id: requestedWarehouseId, active: true },
+          select: { id: true, name: true },
+        });
+        if (!target) throw new Error("Depozitul ales nu există sau este dezactivat.");
+        targetWarehouseId = target.id;
+        movedTo = target.name;
+      }
 
       // Doar ajustările pot avea linii negative (minus la inventar).
       if (doc.type !== "ADJUSTMENT" && formLines.some((line) => line.quantity < 0)) {
@@ -498,7 +519,7 @@ export async function updateDocumentLinesAction(
 
         // 3. Apply new stock effect (seed row from product.stock if missing).
         let stock = await tx.warehouseStock.findUnique({
-          where: { productId_warehouseId: { productId: nl.productId, warehouseId: doc.warehouseId } },
+          where: { productId_warehouseId: { productId: nl.productId, warehouseId: targetWarehouseId } },
         });
         if (!stock) {
           // First-ever row seeds from product.stock; later rows start at 0
@@ -509,7 +530,7 @@ export async function updateDocumentLinesAction(
               ? await tx.product.findUnique({ where: { id: nl.productId }, select: { stock: true } })
               : null;
           stock = await tx.warehouseStock.create({
-            data: { productId: nl.productId, warehouseId: doc.warehouseId, quantity: product?.stock ?? 0 },
+            data: { productId: nl.productId, warehouseId: targetWarehouseId, quantity: product?.stock ?? 0 },
           });
         }
         const next = isSale ? stock.quantity - nl.quantity : stock.quantity + nl.signedQuantity;
@@ -547,7 +568,14 @@ export async function updateDocumentLinesAction(
       }
       await tx.stockDocument.update({
         where: { id },
-        data: { documentDate, notes, totalLei: total, totalEuro: null, ...(partnerId !== undefined ? { partnerId } : {}) },
+        data: {
+          documentDate,
+          notes,
+          totalLei: total,
+          totalEuro: null,
+          warehouseId: targetWarehouseId,
+          ...(partnerId !== undefined ? { partnerId } : {}),
+        },
       });
 
       if (doc.type === "RETURN" && doc.sourceDocumentId) {
@@ -591,7 +619,7 @@ export async function updateDocumentLinesAction(
           action: "UPDATE",
           entity: "StockDocument",
           entityId: id,
-          summary: `${TYPE_LABEL[doc.type] ?? doc.type} #${doc.number} editată (linii + antet)`,
+          summary: `${TYPE_LABEL[doc.type] ?? doc.type} #${doc.number} editată (linii + antet)${movedTo ? `, mutată din ${doc.warehouse.name} în ${movedTo}` : ""}`,
           details: { before: beforeSnapshot, after: documentSnapshot(updated) },
         });
       }

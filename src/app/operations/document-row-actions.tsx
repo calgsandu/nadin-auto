@@ -23,7 +23,10 @@ import {
   updateDocumentLinesAction,
   type DocumentActionState,
 } from "@/app/operations/document-actions";
-import type { SupplierOption } from "@/app/operations/stock-document-dialog";
+import type {
+  SupplierOption,
+  WarehouseOption,
+} from "@/app/operations/stock-document-dialog";
 
 const initial: DocumentActionState = { ok: false, message: "" };
 
@@ -55,7 +58,9 @@ export function DocumentRowActions({
   notes,
   partnerId,
   partnerName,
+  warehouseId = "",
   suppliers = [],
+  warehouses = [],
   lines = [],
   isTransfer = false,
 }: {
@@ -67,6 +72,9 @@ export function DocumentRowActions({
   partnerId: string;
   partnerName: string;
   suppliers?: SupplierOption[];
+  /** Depozitele între care se poate muta documentul (recepții și inventare). */
+  warehouses?: WarehouseOption[];
+  warehouseId?: string;
   lines?: DocLine[];
   /** Jumătate de transfer: fără editare pe linii; ștergerea elimină ambele jumătăți. */
   isTransfer?: boolean;
@@ -87,6 +95,8 @@ export function DocumentRowActions({
           partnerId={partnerId}
           partnerName={partnerName}
           suppliers={suppliers}
+          warehouses={warehouses}
+          warehouseId={warehouseId}
           title={title}
           isInventory={isInventory}
         />
@@ -108,6 +118,8 @@ type EditProps = {
   partnerId: string;
   partnerName: string;
   suppliers: SupplierOption[];
+  warehouses: WarehouseOption[];
+  warehouseId: string;
   lines: DocLine[];
   isInventory: boolean;
 };
@@ -137,6 +149,8 @@ function EditPanel({
   partnerId,
   partnerName,
   suppliers,
+  warehouses,
+  warehouseId,
   lines,
   isInventory,
   setOpen,
@@ -192,6 +206,20 @@ function EditPanel({
           <DrawerField label={isInventory ? "Data inventarului" : "Data documentului"}>
             <input className={drawerInputClassName} name="documentDate" type="date" defaultValue={documentDate} />
           </DrawerField>
+          {warehouses.length > 0 && (documentType === "RECEIPT" || documentType === "ADJUSTMENT") ? (
+            <DrawerField
+              label="Depozit"
+              hint="Mutarea readuce stocul în depozitul vechi și îl aplică în cel nou."
+            >
+              <select className={drawerInputClassName} defaultValue={warehouseId} name="warehouseId">
+                {warehouses.map((warehouse) => (
+                  <option key={warehouse.id} value={warehouse.id}>
+                    {warehouse.name}
+                  </option>
+                ))}
+              </select>
+            </DrawerField>
+          ) : null}
           {isInventory ? null : documentType === "RECEIPT" ? (
             <DrawerField label="Furnizor">
               <select

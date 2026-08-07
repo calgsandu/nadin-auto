@@ -40,7 +40,7 @@ export async function getDocumentsData(params: DocumentsSearchParams = {}) {
   const pageRaw = Number(params.dpage ?? 1);
   const page = Number.isInteger(pageRaw) && pageRaw >= 1 ? pageRaw : 1;
 
-  const [documents, total, partners] = await Promise.all([
+  const [documents, total, partners, warehouses] = await Promise.all([
     prisma.stockDocument.findMany({
       where,
       orderBy: [{ documentDate: "desc" }, { number: "desc" }],
@@ -55,6 +55,11 @@ export async function getDocumentsData(params: DocumentsSearchParams = {}) {
     }),
     prisma.stockDocument.count({ where }),
     prisma.partner.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.warehouse.findMany({
+      where: { active: true },
+      orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+      select: { id: true, name: true },
+    }),
   ]);
 
   return {
@@ -64,6 +69,7 @@ export async function getDocumentsData(params: DocumentsSearchParams = {}) {
     pageSize: PAGE_SIZE,
     pageCount: Math.max(Math.ceil(total / PAGE_SIZE), 1),
     partners,
+    warehouses,
     filters: {
       dtype: dtype ?? "",
       partner: params.partner ?? "",
