@@ -75,7 +75,7 @@ assert.throws(
       cashRegistered: true,
       lines: [{ productId: "p1", quantity: 1, unitPriceLei: 10 }],
     }),
-  /Alege metoda de plată: Cash sau Card\./,
+  /Alege metoda de plată: Cash, Card sau Pe datorie\./,
 );
 
 assert.deepEqual(

@@ -75,6 +75,8 @@ export async function GET(
     [`Fișă internă de ${TYPE_LABEL[doc.type]?.toLowerCase() ?? doc.type} nr. ${doc.number} din ${date}`],
     [],
     ["Depozit:", doc.warehouse.name],
+    ...(doc.externalNumber ? [["Serie / nr. factură:", doc.externalNumber]] : []),
+    ...(doc.discountPercent ? [["Discount aplicat:", `${Number(doc.discountPercent)}%`]] : []),
     [isOutgoing ? "Client:" : "Furnizor:", doc.partner?.name ?? "Consumator final"],
     ...paymentRows,
     ["Telefon:", doc.partner?.phone ?? "—"],

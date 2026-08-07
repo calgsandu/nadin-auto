@@ -2,6 +2,7 @@
 
 import { Search } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { focusNextField } from "@/app/components/operation-drawer";
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
 
 export function ProductSearchCombobox({
@@ -28,6 +29,9 @@ export function ProductSearchCombobox({
   const [results, setResults] = useState<ProductSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const activeItemRef = useRef<HTMLButtonElement>(null);
   const excludedIds = new Set(excludedProductIds);
   const visibleResults = results.filter((product) => !excludedIds.has(product.id));
   const onlyExcludedResults = results.length > 0 && visibleResults.length === 0;
@@ -54,6 +58,7 @@ export function ProductSearchCombobox({
 
         if (requestIdRef.current === requestId) {
           setResults(data.products ?? []);
+          setActiveIndex(0);
           setOpen(true);
         }
       } finally {
@@ -66,11 +71,49 @@ export function ProductSearchCombobox({
     return () => window.clearTimeout(timeout);
   }, [query, selected?.label]);
 
+  useEffect(() => {
+    activeItemRef.current?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, open]);
+
   function selectProduct(product: ProductSearchResult) {
     setSelected(product);
     setQuery(product.label);
     setOpen(false);
     onSelect?.(product);
+  }
+
+  /** Săgeți prin rezultate, Enter alege și sare la cantitate. */
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape") {
+      if (!open) return; // lista e închisă: Escape închide drawerul
+      event.stopPropagation();
+      setOpen(false);
+      return;
+    }
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (visibleResults.length === 0) return;
+      event.preventDefault();
+      if (!open) {
+        setOpen(true);
+        return;
+      }
+      const step = event.key === "ArrowDown" ? 1 : -1;
+      setActiveIndex((current) =>
+        Math.min(Math.max(current + step, 0), visibleResults.length - 1),
+      );
+      return;
+    }
+
+    if (event.key === "Enter") {
+      const product = open ? visibleResults[activeIndex] : undefined;
+      if (!product) return; // fără rezultat: navigarea Enter a formularului preia
+      event.preventDefault();
+      // Nu lăsa formularul să mai avanseze o dată peste câmpul de cantitate.
+      event.stopPropagation();
+      selectProduct(product);
+      if (inputRef.current) focusNextField(inputRef.current);
+    }
   }
 
   return (
@@ -87,8 +130,10 @@ export function ProductSearchCombobox({
           aria-expanded={open}
           className="field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-9 text-sm outline-none placeholder:text-[#98948b]"
           placeholder="Caută cod, brand, model sau descriere"
+          ref={inputRef}
           role="combobox"
           value={query}
+          onKeyDown={handleKeyDown}
           onBlur={() => {
             window.setTimeout(() => setOpen(false), 120);
           }}
@@ -97,6 +142,7 @@ export function ProductSearchCombobox({
             if (selected) onClear?.();
             setSelected(null);
             setQuery(nextQuery);
+            setActiveIndex(0);
 
             if (nextQuery.trim().length < 3) {
               setResults([]);
@@ -121,12 +167,18 @@ export function ProductSearchCombobox({
           role="listbox"
         >
           {visibleResults.length > 0 ? (
-            visibleResults.map((product) => (
+            visibleResults.map((product, index) => (
               <button
                 key={product.id}
-                className="button-secondary block w-full border-b border-[#efeeeb] px-3 py-2.5 text-left text-sm text-[#1b1a17] hover:bg-[#f6f6f4]"
+                ref={index === activeIndex ? activeItemRef : null}
+                aria-selected={index === activeIndex}
+                className={`button-secondary block w-full border-b border-[#efeeeb] px-3 py-2.5 text-left text-sm text-[#1b1a17] ${
+                  index === activeIndex ? "bg-[#dbebfe]" : "hover:bg-[#f6f6f4]"
+                }`}
+                role="option"
                 type="button"
                 onMouseDown={(event) => event.preventDefault()}
+                onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => selectProduct(product)}
               >
                 <span className="block font-semibold leading-5">{product.label}</span>
@@ -158,7 +210,7 @@ export function ProductSearchCombobox({
 
       {showHint ? (
         <p className="mt-1 text-xs font-medium text-[#6f6b63]">
-          Scrie cel puțin 3 caractere. Rezultatele sunt limitate server-side.
+          Scrie cel puțin 3 caractere · ↑↓ alegi, Enter treci la cantitate.
         </p>
       ) : null}
     </div>

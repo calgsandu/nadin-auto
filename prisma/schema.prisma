@@ -34,6 +34,8 @@ enum StockDocumentType {
 enum SalePaymentMethod {
   CASH
   CARD
+  /// Marfă predată fără încasare — intră în datoria clientului.
+  CREDIT
 }
 
 enum RestockTaskStatus {
@@ -385,6 +387,7 @@ model Partner {
   paymentAccounts PaymentAccount[]
   externalOrders ExternalOrder[]
   externalLines StockDocumentLine[] @relation("ExternalLineSupplier")
+  payments  PartnerPayment[]
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 }
@@ -443,8 +446,12 @@ model StockDocument {
   totalLei    Decimal?            @db.Decimal(10, 2)
   /// SALE: true = bătută în casa de marcat, false = nebătută, null = nespecificat.
   cashRegistered Boolean?
-  /// SALE: CASH/CARD; null = vânzare istorică sau nespecificată.
+  /// SALE: CASH/CARD/CREDIT; null = vânzare istorică sau nespecificată.
   paymentMethod SalePaymentMethod?
+  /// Seria și numărul facturii externe (furnizor/client), ex. „AA 0123456".
+  externalNumber String?
+  /// Discount aplicat pe document, în procente (prețurile liniilor sunt deja nete).
+  discountPercent Decimal?         @db.Decimal(5, 2)
   warehouse   Warehouse           @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
   partner     Partner?            @relation(fields: [partnerId], references: [id], onDelete: SetNull)
   lines       StockDocumentLine[]
@@ -458,6 +465,22 @@ model StockDocument {
   @@index([partnerId])
   @@index([sourceDocumentId])
   @@index([transferGroupId])
+}
+
+/// Încasare de la client (sau plată către furnizor) — soldul = vânzări pe
+/// credit minus încasări.
+model PartnerPayment {
+  id        String   @id @default(cuid())
+  partnerId String
+  amount    Decimal  @db.Decimal(10, 2)
+  paidAt    DateTime @default(now())
+  notes     String?
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId])
+  @@index([paidAt])
 }
 
 model PaymentAccount {

@@ -47,6 +47,7 @@ import {
   type PartnerFormValue,
 } from "@/app/partners/partner-form-dialog";
 import { PartnerDeleteButton } from "@/app/partners/partner-delete-button";
+import { PartnerPaymentDialog } from "@/app/partners/payment-dialog";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
 import {
   CashRegisterBadge,
@@ -56,6 +57,7 @@ import {
   SalePaymentMethodBadge,
   SalePaymentMethodControl,
 } from "@/app/operations/sale-payment-method-control";
+import type { SalePaymentMethodStatus } from "@/lib/operations/sale-payment-method";
 import {
   DocumentDetailsButton,
   type DocumentDetailsValue,
@@ -846,7 +848,7 @@ function SalesWorkspace({
           {canSell ? (
             <StockSaleDialog
               warehouses={toWarehouseOptions(operations.warehouses)}
-              customers={toSupplierOptions(operations.customers)}
+              customers={toCustomerOptions(operations.customers)}
               suppliers={toSupplierOptions(operations.suppliers)}
             />
           ) : null}
@@ -1432,22 +1434,26 @@ function StockWorkspace({
 }) {
   const warehouses = toWarehouseOptions(operations.warehouses);
   const suppliers = toSupplierOptions(operations.suppliers);
-  const documents = operations.recentDocuments.filter((document) =>
-    activeSectionId === "receptii" ? document.type === "RECEIPT" : document.type === "ADJUSTMENT",
-  );
+  const isReceipts = activeSectionId === "receptii";
+  const documents = isReceipts ? operations.receipts : operations.transfers;
 
   return (
     <section className="motion-page grid gap-4 p-4 lg:p-5">
       {canModify ? (
         <div className="flex justify-end">
-          {activeSectionId === "receptii" ? (
+          {isReceipts ? (
             <StockDocumentDialog suppliers={suppliers} warehouses={warehouses} />
           ) : (
             <StockTransferDialog warehouses={warehouses} />
           )}
         </div>
       ) : null}
-      <RecentDocumentsTable documents={documents} canModify={canModify} suppliers={suppliers} />
+      <RecentDocumentsTable
+        documents={documents}
+        canModify={canModify}
+        suppliers={suppliers}
+        emptyText={isReceipts ? "Nicio recepție înregistrată." : "Niciun transfer înregistrat."}
+      />
     </section>
   );
 }
@@ -1516,7 +1522,9 @@ function toDocumentDetails(
     updatedAt: Date;
     notes: string | null;
     cashRegistered: boolean | null;
-    paymentMethod: "CASH" | "CARD" | null;
+    paymentMethod: SalePaymentMethodStatus;
+    externalNumber: string | null;
+    discountPercent: { toString(): string } | null;
     totalLei: { toString(): string } | null;
     totalEuro: { toString(): string } | null;
     warehouse: { name: string };
@@ -1560,6 +1568,8 @@ function toDocumentDetails(
     isSale: doc.type === "SALE",
     cashRegistered: doc.cashRegistered,
     paymentMethod: doc.paymentMethod,
+    externalNumber: doc.externalNumber,
+    discountPercent: doc.discountPercent == null ? null : Number(doc.discountPercent),
     lines: doc.lines.map((line) => {
       const price = usesSalePrice ? line.unitPriceEuro : line.unitCostLei;
       return {
@@ -1612,7 +1622,7 @@ function RecentDocumentsTable({
   suppliers = [],
   emptyText = "Nu există documente încă.",
 }: {
-  documents: OperationsData["recentDocuments"];
+  documents: OperationsData["receipts"];
   canModify?: boolean;
   suppliers?: SupplierOption[];
   emptyText?: string;
@@ -2565,11 +2575,7 @@ function InventoryOperationsTable({
                               notes={operation.notes ?? ""}
                               partnerId={operation.partner?.id ?? ""}
                               partnerName={operation.partner?.name ?? ""}
-                              // Semnul diferenței se păstrează server-side; îl arătăm în etichetă.
-                              lines={docLines.map((line, index) => ({
-                                ...line,
-                                label: `${operation.lines[index].quantity < 0 ? "−" : "+"} ${line.label}`,
-                              }))}
+                              lines={docLines}
                             />
                           </>
                         ) : null}
@@ -2808,6 +2814,7 @@ function PartnersWorkspace({
                 <TableHead>IDNO / TVA</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Adresă</TableHead>
+                <TableHead align="right">Datorie</TableHead>
                 <TableHead align="right">Documente</TableHead>
                 {canModify ? <TableHead align="right">Acțiuni</TableHead> : null}
               </tr>
@@ -2834,6 +2841,15 @@ function PartnersWorkspace({
                     {formatText(partner.address)}
                   </TableCell>
                   <TableCell align="right">
+                    <span
+                      className={`font-mono font-semibold ${
+                        partner.balanceLei > 0 ? "text-[#b91c1c]" : "text-[#6f6b63]"
+                      }`}
+                    >
+                      {partner.balanceLei !== 0 ? `${formatMoney(partner.balanceLei)} lei` : "—"}
+                    </span>
+                  </TableCell>
+                  <TableCell align="right">
                     <span className="font-mono font-semibold text-[#1b1a17]">
                       {formatNumber(partner._count.documents + partner._count.paymentAccounts)}
                     </span>
@@ -2844,6 +2860,11 @@ function PartnersWorkspace({
                   {canModify ? (
                     <TableCell align="right">
                       <div className="flex justify-end gap-2">
+                        <PartnerPaymentDialog
+                          partnerId={partner.id}
+                          partnerName={partner.name}
+                          balanceLei={partner.balanceLei}
+                        />
                         <PartnerFormDialog
                           partner={toPartnerFormValue(partner)}
                           triggerKind="row"
@@ -3081,6 +3102,14 @@ function toWarehouseOptions(warehouses: OperationsData["warehouses"]): Warehouse
 
 function toSupplierOptions(suppliers: OperationsData["suppliers"]): SupplierOption[] {
   return suppliers.map((supplier) => ({ id: supplier.id, name: supplier.name }));
+}
+
+function toCustomerOptions(customers: OperationsData["customers"]): SupplierOption[] {
+  return customers.map((customer) => ({
+    id: customer.id,
+    name: customer.name,
+    balanceLei: customer.balanceLei,
+  }));
 }
 
 function formatDocumentType(type: string) {

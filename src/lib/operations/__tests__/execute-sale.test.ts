@@ -12,6 +12,8 @@ const payload = {
   notes: null,
   cashRegistered: false,
   paymentMethod: "CARD" as const,
+  externalNumber: null,
+  discountPercent: null,
   lines: [
     { productId: "p1", externalName: null, externalCode: null, externalSupplierId: null, unitCostLei: null, quantity: 2, unitPriceLei: 150 },
     { productId: null, externalName: "Aripă externă", externalCode: "506502", externalSupplierId: null, unitCostLei: 60, quantity: 1, unitPriceLei: 80 },

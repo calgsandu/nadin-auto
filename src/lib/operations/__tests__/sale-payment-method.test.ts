@@ -11,7 +11,7 @@ assert.equal(parseRequiredSalePaymentMethod("cash"), "CASH");
 assert.equal(parseRequiredSalePaymentMethod("card"), "CARD");
 assert.throws(
   () => parseRequiredSalePaymentMethod(""),
-  /Alege metoda de plată: Cash sau Card\./,
+  /Alege metoda de plată: Cash, Card sau Pe datorie\./,
 );
 
 assert.equal(parseOptionalSalePaymentMethod("cash"), "CASH");

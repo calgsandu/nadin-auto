@@ -37,6 +37,10 @@ export type DocumentDetailsValue = {
   cashRegistered: boolean | null;
   paymentMethod: SalePaymentMethodStatus;
   lines: DocumentDetailsLine[];
+  /** Seria/numărul facturii externe (1C: „Сер. № накладной"). */
+  externalNumber: string | null;
+  /** Discount aplicat pe document, în procente. */
+  discountPercent: number | null;
   /** ADMIN/DIRECTOR: arată exporturile PDF/XLSX + linkul spre istoric. */
   canExport: boolean;
   /** COMPANY.vatPayer — rândul de TVA apare doar la plătitori. */
@@ -117,6 +121,12 @@ function DetailsPanel({
                 }
               />
               <MetaItem label="Note" value={details.notes || "—"} />
+              {details.externalNumber ? (
+                <MetaItem label="Serie / nr. factură" value={details.externalNumber} />
+              ) : null}
+              {details.discountPercent ? (
+                <MetaItem label="Discount" value={`${details.discountPercent}%`} />
+              ) : null}
               {details.isSale ? (
                 <>
                   <MetaItem

@@ -5,6 +5,16 @@
   --background: #f6f6f4;
   --foreground: #1b1a17;
   --accent: #2e90fa;
+  /*
+   * UI-ul Neon Auth aplică `* { border-color: var(--neon-border) }` NELAYERIZAT,
+   * iar CSS-ul nelayerizat bate orice `@layer utilities` — deci clasele
+   * `border-[#...]` ale aplicației nu se aplicau, iar bordurile ieșeau alb 10%:
+   * invizibile pe fundal alb (inputurile din liniile de document nu se vedeau).
+   * `--neon-border` citește `--border`, așa că îi dăm aici hairline-ul aplicației.
+   * Nu se poate importa vendorul într-un layer — foaia lui conține `@source`.
+   */
+  --border: #e8e7e3;
+  --ring: #2e90fa;
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --duration-fast: 140ms;

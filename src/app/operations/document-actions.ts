@@ -17,6 +17,7 @@ import {
   ensureSupplierPartner,
   normalizeOptionalPartnerId,
 } from "@/lib/operations/supplier-selection";
+import { applyReceiptCost } from "@/lib/operations/receipt-cost";
 import {
   assertCashRegisterDocumentType,
   cashRegisterLabel,
@@ -299,7 +300,9 @@ export async function updateDocumentLinesAction(
       if (productId && seenProducts.has(productId)) {
         throw new Error(`Produsul de pe poziția ${i + 1} este adăugat de mai multe ori.`);
       }
-      if (!Number.isInteger(quantity) || quantity <= 0) {
+      // Ajustările (inventar) au diferențe cu semn; restul documentelor doar
+      // cantități pozitive — semnul se validează după ce știm tipul (în tranzacție).
+      if (!Number.isInteger(quantity) || quantity === 0) {
         throw new Error(`Cantitate invalidă pe poziția ${i + 1}.`);
       }
       if (price !== null && (!Number.isFinite(price) || price < 0)) {
@@ -342,6 +345,12 @@ export async function updateDocumentLinesAction(
 
       const beforeSnapshot = documentSnapshot(doc);
       const isSale = doc.type === "SALE";
+
+      // Doar ajustările pot avea linii negative (minus la inventar).
+      if (doc.type !== "ADJUSTMENT" && formLines.some((line) => line.quantity < 0)) {
+        throw new Error("Cantitățile nu pot fi negative pe acest tip de document.");
+      }
+
       const returnPriceByProduct = new Map<string, number | null>();
 
       if (doc.type === "RETURN") {
@@ -441,21 +450,15 @@ export async function updateDocumentLinesAction(
 
       // Sales AND returns carry the per-line price in unitPriceEuro (lei).
       const priceField = isSale || doc.type === "RETURN" ? "unitPriceEuro" : "unitCostLei";
-      // Ajustările (ex. inventar) pot avea semne mixte pe linii — păstrează
-      // semnul original per produs; produsele nou-adăugate intră cu plus.
-      const signByProduct = new Map(
-        doc.lines.map((line) => [line.productId, line.quantity < 0 ? -1 : 1]),
-      );
+      // Ajustările (ex. inventar) au semne mixte pe linii — formularul trimite
+      // diferența cu semn, așa cum e stocată. Restul documentelor sunt pozitive.
       const newLines = formLines.map((line) => ({
         ...line,
         price:
           doc.type === "RETURN"
             ? (line.productId ? (returnPriceByProduct.get(line.productId) ?? null) : null)
             : line.price,
-        signedQuantity:
-          doc.type === "ADJUSTMENT"
-            ? line.quantity * ((line.productId ? signByProduct.get(line.productId) : null) ?? 1)
-            : line.quantity,
+        signedQuantity: line.quantity,
       }));
 
       // 1. Reverse old stock effect (liniile externe n-au atins stocul).
@@ -513,6 +516,13 @@ export async function updateDocumentLinesAction(
         if (next < 0) throw new Error(`Stoc insuficient pentru un produs din document.`);
         await tx.warehouseStock.update({ where: { id: stock.id }, data: { quantity: next } });
         touched.add(nl.productId);
+      }
+
+      // 3b. Recepția editată rescrie costul produsului, ca la creare.
+      if (doc.type === "RECEIPT") {
+        for (const nl of newLines) {
+          if (nl.productId) await applyReceiptCost(tx, nl.productId, nl.price);
+        }
       }
 
       // 4. Resync product aggregate stock for every touched product.

@@ -19,7 +19,8 @@ assert.match(saleDialog, /required/);
 assert.match(saleDialog, /name="paymentMethod"/);
 assert.match(saleDialog, /value="cash"/);
 assert.match(saleDialog, /value="card"/);
-assert.match(saleDialog, /Alege Cash sau Card/);
+assert.match(saleDialog, /Alege metoda de plată/);
+assert.match(saleDialog, /value="credit"/);
 
 assert.match(approvalWorkspace, /cashRegisterLabel/);
 assert.match(approvalWorkspace, /entry\.details\.cashRegistered/);

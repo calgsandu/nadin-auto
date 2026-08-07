@@ -2,12 +2,19 @@
 
 import { useMemo, useState } from "react";
 import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
 import {
   createReturnAction,
   type OperationActionState,
 } from "@/app/operations/actions";
-import { DrawerPortal } from "@/app/components/drawer-portal";
+import {
+  DrawerField,
+  DrawerSubmit,
+  OperationDrawer,
+  handleEnterNavigation,
+  drawerFormClassName,
+  drawerInputClassName,
+  drawerSecondaryButton,
+} from "@/app/components/operation-drawer";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 
 export type ReturnableSale = {
@@ -75,27 +82,12 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
         Adaugă retur
       </button>
       {open ? (
-        <DrawerPortal>
-          <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
-            <button
-              aria-label="Închide returul"
-              className="absolute inset-0 cursor-default"
-              type="button"
-              onClick={() => setOpen(false)}
-            />
-            <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
-              <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
-                <div>
-                  <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
-                    Document stoc
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">Retur marfă</h2>
-                </div>
-                <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>
-                  Închide
-                </button>
-              </div>
-              <form action={formAction} className="grid gap-6 px-6 py-6">
+        <OperationDrawer
+          eyebrow="Document stoc"
+          title="Retur marfă"
+          onClose={() => setOpen(false)}
+        >
+          <form action={formAction} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event)}>
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Data returului">
                     <input
@@ -129,7 +121,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                 </div>
 
                 {sale ? (
-                  <section className="overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+                  <section data-drawer-lines className="overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
                     <div className="border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
                       <h3 className="font-semibold text-[#1b1a17]">Produse vândute</h3>
                       <p className="text-xs text-[#6f6b63]">
@@ -219,39 +211,16 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                   <SubmitButton label="Salvează returul" />
                 </div>
               </form>
-            </aside>
-          </div>
-        </DrawerPortal>
+        </OperationDrawer>
       ) : null}
     </>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
-      {label}
-      {children}
-    </label>
-  );
-}
-
-function SubmitButton({ label }: { label: string }) {
-  const status = useFormStatus();
-  return (
-    <button
-      className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
-      disabled={status.pending}
-      type="submit"
-    >
-      {status.pending ? "Se salvează..." : label}
-    </button>
-  );
-}
-
-const inputClassName =
-  "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b]";
+// Aliasuri către shell-ul comun — stilurile drawerelor trăiesc într-un singur loc.
+const Field = DrawerField;
+const SubmitButton = DrawerSubmit;
+const inputClassName = drawerInputClassName;
 const primaryButtonClassName =
   "button-primary rounded-md bg-[#1b1a17] px-3 py-2 text-sm font-semibold text-white hover:bg-[#33312c]";
-const secondaryButtonClassName =
-  "button-secondary flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#fafaf9]";
+const secondaryButtonClassName = drawerSecondaryButton;

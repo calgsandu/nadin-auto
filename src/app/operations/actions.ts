@@ -34,6 +34,7 @@ import {
   ensureSupplierPartner,
   normalizeOptionalPartnerId,
 } from "@/lib/operations/supplier-selection";
+import { applyReceiptCost, type CostUpdate } from "@/lib/operations/receipt-cost";
 
 export type OperationActionState = {
   ok: boolean;
@@ -82,6 +83,7 @@ export async function createReceiptAction(
           warehouseId,
           partnerId,
           notes,
+          externalNumber: readString(formData, "externalNumber") || null,
           totalLei: calculateReceiptTotalLei(lines),
           lines: {
             create: lines,
@@ -93,6 +95,7 @@ export async function createReceiptAction(
         },
       });
 
+      const costUpdates: CostUpdate[] = [];
       for (const line of lines) {
         await updateWarehouseStock(tx, {
           productId: line.productId,
@@ -101,14 +104,17 @@ export async function createReceiptAction(
           kind: "RECEIPT",
         });
         await syncProductAggregateStock(tx, line.productId);
+        // Prețul recepționat devine costul produsului.
+        const costUpdate = await applyReceiptCost(tx, line.productId, line.unitCostLei);
+        if (costUpdate) costUpdates.push(costUpdate);
       }
 
       await logAuditRequired(tx, user, {
         action: "CREATE",
         entity: "StockDocument",
         entityId: document.id,
-        summary: `Recepție #${document.number} creată (${lines.length} produse, ${Number(document.totalLei ?? 0)} lei) — ${document.warehouse.name}${document.partner ? `, furnizor ${document.partner.name}` : ""}`,
-        details: { lines },
+        summary: `Recepție #${document.number} creată (${lines.length} produse, ${Number(document.totalLei ?? 0)} lei) — ${document.warehouse.name}${document.partner ? `, furnizor ${document.partner.name}` : ""}${costUpdates.length > 0 ? `; cost actualizat la ${costUpdates.length} produse` : ""}`,
+        details: { lines, costUpdates },
       });
 
       return document;
@@ -260,6 +266,8 @@ export async function createSaleAction(
       notes,
       cashRegistered,
       paymentMethod,
+      externalNumber: readString(formData, "externalNumber") || null,
+      discountPercent: readString(formData, "discountPercent") || null,
       lines: lines.map((line) => ({
         productId: line.productId,
         externalName: line.externalName,

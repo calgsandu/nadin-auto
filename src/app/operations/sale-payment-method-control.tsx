@@ -22,7 +22,9 @@ export function SalePaymentMethodBadge({
       ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
       : value === "CARD"
         ? "border-[#93c5fd] bg-[#eff6ff] text-[#1d4ed8]"
-        : "border-[#d6d3d1] bg-[#fafaf9] text-[#57534a]";
+        : value === "CREDIT"
+          ? "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
+          : "border-[#d6d3d1] bg-[#fafaf9] text-[#57534a]";
 
   return (
     <span className={`inline-flex whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-semibold ${tone}`}>
@@ -55,6 +57,7 @@ export function SalePaymentMethodControl({
         >
           <option value="cash">Cash</option>
           <option value="card">Card</option>
+          <option value="credit">Pe datorie</option>
           <option value="unspecified">Nespecificat</option>
         </select>
         <SaveButton />

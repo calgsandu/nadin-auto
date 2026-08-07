@@ -56,6 +56,8 @@ export async function GET(
   // Party details.
   pdf.font("regular").fontSize(9).fillColor("#1b1a17");
   pdf.text(`Depozit: ${doc.warehouse.name}`);
+  if (doc.externalNumber) pdf.text(`Serie / nr. factură: ${doc.externalNumber}`);
+  if (doc.discountPercent) pdf.text(`Discount aplicat: ${Number(doc.discountPercent)}%`);
   pdf.text(
     `${isOutgoing ? "Cumpărător" : "Furnizor"}: ${doc.partner?.name ?? "Consumator final"}` +
       (doc.partner?.phone ? ` · tel. ${doc.partner.phone}` : ""),

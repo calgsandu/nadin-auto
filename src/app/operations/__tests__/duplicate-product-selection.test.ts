@@ -9,7 +9,7 @@ const productSearch = readFileSync(productSearchPath, "utf8");
 
 assert.match(
   saleDialog,
-  /productId: "", qty: "", price: ""/,
+  /function emptySaleLine\(id: number, external = false\): SaleLineState/,
   "Liniile de vânzare trebuie să rețină produsul selectat.",
 );
 assert.match(

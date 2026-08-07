@@ -1,11 +1,32 @@
 import { auth } from "@/lib/auth/server";
 import { prisma } from "@/lib/prisma";
 
+/**
+ * Serviciul de autentificare are propriul rol („admin"/„user"), separat de
+ * AppRole. Dacă contul care administrează personalul nu e „admin" ACOLO,
+ * endpointurile de administrare răspund în engleză — traducem și spunem ce e de făcut.
+ */
+const AUTH_ERROR_HINTS: { match: RegExp; message: string }[] = [
+  {
+    match: /not allowed to (create|list|ban|delete|remove|update|set)/i,
+    message:
+      "Contul tău nu are rol de administrator în serviciul de autentificare (Neon Auth), deși în aplicație ești ADMIN. Un administrator trebuie să-ți pună rolul „admin” în Neon Auth (tabelul neon_auth.user, coloana role).",
+  },
+  {
+    match: /user already exists|email.*exists/i,
+    message: "Există deja un cont cu acest nume de utilizator.",
+  },
+];
+
 function assertResult<T extends { error?: { message?: string } | null }>(
   result: T,
   fallback: string,
 ) {
-  if (result.error) throw new Error(result.error.message || fallback);
+  if (result.error) {
+    const raw = result.error.message ?? "";
+    const hint = AUTH_ERROR_HINTS.find((entry) => entry.match.test(raw));
+    throw new Error(hint?.message || raw || fallback);
+  }
   return result;
 }
 
@@ -42,6 +63,11 @@ export async function setAuthPassword(userId: string, newPassword: string) {
   );
 }
 
+/**
+ * ATENȚIE: citește neon_auth prin conexiunea aplicației. Dacă DATABASE_URL e pe
+ * alt branch Neon decât cel pe care scrie serviciul de autentificare, datele de
+ * aici sunt o copie veche, înghețată la momentul forkului.
+ */
 export async function getAuthProviderIds(userId: string) {
   const accounts = await prisma.$queryRaw<Array<{ providerId: string }>>`
     SELECT "providerId"

@@ -15,9 +15,19 @@ export function parseDay(value: string | undefined) {
 }
 
 /**
- * Inventarele unui depozit = ajustări marcate „Inventar", fără jumătățile de
- * transfer (acelea poartă transferGroupId). Sursă unică pentru listă + export.
+ * Marca unui inventar, fără filtre de depozit/dată: ajustare marcată
+ * „Inventar", fără transferGroupId (acela ține jumătățile de transfer).
+ * Secțiunea Transferuri exclude exact documentele care se potrivesc aici.
  */
+export function inventoryDocumentWhere(): Prisma.StockDocumentWhereInput {
+  return {
+    type: "ADJUSTMENT",
+    transferGroupId: null,
+    notes: { startsWith: "Inventar" },
+  };
+}
+
+/** Inventarele unui depozit pe o perioadă. Sursă unică pentru listă + export. */
 export function inventoryWhere({ warehouseId, from, to }: InventoryFilters): Prisma.StockDocumentWhereInput {
   const fromDay = parseDay(from);
   const toDay = parseDay(to);
@@ -30,10 +40,8 @@ export function inventoryWhere({ warehouseId, from, to }: InventoryFilters): Pri
       : undefined;
 
   return {
-    type: "ADJUSTMENT",
+    ...inventoryDocumentWhere(),
     warehouseId,
-    transferGroupId: null,
-    notes: { startsWith: "Inventar" },
     ...(documentDate ? { documentDate } : {}),
   };
 }

@@ -1,3 +1,4 @@
+import type { SalePaymentMethodValue } from "@/lib/operations/sale-payment-method";
 export type PendingOperationKind =
   | "SALE"
   | "PAYMENT_ACCOUNT_FULFILLMENT";
@@ -20,7 +21,11 @@ export type PendingSalePayload = {
   newCustomerName: string | null;
   notes: string | null;
   cashRegistered: boolean;
-  paymentMethod: "CASH" | "CARD";
+  paymentMethod: SalePaymentMethodValue;
+  /// Seria/numărul facturii externe.
+  externalNumber: string | null;
+  /// Discount aplicat pe document (procente); prețurile liniilor sunt deja nete.
+  discountPercent: number | null;
   lines: PendingSaleLine[];
 };
 

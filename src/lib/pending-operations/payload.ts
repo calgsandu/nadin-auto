@@ -1,3 +1,4 @@
+import type { SalePaymentMethodValue } from "@/lib/operations/sale-payment-method";
 import type {
   ParsedPendingOperation,
   PendingOperationKind,
@@ -29,6 +30,8 @@ function parseSalePayload(value: unknown): PendingSalePayload {
   const notes = readOptionalString(record.notes);
   const cashRegistered = readRequiredBoolean(record.cashRegistered);
   const paymentMethod = readRequiredPaymentMethod(record.paymentMethod);
+  const externalNumber = readOptionalString(record.externalNumber);
+  const discountPercent = readOptionalPercent(record.discountPercent);
 
   if (!Array.isArray(record.lines) || record.lines.length === 0) {
     throw new Error("Adaugă cel puțin un produs.");
@@ -86,8 +89,20 @@ function parseSalePayload(value: unknown): PendingSalePayload {
     notes,
     cashRegistered,
     paymentMethod,
+    externalNumber,
+    discountPercent,
     lines,
   };
+}
+
+/** Discount pe document: 0–100%, null când lipsește. */
+function readOptionalPercent(value: unknown): number | null {
+  if (value == null || value === "") return null;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 100) {
+    throw new Error("Discountul trebuie să fie între 0 și 100%.");
+  }
+  return parsed === 0 ? null : Math.round(parsed * 100) / 100;
 }
 
 function readRequiredBoolean(value: unknown) {
@@ -97,9 +112,9 @@ function readRequiredBoolean(value: unknown) {
   return value;
 }
 
-function readRequiredPaymentMethod(value: unknown): "CASH" | "CARD" {
-  if (value === "CASH" || value === "CARD") return value;
-  throw new Error("Alege metoda de plată: Cash sau Card.");
+function readRequiredPaymentMethod(value: unknown): SalePaymentMethodValue {
+  if (value === "CASH" || value === "CARD" || value === "CREDIT") return value;
+  throw new Error("Alege metoda de plată: Cash, Card sau Pe datorie.");
 }
 
 function parsePaymentFulfillmentPayload(

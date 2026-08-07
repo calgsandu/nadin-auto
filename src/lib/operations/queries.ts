@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getPartnerBalances } from "@/lib/partners/debt";
 import type { VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
 import { aggregateSoldProducts } from "@/lib/operations/sales";
 import {
@@ -7,9 +8,13 @@ import {
 } from "@/lib/operations/restock";
 import {
   INVENTORY_PAGE_SIZE,
+  inventoryDocumentWhere,
   inventoryWhere,
   normalizeInventoryPage,
 } from "@/lib/operations/inventory-filter";
+
+/** Câte documente arată o secțiune de operațiuni (filtrele complete sunt în Documente). */
+const SECTION_DOCUMENT_LIMIT = 50;
 
 export async function getOperationsData() {
   await ensureDefaultWarehouses();
@@ -33,7 +38,8 @@ export async function getOperationsData() {
   const archiveSince = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
   const [
-    recentDocuments,
+    receipts,
+    transfers,
     salesToday,
     salesArchive,
     returns,
@@ -42,11 +48,7 @@ export async function getOperationsData() {
     customers,
   ] = await Promise.all([
     prisma.stockDocument.findMany({
-      where: {
-        type: {
-          in: ["RECEIPT", "ADJUSTMENT", "SALE"],
-        },
-      },
+      where: { type: "RECEIPT" },
       include: {
         warehouse: true,
         partner: true,
@@ -57,7 +59,24 @@ export async function getOperationsData() {
         },
       },
       orderBy: [{ documentDate: "desc" }, { number: "desc" }],
-      take: 12,
+      take: SECTION_DOCUMENT_LIMIT,
+    }),
+    // Transferurile sunt tot ADJUSTMENT — se exclud inventarele, care au
+    // secțiunea lor. Ajustările vechi fără transferGroupId rămân aici, ca să
+    // nu dispară din aplicație.
+    prisma.stockDocument.findMany({
+      where: { type: "ADJUSTMENT", NOT: inventoryDocumentWhere() },
+      include: {
+        warehouse: true,
+        partner: true,
+        lines: {
+          include: {
+            product: { include: { fitment: { include: { carModel: { include: { brand: true } } } } } },
+          },
+        },
+      },
+      orderBy: [{ documentDate: "desc" }, { number: "desc" }],
+      take: SECTION_DOCUMENT_LIMIT,
     }),
     prisma.stockDocument.findMany({
       where: {
@@ -130,6 +149,13 @@ export async function getOperationsData() {
     }),
   ]);
 
+  // Datoria clientului („Долг") se arată la alegerea lui în dialogul de vânzare.
+  const balances = await getPartnerBalances();
+  const customersWithBalance = customers.map((customer) => ({
+    ...customer,
+    balanceLei: balances.get(customer.id) ?? 0,
+  }));
+
   const salesFrom110AToday = salesToday.filter(
     (sale) => sale.warehouse.name === "Pavilion 110A",
   );
@@ -147,7 +173,8 @@ export async function getOperationsData() {
 
   return {
     warehouses,
-    recentDocuments,
+    receipts,
+    transfers,
     salesToday,
     salesArchive,
     soldToday: soldToday.map((line) => ({
@@ -157,7 +184,7 @@ export async function getOperationsData() {
     restockPending: summarizeRestockTasks(restockByStatus.pending),
     restockUnavailable: summarizeRestockTasks(restockByStatus.unavailable),
     suppliers,
-    customers,
+    customers: customersWithBalance,
     returns,
   };
 }

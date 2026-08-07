@@ -71,6 +71,7 @@ export const ModelName = {
   Partner: 'Partner',
   ExternalOrder: 'ExternalOrder',
   StockDocument: 'StockDocument',
+  PartnerPayment: 'PartnerPayment',
   PaymentAccount: 'PaymentAccount',
   PaymentAccountLine: 'PaymentAccountLine',
   StockDocumentLine: 'StockDocumentLine',
@@ -397,11 +398,26 @@ export const StockDocumentScalarFieldEnum = {
   totalLei: 'totalLei',
   cashRegistered: 'cashRegistered',
   paymentMethod: 'paymentMethod',
+  externalNumber: 'externalNumber',
+  discountPercent: 'discountPercent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type StockDocumentScalarFieldEnum = (typeof StockDocumentScalarFieldEnum)[keyof typeof StockDocumentScalarFieldEnum]
+
+
+export const PartnerPaymentScalarFieldEnum = {
+  id: 'id',
+  partnerId: 'partnerId',
+  amount: 'amount',
+  paidAt: 'paidAt',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PartnerPaymentScalarFieldEnum = (typeof PartnerPaymentScalarFieldEnum)[keyof typeof PartnerPaymentScalarFieldEnum]
 
 
 export const PaymentAccountScalarFieldEnum = {

@@ -39,7 +39,7 @@ export type AppUser = Prisma.AppUserModel
 export type TwoFactorCredential = Prisma.TwoFactorCredentialModel
 /**
  * Model TwoFactorEnrollmentGrant
- *
+ * 
  */
 export type TwoFactorEnrollmentGrant = Prisma.TwoFactorEnrollmentGrantModel
 /**
@@ -59,7 +59,7 @@ export type TrustedDevice = Prisma.TrustedDeviceModel
 export type TwoFactorRateLimit = Prisma.TwoFactorRateLimitModel
 /**
  * Model ApplicationSecurityState
- *
+ * 
  */
 export type ApplicationSecurityState = Prisma.ApplicationSecurityStateModel
 /**
@@ -118,6 +118,12 @@ export type ExternalOrder = Prisma.ExternalOrderModel
  * 
  */
 export type StockDocument = Prisma.StockDocumentModel
+/**
+ * Model PartnerPayment
+ * Încasare de la client (sau plată către furnizor) — soldul = vânzări pe
+ * credit minus încasări.
+ */
+export type PartnerPayment = Prisma.PartnerPaymentModel
 /**
  * Model PaymentAccount
  * 

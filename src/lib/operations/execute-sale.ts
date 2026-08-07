@@ -142,6 +142,8 @@ export async function executeSale(
       notes: payload.notes,
       cashRegistered: payload.cashRegistered,
       paymentMethod: payload.paymentMethod,
+      externalNumber: payload.externalNumber,
+      discountPercent: payload.discountPercent,
       totalLei: saleTotalLei(payload),
       lines: { create: lines },
     },

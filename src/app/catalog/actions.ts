@@ -6,6 +6,7 @@ import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { logAudit, logAuditRequired } from "@/lib/audit";
+import { computeSalePrice } from "@/lib/catalog/pricing";
 import {
   calculateWarehouseStockTotal,
   parseWarehouseStockAssignments,
@@ -524,12 +525,6 @@ function readOptionalDecimal(formData: FormData, key: string) {
   }
 
   return parsed;
-}
-
-/** Sale price = double the acquisition cost, rounded to the nearest 50 lei. */
-function computeSalePrice(costLei: number | null): number | null {
-  if (costLei == null) return null;
-  return Math.round((costLei * 2) / 50) * 50;
 }
 
 function normalizeCatalogName(value: string) {

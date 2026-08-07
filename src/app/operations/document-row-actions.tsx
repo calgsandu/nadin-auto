@@ -3,8 +3,20 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { DrawerPortal } from "@/app/components/drawer-portal";
 import { ActionFeedback } from "@/app/components/action-feedback";
+import {
+  DrawerField,
+  DrawerFooter,
+  DrawerMessage,
+  DrawerSection,
+  OperationDrawer,
+  handleEnterNavigation,
+  drawerDangerButton,
+  drawerFormClassName,
+  drawerInputClassName,
+  drawerLineClassName,
+  drawerSecondaryButton,
+} from "@/app/components/operation-drawer";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
 import {
   deleteDocumentAction,
@@ -14,8 +26,6 @@ import {
 import type { SupplierOption } from "@/app/operations/stock-document-dialog";
 
 const initial: DocumentActionState = { ok: false, message: "" };
-const inputClassName =
-  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30";
 
 export type DocLine = {
   productId: string;
@@ -30,9 +40,11 @@ export type DocLine = {
 };
 type EditableLine = DocLine & { id: number };
 
-function normalizeQuantity(quantity: string) {
+/** Inventarul se editează pe diferența cu semn; restul documentelor pe cantități pozitive. */
+function normalizeQuantity(quantity: string, keepSign: boolean) {
   const parsed = Number(quantity);
-  return Number.isFinite(parsed) && parsed !== 0 ? String(Math.abs(parsed)) : "";
+  if (!Number.isFinite(parsed) || parsed === 0) return "";
+  return String(keepSign ? parsed : Math.abs(parsed));
 }
 
 export function DocumentRowActions({
@@ -59,6 +71,10 @@ export function DocumentRowActions({
   /** Jumătate de transfer: fără editare pe linii; ștergerea elimină ambele jumătăți. */
   isTransfer?: boolean;
 }) {
+  // Ajustările (inventar) se editează pe diferențe cu semn — transferurile, tot
+  // ADJUSTMENT, nu ajung aici: editarea lor e blocată mai jos.
+  const isInventory = documentType === "ADJUSTMENT";
+
   return (
     <div className="flex justify-end gap-2">
       {!isTransfer ? (
@@ -72,6 +88,7 @@ export function DocumentRowActions({
           partnerName={partnerName}
           suppliers={suppliers}
           title={title}
+          isInventory={isInventory}
         />
       ) : null}
       <DeleteForm
@@ -92,6 +109,7 @@ type EditProps = {
   partnerName: string;
   suppliers: SupplierOption[];
   lines: DocLine[];
+  isInventory: boolean;
 };
 
 function EditDrawer(props: EditProps) {
@@ -120,6 +138,7 @@ function EditPanel({
   partnerName,
   suppliers,
   lines,
+  isInventory,
   setOpen,
 }: EditProps & { setOpen: (v: boolean) => void }) {
   const [state, formAction] = useActionState(updateDocumentLinesAction, initial);
@@ -128,7 +147,7 @@ function EditPanel({
       ? lines.map((line, index) => ({
           ...line,
           id: index + 1,
-          quantity: normalizeQuantity(line.quantity),
+          quantity: normalizeQuantity(line.quantity, isInventory),
         }))
       : [{ id: 1, productId: "", label: "", quantity: "", price: "" }],
   );
@@ -162,199 +181,181 @@ function EditPanel({
   }
 
   return (
-        <DrawerPortal>
-          <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
-            <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={() => setOpen(false)} />
-            <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
-              <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
+    <OperationDrawer
+      eyebrow="Document stoc"
+      title={title}
+      onClose={() => setOpen(false)}
+    >
+      <form action={formAction} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+        <input type="hidden" name="id" value={id} />
+        <div className="grid gap-4 md:grid-cols-2">
+          <DrawerField label={isInventory ? "Data inventarului" : "Data documentului"}>
+            <input className={drawerInputClassName} name="documentDate" type="date" defaultValue={documentDate} />
+          </DrawerField>
+          {isInventory ? null : documentType === "RECEIPT" ? (
+            <DrawerField label="Furnizor">
+              <select
+                className={drawerInputClassName}
+                defaultValue={partnerId}
+                disabled={suppliers.length === 0}
+                name="partnerId"
+              >
+                <option value="">
+                  {suppliers.length > 0 ? "Alege furnizorul" : "Nu există furnizori"}
+                </option>
+                {suppliers.map((supplier) => (
+                  <option key={supplier.id} value={supplier.id}>
+                    {supplier.name}
+                  </option>
+                ))}
+              </select>
+            </DrawerField>
+          ) : (
+            <DrawerField label="Partener">
+              <input className={drawerInputClassName} name="partnerName" defaultValue={partnerName} placeholder="opțional" />
+            </DrawerField>
+          )}
+        </div>
+
+        <DrawerSection
+          title={isInventory ? "Poziții ajustate" : "Produse"}
+          description={
+            isInventory
+              ? "Diferența față de stocul din sistem: plus fără semn, minus cu „-”."
+              : "Cantitate și preț în lei."
+          }
+          action={
+            <button className={drawerSecondaryButton} type="button" onClick={addLine}>
+              <Plus className="size-4" aria-hidden="true" />
+              Adaugă produs
+            </button>
+          }
+        >
+          {editableLines.map((line, index) => {
+            const isExternal = !line.productId && Boolean(line.externalName);
+            return (
+              <div
+                key={line.id}
+                className={`${drawerLineClassName} ${
+                  isExternal
+                    ? "border-[#dbebfe] md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.75rem]"
+                    : isInventory
+                      ? "md:grid-cols-[minmax(0,1fr)_10rem_2.75rem]"
+                      : "md:grid-cols-[minmax(0,1fr)_7rem_8rem_2.75rem]"
+                }`}
+              >
                 <div>
-                  <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">Document</p>
-                  <h2 className="mt-2 text-xl font-semibold text-[#1b1a17]">{title}</h2>
+                  <p className={`mb-1.5 text-xs font-semibold ${isExternal ? "text-[#175cd3]" : "text-[#6f6b63]"}`}>
+                    {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : `Produs ${index + 1}`}
+                  </p>
+                  {isExternal ? (
+                    <>
+                      <input name="lineProductId" type="hidden" value="" />
+                      <input name="lineExternalSupplierId" type="hidden" value={line.externalSupplierId ?? ""} />
+                      <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_8rem]">
+                        <input
+                          className={drawerInputClassName}
+                          name="lineExternalName"
+                          required
+                          value={line.externalName ?? ""}
+                          onChange={(event) => setLineField(line.id, "externalName", event.currentTarget.value)}
+                        />
+                        <input
+                          className={drawerInputClassName}
+                          name="lineExternalCode"
+                          placeholder="cod piesă"
+                          value={line.externalCode ?? ""}
+                          onChange={(event) => setLineField(line.id, "externalCode", event.currentTarget.value)}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <input name="lineExternalName" type="hidden" value="" />
+                      <input name="lineExternalCode" type="hidden" value="" />
+                      <input name="lineExternalSupplierId" type="hidden" value="" />
+                      <input name="lineExternalCostLei" type="hidden" value="" />
+                      <ProductSearchCombobox
+                        name="lineProductId"
+                        showHint={false}
+                        initialProduct={
+                          line.productId ? { id: line.productId, label: line.label } : null
+                        }
+                      />
+                    </>
+                  )}
                 </div>
-                <button type="button" onClick={() => setOpen(false)} className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-medium text-[#1b1a17] hover:bg-[#f6f6f4]">
-                  Închide
+                <DrawerField label={isInventory ? "Diferență (buc)" : "Cantitate"}>
+                  <input
+                    className={drawerInputClassName}
+                    name="lineQuantity"
+                    type="number"
+                    {...(isInventory ? {} : { min: 1 })}
+                    value={line.quantity}
+                    onChange={(event) => setLineField(line.id, "quantity", event.currentTarget.value)}
+                  />
+                </DrawerField>
+                {isExternal ? (
+                  <DrawerField label="Cost lei">
+                    <input
+                      className={drawerInputClassName}
+                      name="lineExternalCostLei"
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={line.externalCost ?? ""}
+                      placeholder="achiziție"
+                      onChange={(event) => setLineField(line.id, "externalCost", event.currentTarget.value)}
+                    />
+                  </DrawerField>
+                ) : null}
+                {isInventory ? (
+                  <input name="linePrice" type="hidden" value="" />
+                ) : (
+                  <DrawerField label="Preț lei">
+                    <input
+                      className={drawerInputClassName}
+                      name="linePrice"
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={line.price}
+                      placeholder="preț"
+                      onChange={(event) => setLineField(line.id, "price", event.currentTarget.value)}
+                    />
+                  </DrawerField>
+                )}
+                <button
+                  aria-label={`Șterge produsul ${index + 1}`}
+                  className={drawerDangerButton}
+                  disabled={editableLines.length === 1}
+                  type="button"
+                  onClick={() => removeLine(line.id)}
+                >
+                  <Trash2 className="size-4" aria-hidden="true" />
                 </button>
               </div>
-              <form action={formAction} className="grid gap-4 px-6 py-6">
-                <input type="hidden" name="id" value={id} />
-                <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
-                  Data
-                  <input className={inputClassName} name="documentDate" type="date" defaultValue={documentDate} />
-                </label>
-                {documentType === "RECEIPT" ? (
-                  <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
-                    Furnizor
-                    <select
-                      className={inputClassName}
-                      defaultValue={partnerId}
-                      disabled={suppliers.length === 0}
-                      name="partnerId"
-                    >
-                      <option value="">
-                        {suppliers.length > 0 ? "Alege furnizorul" : "Nu există furnizori"}
-                      </option>
-                      {suppliers.map((supplier) => (
-                        <option key={supplier.id} value={supplier.id}>
-                          {supplier.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : (
-                  <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
-                    Partener
-                    <input className={inputClassName} name="partnerName" defaultValue={partnerName} placeholder="opțional" />
-                  </label>
-                )}
-                <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
-                  Note
-                  <textarea className={`${inputClassName} min-h-20 resize-y py-3`} name="notes" defaultValue={notes} />
-                </label>
+            );
+          })}
+          {editableLines.length === 0 ? (
+            <div className="rounded-md border border-dashed border-[#e8e7e3] px-3 py-6 text-center text-sm text-[#6f6b63]">
+              Adaugă cel puțin un produs.
+            </div>
+          ) : null}
+        </DrawerSection>
 
-                <section className="overflow-visible rounded-md border border-[#e8e7e3] bg-white">
-                  <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-3 py-3">
-                    <p className="text-sm font-semibold text-[#1b1a17]">Produse (cantitate + preț lei)</p>
-                    <button
-                      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#fafaf9]"
-                      type="button"
-                      onClick={addLine}
-                    >
-                      <Plus className="size-4" aria-hidden="true" />
-                      Adaugă produs
-                    </button>
-                  </div>
-                  <div className="grid gap-3 p-3">
-                    {editableLines.map((line, index) => {
-                      const isExternal = !line.productId && Boolean(line.externalName);
-                      return (
-                      <div
-                        key={line.id}
-                        className={`motion-line-item grid gap-3 rounded-md border p-3 md:items-start ${
-                          isExternal
-                            ? "border-[#dbebfe] bg-[#ffffff] md:grid-cols-[minmax(0,1fr)_5rem_7rem_8rem_2.75rem]"
-                            : "border-[#efeeeb] bg-[#ffffff] md:grid-cols-[minmax(0,1fr)_5rem_8rem_2.75rem]"
-                        }`}
-                      >
-                        <div>
-                          <p className={`mb-1.5 text-xs font-semibold ${isExternal ? "text-[#175cd3]" : "text-[#6f6b63]"}`}>
-                            {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : `Produs ${index + 1}`}
-                          </p>
-                          {isExternal ? (
-                            <>
-                              <input name="lineProductId" type="hidden" value="" />
-                              <input name="lineExternalSupplierId" type="hidden" value={line.externalSupplierId ?? ""} />
-                              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_8rem]">
-                                <input
-                                  className={inputClassName}
-                                  name="lineExternalName"
-                                  required
-                                  value={line.externalName ?? ""}
-                                  onChange={(event) => setLineField(line.id, "externalName", event.currentTarget.value)}
-                                />
-                                <input
-                                  className={inputClassName}
-                                  name="lineExternalCode"
-                                  placeholder="cod piesă"
-                                  value={line.externalCode ?? ""}
-                                  onChange={(event) => setLineField(line.id, "externalCode", event.currentTarget.value)}
-                                />
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <input name="lineExternalName" type="hidden" value="" />
-                              <input name="lineExternalCode" type="hidden" value="" />
-                              <input name="lineExternalSupplierId" type="hidden" value="" />
-                              <input name="lineExternalCostLei" type="hidden" value="" />
-                              <ProductSearchCombobox
-                                name="lineProductId"
-                                showHint={false}
-                                initialProduct={
-                                  line.productId ? { id: line.productId, label: line.label } : null
-                                }
-                              />
-                            </>
-                          )}
-                        </div>
-                        <label className="grid gap-1.5 text-xs font-semibold text-[#6f6b63]">
-                          Cantitate
-                          <input
-                            className="h-11 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm text-[#1b1a17] outline-none focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30"
-                            name="lineQuantity"
-                            type="number"
-                            min={1}
-                            value={line.quantity}
-                            onChange={(event) => setLineField(line.id, "quantity", event.currentTarget.value)}
-                          />
-                        </label>
-                        {isExternal ? (
-                          <label className="grid gap-1.5 text-xs font-semibold text-[#6f6b63]">
-                            Cost lei
-                            <input
-                              className="h-11 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm text-[#1b1a17] outline-none focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30"
-                              name="lineExternalCostLei"
-                              type="number"
-                              min={0}
-                              step="0.01"
-                              value={line.externalCost ?? ""}
-                              placeholder="achiziție"
-                              onChange={(event) => setLineField(line.id, "externalCost", event.currentTarget.value)}
-                            />
-                          </label>
-                        ) : null}
-                        <label className="grid gap-1.5 text-xs font-semibold text-[#6f6b63]">
-                          Preț lei
-                          <input
-                            className="h-11 rounded-md border border-[#e8e7e3] bg-white px-2 text-sm text-[#1b1a17] outline-none focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30"
-                            name="linePrice"
-                            type="number"
-                            min={0}
-                            step="0.01"
-                            value={line.price}
-                            placeholder="preț"
-                            onChange={(event) => setLineField(line.id, "price", event.currentTarget.value)}
-                          />
-                        </label>
-                        <button
-                          aria-label={`Șterge produsul ${index + 1}`}
-                          className="button-danger mt-6 grid size-11 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35"
-                          disabled={editableLines.length === 1}
-                          type="button"
-                          onClick={() => removeLine(line.id)}
-                        >
-                          <Trash2 className="size-4" aria-hidden="true" />
-                        </button>
-                      </div>
-                      );
-                    })}
-                    {editableLines.length === 0 ? (
-                      <div className="rounded-md border border-dashed border-[#e8e7e3] px-3 py-6 text-center text-sm text-[#6f6b63]">
-                        Adaugă cel puțin un produs.
-                      </div>
-                    ) : null}
-                    </div>
-                </section>
+        <DrawerField label="Notițe">
+          <textarea
+            className={`${drawerInputClassName} min-h-24 resize-y py-3`}
+            name="notes"
+            defaultValue={notes}
+          />
+        </DrawerField>
 
-                {state.message && !state.ok ? (
-                  <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]">{state.message}</div>
-                ) : null}
-                <div className="flex justify-end gap-3 border-t border-[#e8e7e3] pt-5">
-                  <button type="button" onClick={() => setOpen(false)} className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]">Anulează</button>
-                  <SaveButton />
-                </div>
-              </form>
-            </aside>
-          </div>
-        </DrawerPortal>
-  );
-}
-
-function SaveButton() {
-  const status = useFormStatus();
-  return (
-    <button type="submit" disabled={status.pending} className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:opacity-60">
-      {status.pending ? "Se salvează..." : "Salvează"}
-    </button>
+        <DrawerMessage state={state} />
+        <DrawerFooter onCancel={() => setOpen(false)} submitLabel="Salvează" />
+      </form>
+    </OperationDrawer>
   );
 }
 

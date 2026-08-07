@@ -5,6 +5,7 @@ import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { parsePartnerForm } from "@/lib/partners/validate";
+import { logAudit } from "@/lib/audit";
 
 export type PartnerActionState = {
   ok: boolean;
@@ -92,6 +93,54 @@ export async function deletePartnerAction(
     await prisma.partner.delete({ where: { id } });
     revalidatePath("/crm");
     return { ok: true, message: "Partenerul a fost șters." };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
+/** Încasare de la client — scade din datoria lui. */
+export async function registerPartnerPaymentAction(
+  _state: PartnerActionState,
+  formData: FormData,
+): Promise<PartnerActionState> {
+  try {
+    const user = await requireCurrentAppUser();
+    if (!canWriteCatalog(user.role)) {
+      throw new Error("Nu ai drepturi pentru încasări.");
+    }
+
+    const partnerId = readString(formData, "partnerId");
+    const raw = readString(formData, "amount").replace(",", ".");
+    const amount = Number(raw);
+    const notes = readString(formData, "notes") || null;
+    const paidAtRaw = readString(formData, "paidAt");
+
+    if (!partnerId) throw new Error("Partener lipsă.");
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new Error("Suma încasată trebuie să fie mai mare decât zero.");
+    }
+    const paidAt = paidAtRaw ? new Date(`${paidAtRaw}T12:00:00`) : new Date();
+    if (Number.isNaN(paidAt.getTime())) throw new Error("Data încasării nu este validă.");
+
+    const partner = await prisma.partner.findUnique({
+      where: { id: partnerId },
+      select: { id: true, name: true },
+    });
+    if (!partner) throw new Error("Partenerul nu există.");
+
+    const payment = await prisma.partnerPayment.create({
+      data: { partnerId, amount, paidAt, notes },
+    });
+    await logAudit(prisma, user, {
+      action: "CREATE",
+      entity: "PartnerPayment",
+      entityId: payment.id,
+      summary: `Încasare ${amount} lei de la ${partner.name}`,
+      details: { partnerId, amount, paidAt: paidAt.toISOString(), notes },
+    });
+
+    revalidatePath("/crm");
+    return { ok: true, message: `Încasare de ${amount} lei înregistrată.` };
   } catch (error) {
     return toActionError(error);
   }

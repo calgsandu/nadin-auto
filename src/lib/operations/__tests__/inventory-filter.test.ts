@@ -1,8 +1,14 @@
 import assert from "node:assert/strict";
 import {
+  inventoryDocumentWhere,
   inventoryWhere,
   normalizeInventoryPage,
 } from "@/lib/operations/inventory-filter";
+
+// Secțiunea Transferuri exclude exact ce se potrivește aici, deci marca unui
+// inventar nu poate depinde de depozit sau de perioadă.
+const mark = inventoryDocumentWhere();
+assert.deepEqual(Object.keys(mark).sort(), ["notes", "transferGroupId", "type"]);
 
 const base = inventoryWhere({ warehouseId: "wh1" });
 assert.equal(base.type, "ADJUSTMENT");
