@@ -175,8 +175,8 @@ export function focusNextField(from: HTMLElement) {
 
 /**
  * Enter NU salvează niciodată operațiunea — salvarea e doar din buton.
- * Enter mută pe câmpul următor; pe ultimul câmp adaugă o linie nouă și sare
- * în căutarea de produs a acesteia.
+ * Enter mută pe câmpul următor; pe ultimul câmp al rândului în lucru adaugă o
+ * linie nouă și sare în căutarea de produs a acesteia.
  */
 export function handleEnterNavigation(
   event: React.KeyboardEvent<HTMLFormElement>,
@@ -190,15 +190,16 @@ export function handleEnterNavigation(
   const form = event.currentTarget;
   event.preventDefault();
 
-  // Pe ultimul câmp al ultimei linii, Enter deschide o linie nouă — nu sare
-  // peste rândurile de produs în notițe.
+  // Rândurile noi intră în capul listei, deci cel în lucru e primul: pe ultimul
+  // lui câmp Enter deschide un rând nou, în loc să coboare în cele completate.
   const lines = target.closest("[data-drawer-lines]");
-  const lineFields = lines
-    ? Array.from(lines.querySelectorAll<HTMLElement>(FOCUSABLE_FIELDS))
-    : [];
-  const onLastLineField = lineFields.length > 0 && lineFields.at(-1) === target;
+  const line = target.closest(`.${DRAWER_LINE_MARKER}`);
+  const onLastFieldOfCurrentLine =
+    !!line &&
+    Array.from(line.querySelectorAll<HTMLElement>(FOCUSABLE_FIELDS)).at(-1) === target;
+  const onFirstLine = !!lines && lines.querySelector(`.${DRAWER_LINE_MARKER}`) === line;
 
-  if (!onLastLineField && focusNextField(target)) return;
+  if (!(onLastFieldOfCurrentLine && onFirstLine) && focusNextField(target)) return;
   if (!addLine) {
     focusNextField(target);
     return;
@@ -206,8 +207,7 @@ export function handleEnterNavigation(
 
   addLine();
   requestAnimationFrame(() => {
-    const searches = form.querySelectorAll<HTMLInputElement>('input[role="combobox"]');
-    searches[searches.length - 1]?.focus();
+    form.querySelector<HTMLInputElement>('input[role="combobox"]')?.focus();
   });
 }
 
@@ -218,5 +218,7 @@ export const drawerSecondaryButton =
   "button-secondary flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#fafaf9]";
 export const drawerDangerButton =
   "button-danger mt-6 grid size-11 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";
+/** Marchează un rând de produs, ca navigarea cu Enter să știe unde se află. */
+const DRAWER_LINE_MARKER = "motion-line-item";
 export const drawerLineClassName =
-  "motion-line-item grid gap-3 rounded-md border border-[#efeeeb] bg-white p-3 md:items-start";
+  `${DRAWER_LINE_MARKER} grid gap-3 rounded-md border border-[#efeeeb] bg-white p-3 md:items-start`;

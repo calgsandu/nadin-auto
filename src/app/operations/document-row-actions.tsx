@@ -175,8 +175,8 @@ function EditPanel({
     const id = nextLineId;
     setNextLineId(id + 1);
     setEditableLines((current) => [
-      ...current,
       { id, productId: "", label: "", quantity: "", price: "" },
+      ...current,
     ]);
   }
 

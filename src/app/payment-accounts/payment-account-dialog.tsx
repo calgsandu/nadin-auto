@@ -71,7 +71,7 @@ export function PaymentAccountDialog({
 
   function addLine() {
     const id = nextLineId.current++;
-    setLines((current) => [...current, { id, quantity: "", price: "" }]);
+    setLines((current) => [{ id, quantity: "", price: "" }, ...current]);
   }
 
   function updateLine(id: number, field: "quantity" | "price", value: string) {

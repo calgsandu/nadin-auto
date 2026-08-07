@@ -57,7 +57,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
   function addLine() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [...current, { id, qty: "", price: "", oldCost: "" }]);
+    setLines((current) => [{ id, qty: "", price: "", oldCost: "" }, ...current]);
   }
 
   function removeLine(id: number) {
@@ -306,7 +306,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   function addLine() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [...current, { id }]);
+    setLines((current) => [{ id }, ...current]);
   }
 
   function removeLine(id: number) {
@@ -534,7 +534,7 @@ export function StockSaleDialog({
   function addLine(external = false) {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [...current, emptySaleLine(id, external)]);
+    setLines((current) => [emptySaleLine(id, external), ...current]);
   }
 
   function removeLine(id: number) {

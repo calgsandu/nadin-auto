@@ -51,7 +51,9 @@ export function InventoryDialog({
   function addLine() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [...current, { id }]);
+    // Rândul nou intră sus, lângă buton: la inventarele lungi nu mai trebuie
+    // derulat până la capăt după fiecare produs.
+    setLines((current) => [{ id }, ...current]);
   }
 
   function removeLine(id: number) {
