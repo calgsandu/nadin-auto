@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useState, type ReactNode } from "react";
-import { useFormStatus } from "react-dom";
+import { useState, type ReactNode } from "react";
 import type { PartnerKind } from "@/generated/prisma/enums";
 import {
   createPartnerAction,
@@ -9,6 +8,7 @@ import {
   type PartnerActionState,
 } from "@/app/partners/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { useDrawerAction } from "@/app/components/operation-drawer";
 
 export type PartnerFormValue = {
   id: string;
@@ -45,8 +45,13 @@ export function PartnerFormDialog({
   triggerKind = "primary",
 }: PartnerFormDialogProps) {
   const [open, setOpen] = useState(false);
+  // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
+  const [mounted, setMounted] = useState(false);
   const action = partner ? updatePartnerAction : createPartnerAction;
-  const [state, formAction] = useActionState(action, initialState);
+  const { state, pending, onSubmit } = useDrawerAction(action, initialState, () => {
+    setOpen(false);
+    setMounted(false);
+  });
 
   return (
     <>
@@ -57,14 +62,20 @@ export function PartnerFormDialog({
             : "button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
         }
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setMounted(true);
+          setOpen(true);
+        }}
       >
         {triggerLabel}
       </button>
 
-      {open ? (
-        <DrawerPortal>
-          <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
+      {mounted ? (
+        <DrawerPortal locked={open}>
+          <div
+            className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
+            style={open ? undefined : { display: "none" }}
+          >
             <button
               className="absolute inset-0 cursor-default"
               type="button"
@@ -90,7 +101,7 @@ export function PartnerFormDialog({
                 </button>
               </div>
 
-              <form action={formAction} className="grid gap-5 px-6 py-6">
+              <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6">
                 {partner ? (
                   <input name="partnerId" type="hidden" value={partner.id} />
                 ) : null}
@@ -229,7 +240,7 @@ export function PartnerFormDialog({
                   >
                     Anulează
                   </button>
-                  <SubmitButton label={partner ? "Salvează" : "Adaugă"} />
+                  <SubmitButton label={partner ? "Salvează" : "Adaugă"} pending={pending} />
                 </div>
               </form>
             </aside>
@@ -249,15 +260,14 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function SubmitButton({ label }: { label: string }) {
-  const status = useFormStatus();
+function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
   return (
     <button
       className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
-      disabled={status.pending}
+      disabled={pending}
       type="submit"
     >
-      {status.pending ? "Se salvează..." : label}
+      {pending ? "Se salvează..." : label}
     </button>
   );
 }

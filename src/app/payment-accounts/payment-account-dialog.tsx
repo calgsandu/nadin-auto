@@ -1,9 +1,9 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
-import { useActionState, useMemo, useRef, useState } from "react";
-import { useFormStatus } from "react-dom";
+import { useMemo, useRef, useState } from "react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { focusFirstLineSearch, useDrawerAction } from "@/app/components/operation-drawer";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
 import {
   createPaymentAccountAction,
@@ -34,22 +34,23 @@ export function PaymentAccountDialog({
   warehouses: WarehouseOption[];
 }) {
   const [open, setOpen] = useState(false);
+  // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
+  const [mounted, setMounted] = useState(false);
   const [newClient, setNewClient] = useState(false);
   const [lines, setLines] = useState<EditableLine[]>([{ id: 1, quantity: "", price: "" }]);
   const nextLineId = useRef(2);
 
-  async function submit(previous: PaymentAccountActionState, formData: FormData) {
-    const next = await createPaymentAccountAction(previous, formData);
-    if (next.ok) {
+  const { state, pending, onSubmit } = useDrawerAction(
+    createPaymentAccountAction,
+    initialState,
+    () => {
       setOpen(false);
+      setMounted(false);
       setNewClient(false);
       setLines([{ id: 1, quantity: "", price: "" }]);
       nextLineId.current = 2;
-    }
-    return next;
-  }
-
-  const [state, formAction] = useActionState(submit, initialState);
+    },
+  );
   const today = useMemo(() => formatDateInputValue(new Date()), []);
   const defaultDueDate = useMemo(() => {
     const date = new Date();
@@ -72,6 +73,7 @@ export function PaymentAccountDialog({
   function addLine() {
     const id = nextLineId.current++;
     setLines((current) => [{ id, quantity: "", price: "" }, ...current]);
+    focusFirstLineSearch();
   }
 
   function updateLine(id: number, field: "quantity" | "price", value: string) {
@@ -85,14 +87,20 @@ export function PaymentAccountDialog({
       <button
         className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setMounted(true);
+          setOpen(true);
+        }}
       >
         Emite cont de plată
       </button>
 
-      {open ? (
-        <DrawerPortal>
-          <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
+      {mounted ? (
+        <DrawerPortal locked={open}>
+          <div
+            className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
+            style={open ? undefined : { display: "none" }}
+          >
             <button
               aria-label="Închide contul de plată"
               className="absolute inset-0 cursor-default"
@@ -117,7 +125,7 @@ export function PaymentAccountDialog({
                 </button>
               </div>
 
-              <form action={formAction} className="grid gap-6 px-6 py-6">
+              <form onSubmit={onSubmit} className="grid gap-6 px-6 py-6">
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                   <Field label="Data emiterii">
                     <input className={inputClassName} defaultValue={today} name="issueDate" required type="date" />
@@ -182,7 +190,7 @@ export function PaymentAccountDialog({
                   </Field>
                 </div>
 
-                <section className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
+                <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
                   <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
                     <div>
                       <h3 className="font-semibold text-[#1b1a17]">Marfă</h3>
@@ -282,7 +290,7 @@ export function PaymentAccountDialog({
                   <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold" type="button" onClick={() => setOpen(false)}>
                     Anulează
                   </button>
-                  <SubmitButton />
+                  <SubmitButton pending={pending} />
                 </div>
               </form>
             </aside>
@@ -301,11 +309,10 @@ function Summary({ label, value }: { label: string; value: number }) {
   return <div className="flex justify-between py-1"><span className="text-[#6f6b63]">{label}</span><span className="font-mono font-semibold">{money(value)} lei</span></div>;
 }
 
-function SubmitButton() {
-  const status = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
-    <button className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60" disabled={status.pending} type="submit">
-      {status.pending ? "Se emite..." : "Emite contul"}
+    <button className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">
+      {pending ? "Se emite..." : "Emite contul"}
     </button>
   );
 }

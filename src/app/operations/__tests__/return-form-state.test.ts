@@ -19,8 +19,13 @@ assert.match(
 );
 assert.match(
   source,
-  /if \(nextState\.ok\)[\s\S]*else[\s\S]*setQuantities/,
-  "după o eroare trebuie forțată reaplicarea valorilor controlate",
+  /useDrawerAction\(/,
+  "trimiterea trebuie făcută prin useDrawerAction (fără resetul automat React)",
+);
+assert.doesNotMatch(
+  source,
+  /<form action=/,
+  "`<form action>` resetează câmpurile după o eroare de server",
 );
 assert.match(
   source,

@@ -1,9 +1,12 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { focusNextField } from "@/app/components/operation-drawer";
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
+
+/** max-h-72 = 18rem; peste pragul ăsta lista încape deasupra câmpului. */
+const DROPDOWN_HEIGHT = 288;
 
 export function ProductSearchCombobox({
   name = "productId",
@@ -30,6 +33,7 @@ export function ProductSearchCombobox({
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [dropUp, setDropUp] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeItemRef = useRef<HTMLButtonElement>(null);
   const excludedIds = new Set(excludedProductIds);
@@ -74,6 +78,16 @@ export function ProductSearchCombobox({
   useEffect(() => {
     activeItemRef.current?.scrollIntoView({ block: "nearest" });
   }, [activeIndex, open]);
+
+  // Lista stă DEASUPRA câmpului, ca să nu acopere rândurile deja introduse.
+  // Jos doar când sus nu încape (rândul e lipit de marginea de sus a ecranului).
+  useLayoutEffect(() => {
+    if (!open) return;
+    const rect = inputRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const spaceAbove = rect.top;
+    setDropUp(spaceAbove > DROPDOWN_HEIGHT || spaceAbove > window.innerHeight - rect.bottom);
+  }, [open, visibleResults.length]);
 
   function selectProduct(product: ProductSearchResult) {
     setSelected(product);
@@ -162,7 +176,9 @@ export function ProductSearchCombobox({
 
       {open ? (
         <div
-          className="motion-popover absolute z-20 mt-2 max-h-72 w-full overflow-auto rounded-md border border-[#e8e7e3] bg-white shadow-lg"
+          className={`motion-popover absolute z-20 max-h-72 w-full overflow-auto rounded-md border border-[#e8e7e3] bg-white shadow-lg ${
+            dropUp ? "bottom-full mb-2" : "top-full mt-2"
+          }`}
           id={`${id}-results`}
           role="listbox"
         >

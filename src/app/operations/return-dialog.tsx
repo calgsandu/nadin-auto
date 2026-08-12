@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useActionState } from "react";
 import {
   createReturnAction,
   type OperationActionState,
@@ -11,6 +10,7 @@ import {
   DrawerSubmit,
   OperationDrawer,
   handleEnterNavigation,
+  useDrawerAction,
   drawerFormClassName,
   drawerInputClassName,
   drawerSecondaryButton,
@@ -44,20 +44,16 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
   async function returnAction(previousState: OperationActionState, formData: FormData) {
     const nextState = await createReturnAction(previousState, formData);
     setShowFeedback(true);
-    if (nextState.ok) {
-      setOpen(false);
-      setSaleId("");
-      setDocumentDate(today);
-      setNotes("");
-      setQuantities({});
-    } else {
-      // React resetează DOM-ul formularului după o server action. Un obiect nou
-      // forțează rerandarea și reaplică valorile controlate după eroare.
-      setQuantities((current) => ({ ...current }));
-    }
     return nextState;
   }
-  const [state, formAction] = useActionState(returnAction, initialState);
+  // Fără resetul automat al React: la eroare rămâne tot completat.
+  const { state, pending, onSubmit } = useDrawerAction(returnAction, initialState, () => {
+    setOpen(false);
+    setSaleId("");
+    setDocumentDate(today);
+    setNotes("");
+    setQuantities({});
+  });
 
   const sale = sales.find((s) => s.id === saleId) ?? null;
   const totalLei = sale
@@ -85,9 +81,11 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
         <OperationDrawer
           eyebrow="Document stoc"
           title="Retur marfă"
+          pending={pending}
+          submitLabel="Salvează returul"
           onClose={() => setOpen(false)}
         >
-          <form action={formAction} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event)}>
+          <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event)}>
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Data returului">
                     <input
@@ -208,7 +206,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                   <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>
                     Anulează
                   </button>
-                  <SubmitButton label="Salvează returul" />
+                  <SubmitButton label="Salvează returul" pending={pending} />
                 </div>
               </form>
         </OperationDrawer>

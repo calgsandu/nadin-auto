@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
-import { useActionState, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   createReceiptAction,
   createSaleAction,
@@ -12,7 +12,9 @@ import {
   DrawerField,
   DrawerSubmit,
   OperationDrawer,
+  focusFirstLineSearch,
   handleEnterNavigation,
+  useDrawerAction,
   drawerFormClassName,
   drawerDangerButton,
   drawerInputClassName,
@@ -46,11 +48,18 @@ const initialState: OperationActionState = {
 
 export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(createReceiptAction, initialState);
+  // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
+  const [mounted, setMounted] = useState(false);
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<
     { id: number; qty: string; price: string; oldCost: string }[]
   >([{ id: 1, qty: "", price: "", oldCost: "" }]);
+  // Rând nou cu id nou = căutările de produs se remontează golite.
+  const { state, pending, onSubmit } = useDrawerAction(createReceiptAction, initialState, () => {
+    const id = nextLineId.current;
+    nextLineId.current += 1;
+    setLines([{ id, qty: "", price: "", oldCost: "" }]);
+  });
   const defaultWarehouse = warehouses[0]?.id ?? "";
   const today = useMemo(() => formatDateInputValue(new Date()), []);
 
@@ -58,6 +67,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
     const id = nextLineId.current;
     nextLineId.current += 1;
     setLines((current) => [{ id, qty: "", price: "", oldCost: "" }, ...current]);
+    focusFirstLineSearch();
   }
 
   function removeLine(id: number) {
@@ -91,23 +101,31 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
   const faraTva = Math.round((valoare - tvaTotal) * 100) / 100;
   const money = (v: number) => new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 2 }).format(v);
 
+  function openDrawer() {
+    setMounted(true);
+    setOpen(true);
+  }
+
   return (
     <>
       <button
         className={primaryButtonClassName}
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openDrawer}
       >
         Adaugă recepție
       </button>
 
-      {open ? (
+      {mounted ? (
         <OperationDrawer
           eyebrow="Document stoc"
           title="Recepție marfă"
+          open={open}
+          pending={pending}
+          submitLabel="Salvează recepția"
           onClose={() => setOpen(false)}
         >
-          <form action={formAction} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+          <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <Field label="Data documentului">
                   <input
@@ -284,7 +302,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                 >
                   Anulează
                 </button>
-                <SubmitButton label="Salvează recepția" />
+                <SubmitButton label="Salvează recepția" pending={pending} />
               </div>
             </form>
         </OperationDrawer>
@@ -295,9 +313,15 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
 
 export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOption[] }) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(createTransferAction, initialState);
+  // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
+  const [mounted, setMounted] = useState(false);
   const nextLineId = useRef(2);
   const [lines, setLines] = useState([{ id: 1 }]);
+  const { state, pending, onSubmit } = useDrawerAction(createTransferAction, initialState, () => {
+    const id = nextLineId.current;
+    nextLineId.current += 1;
+    setLines([{ id }]);
+  });
   const defaultSourceWarehouse = warehouses[0]?.id ?? "";
   const defaultDestinationWarehouse =
     warehouses.find((warehouse) => warehouse.id !== defaultSourceWarehouse)?.id ?? "";
@@ -307,10 +331,16 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
     const id = nextLineId.current;
     nextLineId.current += 1;
     setLines((current) => [{ id }, ...current]);
+    focusFirstLineSearch();
   }
 
   function removeLine(id: number) {
     setLines((current) => current.filter((line) => line.id !== id));
+  }
+
+  function openDrawer() {
+    setMounted(true);
+    setOpen(true);
   }
 
   return (
@@ -318,18 +348,21 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
       <button
         className={primaryButtonClassName}
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openDrawer}
       >
         Adaugă transfer
       </button>
 
-      {open ? (
+      {mounted ? (
         <OperationDrawer
           eyebrow="Document stoc"
           title="Transfer între locații"
+          open={open}
+          pending={pending}
+          submitLabel="Salvează transferul"
           onClose={() => setOpen(false)}
         >
-          <form action={formAction} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+          <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                 <Field label="Data transferului">
                   <input
@@ -452,7 +485,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                 >
                   Anulează
                 </button>
-                <SubmitButton label="Salvează transferul" />
+                <SubmitButton label="Salvează transferul" pending={pending} />
               </div>
             </form>
         </OperationDrawer>
@@ -504,27 +537,22 @@ export function StockSaleDialog({
   suppliers?: SupplierOption[];
 }) {
   const [open, setOpen] = useState(false);
+  // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
+  const [mounted, setMounted] = useState(false);
   const [newClient, setNewClient] = useState(false);
   const [discount, setDiscount] = useState("0");
   const [customerId, setCustomerId] = useState("");
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<SaleLineState[]>([emptySaleLine(1)]);
-  async function saleAction(previousState: OperationActionState, formData: FormData) {
-    const nextState = await createSaleAction(previousState, formData);
-
-    if (nextState.ok) {
-      setOpen(false);
-      setNewClient(false);
-      setDiscount("0");
-      setCustomerId("");
-      nextLineId.current = 2;
-      setLines([emptySaleLine(1)]);
-    }
-
-    return nextState;
-  }
-
-  const [state, formAction] = useActionState(saleAction, initialState);
+  const { state, pending, onSubmit } = useDrawerAction(createSaleAction, initialState, () => {
+    setOpen(false);
+    setMounted(false);
+    setNewClient(false);
+    setDiscount("0");
+    setCustomerId("");
+    nextLineId.current = 2;
+    setLines([emptySaleLine(1)]);
+  });
   const defaultWarehouse =
     warehouses.find((warehouse) => warehouse.name === "Pavilion 110A")?.id ??
     warehouses[0]?.id ??
@@ -535,6 +563,7 @@ export function StockSaleDialog({
     const id = nextLineId.current;
     nextLineId.current += 1;
     setLines((current) => [emptySaleLine(id, external), ...current]);
+    if (!external) focusFirstLineSearch();
   }
 
   function removeLine(id: number) {
@@ -605,18 +634,26 @@ export function StockSaleDialog({
   const selectedCustomerDebt =
     customers.find((customer) => customer.id === customerId)?.balanceLei ?? 0;
 
+  function openDrawer() {
+    setMounted(true);
+    setOpen(true);
+  }
+
   return (
     <>
-      <button className={primaryButtonClassName} type="button" onClick={() => setOpen(true)}>
+      <button className={primaryButtonClassName} type="button" onClick={openDrawer}>
         Adaugă vânzare
       </button>
-      {open ? (
+      {mounted ? (
         <OperationDrawer
           eyebrow="Document stoc"
           title="Vânzare marfă"
+          open={open}
+          pending={pending}
+          submitLabel="Salvează vânzarea"
           onClose={() => setOpen(false)}
         >
-          <form action={formAction} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+          <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Data vânzării">
                   <input className={inputClassName} defaultValue={today} name="documentDate" type="date" />
@@ -926,7 +963,7 @@ export function StockSaleDialog({
               ) : null}
               <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>Anulează</button>
-                <SubmitButton label="Salvează vânzarea" />
+                <SubmitButton label="Salvează vânzarea" pending={pending} />
               </div>
             </form>
         </OperationDrawer>

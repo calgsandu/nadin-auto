@@ -38,10 +38,21 @@ function saveSelection(selection: LabelSelectionItem[]) {
  */
 export function LabelPicker({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const previousCount = useRef(0);
   const [selected, setSelected] = useState<LabelSelectionItem[]>(() =>
     loadSelection(),
   );
   const [expanded, setExpanded] = useState(true);
+
+  // Produsul nou intră la coada listei — sari direct la el, fără scroll manual.
+  useEffect(() => {
+    const list = listRef.current;
+    if (list && selected.length > previousCount.current) {
+      list.scrollTop = list.scrollHeight;
+    }
+    previousCount.current = selected.length;
+  }, [selected.length, expanded]);
 
   // La schimbarea selecției sau paginii, rebifează rândurile vizibile și
   // completează metadatele selecțiilor salvate în formatul vechi.
@@ -189,7 +200,10 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                         </div>
                       </div>
 
-                      <div className="max-h-[min(32vh,14rem)] divide-y divide-[#efeeeb] overflow-y-auto overscroll-contain">
+                      <div
+                        ref={listRef}
+                        className="max-h-[min(32vh,14rem)] divide-y divide-[#efeeeb] overflow-y-auto overscroll-contain"
+                      >
                         {selected.map((item) => (
                           <div
                             key={item.id}

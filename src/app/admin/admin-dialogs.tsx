@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, type ReactNode } from "react";
-import { useState } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { useDrawerAction } from "@/app/components/operation-drawer";
 import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   createBrandAction,
@@ -41,15 +41,16 @@ function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary
   );
 }
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({ label, pending }: { label: string; pending?: boolean }) {
   const status = useFormStatus();
+  const busy = pending ?? status.pending;
   return (
     <button
       type="submit"
-      disabled={status.pending}
+      disabled={busy}
       className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {status.pending ? "Se salvează..." : label}
+      {busy ? "Se salvează..." : label}
     </button>
   );
 }
@@ -81,17 +82,23 @@ function Drawer({
   children: ReactNode;
   submitLabel: string;
 }) {
-  const [state, formAction] = useActionState(action, initial);
+  // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
+  const [mounted, setMounted] = useState(open);
+  const { state, pending, onSubmit } = useDrawerAction(action, initial, () => {
+    setOpen(false);
+    setMounted(false);
+  });
 
-  useEffect(() => {
-    if (state.ok) setOpen(false);
-  }, [state.ok, setOpen]);
-
-  if (!open) return null;
+  // Latch: o dată deschis, panoul rămâne montat (ciorna nu se pierde la închidere).
+  if (open && !mounted) setMounted(true);
+  if (!mounted) return null;
 
   return (
-    <DrawerPortal>
-    <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
+    <DrawerPortal locked={open}>
+    <div
+      className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
+      style={open ? undefined : { display: "none" }}
+    >
       <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={() => setOpen(false)} />
       <aside className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
         <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
@@ -107,7 +114,7 @@ function Drawer({
             Închide
           </button>
         </div>
-        <form action={formAction} className="grid gap-5 px-6 py-6">
+        <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6">
           {children}
           {state.message && !state.ok ? (
             <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]">
@@ -122,7 +129,7 @@ function Drawer({
             >
               Anulează
             </button>
-            <SubmitButton label={submitLabel} />
+            <SubmitButton label={submitLabel} pending={pending} />
           </div>
         </form>
       </aside>

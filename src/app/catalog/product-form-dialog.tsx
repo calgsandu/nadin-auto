@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState, type ReactNode } from "react";
-import { useFormStatus } from "react-dom";
+import { useMemo, useState, type ReactNode } from "react";
 import type { Brand, CarModel, ProductType } from "@/generated/prisma/client";
 import {
   createProductAction,
@@ -9,6 +8,7 @@ import {
   type CatalogActionState,
 } from "@/app/catalog/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { useDrawerAction } from "@/app/components/operation-drawer";
 
 type ProductFormDialogProps = {
   brands: Brand[];
@@ -57,6 +57,8 @@ export function ProductFormDialog({
   triggerKind = "primary",
 }: ProductFormDialogProps) {
   const [open, setOpen] = useState(false);
+  // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
+  const [mounted, setMounted] = useState(false);
   const [brandId, setBrandId] = useState(product?.brandId ?? "");
   const [modelId, setModelId] = useState(product?.modelId ?? "");
   const [newBrandName, setNewBrandName] = useState("");
@@ -67,7 +69,11 @@ export function ProductFormDialog({
     product?.yearOpenEnded ?? false,
   );
   const action = product ? updateProductAction : createProductAction;
-  const [state, formAction] = useActionState(action, initialState);
+  // Fără resetul automat al React: la eroare rămâne tot completat.
+  const { state, pending, onSubmit } = useDrawerAction(action, initialState, () => {
+    setOpen(false);
+    setMounted(false);
+  });
   const filteredModels = useMemo(() => {
     if (!brandId || newBrandName.trim()) {
       return [];
@@ -77,11 +83,16 @@ export function ProductFormDialog({
   }, [brandId, models, newBrandName]);
 
   function openDialog() {
-    setBrandId(product?.brandId ?? "");
-    setModelId(product?.modelId ?? "");
-    setNewBrandName("");
-    setYearOpenEnded(product?.yearOpenEnded ?? false);
-    setWarehouseQuantities(getWarehouseQuantities(product, warehouses));
+    // Ciorna se păstrează: câmpurile se re-inițializează doar la prima deschidere
+    // (sau după o salvare reușită, care demontează panoul).
+    if (!mounted) {
+      setBrandId(product?.brandId ?? "");
+      setModelId(product?.modelId ?? "");
+      setNewBrandName("");
+      setYearOpenEnded(product?.yearOpenEnded ?? false);
+      setWarehouseQuantities(getWarehouseQuantities(product, warehouses));
+      setMounted(true);
+    }
     setOpen(true);
   }
 
@@ -99,9 +110,12 @@ export function ProductFormDialog({
         {triggerLabel}
       </button>
 
-      {open ? (
-        <DrawerPortal>
-          <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
+      {mounted ? (
+        <DrawerPortal locked={open}>
+          <div
+            className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
+            style={open ? undefined : { display: "none" }}
+          >
           <button
             className="absolute inset-0 cursor-default"
             type="button"
@@ -127,7 +141,7 @@ export function ProductFormDialog({
               </button>
             </div>
 
-            <form action={formAction} className="grid gap-5 px-6 py-6">
+            <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6">
               {product ? (
                 <input name="productId" type="hidden" value={product.id} />
               ) : null}
@@ -405,7 +419,7 @@ export function ProductFormDialog({
                 >
                   Anulează
                 </button>
-                <SubmitButton label={product ? "Salvează" : "Adaugă"} />
+                <SubmitButton label={product ? "Salvează" : "Adaugă"} pending={pending} />
               </div>
             </form>
           </aside>
@@ -431,16 +445,15 @@ function Field({
   );
 }
 
-function SubmitButton({ label }: { label: string }) {
-  const status = useFormStatus();
+function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
 
   return (
     <button
       className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
-      disabled={status.pending}
+      disabled={pending}
       type="submit"
     >
-      {status.pending ? "Se salvează..." : label}
+      {pending ? "Se salvează..." : label}
     </button>
   );
 }

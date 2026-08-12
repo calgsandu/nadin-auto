@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ActionFeedback } from "@/app/components/action-feedback";
 import {
@@ -10,7 +10,9 @@ import {
   DrawerMessage,
   DrawerSection,
   OperationDrawer,
+  focusFirstLineSearch,
   handleEnterNavigation,
+  useDrawerAction,
   drawerDangerButton,
   drawerFormClassName,
   drawerInputClassName,
@@ -126,16 +128,24 @@ type EditProps = {
 
 function EditDrawer(props: EditProps) {
   const [open, setOpen] = useState(false);
+  // Panoul rămâne montat după prima deschidere: modificările nesalvate
+  // se regăsesc la redeschidere, nu se pierd la închiderea din greșeală.
+  const [mounted, setMounted] = useState(false);
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setMounted(true);
+          setOpen(true);
+        }}
         className="button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
       >
         Editează
       </button>
-      {open ? <EditPanel {...props} setOpen={setOpen} /> : null}
+      {mounted ? (
+        <EditPanel {...props} open={open} setOpen={setOpen} onSaved={() => setMounted(false)} />
+      ) : null}
     </>
   );
 }
@@ -153,9 +163,14 @@ function EditPanel({
   warehouseId,
   lines,
   isInventory,
+  open,
   setOpen,
-}: EditProps & { setOpen: (v: boolean) => void }) {
-  const [state, formAction] = useActionState(updateDocumentLinesAction, initial);
+  onSaved,
+}: EditProps & { open: boolean; setOpen: (v: boolean) => void; onSaved: () => void }) {
+  const { state, pending, onSubmit } = useDrawerAction(updateDocumentLinesAction, initial, () => {
+    setOpen(false);
+    onSaved();
+  });
   const [editableLines, setEditableLines] = useState<EditableLine[]>(() =>
     lines.length > 0
       ? lines.map((line, index) => ({
@@ -167,10 +182,6 @@ function EditPanel({
   );
   const [nextLineId, setNextLineId] = useState(editableLines.length + 1);
 
-  useEffect(() => {
-    if (state.ok) setOpen(false);
-  }, [state.ok, setOpen]);
-
   function addLine() {
     const id = nextLineId;
     setNextLineId(id + 1);
@@ -178,6 +189,7 @@ function EditPanel({
       { id, productId: "", label: "", quantity: "", price: "" },
       ...current,
     ]);
+    focusFirstLineSearch();
   }
 
   function removeLine(id: number) {
@@ -198,9 +210,12 @@ function EditPanel({
     <OperationDrawer
       eyebrow="Document stoc"
       title={title}
+      open={open}
+      pending={pending}
+      submitLabel="Salvează"
       onClose={() => setOpen(false)}
     >
-      <form action={formAction} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+      <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
         <input type="hidden" name="id" value={id} />
         <div className="grid gap-4 md:grid-cols-2">
           <DrawerField label={isInventory ? "Data inventarului" : "Data documentului"}>
@@ -381,7 +396,7 @@ function EditPanel({
         </DrawerField>
 
         <DrawerMessage state={state} />
-        <DrawerFooter onCancel={() => setOpen(false)} submitLabel="Salvează" />
+        <DrawerFooter onCancel={() => setOpen(false)} pending={pending} submitLabel="Salvează" />
       </form>
     </OperationDrawer>
   );
