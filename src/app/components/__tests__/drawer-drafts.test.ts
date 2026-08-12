@@ -45,6 +45,24 @@ for (const file of [
   assert.match(source, /matchesLineFilter\(filter, line\)/, `${file}: filtrul nu ascunde rândurile`);
 }
 
+// Un produs deja pus pe o linie nu mai apare în căutarea celorlalte linii.
+for (const file of [
+  "src/app/operations/inventory-dialog.tsx",
+  "src/app/operations/document-row-actions.tsx",
+  "src/app/operations/stock-document-dialog.tsx",
+]) {
+  assert.match(
+    read(file),
+    /excludedProductIds=\{/,
+    `${file}: produsele deja adăugate trebuie excluse din căutare`,
+  );
+}
+
+const combobox = read("src/app/operations/product-search-combobox.tsx");
+// Lista de rezultate stă într-un portal: drawerul cu overflow-y-auto o tăia.
+assert.match(combobox, /createPortal\(/, "lista de rezultate trebuie randată în portal");
+assert.match(combobox, /placeDropdown\(rect, window\.innerHeight\)/, "poziția vine din placeDropdown");
+
 const drawer = read("src/app/components/operation-drawer.tsx");
 assert.match(drawer, /DrawerPortal locked=\{open\}/, "panoul ascuns nu blochează scrollul paginii");
 assert.match(drawer, /beforeunload/, "ciorna nesalvată avertizează la refresh/închidere de tab");

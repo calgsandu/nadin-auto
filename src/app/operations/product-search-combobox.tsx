@@ -2,11 +2,10 @@
 
 import { Search } from "lucide-react";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { focusNextField } from "@/app/components/operation-drawer";
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
-
-/** max-h-72 = 18rem; peste pragul ăsta lista încape deasupra câmpului. */
-const DROPDOWN_HEIGHT = 288;
+import { placeDropdown, type DropdownBox } from "@/lib/operations/dropdown-position";
 
 export function ProductSearchCombobox({
   name = "productId",
@@ -33,7 +32,7 @@ export function ProductSearchCombobox({
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [dropUp, setDropUp] = useState(true);
+  const [box, setBox] = useState<DropdownBox | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeItemRef = useRef<HTMLButtonElement>(null);
   const excludedIds = new Set(excludedProductIds);
@@ -79,20 +78,40 @@ export function ProductSearchCombobox({
     activeItemRef.current?.scrollIntoView({ block: "nearest" });
   }, [activeIndex, open]);
 
-  // Lista stă DEASUPRA câmpului, ca să nu acopere rândurile deja introduse.
-  // Jos doar când sus nu încape (rândul e lipit de marginea de sus a ecranului).
+  /**
+   * Lista trăiește într-un portal pe body: drawerul are `overflow-y-auto`, deci
+   * orice popover ancorat în el era tăiat sau ieșea din ecran. Stă DEASUPRA
+   * câmpului (ca să nu acopere rândurile de sub el) și coboară doar când sus nu
+   * încape; înălțimea se strânge la spațiul disponibil.
+   */
   useLayoutEffect(() => {
+    // La închidere nu resetăm nimic: portalul nu se mai randează, iar poziția
+    // se recalculează oricum la următoarea deschidere.
     if (!open) return;
-    const rect = inputRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const spaceAbove = rect.top;
-    setDropUp(spaceAbove > DROPDOWN_HEIGHT || spaceAbove > window.innerHeight - rect.bottom);
-  }, [open, visibleResults.length]);
+
+    function place() {
+      const rect = inputRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setBox(placeDropdown(rect, window.innerHeight));
+    }
+
+    place();
+    // Poziția se recalculează la scroll (inclusiv în drawer) și la redimensionare.
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [open, visibleResults.length, loading]);
 
   function selectProduct(product: ProductSearchResult) {
     setSelected(product);
     setQuery(product.label);
     setOpen(false);
+    // Rezultatele vechi nu mai au ce căuta: altfel refocalizarea câmpului
+    // redeschidea o listă care n-are legătură cu produsul ales.
+    setResults([]);
     onSelect?.(product);
   }
 
@@ -167,20 +186,25 @@ export function ProductSearchCombobox({
             }
           }}
           onFocus={() => {
-            if (results.length > 0) {
+            if (!selected && results.length > 0) {
               setOpen(true);
             }
           }}
         />
       </div>
 
-      {open ? (
+      {open && box
+        ? createPortal(
         <div
-          className={`motion-popover absolute z-20 max-h-72 w-full overflow-auto rounded-md border border-[#e8e7e3] bg-white shadow-lg ${
-            dropUp ? "bottom-full mb-2" : "top-full mt-2"
-          }`}
+          className="motion-popover fixed z-[60] overflow-auto rounded-md border border-[#e8e7e3] bg-white shadow-lg"
           id={`${id}-results`}
           role="listbox"
+          style={{
+            left: box.left,
+            top: box.top,
+            width: box.width,
+            maxHeight: box.maxHeight,
+          }}
         >
           {visibleResults.length > 0 ? (
             visibleResults.map((product, index) => (
@@ -221,8 +245,10 @@ export function ProductSearchCombobox({
                   : "Nu am găsit produse pentru căutarea curentă."}
             </div>
           )}
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+          )
+        : null}
 
       {showHint ? (
         <p className="mt-1 text-xs font-medium text-[#6f6b63]">

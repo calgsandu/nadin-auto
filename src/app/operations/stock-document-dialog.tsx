@@ -52,13 +52,13 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
   const [mounted, setMounted] = useState(false);
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<
-    { id: number; qty: string; price: string; oldCost: string }[]
-  >([{ id: 1, qty: "", price: "", oldCost: "" }]);
+    { id: number; productId: string; qty: string; price: string; oldCost: string }[]
+  >([{ id: 1, productId: "", qty: "", price: "", oldCost: "" }]);
   // Rând nou cu id nou = căutările de produs se remontează golite.
   const { state, pending, onSubmit } = useDrawerAction(createReceiptAction, initialState, () => {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines([{ id, qty: "", price: "", oldCost: "" }]);
+    setLines([{ id, productId: "", qty: "", price: "", oldCost: "" }]);
   });
   const defaultWarehouse = warehouses[0]?.id ?? "";
   const today = useMemo(() => formatDateInputValue(new Date()), []);
@@ -66,7 +66,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
   function addLine() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [{ id, qty: "", price: "", oldCost: "" }, ...current]);
+    setLines((current) => [{ id, productId: "", qty: "", price: "", oldCost: "" }, ...current]);
     focusFirstLineSearch();
   }
 
@@ -90,9 +90,11 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
   }
 
   /** Prețul recepționat pornește de la costul curent și, dacă diferă, îl înlocuiește. */
-  function selectReceiptProduct(id: number, cost: string) {
+  function selectReceiptProduct(id: number, productId: string, cost: string) {
     setLines((current) =>
-      current.map((line) => (line.id === id ? { ...line, price: cost, oldCost: cost } : line)),
+      current.map((line) =>
+        line.id === id ? { ...line, productId, price: cost, oldCost: cost } : line,
+      ),
     );
   }
 
@@ -204,7 +206,11 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                         </p>
                         <ProductSearchCombobox
                           showHint={false}
-                          onSelect={(p) => selectReceiptProduct(line.id, p.defaultCostLei)}
+                          excludedProductIds={lines
+                            .filter((item) => item.id !== line.id)
+                            .map((item) => item.productId)}
+                          onSelect={(p) => selectReceiptProduct(line.id, p.id, p.defaultCostLei)}
+                          onClear={() => selectReceiptProduct(line.id, "", "")}
                         />
                       </div>
                       <Field label="Cantitate">
@@ -316,11 +322,13 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const nextLineId = useRef(2);
-  const [lines, setLines] = useState([{ id: 1 }]);
+  const [lines, setLines] = useState<{ id: number; productId: string }[]>([
+    { id: 1, productId: "" },
+  ]);
   const { state, pending, onSubmit } = useDrawerAction(createTransferAction, initialState, () => {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines([{ id }]);
+    setLines([{ id, productId: "" }]);
   });
   const defaultSourceWarehouse = warehouses[0]?.id ?? "";
   const defaultDestinationWarehouse =
@@ -330,12 +338,18 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   function addLine() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [{ id }, ...current]);
+    setLines((current) => [{ id, productId: "" }, ...current]);
     focusFirstLineSearch();
   }
 
   function removeLine(id: number) {
     setLines((current) => current.filter((line) => line.id !== id));
+  }
+
+  function setTransferProduct(id: number, productId: string) {
+    setLines((current) =>
+      current.map((line) => (line.id === id ? { ...line, productId } : line)),
+    );
   }
 
   function openDrawer() {
@@ -431,7 +445,14 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                         <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">
                           Produs {index + 1}
                         </p>
-                        <ProductSearchCombobox showHint={false} />
+                        <ProductSearchCombobox
+                          showHint={false}
+                          excludedProductIds={lines
+                            .filter((item) => item.id !== line.id)
+                            .map((item) => item.productId)}
+                          onSelect={(product) => setTransferProduct(line.id, product.id)}
+                          onClear={() => setTransferProduct(line.id, "")}
+                        />
                       </div>
                       <Field label="Cantitate">
                         <input

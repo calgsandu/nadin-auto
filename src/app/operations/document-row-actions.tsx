@@ -347,6 +347,9 @@ function EditPanel({
                         initialProduct={
                           line.productId ? { id: line.productId, label: line.label } : null
                         }
+                        excludedProductIds={editableLines
+                          .filter((item) => item.id !== line.id)
+                          .map((item) => item.productId)}
                         onSelect={(product) =>
                           patchLine(line.id, { productId: product.id, label: product.label })
                         }
