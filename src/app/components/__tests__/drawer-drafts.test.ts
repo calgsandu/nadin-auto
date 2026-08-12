@@ -62,6 +62,9 @@ const combobox = read("src/app/operations/product-search-combobox.tsx");
 // Lista de rezultate stă într-un portal: drawerul cu overflow-y-auto o tăia.
 assert.match(combobox, /createPortal\(/, "lista de rezultate trebuie randată în portal");
 assert.match(combobox, /placeDropdown\(rect, window\.innerHeight\)/, "poziția vine din placeDropdown");
+// Produsul ales se citește ca fișă (etichetele lungi nu mai sunt tăiate în input).
+assert.match(combobox, /function ProductCard\(/, "produsul ales trebuie afișat ca fișă");
+assert.match(combobox, /onDoubleClick=\{onEdit\}/, "dublu-click readuce câmpul de căutare");
 
 const drawer = read("src/app/components/operation-drawer.tsx");
 assert.match(drawer, /DrawerPortal locked=\{open\}/, "panoul ascuns nu blochează scrollul paginii");

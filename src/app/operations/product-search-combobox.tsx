@@ -33,6 +33,9 @@ export function ProductSearchCombobox({
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [box, setBox] = useState<DropdownBox | null>(null);
+  // Produsul ales se vede ca fișă (text integral, pe câte rânduri e nevoie);
+  // dublu-click îl transformă înapoi în câmp de căutare.
+  const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeItemRef = useRef<HTMLButtonElement>(null);
   const excludedIds = new Set(excludedProductIds);
@@ -109,6 +112,7 @@ export function ProductSearchCombobox({
     setSelected(product);
     setQuery(product.label);
     setOpen(false);
+    setEditing(false);
     // Rezultatele vechi nu mai au ce căuta: altfel refocalizarea câmpului
     // redeschidea o listă care n-are legătură cu produsul ales.
     setResults([]);
@@ -149,10 +153,23 @@ export function ProductSearchCombobox({
     }
   }
 
+  const showCard = Boolean(selected) && !editing;
+
+  function startEditing() {
+    setEditing(true);
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    });
+  }
+
   return (
     <div className="relative">
       <input name={name} type="hidden" value={selected?.id ?? ""} />
-      <div className="relative">
+      {showCard ? (
+        <ProductCard label={selected?.label ?? ""} onEdit={startEditing} />
+      ) : null}
+      <div className={`relative ${showCard ? "hidden" : ""}`}>
         <Search
           className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#6f6b63]"
           aria-hidden="true"
@@ -162,6 +179,8 @@ export function ProductSearchCombobox({
           aria-controls={`${id}-results`}
           aria-expanded={open}
           className="field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-9 text-sm outline-none placeholder:text-[#98948b]"
+          // Ascuns sub fișă: navigarea cu Enter trebuie să sară peste el.
+          data-enter-skip={showCard ? "" : undefined}
           placeholder="Caută cod, brand, model sau descriere"
           ref={inputRef}
           role="combobox"
@@ -202,6 +221,7 @@ export function ProductSearchCombobox({
           style={{
             left: box.left,
             top: box.top,
+            bottom: box.bottom,
             width: box.width,
             maxHeight: box.maxHeight,
           }}
@@ -250,10 +270,39 @@ export function ProductSearchCombobox({
           )
         : null}
 
-      {showHint ? (
+      {showHint && !showCard ? (
         <p className="mt-1 text-xs font-medium text-[#6f6b63]">
           Scrie cel puțin 3 caractere · ↑↓ alegi, Enter treci la cantitate.
         </p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Fișa produsului ales — aceeași citire ca în „Detalii operațiune": codul
+ * îngroșat, restul dedesubt, text integral (etichetele lungi nu mai sunt tăiate).
+ */
+function ProductCard({ label, onEdit }: { label: string; onEdit: () => void }) {
+  const [code, ...rest] = label.split(" · ");
+
+  return (
+    <div
+      className="min-h-11 cursor-text rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm leading-5"
+      role="button"
+      tabIndex={0}
+      title="Dublu-click ca să schimbi produsul"
+      onDoubleClick={onEdit}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === "F2") {
+          event.preventDefault();
+          onEdit();
+        }
+      }}
+    >
+      <span className="font-mono font-semibold text-[#1b1a17]">{code}</span>
+      {rest.length > 0 ? (
+        <span className="text-[#33312c]"> · {rest.join(" · ")}</span>
       ) : null}
     </div>
   );
