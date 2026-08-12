@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { productLabelInclude } from "@/lib/catalog/product-include";
 import { getPartnerBalances } from "@/lib/partners/debt";
 import type { VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
 import { aggregateSoldProducts } from "@/lib/operations/sales";
@@ -54,7 +55,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: productLabelInclude },
           },
         },
       },
@@ -71,7 +72,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: productLabelInclude },
           },
         },
       },
@@ -91,7 +92,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: productLabelInclude },
           },
         },
       },
@@ -107,7 +108,7 @@ export async function getOperationsData() {
         partner: true,
         lines: {
           include: {
-            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: productLabelInclude },
           },
         },
       },
@@ -118,7 +119,7 @@ export async function getOperationsData() {
       include: {
         warehouse: true,
         partner: true,
-        lines: { include: { product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } } } },
+        lines: { include: { product: { include: productLabelInclude } } },
       },
       orderBy: [{ documentDate: "desc" }, { number: "desc" }],
       take: 50,
@@ -132,7 +133,7 @@ export async function getOperationsData() {
             },
           },
           include: {
-            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: productLabelInclude },
           },
           orderBy: [{ requestedAt: "asc" }, { createdAt: "asc" }],
         })
@@ -218,6 +219,9 @@ export async function getInventoryData(params: {
               description: true,
               salePriceLei: true,
               fitment: { include: { carModel: { include: { brand: true } } } },
+              productFitments: {
+                select: { fitment: { include: { carModel: { include: { brand: true } } } } },
+              },
             },
           },
         },
@@ -245,6 +249,9 @@ export async function getInventoryData(params: {
                     externalCode: true,
                     type: { select: { name: true } },
                     fitment: { include: { carModel: { include: { brand: true } } } },
+                    productFitments: {
+                      select: { fitment: { include: { carModel: { include: { brand: true } } } } },
+                    },
                   },
                 },
               },
@@ -377,7 +384,7 @@ export async function getSalesDayData(dayParam?: string) {
         partner: true,
         lines: {
           include: {
-            product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } },
+            product: { include: productLabelInclude },
           },
         },
       },

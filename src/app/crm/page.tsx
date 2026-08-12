@@ -27,7 +27,11 @@ import { ChangePasswordDialog } from "@/app/account/change-password-dialog";
 import { TrustedDeviceControl } from "@/app/account/trusted-device-control";
 import { SidebarCollapseButton } from "./sidebar-collapse";
 import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
-import { productLineLabel, productLineSubtitle } from "@/lib/catalog/product-line-label";
+import {
+  productLineLabel,
+  productLineSubtitle,
+  type ProductLineInfo,
+} from "@/lib/catalog/product-line-label";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
 import {
   ProductFormDialog,
@@ -911,7 +915,7 @@ function VehicleSubline({
   product,
 }: {
   fitment?: VehicleFitmentInfo | null;
-  product?: { externalCode: string | null; description: string; type?: { name: string } | null; fitment?: VehicleFitmentInfo | null } | null;
+  product?: ProductLineInfo | null;
 }) {
   const label = product
     ? productLineSubtitle(product)
@@ -1498,12 +1502,7 @@ function toDocLines(doc: {
     quantity: number;
     unitPriceEuro: { toString(): string } | null;
     unitCostLei: { toString(): string } | null;
-    product: {
-      description: string;
-      externalCode: string | null;
-      type?: { name: string } | null;
-      fitment?: VehicleFitmentInfo | null;
-    } | null;
+    product: ProductLineInfo | null;
   }[];
 }) {
   const usesSalePrice = doc.type === "SALE" || doc.type === "RETURN";
@@ -3207,6 +3206,16 @@ function toProductFormValue(product: CatalogProduct): ProductFormValue {
     yearStart: formatFormValue(product.fitment.yearStart),
     yearEnd: formatFormValue(product.fitment.yearEnd),
     yearOpenEnded: product.fitment.yearOpenEnded,
+    // Legăturile suplimentare (fără fitmentul principal, care are câmpurile lui).
+    extraFitments: product.productFitments
+      .filter(({ fitment }) => fitment.id !== product.fitmentId)
+      .map(({ fitment }) => ({
+        brandId: fitment.carModel.brand.id,
+        modelId: fitment.carModel.id,
+        yearStart: formatFormValue(fitment.yearStart),
+        yearEnd: formatFormValue(fitment.yearEnd),
+        yearOpenEnded: fitment.yearOpenEnded,
+      })),
     isLocal: product.isLocal,
     warehouseStocks: product.warehouseStocks.map((stock) => ({
       warehouseId: stock.warehouseId,

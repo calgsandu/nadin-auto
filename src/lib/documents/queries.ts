@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { productLabelInclude } from "@/lib/catalog/product-include";
 import type { Prisma } from "@/generated/prisma/client";
 import type { StockDocumentType } from "@/generated/prisma/enums";
 
@@ -50,7 +51,7 @@ export async function getDocumentsData(params: DocumentsSearchParams = {}) {
         warehouse: true,
         partner: true,
         _count: { select: { lines: true } },
-        lines: { include: { product: { include: { type: true, fitment: { include: { carModel: { include: { brand: true } } } } } } }, take: 200 },
+        lines: { include: { product: { include: productLabelInclude } }, take: 200 },
       },
     }),
     prisma.stockDocument.count({ where }),

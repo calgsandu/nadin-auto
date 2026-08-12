@@ -1,3 +1,9 @@
+import {
+  vehicleLabels,
+  type ProductFitmentsInfo,
+  type VehicleFitmentInfo,
+} from "@/lib/catalog/vehicle-label";
+
 export const PRODUCT_SEARCH_LIMIT = 20;
 
 export type ProductSearchResult = {
@@ -9,21 +15,14 @@ export type ProductSearchResult = {
   stock: number;
 };
 
-export type ProductSearchLabelInput = {
+export type ProductSearchLabelInput = ProductFitmentsInfo & {
   externalCode: string | null;
   description: string;
   priceEuro: { toString(): string } | null;
   costLei: { toString(): string } | null;
   salePriceLei: { toString(): string } | null;
   stock: number | null;
-  fitment: {
-    carModel: {
-      name: string;
-      brand: {
-        name: string;
-      };
-    };
-  };
+  fitment: VehicleFitmentInfo;
   type: {
     name: string;
   };
@@ -39,12 +38,14 @@ export function formatProductSearchLabel(
   product: ProductSearchLabelInput,
   includeCosts = true,
 ) {
-  const model = product.fitment.carModel;
+  // Toate compatibilitățile, nu doar fitmentul principal: piesele legate de mai
+  // multe modele trebuie recunoscute direct din rezultatul căutării.
+  const vehicles = vehicleLabels(product) ?? "";
   const code = product.externalCode?.trim() || "-";
   const price = includeCosts ? formatFormValue(product.priceEuro) : "";
   const pricePart = price ? ` · ${price} EUR` : "";
 
-  return `${code} · ${model.brand.name} ${model.name} · ${product.type.name} · ${product.description}${pricePart}`;
+  return `${code} · ${vehicles} · ${product.type.name} · ${product.description}${pricePart}`;
 }
 
 /** `includeCosts=false` (ANGAJAT): costurile de aducere nu pleacă din API. */

@@ -8,6 +8,7 @@ import {
   toProductSearchResult,
 } from "@/lib/catalog/product-search";
 import { findMatchingProductIds } from "@/lib/catalog/product-match";
+import { productLabelInclude } from "@/lib/catalog/product-include";
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentAppUser();
@@ -26,18 +27,7 @@ export async function GET(request: NextRequest) {
 
   const products = await prisma.product.findMany({
     where: matchedIds ? { id: { in: matchedIds } } : undefined,
-    include: {
-      type: true,
-      fitment: {
-        include: {
-          carModel: {
-            include: {
-              brand: true,
-            },
-          },
-        },
-      },
-    },
+    include: productLabelInclude,
     orderBy: [{ fitment: { carModel: { brand: { name: "asc" } } } }, { sourceRow: "asc" }],
     take: PRODUCT_SEARCH_LIMIT,
   });

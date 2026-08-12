@@ -11,7 +11,12 @@ export async function getPaymentAccountsData() {
           orderBy: { createdAt: "asc" },
           include: {
             product: {
-              select: { fitment: { include: { carModel: { include: { brand: true } } } } },
+              select: {
+                fitment: { include: { carModel: { include: { brand: true } } } },
+                productFitments: {
+                  select: { fitment: { include: { carModel: { include: { brand: true } } } } },
+                },
+              },
             },
           },
         },

@@ -31,4 +31,31 @@ assert.equal(
   "MERCEDES-BENZ SPRINTER 1995–2006 · Prag",
 );
 
+// Toate compatibilitățile intră în etichetă; principalul nu se repetă.
+const twinFitment = {
+  yearStart: 2006,
+  yearEnd: 2016,
+  yearOpenEnded: false,
+  carModel: { name: "CRAFTER", brand: { name: "VOLKSWAGEN" } },
+};
+assert.equal(
+  productLineLabel({
+    externalCode: "P1",
+    description: "Prag",
+    type: { name: "Prag" },
+    fitment,
+    productFitments: [{ fitment }, { fitment: twinFitment }],
+  }),
+  "P1 · MERCEDES-BENZ SPRINTER 1995–2006 • VOLKSWAGEN CRAFTER 2006–2016 · Prag · Prag",
+);
+assert.equal(
+  productLineSubtitle({
+    externalCode: null,
+    description: "x",
+    fitment,
+    productFitments: [{ fitment: twinFitment }],
+  }),
+  "MERCEDES-BENZ SPRINTER 1995–2006 • VOLKSWAGEN CRAFTER 2006–2016",
+);
+
 console.log("product line label tests passed");

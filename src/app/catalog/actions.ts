@@ -8,6 +8,10 @@ import { prisma } from "@/lib/prisma";
 import { logAudit, logAuditRequired } from "@/lib/audit";
 import { computeSalePrice } from "@/lib/catalog/pricing";
 import {
+  parseExtraFitments,
+  type ExtraFitmentInput,
+} from "@/lib/catalog/extra-fitments";
+import {
   calculateWarehouseStockTotal,
   parseWarehouseStockAssignments,
   type WarehouseStockAssignment,
@@ -32,6 +36,7 @@ export async function createProductAction(
     const input = await parseProductForm(formData);
     const warehouseAssignments = await parseWarehouseAssignments(formData);
     const fitment = await findOrCreateFitment(input);
+    const fitmentIds = await resolveFitmentIds(fitment.id, input.extraFitments);
     const type = await findOrCreateType(input.typeId, input.newTypeName);
 
     await prisma.$transaction(async (tx) => {
@@ -58,8 +63,9 @@ export async function createProductAction(
           typeId: type.id,
         },
       });
-      await tx.productFitment.create({
-        data: { productId: created.id, fitmentId: fitment.id },
+      await tx.productFitment.createMany({
+        data: fitmentIds.map((fitmentId) => ({ productId: created.id, fitmentId })),
+        skipDuplicates: true,
       });
       const after = await saveWarehouseStocks(tx, created.id, warehouseAssignments);
 
@@ -97,6 +103,7 @@ export async function updateProductAction(
     const input = await parseProductForm(formData);
     const warehouseAssignments = await parseWarehouseAssignments(formData);
     const fitment = await findOrCreateFitment(input);
+    const fitmentIds = await resolveFitmentIds(fitment.id, input.extraFitments);
     const type = await findOrCreateType(input.typeId, input.newTypeName);
 
     await prisma.$transaction(async (tx) => {
@@ -125,10 +132,13 @@ export async function updateProductAction(
           typeId: type.id,
         },
       });
-      await tx.productFitment.upsert({
-        where: { productId_fitmentId: { productId, fitmentId: fitment.id } },
-        create: { productId, fitmentId: fitment.id },
-        update: {},
+      // Setul din formular e sursa adevărului: ce s-a scos din listă dispare.
+      await tx.productFitment.deleteMany({
+        where: { productId, fitmentId: { notIn: fitmentIds } },
+      });
+      await tx.productFitment.createMany({
+        data: fitmentIds.map((fitmentId) => ({ productId, fitmentId })),
+        skipDuplicates: true,
       });
       const after = await saveWarehouseStocks(tx, productId, warehouseAssignments);
 
@@ -307,6 +317,7 @@ async function parseProductForm(formData: FormData) {
   // Default sale price = double the acquisition cost, rounded to the nearest 50.
   const salePriceLei = salePriceRaw ?? computeSalePrice(costLei);
   const isLocal = Boolean(formData.get("isLocal"));
+  const extraFitments = parseExtraFitments(formData);
 
   if (!description) {
     throw new Error("Descrierea este obligatorie.");
@@ -349,7 +360,61 @@ async function parseProductForm(formData: FormData) {
     minStock,
     priceEuro,
     costLei,
+    extraFitments,
   };
+}
+
+/** Fitmentul unei compatibilități suplimentare: model existent + ani. */
+async function findOrCreateExtraFitment(extra: ExtraFitmentInput) {
+  const model = await prisma.carModel.findUnique({
+    where: { id: extra.modelId },
+    include: { brand: true },
+  });
+  if (!model) throw new Error("Modelul ales pentru compatibilitate nu există.");
+
+  const existing = await prisma.vehicleFitment.findFirst({
+    where: {
+      carModelId: model.id,
+      yearStart: extra.yearStart,
+      yearEnd: extra.yearEnd,
+      yearOpenEnded: extra.yearOpenEnded,
+    },
+    orderBy: { createdAt: "asc" },
+  });
+  if (existing) return existing;
+
+  const label = buildFitmentLabel(
+    model.brand.name,
+    model.name,
+    extra.yearStart,
+    extra.yearEnd,
+    extra.yearOpenEnded,
+  );
+
+  return prisma.vehicleFitment.upsert({
+    where: { carModelId_label: { carModelId: model.id, label } },
+    create: {
+      carModelId: model.id,
+      label,
+      yearStart: extra.yearStart,
+      yearEnd: extra.yearEnd,
+      yearOpenEnded: extra.yearOpenEnded,
+    },
+    update: {},
+  });
+}
+
+/** Toate fitmenturile produsului = principalul + cele suplimentare, deduplicate. */
+async function resolveFitmentIds(
+  primaryFitmentId: string,
+  extras: ExtraFitmentInput[],
+) {
+  const ids = new Set([primaryFitmentId]);
+  for (const extra of extras) {
+    const fitment = await findOrCreateExtraFitment(extra);
+    ids.add(fitment.id);
+  }
+  return [...ids];
 }
 
 async function findOrCreateFitment(input: Awaited<ReturnType<typeof parseProductForm>>) {

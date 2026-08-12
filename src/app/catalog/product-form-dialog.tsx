@@ -20,6 +20,14 @@ type ProductFormDialogProps = {
   triggerKind?: "primary" | "row";
 };
 
+export type ExtraFitmentValue = {
+  brandId: string;
+  modelId: string;
+  yearStart: string;
+  yearEnd: string;
+  yearOpenEnded: boolean;
+};
+
 export type ProductFormValue = {
   id: string;
   externalCode: string;
@@ -34,6 +42,8 @@ export type ProductFormValue = {
   yearStart: string;
   yearEnd: string;
   yearOpenEnded: boolean;
+  /** Compatibilități suplimentare (gemenii: Sprinter ↔ Crafter etc.). */
+  extraFitments: ExtraFitmentValue[];
   isLocal: boolean;
   warehouseStocks: Array<{ warehouseId: string; quantity: string }>;
   minStock: string;
@@ -68,6 +78,9 @@ export function ProductFormDialog({
   const [yearOpenEnded, setYearOpenEnded] = useState(
     product?.yearOpenEnded ?? false,
   );
+  const [extras, setExtras] = useState<ExtraFitmentValue[]>(
+    () => product?.extraFitments ?? [],
+  );
   const action = product ? updateProductAction : createProductAction;
   // Fără resetul automat al React: la eroare rămâne tot completat.
   const { state, pending, onSubmit } = useDrawerAction(action, initialState, () => {
@@ -82,6 +95,23 @@ export function ProductFormDialog({
     return models.filter((model) => model.brandId === brandId);
   }, [brandId, models, newBrandName]);
 
+  function addExtra() {
+    setExtras((current) => [
+      ...current,
+      { brandId: "", modelId: "", yearStart: "", yearEnd: "", yearOpenEnded: false },
+    ]);
+  }
+
+  function patchExtra(index: number, patch: Partial<ExtraFitmentValue>) {
+    setExtras((current) =>
+      current.map((extra, position) => (position === index ? { ...extra, ...patch } : extra)),
+    );
+  }
+
+  function removeExtra(index: number) {
+    setExtras((current) => current.filter((_, position) => position !== index));
+  }
+
   function openDialog() {
     // Ciorna se păstrează: câmpurile se re-inițializează doar la prima deschidere
     // (sau după o salvare reușită, care demontează panoul).
@@ -90,6 +120,7 @@ export function ProductFormDialog({
       setModelId(product?.modelId ?? "");
       setNewBrandName("");
       setYearOpenEnded(product?.yearOpenEnded ?? false);
+      setExtras(product?.extraFitments ?? []);
       setWarehouseQuantities(getWarehouseQuantities(product, warehouses));
       setMounted(true);
     }
@@ -315,6 +346,130 @@ export function ProductFormDialog({
                   În continuare
                 </label>
               </div>
+
+              <section className="rounded-xl border border-[#e8e7e3] bg-white p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-semibold text-[#1b1a17]">Alte compatibilități</h3>
+                    <p className="mt-1 text-xs text-[#6f6b63]">
+                      Aceeași piesă pe alte modele (Sprinter ↔ Crafter). Doar branduri și modele existente.
+                    </p>
+                  </div>
+                  <button
+                    className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                    type="button"
+                    onClick={addExtra}
+                  >
+                    + Adaugă compatibilitate
+                  </button>
+                </div>
+
+                {extras.length === 0 ? (
+                  <p className="mt-3 text-sm text-[#98948b]">Nicio compatibilitate suplimentară.</p>
+                ) : (
+                  <div className="mt-4 grid gap-3">
+                    {extras.map((extra, index) => (
+                      <div
+                        key={index}
+                        className="grid gap-3 rounded-md border border-[#efeeeb] p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6rem_6rem_auto] sm:items-end"
+                      >
+                        <input name="extraModelId" type="hidden" value={extra.modelId} readOnly />
+                        <input
+                          name="extraYearStart"
+                          type="hidden"
+                          value={extra.yearStart}
+                          readOnly
+                        />
+                        <input name="extraYearEnd" type="hidden" value={extra.yearEnd} readOnly />
+                        <input
+                          name="extraYearOpenEnded"
+                          type="hidden"
+                          value={extra.yearOpenEnded ? "1" : ""}
+                          readOnly
+                        />
+                        <Field label="Brand">
+                          <select
+                            className={inputClassName}
+                            value={extra.brandId}
+                            onChange={(event) =>
+                              patchExtra(index, { brandId: event.target.value, modelId: "" })
+                            }
+                          >
+                            <option value="">Alege brandul</option>
+                            {brands.map((brand) => (
+                              <option key={brand.id} value={brand.id}>
+                                {brand.name}
+                              </option>
+                            ))}
+                          </select>
+                        </Field>
+                        <Field label="Model">
+                          <select
+                            className={inputClassName}
+                            value={extra.modelId}
+                            onChange={(event) => patchExtra(index, { modelId: event.target.value })}
+                          >
+                            <option value="">
+                              {extra.brandId ? "Alege modelul" : "Alege întâi brandul"}
+                            </option>
+                            {models
+                              .filter((model) => model.brandId === extra.brandId)
+                              .map((model) => (
+                                <option key={model.id} value={model.id}>
+                                  {model.name}
+                                </option>
+                              ))}
+                          </select>
+                        </Field>
+                        <Field label="Ani de la">
+                          <input
+                            className={inputClassName}
+                            inputMode="numeric"
+                            placeholder="1995"
+                            value={extra.yearStart}
+                            onChange={(event) =>
+                              patchExtra(index, { yearStart: event.target.value })
+                            }
+                          />
+                        </Field>
+                        <Field label="Până la">
+                          <input
+                            className={inputClassName}
+                            disabled={extra.yearOpenEnded}
+                            inputMode="numeric"
+                            placeholder="2006"
+                            value={extra.yearEnd}
+                            onChange={(event) => patchExtra(index, { yearEnd: event.target.value })}
+                          />
+                        </Field>
+                        <div className="flex items-center gap-2">
+                          <label className="flex items-center gap-1.5 text-xs text-[#33312c]">
+                            <input
+                              checked={extra.yearOpenEnded}
+                              type="checkbox"
+                              onChange={(event) =>
+                                patchExtra(index, {
+                                  yearOpenEnded: event.target.checked,
+                                  yearEnd: event.target.checked ? "" : extra.yearEnd,
+                                })
+                              }
+                            />
+                            În continuare
+                          </label>
+                          <button
+                            aria-label={`Șterge compatibilitatea ${index + 1}`}
+                            className="button-danger rounded-md border border-[#e8e7e3] bg-white px-2 py-2 text-sm font-semibold text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2]"
+                            type="button"
+                            onClick={() => removeExtra(index)}
+                          >
+                            Șterge
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
 
               <label className="field-control flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-3 text-sm text-[#33312c]">
                 <input name="isLocal" type="checkbox" defaultChecked={product?.isLocal ?? false} />
