@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Printer, Search, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import {
   createInventoryAction,
@@ -22,6 +22,12 @@ import {
   drawerSecondaryButton,
 } from "@/app/components/operation-drawer";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
+import {
+  AddedLinesFilter,
+  LabelStickerCell,
+  StickerPrintButton,
+  matchesLineFilter,
+} from "@/app/operations/drawer-line-tools";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import type { WarehouseOption } from "@/app/operations/stock-document-dialog";
 
@@ -88,24 +94,6 @@ export function InventoryDialog({
     setLines((current) => current.map((line) => (line.id === id ? { ...line, ...patch } : line)));
   }
 
-  const needle = filter.trim().toLowerCase();
-  /** Rândurile filtrate rămân montate (doar ascunse) — altfel s-ar pierde din formular. */
-  const isVisible = (line: InventoryLine) =>
-    !needle || !line.productId || line.label.toLowerCase().includes(needle);
-
-  const stickerItems = lines.filter((line) => line.sticker && line.productId);
-  const stickerCount = stickerItems.reduce(
-    (sum, line) => sum + (Number(line.copies) || 0),
-    0,
-  );
-
-  function printLabels() {
-    const items = stickerItems
-      .map((line) => `${line.productId}:${Math.max(Number(line.copies) || 1, 1)}`)
-      .join(",");
-    window.open(`/print/labels?items=${items}&layout=grid`, "_blank");
-  }
-
   return (
     <>
       <button
@@ -151,29 +139,8 @@ export function InventoryDialog({
               description="Scrie cantitatea NUMĂRATĂ fizic — sistemul calculează singur diferența și o ajustează."
               action={
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="relative">
-                    <Search
-                      className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[#6f6b63]"
-                      aria-hidden="true"
-                    />
-                    <input
-                      aria-label="Caută în produsele adăugate"
-                      className="field-control h-9 w-56 rounded-md border border-[#e8e7e3] bg-white pl-8 pr-3 text-sm outline-none placeholder:text-[#98948b]"
-                      data-enter-skip
-                      placeholder="Caută în cele adăugate"
-                      type="search"
-                      value={filter}
-                      onChange={(event) => setFilter(event.currentTarget.value)}
-                    />
-                  </div>
-                  <button
-                    className={drawerSecondaryButton}
-                    disabled={stickerCount === 0}
-                    type="button"
-                    onClick={printLabels}
-                  >
-                    <Printer className="size-4" aria-hidden="true" /> Etichete ({stickerCount})
-                  </button>
+                  <AddedLinesFilter value={filter} onChange={setFilter} />
+                  <StickerPrintButton lines={lines} />
                   <button className={drawerSecondaryButton} type="button" onClick={addLine}>
                     <Plus className="size-4" aria-hidden="true" /> Adaugă produs
                   </button>
@@ -184,7 +151,7 @@ export function InventoryDialog({
                 <div
                   key={line.id}
                   className={`${drawerLineClassName} md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.75rem]`}
-                  style={isVisible(line) ? undefined : { display: "none" }}
+                  style={matchesLineFilter(filter, line) ? undefined : { display: "none" }}
                 >
                   <div>
                     <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
@@ -211,37 +178,12 @@ export function InventoryDialog({
                       onChange={(event) => patchLine(line.id, { counted: event.currentTarget.value })}
                     />
                   </DrawerField>
-                  <DrawerField label="Etichete">
-                    <div className="flex h-11 items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3">
-                      <input
-                        aria-label={`Etichetă pentru produsul ${index + 1}`}
-                        checked={line.sticker}
-                        className="size-4"
-                        data-enter-skip
-                        type="checkbox"
-                        onChange={(event) => {
-                          const sticker = event.currentTarget.checked;
-                          // La bifare pornim de la cantitatea numărată; se poate schimba.
-                          patchLine(line.id, {
-                            sticker,
-                            copies: sticker ? line.copies || line.counted || "1" : line.copies,
-                          });
-                        }}
-                      />
-                      <input
-                        aria-label={`Câte etichete pentru produsul ${index + 1}`}
-                        className="field-control h-8 w-16 rounded border border-[#e8e7e3] bg-white px-2 text-sm outline-none disabled:bg-[#f6f6f4] disabled:text-[#98948b]"
-                        data-enter-skip
-                        disabled={!line.sticker}
-                        inputMode="numeric"
-                        min={1}
-                        type="number"
-                        value={line.copies}
-                        onChange={(event) => patchLine(line.id, { copies: event.currentTarget.value })}
-                      />
-                      <span className="text-xs text-[#6f6b63]">buc</span>
-                    </div>
-                  </DrawerField>
+                  <LabelStickerCell
+                    index={index}
+                    defaultCopies={line.counted}
+                    line={line}
+                    onChange={(patch) => patchLine(line.id, patch)}
+                  />
                   <button
                     aria-label={`Șterge produsul ${index + 1}`}
                     className={drawerDangerButton}

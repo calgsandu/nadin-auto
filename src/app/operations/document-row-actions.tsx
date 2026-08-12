@@ -21,6 +21,12 @@ import {
 } from "@/app/components/operation-drawer";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
 import {
+  AddedLinesFilter,
+  LabelStickerCell,
+  StickerPrintButton,
+  matchesLineFilter,
+} from "@/app/operations/drawer-line-tools";
+import {
   deleteDocumentAction,
   updateDocumentLinesAction,
   type DocumentActionState,
@@ -43,7 +49,12 @@ export type DocLine = {
   externalSupplierId?: string;
   externalCost?: string;
 };
-type EditableLine = DocLine & { id: number };
+type EditableLine = DocLine & {
+  id: number;
+  /** Etichete de printat pentru rândul ăsta (doar client, nu se salvează). */
+  sticker?: boolean;
+  copies?: string;
+};
 
 /** Inventarul se editează pe diferența cu semn; restul documentelor pe cantități pozitive. */
 function normalizeQuantity(quantity: string, keepSign: boolean) {
@@ -181,6 +192,7 @@ function EditPanel({
       : [{ id: 1, productId: "", label: "", quantity: "", price: "" }],
   );
   const [nextLineId, setNextLineId] = useState(editableLines.length + 1);
+  const [filter, setFilter] = useState("");
 
   function addLine() {
     const id = nextLineId;
@@ -194,6 +206,12 @@ function EditPanel({
 
   function removeLine(id: number) {
     setEditableLines((current) => current.filter((line) => line.id !== id));
+  }
+
+  function patchLine(id: number, patch: Partial<EditableLine>) {
+    setEditableLines((current) =>
+      current.map((line) => (line.id === id ? { ...line, ...patch } : line)),
+    );
   }
 
   function setLineField(
@@ -268,10 +286,14 @@ function EditPanel({
               : "Cantitate și preț în lei."
           }
           action={
-            <button className={drawerSecondaryButton} type="button" onClick={addLine}>
-              <Plus className="size-4" aria-hidden="true" />
-              Adaugă produs
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <AddedLinesFilter value={filter} onChange={setFilter} />
+              <StickerPrintButton lines={editableLines} />
+              <button className={drawerSecondaryButton} type="button" onClick={addLine}>
+                <Plus className="size-4" aria-hidden="true" />
+                Adaugă produs
+              </button>
+            </div>
           }
         >
           {editableLines.map((line, index) => {
@@ -283,9 +305,10 @@ function EditPanel({
                   isExternal
                     ? "border-[#dbebfe] md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.75rem]"
                     : isInventory
-                      ? "md:grid-cols-[minmax(0,1fr)_10rem_2.75rem]"
-                      : "md:grid-cols-[minmax(0,1fr)_7rem_8rem_2.75rem]"
+                      ? "md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.75rem]"
+                      : "md:grid-cols-[minmax(0,1fr)_7rem_8rem_11rem_2.75rem]"
                 }`}
+                style={matchesLineFilter(filter, line) ? undefined : { display: "none" }}
               >
                 <div>
                   <p className={`mb-1.5 text-xs font-semibold ${isExternal ? "text-[#175cd3]" : "text-[#6f6b63]"}`}>
@@ -324,6 +347,10 @@ function EditPanel({
                         initialProduct={
                           line.productId ? { id: line.productId, label: line.label } : null
                         }
+                        onSelect={(product) =>
+                          patchLine(line.id, { productId: product.id, label: product.label })
+                        }
+                        onClear={() => patchLine(line.id, { productId: "", label: "" })}
                       />
                     </>
                   )}
@@ -367,6 +394,14 @@ function EditPanel({
                       onChange={(event) => setLineField(line.id, "price", event.currentTarget.value)}
                     />
                   </DrawerField>
+                )}
+                {isExternal ? null : (
+                  <LabelStickerCell
+                    index={index}
+                    defaultCopies={line.quantity.replace("-", "")}
+                    line={line}
+                    onChange={(patch) => patchLine(line.id, patch)}
+                  />
                 )}
                 <button
                   aria-label={`Șterge produsul ${index + 1}`}

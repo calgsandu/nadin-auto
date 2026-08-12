@@ -32,6 +32,19 @@ for (const file of DIALOGS) {
   }
 }
 
+// Etichetele și căutarea peste rândurile adăugate trebuie să fie în AMBELE
+// dialoguri de inventar: cel de creare și cel de editare a documentului.
+for (const file of [
+  "src/app/operations/inventory-dialog.tsx",
+  "src/app/operations/document-row-actions.tsx",
+]) {
+  const source = read(file);
+  assert.match(source, /<AddedLinesFilter/, `${file}: lipsește căutarea în cele adăugate`);
+  assert.match(source, /<StickerPrintButton/, `${file}: lipsește butonul de etichete`);
+  assert.match(source, /<LabelStickerCell/, `${file}: lipsește bifa de etichetă pe rând`);
+  assert.match(source, /matchesLineFilter\(filter, line\)/, `${file}: filtrul nu ascunde rândurile`);
+}
+
 const drawer = read("src/app/components/operation-drawer.tsx");
 assert.match(drawer, /DrawerPortal locked=\{open\}/, "panoul ascuns nu blochează scrollul paginii");
 assert.match(drawer, /beforeunload/, "ciorna nesalvată avertizează la refresh/închidere de tab");
