@@ -65,6 +65,9 @@ assert.match(combobox, /placeDropdown\(rect, window\.innerHeight\)/, "poziția v
 // Produsul ales se citește ca fișă (etichetele lungi nu mai sunt tăiate în input).
 assert.match(combobox, /function ProductCard\(/, "produsul ales trebuie afișat ca fișă");
 assert.match(combobox, /onDoubleClick=\{onEdit\}/, "dublu-click readuce câmpul de căutare");
+// Editarea pornește de la cod, iar ieșirea fără modificare păstrează produsul.
+assert.match(combobox, /setQuery\(productCode\(/, "editarea trebuie să pornească de la cod");
+assert.match(combobox, /cancelEditing\(\);/, "ieșirea fără modificare readuce fișa");
 
 const drawer = read("src/app/components/operation-drawer.tsx");
 assert.match(drawer, /DrawerPortal locked=\{open\}/, "panoul ascuns nu blochează scrollul paginii");

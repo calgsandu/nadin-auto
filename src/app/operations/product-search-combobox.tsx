@@ -38,6 +38,8 @@ export function ProductSearchCombobox({
   const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeItemRef = useRef<HTMLButtonElement>(null);
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
   const excludedIds = new Set(excludedProductIds);
   const visibleResults = results.filter((product) => !excludedIds.has(product.id));
   const onlyExcludedResults = results.length > 0 && visibleResults.length === 0;
@@ -45,7 +47,9 @@ export function ProductSearchCombobox({
   useEffect(() => {
     const normalized = query.trim();
 
-    if (selected?.label === query) {
+    // Cât timp rândul are produs (inclusiv la editarea codului) nu se caută:
+    // prima tastă îl deselectează și abia atunci pornește căutarea.
+    if (selected) {
       return;
     }
 
@@ -75,7 +79,7 @@ export function ProductSearchCombobox({
     }, 180);
 
     return () => window.clearTimeout(timeout);
-  }, [query, selected?.label]);
+  }, [query, selected]);
 
   useEffect(() => {
     activeItemRef.current?.scrollIntoView({ block: "nearest" });
@@ -122,7 +126,11 @@ export function ProductSearchCombobox({
   /** Săgeți prin rezultate, Enter alege și sare la cantitate. */
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Escape") {
-      if (!open) return; // lista e închisă: Escape închide drawerul
+      if (!open) {
+        // Lista e închisă: Escape renunță la editare, altfel închide drawerul.
+        if (cancelEditing()) event.stopPropagation();
+        return;
+      }
       event.stopPropagation();
       setOpen(false);
       return;
@@ -155,12 +163,23 @@ export function ProductSearchCombobox({
 
   const showCard = Boolean(selected) && !editing;
 
+  /** Editezi doar codul, nu toată eticheta; textul e selectat, deci o tastă îl înlocuiește. */
   function startEditing() {
     setEditing(true);
+    setQuery(productCode(selected?.label ?? ""));
     requestAnimationFrame(() => {
       inputRef.current?.focus();
       inputRef.current?.select();
     });
+  }
+
+  /** Ieșire fără modificare: produsul rămâne ales, fișa se pune la loc. */
+  function cancelEditing() {
+    const current = selectedRef.current;
+    if (!current) return false;
+    setQuery(current.label);
+    setEditing(false);
+    return true;
   }
 
   return (
@@ -187,7 +206,10 @@ export function ProductSearchCombobox({
           value={query}
           onKeyDown={handleKeyDown}
           onBlur={() => {
-            window.setTimeout(() => setOpen(false), 120);
+            window.setTimeout(() => {
+              setOpen(false);
+              cancelEditing();
+            }, 120);
           }}
           onChange={(event) => {
             const nextQuery = event.currentTarget.value;
@@ -277,6 +299,11 @@ export function ProductSearchCombobox({
       ) : null}
     </div>
   );
+}
+
+/** Codul produsului = prima bucată din etichetă („COD · MARCĂ MODEL · tip · ..."). */
+function productCode(label: string) {
+  return label.split(" · ")[0] ?? "";
 }
 
 /**
