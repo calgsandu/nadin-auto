@@ -29,10 +29,20 @@ export async function GET(request: NextRequest) {
     where: matchedIds ? { id: { in: matchedIds } } : undefined,
     include: productLabelInclude,
     orderBy: [{ fitment: { carModel: { brand: { name: "asc" } } } }, { sourceRow: "asc" }],
-    take: PRODUCT_SEARCH_LIMIT,
+    take: matchedIds ? undefined : PRODUCT_SEARCH_LIMIT,
   });
 
+  // Ordinea vine din scorul de relevanță, nu alfabetic după marcă: altfel primele
+  // 20 de rezultate erau pur și simplu mărcile de la începutul alfabetului.
+  const ranked = matchedIds
+    ? matchedIds
+        .map((id) => products.find((product) => product.id === id))
+        .filter((product) => product !== undefined)
+    : products;
+
   return Response.json({
-    products: products.map((product) => toProductSearchResult(product, includeCosts)),
+    products: ranked
+      .slice(0, PRODUCT_SEARCH_LIMIT)
+      .map((product) => toProductSearchResult(product, includeCosts)),
   });
 }

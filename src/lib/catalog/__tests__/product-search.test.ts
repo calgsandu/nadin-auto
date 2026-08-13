@@ -6,7 +6,13 @@ import {
 
 assert.equal(normalizeProductSearchQuery("  bmw   e90  "), "bmw e90");
 assert.equal(normalizeProductSearchQuery("ab"), "");
-assert.equal(normalizeProductSearchQuery("  123456789012345678901234567890  "), "12345678901234567890");
+// Interogările lungi nu se mai taie la 20 de caractere (tăia „…baza medie delfin 907"
+// la „…baza m" și scotea rezultate de la alt model).
+assert.equal(
+  normalizeProductSearchQuery("  Panou lateral baza medie delfin 907  "),
+  "Panou lateral baza medie delfin 907",
+);
+assert.equal(normalizeProductSearchQuery("x".repeat(120)).length, 80);
 
 assert.equal(
   formatProductSearchLabel({

@@ -28,8 +28,11 @@ export type ProductSearchLabelInput = ProductFitmentsInfo & {
   };
 };
 
+/** Plafon generos: „Panou lateral bază medie delfin 907" are 40 de caractere. */
+export const PRODUCT_SEARCH_MAX_QUERY = 80;
+
 export function normalizeProductSearchQuery(query: string) {
-  const normalized = query.trim().replace(/\s+/g, " ").slice(0, 20);
+  const normalized = query.trim().replace(/\s+/g, " ").slice(0, PRODUCT_SEARCH_MAX_QUERY);
 
   return normalized.length >= 3 ? normalized : "";
 }

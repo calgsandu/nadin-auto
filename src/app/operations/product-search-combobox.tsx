@@ -248,6 +248,12 @@ export function ProductSearchCombobox({
             maxHeight: box.maxHeight,
           }}
         >
+          {loading && visibleResults.length > 0 ? (
+            // Rezultatele afișate sunt încă cele de la tasta anterioară.
+            <div className="sticky top-0 border-b border-[#efeeeb] bg-[#fafaf9] px-3 py-1.5 text-xs font-semibold text-[#6f6b63]">
+              Se caută...
+            </div>
+          ) : null}
           {visibleResults.length > 0 ? (
             visibleResults.map((product, index) => (
               <button

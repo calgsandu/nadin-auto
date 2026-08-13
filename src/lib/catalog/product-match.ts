@@ -39,6 +39,20 @@ const NORMALIZED_TEXT = Prisma.sql`
     'ăâîíșşțţ', 'aaiisstt'
   )`;
 
+/** Denumirea piesei (ce scrie omul cel mai des): descriere + tip. */
+const NORMALIZED_PART = Prisma.sql`
+  translate(
+    lower(concat_ws(' ', p.description, p."descriptionRu", t.name)),
+    'ăâîíșşțţ', 'aaiisstt'
+  )`;
+
+/** Mașina: marcă, model, ani, plus compatibilitățile legate. */
+const NORMALIZED_VEHICLE = Prisma.sql`
+  translate(
+    lower(concat_ws(' ', b.name, m.name, f.label, f."labelRu", compat.txt)),
+    'ăâîíșşțţ', 'aaiisstt'
+  )`;
+
 const NORMALIZED_CODE = Prisma.sql`
   regexp_replace(
     upper(concat_ws(' ', p."externalCode", p."alternativeCode")),
@@ -56,10 +70,11 @@ const NORMALIZED_CODE = Prisma.sql`
  */
 export async function findMatchingProductIds(
   query: string,
-  limit = 500,
+  limit = 200,
 ): Promise<string[]> {
   const terms = searchTerms(query);
   const code = normalizeCode(query);
+  const phrase = normalizeText(query).trim();
   if (terms.length === 0 && !code) return [];
 
   const termConditions = terms.map(
@@ -71,8 +86,28 @@ export async function findMatchingProductIds(
     conditions.push(Prisma.sql`(${Prisma.join(termConditions, " AND ")})`);
   }
 
+  /*
+   * Scor de relevanță: codul exact bate tot, apoi fraza întreagă, apoi fiecare
+   * termen — mai greu în denumirea piesei decât în restul textului, cu bonus
+   * când termenul apare ca CUVÂNT întreg („907" nu doar ca bucată din 1907).
+   */
+  const termScores = terms.flatMap((term) => [
+    Prisma.sql`(CASE WHEN ${NORMALIZED_PART} LIKE ${`%${term}%`} THEN 30 ELSE 0 END)`,
+    Prisma.sql`(CASE WHEN ${NORMALIZED_VEHICLE} LIKE ${`%${term}%`} THEN 25 ELSE 0 END)`,
+    Prisma.sql`(CASE WHEN concat(' ', ${NORMALIZED_TEXT}, ' ') LIKE ${`% ${term} %`} THEN 12 ELSE 0 END)`,
+  ]);
+  const scoreParts: Prisma.Sql[] = [
+    Prisma.sql`(CASE
+      WHEN ${code} <> '' AND ${NORMALIZED_CODE} = ${code} THEN 1000
+      WHEN ${code} <> '' AND ${NORMALIZED_CODE} LIKE ${`${code}%`} THEN 600
+      WHEN ${code} <> '' AND ${NORMALIZED_CODE} LIKE ${`%${code}%`} THEN 300
+      ELSE 0 END)`,
+    Prisma.sql`(CASE WHEN ${phrase} <> '' AND ${NORMALIZED_PART} LIKE ${`%${phrase}%`} THEN 150 ELSE 0 END)`,
+    ...termScores,
+  ];
+
   const rows = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT p.id
+    SELECT p.id, (${Prisma.join(scoreParts, " + ")}) AS score
     FROM "Product" p
     JOIN "ProductType" t ON t.id = p."typeId"
     JOIN "VehicleFitment" f ON f.id = p."fitmentId"
@@ -87,7 +122,7 @@ export async function findMatchingProductIds(
       WHERE pf."productId" = p.id
     ) compat ON TRUE
     WHERE ${Prisma.join(conditions, " OR ")}
-    ORDER BY p.description ASC
+    ORDER BY score DESC, p.description ASC
     LIMIT ${limit}
   `;
 

@@ -69,6 +69,15 @@ assert.match(combobox, /onDoubleClick=\{onEdit\}/, "dublu-click readuce câmpul 
 assert.match(combobox, /setQuery\(productCode\(/, "editarea trebuie să pornească de la cod");
 assert.match(combobox, /cancelEditing\(\);/, "ieșirea fără modificare readuce fișa");
 
+// Rezultatele căutării vin în ordinea scorului de relevanță, nu alfabetic.
+const searchRoute = read("src/app/api/products/search/route.ts");
+assert.match(searchRoute, /matchedIds\s*\n?\s*\.map\(\(id\)/, "ruta trebuie să păstreze ordinea din scor");
+assert.match(
+  read("src/lib/catalog/product-match.ts"),
+  /ORDER BY score DESC/,
+  "potrivirile trebuie ordonate după scor",
+);
+
 const drawer = read("src/app/components/operation-drawer.tsx");
 assert.match(drawer, /DrawerPortal locked=\{open\}/, "panoul ascuns nu blochează scrollul paginii");
 assert.match(drawer, /beforeunload/, "ciorna nesalvată avertizează la refresh/închidere de tab");
