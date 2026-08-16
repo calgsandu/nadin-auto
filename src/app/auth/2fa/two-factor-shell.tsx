@@ -19,10 +19,7 @@ export function TwoFactorShell({
               <ShieldCheck className="size-5" aria-hidden="true" />
             </span>
             <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-[#175cd3]">
-                Nadin Auto · Securitate
-              </p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[#1b1a17]">{title}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-[#1b1a17]">{title}</h1>
             </div>
           </div>
           <p className="mt-4 text-sm leading-6 text-[#6f6b63]">{description}</p>

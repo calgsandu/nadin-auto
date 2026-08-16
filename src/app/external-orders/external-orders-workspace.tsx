@@ -236,7 +236,7 @@ function toFormValue(order: ExternalOrderRow): ExternalOrderFormValue {
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="motion-card rounded-xl border border-[#e8e7e3] bg-white px-4 py-3.5">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#98948b]">{label}</p>
+      <p className="text-sm font-medium text-[#6f6b63]">{label}</p>
       <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums text-[#1b1a17]">{value}</p>
     </div>
   );
@@ -251,7 +251,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#98948b] ${
+      className={`whitespace-nowrap px-4 py-2.5 text-[13px] font-semibold text-[#6f6b63] ${
         align === "right" ? "text-right" : "text-left"
       }`}
     >

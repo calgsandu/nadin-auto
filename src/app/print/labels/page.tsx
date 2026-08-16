@@ -161,10 +161,10 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
         <div>
           <h1 className="text-xl font-semibold text-[#1b1a17]">Stickere produse</h1>
           <p className="text-sm text-[#6f6b63]">
-            {products.length} produse · {labels.length} stickere ·{" "}
+            {products.length} produse, {labels.length} stickere,{" "}
             {layout === "roll"
               ? `rolă ${dim.w}×${dim.h} mm`
-              : `${sheets.length} ${sheets.length === 1 ? "foaie" : "foi"} A4 · ${dim.w}×${dim.h} mm · ${perSheet}/foaie`}
+              : `${sheets.length} ${sheets.length === 1 ? "foaie" : "foi"} A4, ${dim.w}×${dim.h} mm, ${perSheet}/foaie`}
           </p>
         </div>
         <LabelControls

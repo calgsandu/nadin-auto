@@ -7,6 +7,7 @@ import {
 } from "@/app/operations/actions";
 import {
   DrawerField,
+  DrawerMessage,
   DrawerSubmit,
   OperationDrawer,
   handleEnterNavigation,
@@ -15,6 +16,7 @@ import {
   drawerInputClassName,
   drawerSecondaryButton,
 } from "@/app/components/operation-drawer";
+import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 
 export type ReturnableSale = {
@@ -42,17 +44,35 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
   const [showFeedback, setShowFeedback] = useState(false);
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   async function returnAction(previousState: OperationActionState, formData: FormData) {
-    const nextState = await createReturnAction(previousState, formData);
+    // Înainte de trimitere: și rețeaua căzută trebuie să aibă unde să se vadă.
     setShowFeedback(true);
-    return nextState;
+    return createReturnAction(previousState, formData);
   }
-  // Fără resetul automat al React: la eroare rămâne tot completat.
-  const { state, pending, onSubmit } = useDrawerAction(returnAction, initialState, () => {
-    setOpen(false);
+  function resetForm() {
     setSaleId("");
     setDocumentDate(today);
     setNotes("");
     setQuantities({});
+  }
+  // Returul ține TOT în state (vânzarea aleasă, data, cantitățile), deci ciorna
+  // e chiar acest state.
+  const draft = useDrawerDraft({
+    kind: "return",
+    lines: { saleId, documentDate, notes, quantities },
+    setLines: (restored) => {
+      setSaleId(restored.saleId);
+      setDocumentDate(restored.documentDate);
+      setNotes(restored.notes);
+      setQuantities(restored.quantities);
+    },
+    reset: resetForm,
+  });
+  // Fără resetul automat al React: la eroare rămâne tot completat.
+  const { attachForm } = draft;
+  const { state, pending, onSubmit, retry } = useDrawerAction(returnAction, initialState, () => {
+    setOpen(false);
+    resetForm();
+    draft.clear();
   });
 
   const sale = sales.find((s) => s.id === saleId) ?? null;
@@ -79,13 +99,14 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
       </button>
       {open ? (
         <OperationDrawer
-          eyebrow="Document stoc"
           title="Retur marfă"
           pending={pending}
           submitLabel="Salvează returul"
+          draft={draft.banner}
           onClose={() => setOpen(false)}
         >
-          <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event)}>
+          <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event)}>
+                <input name="idempotencyKey" type="hidden" value={draft.token} />
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Data returului">
                     <input
@@ -110,8 +131,8 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                       <option value="">Alege vânzarea</option>
                       {sales.map((s) => (
                         <option key={s.id} value={s.id}>
-                          Vânzare #{s.number} · {s.dateLabel} · {s.warehouseName}
-                          {s.partnerName ? ` · ${s.partnerName}` : ""}
+                          Vânzare #{s.number}, {s.dateLabel}, {s.warehouseName}
+                          {s.partnerName ? `, ${s.partnerName}` : ""}
                         </option>
                       ))}
                     </select>
@@ -138,7 +159,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                             <div>
                               <p className="font-medium text-[#1b1a17]">{line.label}</p>
                               <p className="mt-0.5 text-xs text-[#6f6b63]">
-                                Vândut: {line.quantity} buc · {money(line.unitPriceLei)} lei/buc
+                                Vândut: {line.quantity} buc la {money(line.unitPriceLei)} lei/buc
                               </p>
                             </div>
                             <Field label="Retur (buc)">
@@ -191,15 +212,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                 </Field>
 
                 {showFeedback && state.message ? (
-                  <div
-                    className={`rounded-md border px-3 py-2 text-sm ${
-                      state.ok
-                        ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
-                        : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
-                    }`}
-                  >
-                    {state.message}
-                  </div>
+                  <DrawerMessage state={state} onRetry={retry} />
                 ) : null}
 
                 <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">

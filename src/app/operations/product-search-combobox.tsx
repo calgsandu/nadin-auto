@@ -300,7 +300,7 @@ export function ProductSearchCombobox({
 
       {showHint && !showCard ? (
         <p className="mt-1 text-xs font-medium text-[#6f6b63]">
-          Scrie cel puțin 3 caractere · ↑↓ alegi, Enter treci la cantitate.
+          Scrie cel puțin 3 caractere. ↑↓ alegi, Enter treci la cantitate.
         </p>
       ) : null}
     </div>
@@ -335,7 +335,7 @@ function ProductCard({ label, onEdit }: { label: string; onEdit: () => void }) {
     >
       <span className="font-mono font-semibold text-[#1b1a17]">{code}</span>
       {rest.length > 0 ? (
-        <span className="text-[#33312c]"> · {rest.join(" · ")}</span>
+        <span className="ml-2 text-[#33312c]">{rest.join(", ")}</span>
       ) : null}
     </div>
   );

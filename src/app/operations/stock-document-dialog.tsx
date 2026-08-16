@@ -10,6 +10,7 @@ import {
 } from "@/app/operations/actions";
 import {
   DrawerField,
+  DrawerMessage,
   DrawerSubmit,
   OperationDrawer,
   focusFirstLineSearch,
@@ -20,6 +21,7 @@ import {
   drawerInputClassName,
   drawerSecondaryButton,
 } from "@/app/components/operation-drawer";
+import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import { PRICE_CATEGORIES, applyDiscount } from "@/lib/operations/sale-pricing";
@@ -46,27 +48,74 @@ const initialState: OperationActionState = {
   message: "",
 };
 
+/**
+ * `label` nu se trimite la server: e acolo ca să se poată reface fișa
+ * produsului când ciorna e recuperată (combobox-ul primește `initialProduct`).
+ */
+type ReceiptLine = {
+  id: number;
+  productId: string;
+  label: string;
+  qty: string;
+  price: string;
+  oldCost: string;
+};
+
+const emptyReceiptLine = (id: number): ReceiptLine => ({
+  id,
+  productId: "",
+  label: "",
+  qty: "",
+  price: "",
+  oldCost: "",
+});
+
+/** Rândurile restaurate își păstrează id-urile — următorul rând nou trece peste ele. */
+function nextIdAfter(lines: { id: number }[]) {
+  return lines.reduce((max, line) => Math.max(max, line.id), 0) + 1;
+}
+
+function initialProductOf(line: { productId: string; label: string }) {
+  return line.productId ? { id: line.productId, label: line.label } : null;
+}
+
 export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDialogProps) {
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const nextLineId = useRef(2);
-  const [lines, setLines] = useState<
-    { id: number; productId: string; qty: string; price: string; oldCost: string }[]
-  >([{ id: 1, productId: "", qty: "", price: "", oldCost: "" }]);
+  const [lines, setLines] = useState<ReceiptLine[]>([emptyReceiptLine(1)]);
   // Rând nou cu id nou = căutările de produs se remontează golite.
-  const { state, pending, onSubmit } = useDrawerAction(createReceiptAction, initialState, () => {
+  function resetLines() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines([{ id, productId: "", qty: "", price: "", oldCost: "" }]);
+    setLines([emptyReceiptLine(id)]);
+  }
+  const draft = useDrawerDraft({
+    kind: "receipt",
+    lines,
+    setLines: (restored) => {
+      nextLineId.current = nextIdAfter(restored);
+      setLines(restored);
+    },
+    reset: resetLines,
   });
+  const { attachForm } = draft;
+  const { state, pending, onSubmit, retry } = useDrawerAction(
+    createReceiptAction,
+    initialState,
+    () => {
+      resetLines();
+      draft.clear();
+    },
+  );
   const defaultWarehouse = warehouses[0]?.id ?? "";
   const today = useMemo(() => formatDateInputValue(new Date()), []);
 
   function addLine() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [{ id, productId: "", qty: "", price: "", oldCost: "" }, ...current]);
+    setLines((current) => [emptyReceiptLine(id), ...current]);
     focusFirstLineSearch();
   }
 
@@ -90,10 +139,10 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
   }
 
   /** Prețul recepționat pornește de la costul curent și, dacă diferă, îl înlocuiește. */
-  function selectReceiptProduct(id: number, productId: string, cost: string) {
+  function selectReceiptProduct(id: number, productId: string, cost: string, label: string) {
     setLines((current) =>
       current.map((line) =>
-        line.id === id ? { ...line, productId, price: cost, oldCost: cost } : line,
+        line.id === id ? { ...line, productId, label, price: cost, oldCost: cost } : line,
       ),
     );
   }
@@ -120,14 +169,15 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
 
       {mounted ? (
         <OperationDrawer
-          eyebrow="Document stoc"
           title="Recepție marfă"
           open={open}
           pending={pending}
           submitLabel="Salvează recepția"
+          draft={draft.banner}
           onClose={() => setOpen(false)}
         >
-          <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+          <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+              <input name="idempotencyKey" type="hidden" value={draft.token} />
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <Field label="Data documentului">
                   <input
@@ -206,11 +256,14 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                         </p>
                         <ProductSearchCombobox
                           showHint={false}
+                          initialProduct={initialProductOf(line)}
                           excludedProductIds={lines
                             .filter((item) => item.id !== line.id)
                             .map((item) => item.productId)}
-                          onSelect={(p) => selectReceiptProduct(line.id, p.id, p.defaultCostLei)}
-                          onClear={() => selectReceiptProduct(line.id, "", "")}
+                          onSelect={(p) =>
+                            selectReceiptProduct(line.id, p.id, p.defaultCostLei, p.label)
+                          }
+                          onClear={() => selectReceiptProduct(line.id, "", "", "")}
                         />
                       </div>
                       <Field label="Cantitate">
@@ -250,7 +303,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                       <Field label="Valoare / TVA / fără TVA">
                         <div className="flex h-11 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[#6f6b63]">TVA {money(lineTva)} · net {money(lineNet)}</span>
+                          <span className="text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
                         </div>
                       </Field>
                       <LineControls
@@ -288,17 +341,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                 />
               </Field>
 
-              {state.message ? (
-                <div
-                  className={`rounded-md border px-3 py-2 text-sm ${
-                    state.ok
-                      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
-                      : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
-                  }`}
-                >
-                  {state.message}
-                </div>
-              ) : null}
+              <DrawerMessage state={state} onRetry={retry} />
 
               <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button
@@ -322,14 +365,32 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const nextLineId = useRef(2);
-  const [lines, setLines] = useState<{ id: number; productId: string }[]>([
-    { id: 1, productId: "" },
+  const [lines, setLines] = useState<{ id: number; productId: string; label: string }[]>([
+    { id: 1, productId: "", label: "" },
   ]);
-  const { state, pending, onSubmit } = useDrawerAction(createTransferAction, initialState, () => {
+  function resetLines() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines([{ id, productId: "" }]);
+    setLines([{ id, productId: "", label: "" }]);
+  }
+  const draft = useDrawerDraft({
+    kind: "transfer",
+    lines,
+    setLines: (restored) => {
+      nextLineId.current = nextIdAfter(restored);
+      setLines(restored);
+    },
+    reset: resetLines,
   });
+  const { attachForm } = draft;
+  const { state, pending, onSubmit, retry } = useDrawerAction(
+    createTransferAction,
+    initialState,
+    () => {
+      resetLines();
+      draft.clear();
+    },
+  );
   const defaultSourceWarehouse = warehouses[0]?.id ?? "";
   const defaultDestinationWarehouse =
     warehouses.find((warehouse) => warehouse.id !== defaultSourceWarehouse)?.id ?? "";
@@ -338,7 +399,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   function addLine() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [{ id, productId: "" }, ...current]);
+    setLines((current) => [{ id, productId: "", label: "" }, ...current]);
     focusFirstLineSearch();
   }
 
@@ -346,9 +407,9 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
     setLines((current) => current.filter((line) => line.id !== id));
   }
 
-  function setTransferProduct(id: number, productId: string) {
+  function setTransferProduct(id: number, productId: string, label: string) {
     setLines((current) =>
-      current.map((line) => (line.id === id ? { ...line, productId } : line)),
+      current.map((line) => (line.id === id ? { ...line, productId, label } : line)),
     );
   }
 
@@ -369,14 +430,15 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
 
       {mounted ? (
         <OperationDrawer
-          eyebrow="Document stoc"
           title="Transfer între locații"
           open={open}
           pending={pending}
           submitLabel="Salvează transferul"
+          draft={draft.banner}
           onClose={() => setOpen(false)}
         >
-          <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+          <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+              <input name="idempotencyKey" type="hidden" value={draft.token} />
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                 <Field label="Data transferului">
                   <input
@@ -447,11 +509,14 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                         </p>
                         <ProductSearchCombobox
                           showHint={false}
+                          initialProduct={initialProductOf(line)}
                           excludedProductIds={lines
                             .filter((item) => item.id !== line.id)
                             .map((item) => item.productId)}
-                          onSelect={(product) => setTransferProduct(line.id, product.id)}
-                          onClear={() => setTransferProduct(line.id, "")}
+                          onSelect={(product) =>
+                            setTransferProduct(line.id, product.id, product.label)
+                          }
+                          onClear={() => setTransferProduct(line.id, "", "")}
                         />
                       </div>
                       <Field label="Cantitate">
@@ -486,17 +551,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                 />
               </Field>
 
-              {state.message ? (
-                <div
-                  className={`rounded-md border px-3 py-2 text-sm ${
-                    state.ok
-                      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
-                      : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
-                  }`}
-                >
-                  {state.message}
-                </div>
-              ) : null}
+              <DrawerMessage state={state} onRetry={retry} />
 
               <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button
@@ -520,6 +575,8 @@ type SaleLineState = {
   /** Linie externă = piesă de la furnizor, în afara catalogului propriu. */
   external: boolean;
   productId: string;
+  /** Doar pentru ciornă: reface fișa produsului la recuperare. */
+  label: string;
   qty: string;
   price: string;
   name: string;
@@ -537,6 +594,7 @@ function emptySaleLine(id: number, external = false): SaleLineState {
     id,
     external,
     productId: "",
+    label: "",
     qty: "",
     price: "",
     name: "",
@@ -565,14 +623,33 @@ export function StockSaleDialog({
   const [customerId, setCustomerId] = useState("");
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<SaleLineState[]>([emptySaleLine(1)]);
-  const { state, pending, onSubmit } = useDrawerAction(createSaleAction, initialState, () => {
-    setOpen(false);
-    setMounted(false);
+  function resetForm() {
     setNewClient(false);
     setDiscount("0");
     setCustomerId("");
     nextLineId.current = 2;
     setLines([emptySaleLine(1)]);
+  }
+  // Discountul, clientul și linia externă sunt state React (nu câmpuri
+  // necontrolate): intră în ciornă cu tot cu linii, altfel s-ar pierde.
+  const draft = useDrawerDraft({
+    kind: "sale",
+    lines: { lines, discount, customerId, newClient },
+    setLines: (restored) => {
+      nextLineId.current = nextIdAfter(restored.lines);
+      setLines(restored.lines);
+      setDiscount(restored.discount);
+      setCustomerId(restored.customerId);
+      setNewClient(restored.newClient);
+    },
+    reset: resetForm,
+  });
+  const { attachForm } = draft;
+  const { state, pending, onSubmit, retry } = useDrawerAction(createSaleAction, initialState, () => {
+    setOpen(false);
+    setMounted(false);
+    resetForm();
+    draft.clear();
   });
   const defaultWarehouse =
     warehouses.find((warehouse) => warehouse.name === "Pavilion 110A")?.id ??
@@ -599,13 +676,17 @@ export function StockSaleDialog({
     setLines((current) => current.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
   }
 
-  function selectProduct(id: number, product: { id: string; salePriceLei: string; defaultCostLei: string }) {
+  function selectProduct(
+    id: number,
+    product: { id: string; label: string; salePriceLei: string; defaultCostLei: string },
+  ) {
     setLines((current) =>
       current.map((line) =>
         line.id === id
           ? {
               ...line,
               productId: product.id,
+              label: product.label,
               listPrice: product.salePriceLei,
               unitCost: product.defaultCostLei,
               price: applyDiscount(product.salePriceLei, discount) || product.salePriceLei,
@@ -640,7 +721,7 @@ export function StockSaleDialog({
 
   function clearProduct(id: number) {
     setLines((current) =>
-      current.map((line) => (line.id === id ? { ...line, productId: "" } : line)),
+      current.map((line) => (line.id === id ? { ...line, productId: "", label: "" } : line)),
     );
   }
 
@@ -667,14 +748,15 @@ export function StockSaleDialog({
       </button>
       {mounted ? (
         <OperationDrawer
-          eyebrow="Document stoc"
           title="Vânzare marfă"
           open={open}
           pending={pending}
           submitLabel="Salvează vânzarea"
+          draft={draft.banner}
           onClose={() => setOpen(false)}
         >
-          <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+          <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+              <input name="idempotencyKey" type="hidden" value={draft.token} />
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Data vânzării">
                   <input className={inputClassName} defaultValue={today} name="documentDate" type="date" />
@@ -805,7 +887,7 @@ export function StockSaleDialog({
                         <div key={line.id} className="motion-line-item grid gap-3 rounded-md border border-[#dbebfe] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_7rem_10rem_5rem_7rem_8rem_5.5rem] md:items-start">
                           <div>
                             <p className="mb-1.5 text-xs font-semibold text-[#175cd3]">
-                              Piesă externă {index + 1} · de la furnizor, nu intră în catalog/stoc
+                              Piesă externă {index + 1} — de la furnizor, nu intră în catalog/stoc
                             </p>
                             <input name="productId" type="hidden" value="" />
                             <input
@@ -902,6 +984,7 @@ export function StockSaleDialog({
                         <input name="externalCostLei" type="hidden" value="" />
                         <ProductSearchCombobox
                           excludedProductIds={lines.filter((item) => item.id !== line.id).map((item) => item.productId)}
+                          initialProduct={initialProductOf(line)}
                           showHint={false}
                           onClear={() => clearProduct(line.id)}
                           onSelect={(p) => selectProduct(line.id, p)}
@@ -934,9 +1017,9 @@ export function StockSaleDialog({
                         {line.listPrice ? (
                           <span className="font-mono text-[11px] text-[#6f6b63]">
                             listă {money(Number(line.listPrice))}
-                            {line.unitCost ? ` · cost ${money(Number(line.unitCost))}` : ""}
+                            {line.unitCost ? `, cost ${money(Number(line.unitCost))}` : ""}
                             {line.unitCost && Number(line.price) > 0
-                              ? ` · marjă ${Math.round(((Number(line.price) - Number(line.unitCost)) / Number(line.price)) * 100)}%`
+                              ? `, marjă ${Math.round(((Number(line.price) - Number(line.unitCost)) / Number(line.price)) * 100)}%`
                               : ""}
                           </span>
                         ) : null}
@@ -944,7 +1027,7 @@ export function StockSaleDialog({
                       <Field label="Valoare / TVA / fără TVA">
                         <div className="flex h-11 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[#6f6b63]">TVA {money(lineTva)} · net {money(lineNet)}</span>
+                          <span className="text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
                         </div>
                       </Field>
                       <LineControls
@@ -977,11 +1060,7 @@ export function StockSaleDialog({
               <Field label="Notițe">
                 <textarea className={`${inputClassName} min-h-24 resize-y py-3`} name="notes" placeholder="client, comandă, explicații" />
               </Field>
-              {state.message ? (
-                <div className={`rounded-md border px-3 py-2 text-sm ${state.ok ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]" : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"}`}>
-                  {state.message}
-                </div>
-              ) : null}
+              <DrawerMessage state={state} onRetry={retry} />
               <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>Anulează</button>
                 <SubmitButton label="Salvează vânzarea" pending={pending} />

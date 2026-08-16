@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ActionFeedback } from "@/app/components/action-feedback";
 import {
@@ -19,6 +19,7 @@ import {
   drawerLineClassName,
   drawerSecondaryButton,
 } from "@/app/components/operation-drawer";
+import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
 import {
   AddedLinesFilter,
@@ -178,21 +179,45 @@ function EditPanel({
   setOpen,
   onSaved,
 }: EditProps & { open: boolean; setOpen: (v: boolean) => void; onSaved: () => void }) {
-  const { state, pending, onSubmit } = useDrawerAction(updateDocumentLinesAction, initial, () => {
-    setOpen(false);
-    onSaved();
-  });
-  const [editableLines, setEditableLines] = useState<EditableLine[]>(() =>
-    lines.length > 0
-      ? lines.map((line, index) => ({
-          ...line,
-          id: index + 1,
-          quantity: normalizeQuantity(line.quantity, isInventory),
-        }))
-      : [{ id: 1, productId: "", label: "", quantity: "", price: "" }],
+  const savedLines = useMemo<EditableLine[]>(
+    () =>
+      lines.length > 0
+        ? lines.map((line, index) => ({
+            ...line,
+            id: index + 1,
+            quantity: normalizeQuantity(line.quantity, isInventory),
+          }))
+        : [{ id: 1, productId: "", label: "", quantity: "", price: "" }],
+    [lines, isInventory],
   );
+  const [editableLines, setEditableLines] = useState<EditableLine[]>(savedLines);
   const [nextLineId, setNextLineId] = useState(editableLines.length + 1);
   const [filter, setFilter] = useState("");
+  // Ciorna e per document: modificările neterminate la #12 nu au ce căuta la #13.
+  // Rândurile primesc id-uri noi la recuperare, ca fișele de produs să se refacă.
+  const draft = useDrawerDraft({
+    kind: `doc-edit:${id}`,
+    lines: editableLines,
+    setLines: (restored) => {
+      setEditableLines(restored.map((line, index) => ({ ...line, id: nextLineId + index })));
+      setNextLineId(nextLineId + restored.length);
+    },
+    reset: () => {
+      setEditableLines(savedLines);
+      setNextLineId(savedLines.length + 1);
+      setFilter("");
+    },
+  });
+  const { attachForm } = draft;
+  const { state, pending, onSubmit, retry } = useDrawerAction(
+    updateDocumentLinesAction,
+    initial,
+    () => {
+      setOpen(false);
+      draft.clear();
+      onSaved();
+    },
+  );
 
   function addLine() {
     const id = nextLineId;
@@ -226,14 +251,14 @@ function EditPanel({
 
   return (
     <OperationDrawer
-      eyebrow="Document stoc"
       title={title}
       open={open}
       pending={pending}
       submitLabel="Salvează"
+      draft={draft.banner}
       onClose={() => setOpen(false)}
     >
-      <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+      <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
         <input type="hidden" name="id" value={id} />
         <div className="grid gap-4 md:grid-cols-2">
           <DrawerField label={isInventory ? "Data inventarului" : "Data documentului"}>
@@ -433,7 +458,7 @@ function EditPanel({
           />
         </DrawerField>
 
-        <DrawerMessage state={state} />
+        <DrawerMessage state={state} onRetry={retry} />
         <DrawerFooter onCancel={() => setOpen(false)} pending={pending} submitLabel="Salvează" />
       </form>
     </OperationDrawer>

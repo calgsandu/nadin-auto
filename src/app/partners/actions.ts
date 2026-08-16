@@ -6,6 +6,7 @@ import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { parsePartnerForm } from "@/lib/partners/validate";
 import { logAudit } from "@/lib/audit";
+import { isDuplicateKeyError, readToken } from "@/lib/operations/idempotency";
 
 export type PartnerActionState = {
   ok: boolean;
@@ -109,6 +110,17 @@ export async function registerPartnerPaymentAction(
       throw new Error("Nu ai drepturi pentru încasări.");
     }
 
+    const token = readToken(formData);
+    if (token) {
+      const already = await prisma.partnerPayment.findUnique({
+        where: { idempotencyKey: token },
+        select: { amount: true },
+      });
+      if (already) {
+        return { ok: true, message: `Încasarea de ${Number(already.amount)} lei era deja înregistrată.` };
+      }
+    }
+
     const partnerId = readString(formData, "partnerId");
     const raw = readString(formData, "amount").replace(",", ".");
     const amount = Number(raw);
@@ -129,7 +141,7 @@ export async function registerPartnerPaymentAction(
     if (!partner) throw new Error("Partenerul nu există.");
 
     const payment = await prisma.partnerPayment.create({
-      data: { partnerId, amount, paidAt, notes },
+      data: { partnerId, amount, paidAt, notes, idempotencyKey: token },
     });
     await logAudit(prisma, user, {
       action: "CREATE",
@@ -152,6 +164,10 @@ function readString(formData: FormData, key: string) {
 }
 
 function toActionError(error: unknown): PartnerActionState {
+  // Aceeași încasare trimisă de două ori în paralel: baza a respins-o pe a doua.
+  if (isDuplicateKeyError(error)) {
+    return { ok: true, message: "Încasarea era deja înregistrată." };
+  }
   if (error instanceof Error) {
     return { ok: false, message: error.message };
   }

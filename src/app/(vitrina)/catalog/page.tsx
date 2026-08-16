@@ -53,8 +53,8 @@ export default async function CatalogPage() {
             {copy.home.title}
           </h1>
           <p data-hero className="mt-5 text-base text-white/90 [text-shadow:0_1px_12px_rgb(0_0_0_/_0.36)] md:text-lg">
-            {numberFormat.format(totals.products)} · {copy.common.brands(totals.brands)}
-            · {copy.common.models(totals.models)}
+            {copy.common.parts(totals.products)}, {copy.common.brands(totals.brands)},{" "}
+            {copy.common.models(totals.models)}
           </p>
           <div data-hero className="mt-9 flex flex-wrap justify-center gap-4">
             <Link
@@ -94,7 +94,7 @@ export default async function CatalogPage() {
                         className="h-9 w-full object-contain"
                       />
                     ) : (
-                      <span className="text-sm font-semibold uppercase tracking-wider text-[#1b1a17]">
+                      <span className="text-base font-semibold text-[#1b1a17]">
                         {brand.name}
                       </span>
                     )}
@@ -106,7 +106,7 @@ export default async function CatalogPage() {
         </div>
       </section>
 
-      <section id="categorii" className="mx-auto max-w-6xl px-6 py-24 md:py-40">
+      <section id="categorii" className="mx-auto max-w-6xl scroll-mt-28 px-6 py-20 md:py-40">
         <Reveal>
           <h2 className="max-w-4xl text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
             {copy.home.categoryTitle}{" "}<span className="text-[#2e90fa]">{copy.home.categoryAccent}</span>.
@@ -164,7 +164,7 @@ export default async function CatalogPage() {
         </Reveal>
       </section>
 
-      <section id="marci" className="mx-auto max-w-6xl px-6 py-24 md:py-40">
+      <section id="marci" className="mx-auto max-w-6xl scroll-mt-28 px-6 py-20 md:py-40">
         <Reveal>
           <h2 className="max-w-4xl text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
             {copy.home.brandsTitle}
@@ -178,11 +178,11 @@ export default async function CatalogPage() {
                 key={brand.slug}
                 href={catalogHref(locale, `/${brand.slug}`)}
                 data-stagger
-                className="group rounded-2xl border border-black/10 bg-white p-5 transition-colors hover:border-[#2e90fa]/60 hover:bg-[#2e90fa]/5"
+                className="group rounded-2xl border border-black/10 bg-white p-4 transition-colors hover:border-[#2e90fa]/60 hover:bg-[#2e90fa]/5 sm:p-5"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex min-w-0 flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
                   {logo ? (
-                    <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-black/10 bg-white p-1.5">
+                    <span className="grid size-9 shrink-0 place-items-center sm:size-11">
                       <Image
                         src={logo}
                         alt={brand.name}
@@ -192,12 +192,12 @@ export default async function CatalogPage() {
                       />
                     </span>
                   ) : null}
-                  <p className="truncate text-base font-semibold tracking-tight group-hover:text-[#2e90fa]">
+                  <p className="min-w-0 text-sm font-semibold leading-tight tracking-tight group-hover:text-[#2e90fa] sm:text-base">
                     {brand.name}
                   </p>
                 </div>
-                <p className="mt-3 font-mono text-xs text-[#6f6a61]">
-                  {copy.common.models(brand.modelCount)} · {copy.common.parts(brand.productCount)}
+                <p className="mt-3 text-sm text-[#6f6a61]">
+                  {copy.common.models(brand.modelCount)}, {copy.common.parts(brand.productCount)}
                 </p>
               </Link>
             );

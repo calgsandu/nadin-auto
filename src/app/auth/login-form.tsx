@@ -56,26 +56,18 @@ export function LoginForm() {
   return (
     <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-[#e3e1dc] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.35)] md:grid-cols-2">
       <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#1b1a17] p-10 text-white md:flex">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#2e90fa]/20 blur-2xl"
-        />
         <div className="relative">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.3em] text-[#2e90fa]">
-            Depozit · Produse auto
-          </p>
-          <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-tight">
+          <h1 className="text-4xl font-semibold leading-tight tracking-tight">
             Nadin Auto
           </h1>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#a8a49b]">
             Catalog, stoc și operațiuni de depozit într-un singur loc.
           </p>
         </div>
-        <ul className="relative space-y-3 text-sm text-[#d6d3cd]">
+        <ul className="relative text-sm text-[#d6d3cd]">
           {["Catalog cu 1.900+ produse", "Recepții, vânzări și transferuri", "Acces controlat pentru personal"].map(
             (item) => (
-              <li key={item} className="flex items-center gap-3">
-                <span className="size-1.5 shrink-0 rounded-full bg-[#2e90fa]" />
+              <li key={item} className="border-t border-white/10 py-3 last:pb-0">
                 {item}
               </li>
             ),
@@ -84,12 +76,8 @@ export function LoginForm() {
       </aside>
 
       <section className="bg-[#fafaf9] p-8 sm:p-10">
-        <div className="md:hidden">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#175cd3]">
-            Nadin Auto
-          </p>
-        </div>
-        <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">Bine ai revenit</h2>
+        <p className="text-base font-bold text-[#1b1a17] md:hidden">Nadin Auto</p>
+        <h2 className="mt-4 text-2xl font-semibold text-[#1b1a17] md:mt-0">Bine ai revenit</h2>
         <p className="mt-1 text-sm text-[#6f6b63]">
           Autentifică-te cu datele primite de la administrator.
         </p>

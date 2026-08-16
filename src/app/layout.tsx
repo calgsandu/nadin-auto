@@ -1,19 +1,14 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { NeonAuthUIProvider } from "@neondatabase/auth/react";
 import { authClient } from "@/lib/auth/client";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const appFont = Manrope({
+  variable: "--font-app",
+  subsets: ["latin", "latin-ext", "cyrillic"],
 });
 
 export const metadata: Metadata = {
@@ -35,7 +30,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${appFont.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#f6f6f4] text-[#1b1a17]">
         <Script id="crm-sidebar-state" strategy="beforeInteractive">

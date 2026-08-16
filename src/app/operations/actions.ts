@@ -22,6 +22,11 @@ import { parseRequiredSalePaymentMethod } from "@/lib/operations/sale-payment-me
 import { reconcileSaleRestockTasks } from "@/lib/operations/restock";
 import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
 import {
+  findByToken,
+  isDuplicateKeyError,
+  readToken,
+} from "@/lib/operations/idempotency";
+import {
   executeSale,
   saleRequestSummary,
   validateSaleRequest,
@@ -58,6 +63,11 @@ export async function createReceiptAction(
 ): Promise<OperationActionState> {
   try {
     const user = await requireOperationsWrite();
+    const token = readToken(formData);
+    const alreadySaved = token ? await findByToken(prisma.stockDocument, token) : null;
+    if (alreadySaved) {
+      return { ok: true, message: `Recepția era deja salvată (nr. ${alreadySaved.number}).` };
+    }
     const warehouseId = readString(formData, "warehouseId");
     const documentDate = readDate(formData, "documentDate");
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
@@ -90,6 +100,7 @@ export async function createReceiptAction(
           partnerId,
           notes,
           externalNumber: readString(formData, "externalNumber") || null,
+          idempotencyKey: token,
           totalLei: calculateReceiptTotalLei(lines),
           lines: {
             create: lines,
@@ -142,6 +153,13 @@ export async function createTransferAction(
 ): Promise<OperationActionState> {
   try {
     const user = await requireOperationsWrite();
+    // Transferul scrie două documente-pereche; token-ul stă pe jumătatea de
+    // ieșire, deci tot ea e cea căutată la verificare.
+    const token = readToken(formData);
+    const alreadySaved = token ? await findByToken(prisma.stockDocument, token) : null;
+    if (alreadySaved) {
+      return { ok: true, message: `Transferul era deja salvat (nr. ${alreadySaved.number}).` };
+    }
     const sourceWarehouseId = readString(formData, "sourceWarehouseId");
     const destinationWarehouseId = readString(formData, "destinationWarehouseId");
     const documentDate = readDate(formData, "documentDate");
@@ -175,6 +193,7 @@ export async function createTransferAction(
           documentDate,
           warehouseId: sourceWarehouseId,
           transferGroupId,
+          idempotencyKey: token,
           notes: `${transferNote}. Ieșire către locația destinație.`,
           lines: {
             create: lines.map((line) => ({
@@ -243,6 +262,11 @@ export async function createSaleAction(
 ): Promise<OperationActionState> {
   try {
     const user = await requireSalesWrite();
+    const token = readToken(formData);
+    const alreadySaved = token ? await findByToken(prisma.stockDocument, token) : null;
+    if (alreadySaved) {
+      return { ok: true, message: `Vânzarea era deja salvată (nr. ${alreadySaved.number}).` };
+    }
     const warehouseId = readString(formData, "warehouseId");
     const documentDate = readDate(formData, "documentDate");
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
@@ -305,7 +329,7 @@ export async function createSaleAction(
     }
 
     const sale = await prisma.$transaction((tx) =>
-      executeSale(tx, user, payload),
+      executeSale(tx, user, payload, token),
     );
     revalidatePath("/crm");
     return {
@@ -323,6 +347,11 @@ export async function createReturnAction(
 ): Promise<OperationActionState> {
   try {
     const user = await requireOperationsWrite();
+    const token = readToken(formData);
+    const alreadySaved = token ? await findByToken(prisma.stockDocument, token) : null;
+    if (alreadySaved) {
+      return { ok: true, message: `Returul era deja salvat (nr. ${alreadySaved.number}).` };
+    }
     const saleDocumentId = readString(formData, "saleDocumentId");
     const documentDate = readDate(formData, "documentDate");
     const notes = readString(formData, "notes");
@@ -431,6 +460,7 @@ export async function createReturnAction(
           warehouseId: sale.warehouseId,
           partnerId: sale.partnerId,
           sourceDocumentId: sale.id,
+          idempotencyKey: token,
           notes: notes
             ? `Retur pentru Vânzare #${sale.number}. ${notes}`
             : `Retur pentru Vânzare #${sale.number}`,
@@ -475,6 +505,11 @@ export async function createInventoryAction(
 ): Promise<OperationActionState> {
   try {
     const user = await requireOperationsWrite();
+    const token = readToken(formData);
+    const alreadySaved = token ? await findByToken(prisma.stockDocument, token) : null;
+    if (alreadySaved) {
+      return { ok: true, message: `Inventarul era deja salvat (nr. ${alreadySaved.number}).` };
+    }
     const warehouseId = readString(formData, "warehouseId");
     const documentDate = readDate(formData, "documentDate");
     const notes = readString(formData, "notes");
@@ -538,6 +573,7 @@ export async function createInventoryAction(
           number: await nextDocumentNumber(tx, "ADJUSTMENT"),
           documentDate,
           warehouseId,
+          idempotencyKey: token,
           notes: notes ? `Inventar: ${notes}` : "Inventar",
           lines: { create: diffs },
         },
@@ -768,6 +804,11 @@ function readDate(formData: FormData, key: string) {
 }
 
 function toActionError(error: unknown): OperationActionState {
+  // Două trimiteri ale aceleiași ciorne intrate în paralel: baza a respins-o pe
+  // a doua, deci documentul EXISTĂ — pentru operator e o salvare reușită.
+  if (isDuplicateKeyError(error)) {
+    return { ok: true, message: "Documentul era deja salvat." };
+  }
   if (error instanceof Error) {
     return { ok: false, message: error.message };
   }

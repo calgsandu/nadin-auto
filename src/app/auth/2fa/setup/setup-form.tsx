@@ -24,7 +24,7 @@ export function SetupForm({
   return (
     <div className="grid gap-5">
       <div className="rounded-xl border border-[#e8e7e3] bg-[#fafaf9] p-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b63]">
+        <p className="text-sm font-semibold text-[#6f6b63]">
           Cheie manuală
         </p>
         <code className="mt-2 block break-all font-mono text-sm font-semibold tracking-[0.12em] text-[#1b1a17]">

@@ -77,10 +77,8 @@ function Metric({
   };
   return (
     <div className={`rounded-xl px-4 py-4 ${colors[tone]}`}>
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] opacity-70">
-        {label}
-      </p>
-      <p className="mt-2 font-mono text-3xl font-bold tabular-nums">{value}</p>
+      <p className="text-sm font-medium opacity-70">{label}</p>
+      <p className="mt-2 text-3xl font-bold tabular-nums">{value}</p>
     </div>
   );
 }
@@ -138,7 +136,7 @@ function ApprovalCard({
           </div>
           <h3 className="mt-2 font-semibold text-[#1b1a17]">{entry.summary}</h3>
           <p className="mt-1 text-xs text-[#98948b]">
-            {entry.requestedByName || entry.requestedByEmail || "Utilizator"} ·{" "}
+            {entry.requestedByName || entry.requestedByEmail || "Utilizator"},{" "}
             {dateTimeFormat.format(entry.createdAt)}
           </p>
         </div>

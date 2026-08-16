@@ -110,6 +110,8 @@ export async function executeSale(
   tx: Prisma.TransactionClient,
   actor: AuditActor,
   payload: PendingSalePayload,
+  /** Cheia formularului: aceeași vânzare retrimisă nu poate intra de două ori. */
+  idempotencyKey: string | null = null,
 ) {
   const warehouse = await validateSaleRequest(tx, payload);
   const partnerId = await resolveCustomer(tx, payload);
@@ -144,6 +146,7 @@ export async function executeSale(
       paymentMethod: payload.paymentMethod,
       externalNumber: payload.externalNumber,
       discountPercent: payload.discountPercent,
+      idempotencyKey,
       totalLei: saleTotalLei(payload),
       lines: { create: lines },
     },

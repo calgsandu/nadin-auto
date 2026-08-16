@@ -91,7 +91,7 @@ export default async function BrandPage({
               </h1>
             </div>
             <p className="mt-4 text-base text-[#57534a] md:text-lg">
-              {copy.common.models(brand.models.length)} · {copy.common.parts(total)}
+              {copy.common.models(brand.models.length)}, {copy.common.parts(total)}
             </p>
           </Reveal>
         </div>
@@ -124,7 +124,7 @@ export default async function BrandPage({
                     <p className="truncate text-xl font-semibold tracking-tight group-hover:text-[#2e90fa]">
                       {model.name}
                     </p>
-                    <p className="mt-2 font-mono text-xs text-[#6f6a61]">
+                    <p className="mt-2 text-sm text-[#6f6a61]">
                       {model.years ?? copy.common.allYears}
                     </p>
                   </div>

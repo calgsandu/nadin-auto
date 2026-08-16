@@ -14,6 +14,7 @@ import {
   drawerFormClassName,
   drawerInputClassName,
 } from "@/app/components/operation-drawer";
+import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 
 const initial: PartnerActionState = { ok: false, message: "" };
@@ -31,12 +32,21 @@ export function PartnerPaymentDialog({
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
-  const { state, pending, onSubmit } = useDrawerAction(
+  // Încasarea n-are state controlat: ciorna e formată doar din câmpuri.
+  const draft = useDrawerDraft({
+    kind: `partner-payment:${partnerId}`,
+    lines: null,
+    setLines: () => {},
+    reset: () => {},
+  });
+  const { attachForm } = draft;
+  const { state, pending, onSubmit, retry } = useDrawerAction(
     registerPartnerPaymentAction,
     initial,
     () => {
       setOpen(false);
       setMounted(false);
+      draft.clear();
     },
   );
   const today = useMemo(() => formatDateInputValue(new Date()), []);
@@ -55,16 +65,17 @@ export function PartnerPaymentDialog({
       </button>
       {mounted ? (
         <OperationDrawer
-          eyebrow="Parteneri"
           title={`Încasare — ${partnerName}`}
           size="narrow"
           open={open}
           pending={pending}
           submitLabel="Salvează încasarea"
+          draft={draft.banner}
           onClose={() => setOpen(false)}
         >
-          <form onSubmit={onSubmit} className={drawerFormClassName}>
+          <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName}>
             <input type="hidden" name="partnerId" value={partnerId} />
+            <input name="idempotencyKey" type="hidden" value={draft.token} />
             <div className="grid gap-4 md:grid-cols-2">
               <DrawerField label="Suma încasată (lei)" hint={`Datorie curentă: ${balanceLei.toFixed(2)} lei`}>
                 <input
@@ -90,7 +101,7 @@ export function PartnerPaymentDialog({
                 placeholder="numerar, transfer, cine a predat banii"
               />
             </DrawerField>
-            <DrawerMessage state={state} />
+            <DrawerMessage state={state} onRetry={retry} />
             <DrawerFooter onCancel={() => setOpen(false)} pending={pending} submitLabel="Salvează încasarea" />
           </form>
         </OperationDrawer>

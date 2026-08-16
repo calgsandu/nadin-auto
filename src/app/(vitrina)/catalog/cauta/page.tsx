@@ -38,8 +38,7 @@ export default async function SearchPage({
 
   return (
     <section className="mx-auto max-w-4xl px-6 pb-24 pt-36 md:pt-44">
-      <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#2e90fa]">{copy.search.eyebrow}</p>
-      <h1 className="mt-3 text-4xl font-bold tracking-tight md:text-5xl">{copy.search.title}</h1>
+      <h1 className="text-4xl font-bold tracking-tight md:text-5xl">{copy.search.title}</h1>
       <p className="mt-4 text-[#6f6a61]">{copy.search.description}</p>
       <div className="mt-8">
         <Suspense>
@@ -53,7 +52,7 @@ export default async function SearchPage({
             ? locale === "ru"
               ? `По запросу «${query}» ничего не найдено. Попробуйте код или модель.`
               : `Nimic găsit pentru „${query}”. Încearcă un cod sau numele modelului.`
-            : `${hits.length}${hits.length === 80 ? "+" : ""} ${copy.search.results(hits.length).replace(/^\d+\s*/, "")} · „${query}”`}
+            : `${hits.length}${hits.length === 80 ? "+" : ""} ${copy.search.results(hits.length).replace(/^\d+\s*/, "")} pentru „${query}”`}
         </p>
       ) : (
         <p className="mt-10 text-sm text-[#6f6a61]">
@@ -72,8 +71,10 @@ export default async function SearchPage({
               <p className="text-base font-medium leading-snug group-hover:text-[#2e90fa]">
                 {hit.description}
               </p>
-              <p className="mt-1.5 font-mono text-xs text-[#6f6a61]">
-                {hit.code ?? "—"} · {hit.brand} {hit.model} · {hit.fitLabel}
+              <p className="mt-1.5 text-sm text-[#6f6a61]">
+                <span className="font-semibold text-[#1b1a17]">{hit.code ?? "—"}</span>{" "}
+                <span className="ml-2">{hit.brand} {hit.model}</span>{" "}
+                <span className="ml-2">{hit.fitLabel}</span>
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-3">

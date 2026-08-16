@@ -2623,6 +2623,7 @@ export const StockDocumentScalarFieldEnum = {
   paymentMethod: 'paymentMethod',
   externalNumber: 'externalNumber',
   discountPercent: 'discountPercent',
+  idempotencyKey: 'idempotencyKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2636,6 +2637,7 @@ export const PartnerPaymentScalarFieldEnum = {
   amount: 'amount',
   paidAt: 'paidAt',
   notes: 'notes',
+  idempotencyKey: 'idempotencyKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2656,6 +2658,7 @@ export const PaymentAccountScalarFieldEnum = {
   partnerId: 'partnerId',
   saleDocumentId: 'saleDocumentId',
   notes: 'notes',
+  idempotencyKey: 'idempotencyKey',
   customerName: 'customerName',
   customerAddress: 'customerAddress',
   customerIdno: 'customerIdno',

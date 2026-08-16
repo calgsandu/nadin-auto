@@ -37,7 +37,6 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
         <aside className="motion-drawer-panel relative h-full w-full max-w-md overflow-y-auto bg-[#fafaf9] shadow-xl">
           <div className="flex items-start justify-between border-b border-[#e8e7e3] px-6 py-5">
             <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">Contul meu</p>
               <h2 className="mt-2 text-2xl font-semibold">Schimbă parola</h2>
             </div>
             <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-xs font-semibold" type="button" onClick={onClose}>Închide</button>

@@ -21,6 +21,7 @@ import {
   drawerLineClassName,
   drawerSecondaryButton,
 } from "@/app/components/operation-drawer";
+import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
 import {
   AddedLinesFilter,
@@ -64,15 +65,29 @@ export function InventoryDialog({
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<InventoryLine[]>([emptyLine(1)]);
   const [filter, setFilter] = useState("");
-  const { state, pending, onSubmit } = useDrawerAction(
+  function resetLines() {
+    nextLineId.current = 2;
+    setLines([emptyLine(1)]);
+    setFilter("");
+  }
+  const draft = useDrawerDraft({
+    kind: "inventory",
+    lines,
+    setLines: (restored) => {
+      nextLineId.current = restored.reduce((max, line) => Math.max(max, line.id), 0) + 1;
+      setLines(restored);
+    },
+    reset: resetLines,
+  });
+  const { attachForm } = draft;
+  const { state, pending, onSubmit, retry } = useDrawerAction(
     createInventoryAction,
     initialState,
     () => {
       setOpen(false);
       setMounted(false);
-      nextLineId.current = 2;
-      setLines([emptyLine(1)]);
-      setFilter("");
+      resetLines();
+      draft.clear();
     },
   );
   const today = useMemo(() => formatDateInputValue(new Date()), []);
@@ -108,14 +123,15 @@ export function InventoryDialog({
       </button>
       {mounted ? (
         <OperationDrawer
-          eyebrow="Document stoc"
           title="Inventar"
           open={open}
           pending={pending}
           submitLabel="Salvează inventarul"
+          draft={draft.banner}
           onClose={() => setOpen(false)}
         >
-          <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+          <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+            <input name="idempotencyKey" type="hidden" value={draft.token} />
             <div className="grid gap-4 md:grid-cols-2">
               <DrawerField label="Data inventarului">
                 <input className={drawerInputClassName} defaultValue={today} name="documentDate" type="date" />
@@ -157,6 +173,9 @@ export function InventoryDialog({
                     <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
                     <ProductSearchCombobox
                       showHint={false}
+                      initialProduct={
+                        line.productId ? { id: line.productId, label: line.label } : null
+                      }
                       excludedProductIds={lines
                         .filter((item) => item.id !== line.id)
                         .map((item) => item.productId)}
@@ -205,7 +224,7 @@ export function InventoryDialog({
               />
             </DrawerField>
 
-            <DrawerMessage state={state} />
+            <DrawerMessage state={state} onRetry={retry} />
             <DrawerFooter
               onCancel={() => setOpen(false)}
               pending={pending}

@@ -89,7 +89,7 @@ export function PaymentAccountRowActions({
           className={`basis-full pt-1 text-right text-[11px] ${eFacturaStatus === "SUBMITTED" ? "text-[#166534]" : "text-[#b91c1c]"}`}
           title={eFacturaMessage ?? undefined}
         >
-          {eFacturaStatus === "SUBMITTED" ? "● Trimis în e-Factura · necesită semnare" : `● Eroare e-Factura${eFacturaMessage ? `: ${eFacturaMessage}` : ""}`}
+          {eFacturaStatus === "SUBMITTED" ? "Trimis în e-Factura, necesită semnare" : `Eroare e-Factura${eFacturaMessage ? `: ${eFacturaMessage}` : ""}`}
         </span>
       ) : null}
     </div>

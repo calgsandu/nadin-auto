@@ -63,7 +63,7 @@ const controlsSource = readFileSync(
   new URL("../../../app/print/labels/label-controls.tsx", import.meta.url),
   "utf8",
 );
-assert.match(controlsSource, /Mare \(70×52 mm · 15\/foaie\)/);
+assert.match(controlsSource, /Mare \(70×52 mm, 15\/foaie\)/);
 
 const pageSource = readFileSync(
   new URL("../../../app/print/labels/page.tsx", import.meta.url),

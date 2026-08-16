@@ -68,7 +68,6 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 function Drawer({
   open,
   setOpen,
-  eyebrow,
   title,
   action,
   children,
@@ -76,7 +75,6 @@ function Drawer({
 }: {
   open: boolean;
   setOpen: (v: boolean) => void;
-  eyebrow: string;
   title: string;
   action: Action;
   children: ReactNode;
@@ -103,8 +101,7 @@ function Drawer({
       <aside className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
         <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
           <div>
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">{eyebrow}</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">{title}</h2>
+            <h2 className="text-2xl font-semibold text-[#1b1a17]">{title}</h2>
           </div>
           <button
             type="button"
@@ -166,7 +163,6 @@ export function NameDialog({
       <Drawer
         open={open}
         setOpen={setOpen}
-        eyebrow={entityName}
         title={entity ? `Editează ${entityName.toLowerCase()}` : `Adaugă ${entityName.toLowerCase()}`}
         action={entity ? updateAction : createAction}
         submitLabel={entity ? "Salvează" : "Adaugă"}
@@ -216,7 +212,6 @@ export function WarehouseDialog({
       <Drawer
         open={open}
         setOpen={setOpen}
-        eyebrow="Depozit"
         title={warehouse ? "Editează depozit" : "Adaugă depozit"}
         action={warehouse ? updateWarehouseAction : createWarehouseAction}
         submitLabel={warehouse ? "Salvează" : "Adaugă"}
@@ -256,7 +251,6 @@ export function ModelDialog({
       <Drawer
         open={open}
         setOpen={setOpen}
-        eyebrow="Model auto"
         title={model ? "Editează model" : "Adaugă model"}
         action={model ? updateModelAction : createModelAction}
         submitLabel={model ? "Salvează" : "Adaugă"}
@@ -306,7 +300,6 @@ export function FitmentDialog({
       <Drawer
         open={open}
         setOpen={setOpen}
-        eyebrow="Compatibilitate"
         title={fitment ? "Editează compatibilitate" : "Adaugă compatibilitate"}
         action={fitment ? updateFitmentAction : createFitmentAction}
         submitLabel={fitment ? "Salvează" : "Adaugă"}

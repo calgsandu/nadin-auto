@@ -88,7 +88,7 @@ export default async function ModelPage({
               <span className="text-[#2e90fa]">{data.model.name}</span>
             </h1>
             <p className="mt-4 text-base text-[#57534a]">
-              {data.model.years ?? copy.common.allYears} · {copy.common.parts(total)}
+              {data.model.years ?? copy.common.allYears}, {copy.common.parts(total)}
             </p>
           </Reveal>
           {photo ? (
@@ -190,7 +190,7 @@ export default async function ModelPage({
                       <p className="mt-3 text-base font-medium leading-snug group-hover:text-[#2e90fa]">
                         {product.description}
                       </p>
-                      <p className="mt-2 font-mono text-xs text-[#6f6a61]">
+                      <p className="mt-2 text-sm text-[#6f6a61]">
                         {product.fitLabel}
                       </p>
                     </Link>

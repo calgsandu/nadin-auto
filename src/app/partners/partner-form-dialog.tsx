@@ -85,10 +85,7 @@ export function PartnerFormDialog({
             <aside className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
                 <div>
-                  <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
-                    Parteneri
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">
+                  <h2 className="text-2xl font-semibold text-[#1b1a17]">
                     {partner ? "Editează partener" : "Adaugă partener"}
                   </h2>
                 </div>

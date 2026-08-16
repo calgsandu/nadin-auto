@@ -49,7 +49,7 @@ export function PaymentAccountsWorkspace({
                         const vehicle = vehicleLabel(line.product?.fitment);
                         return (
                           <span key={line.id}>
-                            {line.productCode ? `${line.productCode} · ` : ""}
+                            {line.productCode ? `${line.productCode} ` : ""}
                             {line.description} <span className="font-mono text-[#6f6b63]">×{line.quantity}</span>
                             {vehicle ? <span className="block text-xs text-[#6f6b63]">{vehicle}</span> : null}
                           </span>

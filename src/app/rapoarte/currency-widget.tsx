@@ -30,7 +30,7 @@ export function CurrencyWidget({ valueLei, rates }: { valueLei: number; rates: E
       <p className="mt-2 font-mono text-2xl font-semibold text-[#1b1a17]">{format(converted, currency)}</p>
       <div className="mt-3 border-t border-[#efeeeb] pt-3 text-xs text-[#6f6b63]">
         <p className="font-semibold text-[#33312c]">Curs valutar {rates.source === "live" ? "(live)" : "(aproximativ)"}</p>
-        <p className="mt-1">1 EUR = {rates.EUR.toFixed(2)} lei · 1 USD = {rates.USD.toFixed(2)} lei</p>
+        <p className="mt-1">1 EUR = {rates.EUR.toFixed(2)} lei, 1 USD = {rates.USD.toFixed(2)} lei</p>
       </div>
     </div>
   );

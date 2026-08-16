@@ -422,7 +422,7 @@ function Sidebar({
               />
               <span className="crm-nav-label whitespace-nowrap">{group.label}</span>
               {pendingApprovals > 0 && group.sections.includes("aprobari") ? (
-                <span className="crm-nav-badge ml-auto rounded-full bg-[#2e90fa] px-1.5 py-0.5 font-mono text-[11px] font-bold leading-none text-white">
+                <span className="crm-nav-badge ml-auto rounded-md bg-[#2e90fa] px-1.5 py-0.5 text-[11px] font-bold leading-none tabular-nums text-white">
                   {pendingApprovals}
                 </span>
               ) : null}
@@ -436,7 +436,7 @@ function Sidebar({
         <div className="crm-account mt-2 flex items-center justify-between gap-2">
           <div className="crm-account-meta min-w-0">
             <p className="truncate text-[13px] font-semibold text-[#1b1a17]">{userLabel}</p>
-            <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-[#98948b]">
+            <p className="mt-0.5 text-xs font-medium text-[#98948b]">
               {role}
             </p>
           </div>
@@ -938,7 +938,11 @@ function SaleLines({ lines }: { lines: SaleLineWithProduct[] }) {
 
         return (
           <span key={line.id}>
-            {(line.product?.externalCode ?? line.externalCode) ? `${line.product?.externalCode ?? line.externalCode} · ` : ""}
+            {(line.product?.externalCode ?? line.externalCode) ? (
+              <span className="mr-1.5 font-semibold text-[#1b1a17]">
+                {line.product?.externalCode ?? line.externalCode}
+              </span>
+            ) : null}
             {line.product?.description ?? line.externalName ?? "Piesă externă"}
             {!line.product ? (
               <span
@@ -1048,7 +1052,9 @@ function ReturnsWorkspace({
                       <div className="grid gap-1">
                         {document.lines.map((line) => (
                           <span key={line.id}>
-                            {line.product?.externalCode ? `${line.product.externalCode} · ` : ""}
+                            {line.product?.externalCode ? (
+                              <span className="mr-1.5 font-semibold text-[#1b1a17]">{line.product.externalCode}</span>
+                            ) : null}
                             {line.product?.description ?? line.externalName ?? "Piesă externă"}
                             <span className="font-mono text-[#6f6b63]"> x{line.quantity}</span>
                             <VehicleSubline product={line.product} />
@@ -1246,7 +1252,7 @@ function DailyMetric({
 }) {
   return (
     <div className="motion-card rounded-xl border border-[#e8e7e3] bg-white px-4 py-3.5">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#98948b]">{label}</p>
+      <p className="text-sm font-medium text-[#6f6b63]">{label}</p>
       <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums text-[#1b1a17]">{value}</p>
       {hint ? <p className="mt-0.5 text-xs text-[#98948b]">{hint}</p> : null}
     </div>
@@ -1368,7 +1374,7 @@ function ProductRow({
             data-label-alternative-code={product.alternativeCode ?? ""}
             data-label-name={product.description}
             data-label-compatibility={compatibilities
-              .map((compatibility) => `${compatibility.title} · Ani ${compatibility.years}`)
+              .map((compatibility) => `${compatibility.title}, ani ${compatibility.years}`)
               .join(" • ")}
             aria-label={`Selectează ${product.description} pentru sticker`}
             className="size-4 cursor-pointer accent-[#1b1a17]"
@@ -1401,7 +1407,7 @@ function ProductRow({
               const row = product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id);
               return `${warehouse.name.replace("Pavilion ", "")}: ${row?.quantity ?? 0}`;
             })
-            .join(" · ")}
+            .join(", ")}
         </p>
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
@@ -1513,7 +1519,7 @@ function toDocLines(doc: {
       // Aceeași etichetă ca la căutarea din dialogul de creare: cod, mașină, tip, denumire.
       label: l.product
         ? productLineLabel(l.product)
-        : `${l.externalCode ? `${l.externalCode} · ` : ""}${l.externalName ?? "Piesă externă"}`,
+        : `${l.externalCode ? `${l.externalCode} ` : ""}${l.externalName ?? "Piesă externă"}`,
       quantity: String(l.quantity),
       price: price != null ? String(price) : "",
       externalName: l.externalName ?? "",
@@ -1686,7 +1692,7 @@ function RecentDocumentsTable({
                         <span key={line.id}>
                           {line.product
                             ? line.product.description
-                            : `${line.externalCode ? `${line.externalCode} · ` : ""}${line.externalName ?? "Piesă externă"}`}
+                            : `${line.externalCode ? `${line.externalCode} ` : ""}${line.externalName ?? "Piesă externă"}`}
                           <span className="font-mono text-[#6f6b63]"> x{line.quantity}</span>
                           <VehicleSubline product={line.product} />
                         </span>
@@ -2429,7 +2435,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
                 Stoc în sistem — {data.selected?.name ?? "fără depozit"}
               </h2>
               <p className="mt-1 text-sm text-[#6f6b63]">
-                {formatNumber(data.stocks.length)} poziții · {formatNumber(totalQuantity)} bucăți
+                {formatNumber(data.stocks.length)} poziții, {formatNumber(totalQuantity)} bucăți
               </p>
             </div>
             <span className="shrink-0 text-sm font-semibold text-[#6f6b63] group-open:hidden">
@@ -3087,7 +3093,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#98948b] ${
+      className={`whitespace-nowrap px-4 py-2.5 text-[13px] font-semibold text-[#6f6b63] ${
         align === "right" ? "text-right" : "text-left"
       }`}
     >

@@ -2,13 +2,16 @@
 
 import {
   useActionState,
+  useCallback,
   useEffect,
   useRef,
+  useState,
   useTransition,
   type ReactNode,
 } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import type { DrawerDraftBanner } from "@/app/components/use-drawer-draft";
 
 /**
  * Panoul lateral folosit de TOATE operațiunile — adăugare și editare deopotrivă.
@@ -16,11 +19,11 @@ import { DrawerPortal } from "@/app/components/drawer-portal";
  * unul de altul (recepție vs editare vs inventar arătau diferit).
  *
  * Închiderea NU șterge ciorna: panoul rămâne montat, doar ascuns, deci la
- * redeschidere operatorul găsește tot ce apucase să completeze. Se golește doar
- * la salvarea reușită (dialogul îl demontează) — vezi `useDrawerAction`.
+ * redeschidere operatorul găsește tot ce apucase să completeze. Refreshul,
+ * crashul de tab și navigarea prin sidebar sunt acoperite de ciorna din
+ * localStorage (`useDrawerDraft`). Se golește doar la salvarea reușită.
  */
 export function OperationDrawer({
-  eyebrow,
   title,
   onClose,
   children,
@@ -28,8 +31,8 @@ export function OperationDrawer({
   open = true,
   submitLabel,
   pending,
+  draft,
 }: {
-  eyebrow: string;
   title: string;
   onClose: () => void;
   children: ReactNode;
@@ -40,6 +43,8 @@ export function OperationDrawer({
   /** Dat = buton de salvare în antetul lipit sus (documentele lungi n-au nevoie de scroll). */
   submitLabel?: string;
   pending?: boolean;
+  /** Starea ciornei locale — vezi `useDrawerDraft`. */
+  draft?: DrawerDraftBanner;
 }) {
   const panelRef = useRef<HTMLElement>(null);
   const dirtyRef = useRef(false);
@@ -89,10 +94,12 @@ export function OperationDrawer({
         >
           <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
             <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
-                {eyebrow}
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">{title}</h2>
+              <h2 className="text-2xl font-semibold text-[#1b1a17]">{title}</h2>
+              {draft?.savedAt ? (
+                <p className="mt-1 text-sm text-[#6f6b63]">
+                  Ciornă salvată {draftTime(draft.savedAt)}
+                </p>
+              ) : null}
             </div>
             <div className="flex items-center gap-2">
               {submitLabel ? (
@@ -111,10 +118,35 @@ export function OperationDrawer({
               </button>
             </div>
           </div>
+          <DraftBanner draft={draft} />
           {children}
         </aside>
       </div>
     </DrawerPortal>
+  );
+}
+
+export function draftTime(savedAt: number) {
+  return new Date(savedAt).toLocaleTimeString("ro-MD", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/** Banda de sus: ciorna recuperată după refresh/crash, cu ieșire din ea. */
+export function DraftBanner({ draft }: { draft?: DrawerDraftBanner }) {
+  if (!draft?.restoredAt) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#fde68a] bg-[#fffbeb] px-6 py-2.5 text-sm text-[#92400e]">
+      <span>Ciornă recuperată de la {draftTime(draft.restoredAt)}</span>
+      <button
+        className="font-semibold underline underline-offset-2 hover:no-underline"
+        type="button"
+        onClick={draft.onDiscard}
+      >
+        Renunță la ciornă
+      </button>
+    </div>
   );
 }
 
@@ -161,41 +193,96 @@ export function DrawerSection({
   );
 }
 
+const OFFLINE_MESSAGE =
+  "Fără conexiune. Ciorna e salvată local — reîncearcă după ce revine internetul.";
+const NO_ANSWER_MESSAGE =
+  "Serverul n-a răspuns. Ciorna e salvată — apasă Reîncearcă.";
+
 /**
  * Trimite acțiunea FĂRĂ resetul automat pe care React îl face la `<form action>`:
  * dacă salvarea eșuează, tot ce era completat rămâne pe ecran. Formularul se
  * golește explicit doar la succes.
+ *
+ * Rețeaua căzută și funcția expirată nu mai aruncă în afară: devin o stare cu
+ * buton „Reîncearcă", care retrimite ACELAȘI `FormData` (deci același
+ * `idempotencyKey`) — serverul nu poate scrie documentul de două ori.
  */
-export function useDrawerAction<S extends { ok: boolean }>(
+export function useDrawerAction<S extends { ok: boolean; message: string }>(
   action: (previous: S, formData: FormData) => S | Promise<S>,
   initial: S,
   onSuccess?: () => void,
 ) {
+  const [failure, setFailure] = useState<string | null>(null);
+  // Acțiunea se poate reconstrui la fiecare randare (return-dialog o face);
+  // trimiterea trebuie s-o folosească pe cea curentă.
+  const actionRef = useRef(action);
+  useEffect(() => {
+    actionRef.current = action;
+  });
+
+  const guarded = useCallback(async (previous: S, formData: FormData) => {
+    try {
+      const next = await actionRef.current(previous, formData);
+      setFailure(null);
+      return next;
+    } catch {
+      // Aici ajunge doar ce nu s-a putut duce până la capăt (rețea căzută,
+      // funcție expirată): acțiunile își prind singure erorile de business.
+      setFailure(NO_ANSWER_MESSAGE);
+      return previous;
+    }
+  }, []);
+
   // Cast: S e mereu un obiect simplu de stare, deci Awaited<S> = S (TS nu o poate deduce).
   const [state, dispatch] = useActionState(
-    action as unknown as (previous: Awaited<S>, formData: FormData) => Promise<Awaited<S>>,
+    guarded as unknown as (previous: Awaited<S>, formData: FormData) => Promise<Awaited<S>>,
     initial as Awaited<S>,
   );
   const [pending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement | null>(null);
-  const wasOk = useRef(false);
+  const lastFormData = useRef<FormData | null>(null);
+  // Identitatea stării, nu `ok`: două salvări reușite la rând sunt două
+  // răspunsuri distincte, deci și a doua trebuie să golească formularul și
+  // ciorna (altfel al treilea document ar pleca cu un token deja folosit).
+  const seenState = useRef(state);
 
   useEffect(() => {
-    if (state.ok && !wasOk.current) {
+    if (state !== seenState.current && state.ok) {
       formRef.current?.reset();
       onSuccess?.();
     }
-    wasOk.current = state.ok;
+    seenState.current = state;
   }, [state, onSuccess]);
+
+  function send(formData: FormData) {
+    lastFormData.current = formData;
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      setFailure(OFFLINE_MESSAGE);
+      return;
+    }
+    setFailure(null);
+    startTransition(() => dispatch(formData));
+  }
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     formRef.current = form;
-    startTransition(() => dispatch(new FormData(form)));
+    send(new FormData(form));
   }
 
-  return { state, pending, onSubmit };
+  function retry() {
+    if (lastFormData.current) send(lastFormData.current);
+  }
+
+  return {
+    // Eșecul de transport bate ultimul răspuns al serverului până la reîncercare.
+    state: (failure ? { ...state, ok: false, message: failure } : state) as S,
+    pending,
+    onSubmit,
+    /** Dat = trimiterea n-a ajuns la server; retrimite același FormData. */
+    retry: failure ? retry : undefined,
+  };
 }
 
 export function DrawerFooter({
@@ -210,7 +297,7 @@ export function DrawerFooter({
   return (
     <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
       <span className="mr-auto text-xs text-[#6f6b63]">
-        Enter = câmpul următor · salvarea doar din buton
+        Enter trece la câmpul următor. Salvarea doar din buton.
       </span>
       <button className={drawerSecondaryButton} type="button" onClick={onCancel}>
         Anulează
@@ -236,17 +323,33 @@ export function DrawerSubmit({ label, pending }: { label: string; pending?: bool
 }
 
 /** Mesajul de stare al formularului (aceeași formă în toate drawerele). */
-export function DrawerMessage({ state }: { state: { ok: boolean; message: string } }) {
+export function DrawerMessage({
+  state,
+  onRetry,
+}: {
+  state: { ok: boolean; message: string };
+  /** Dat de `useDrawerAction` când trimiterea n-a ajuns la server. */
+  onRetry?: () => void;
+}) {
   if (!state.message) return null;
   return (
     <div
-      className={`rounded-md border px-3 py-2 text-sm ${
+      className={`flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border px-3 py-2 text-sm ${
         state.ok
           ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
           : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
       }`}
     >
       {state.message}
+      {onRetry ? (
+        <button
+          className="rounded-md border border-[#b91c1c] px-2.5 py-1 text-xs font-semibold hover:bg-[#fee2e2]"
+          type="button"
+          onClick={onRetry}
+        >
+          Reîncearcă
+        </button>
+      ) : null}
     </div>
   );
 }

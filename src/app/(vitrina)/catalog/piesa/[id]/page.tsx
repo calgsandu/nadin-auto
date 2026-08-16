@@ -22,7 +22,7 @@ export async function generateMetadata({
   const suffix = `/piesa/${id}`;
   return {
     title: `${product.description} — Nadin Auto`,
-    description: `${product.brand.name} ${product.model.name} · ${product.fitLabel} · ${product.code ?? product.type}`,
+    description: `${product.brand.name} ${product.model.name}, ${product.fitLabel}, cod ${product.code ?? product.type}`,
     alternates: {
       canonical: catalogHref(locale, suffix),
       languages: { ro: catalogHref("ro", suffix), ru: catalogHref("ru", suffix) },
@@ -124,7 +124,7 @@ export default async function ProductPage({
               </div>
               <div className="flex justify-between gap-6">
                 <dt className="text-[#6f6a61]">{copy.product.compatibility}</dt>
-                <dd className="text-right font-mono text-xs">{product.fitLabel}</dd>
+                <dd className="text-right text-sm">{product.fitLabel}</dd>
               </div>
               {product.notes ? (
                 <div className="flex justify-between gap-6">

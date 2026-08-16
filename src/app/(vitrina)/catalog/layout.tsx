@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Manrope } from "next/font/google";
 import { Suspense } from "react";
 import { COMPANY } from "@/lib/company";
 import { catalogCopy, catalogHref } from "@/lib/vitrina/i18n";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
 import { LanguageSwitcher } from "./language-switcher";
-
-const manrope = Manrope({
-  variable: "--font-catalog",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestCatalogLocale();
@@ -35,22 +28,19 @@ export default async function VitrinaLayout({
   return (
     <div
       lang={locale}
-      className={`${manrope.variable} min-h-screen bg-[#f6f6f4] text-[#1b1a17] selection:bg-[#2e90fa] selection:text-white`}
-      style={{ fontFamily: "var(--font-catalog), sans-serif" }}
+      className="min-h-screen bg-[#f6f6f4] text-[#1b1a17] selection:bg-[#2e90fa] selection:text-white"
     >
       <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
-        <nav className="flex w-full max-w-3xl items-center justify-between gap-2 rounded-full border border-black/10 bg-white/70 py-2 pl-3 pr-2 backdrop-blur-xl">
+        <nav className="flex w-full max-w-3xl items-center justify-between gap-2 rounded-full border border-black/10 bg-white/70 py-2 pl-2.5 pr-2 backdrop-blur-xl sm:pl-3">
           <Link href={catalogHref(locale)} className="flex items-center gap-2.5">
             <Image
               src="/logo.png"
               alt="Nadin Auto"
               width={48}
               height={32}
-              className="h-8 w-12 object-contain"
+              className="h-7 w-10 shrink-0 object-contain sm:h-8 sm:w-12"
             />
-            <span className="text-sm font-semibold tracking-[0.18em]">
-              NADIN AUTO
-            </span>
+            <span className="whitespace-nowrap text-[15px] font-bold sm:text-base">Nadin Auto</span>
           </Link>
           <div className="hidden items-center gap-1 text-sm text-[#57534a] sm:flex">
             <Link
@@ -72,7 +62,7 @@ export default async function VitrinaLayout({
             </Suspense>
             <Link
               href={catalogHref(locale, "/cauta")}
-              className="rounded-full bg-[#1b1a17] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-black"
+              className="whitespace-nowrap rounded-full bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-black sm:px-4"
             >
               {copy.nav.search}
             </Link>

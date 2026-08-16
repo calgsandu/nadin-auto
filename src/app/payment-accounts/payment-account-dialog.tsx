@@ -3,7 +3,13 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { focusFirstLineSearch, useDrawerAction } from "@/app/components/operation-drawer";
+import {
+  DraftBanner,
+  DrawerMessage,
+  focusFirstLineSearch,
+  useDrawerAction,
+} from "@/app/components/operation-drawer";
+import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
 import {
   createPaymentAccountAction,
@@ -20,7 +26,22 @@ type CustomerOption = {
 };
 
 type WarehouseOption = { id: string; name: string };
-type EditableLine = { id: number; quantity: string; price: string };
+/** `productId`/`label` doar pentru ciornă: la recuperare se reface fișa produsului. */
+type EditableLine = {
+  id: number;
+  productId: string;
+  label: string;
+  quantity: string;
+  price: string;
+};
+
+const emptyLine = (id: number): EditableLine => ({
+  id,
+  productId: "",
+  label: "",
+  quantity: "",
+  price: "",
+});
 
 const initialState: PaymentAccountActionState = { ok: false, message: "" };
 const inputClassName =
@@ -37,18 +58,34 @@ export function PaymentAccountDialog({
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const [newClient, setNewClient] = useState(false);
-  const [lines, setLines] = useState<EditableLine[]>([{ id: 1, quantity: "", price: "" }]);
+  const [lines, setLines] = useState<EditableLine[]>([emptyLine(1)]);
   const nextLineId = useRef(2);
 
-  const { state, pending, onSubmit } = useDrawerAction(
+  function resetForm() {
+    setNewClient(false);
+    setLines([emptyLine(1)]);
+    nextLineId.current = 2;
+  }
+  const draft = useDrawerDraft({
+    kind: "payment-account",
+    lines: { lines, newClient },
+    setLines: (restored) => {
+      nextLineId.current =
+        restored.lines.reduce((max, line) => Math.max(max, line.id), 0) + 1;
+      setLines(restored.lines);
+      setNewClient(restored.newClient);
+    },
+    reset: resetForm,
+  });
+  const { attachForm } = draft;
+  const { state, pending, onSubmit, retry } = useDrawerAction(
     createPaymentAccountAction,
     initialState,
     () => {
       setOpen(false);
       setMounted(false);
-      setNewClient(false);
-      setLines([{ id: 1, quantity: "", price: "" }]);
-      nextLineId.current = 2;
+      resetForm();
+      draft.clear();
     },
   );
   const today = useMemo(() => formatDateInputValue(new Date()), []);
@@ -72,13 +109,13 @@ export function PaymentAccountDialog({
 
   function addLine() {
     const id = nextLineId.current++;
-    setLines((current) => [{ id, quantity: "", price: "" }, ...current]);
+    setLines((current) => [emptyLine(id), ...current]);
     focusFirstLineSearch();
   }
 
-  function updateLine(id: number, field: "quantity" | "price", value: string) {
+  function updateLine(id: number, patch: Partial<EditableLine>) {
     setLines((current) =>
-      current.map((line) => (line.id === id ? { ...line, [field]: value } : line)),
+      current.map((line) => (line.id === id ? { ...line, ...patch } : line)),
     );
   }
 
@@ -110,10 +147,7 @@ export function PaymentAccountDialog({
             <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
                 <div>
-                  <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#a16207]">
-                    Document comercial
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">Cont de plată nou</h2>
+                  <h2 className="text-2xl font-semibold text-[#1b1a17]">Cont de plată nou</h2>
                   <p className="mt-1 text-sm text-[#6f6b63]">Nu modifică stocul până la predarea mărfii.</p>
                 </div>
                 <button
@@ -124,8 +158,10 @@ export function PaymentAccountDialog({
                   Închide
                 </button>
               </div>
+              <DraftBanner draft={draft.banner} />
 
-              <form onSubmit={onSubmit} className="grid gap-6 px-6 py-6">
+              <form ref={attachForm} onSubmit={onSubmit} className="grid gap-6 px-6 py-6">
+                <input name="idempotencyKey" type="hidden" value={draft.token} />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                   <Field label="Data emiterii">
                     <input className={inputClassName} defaultValue={today} name="issueDate" required type="date" />
@@ -156,7 +192,7 @@ export function PaymentAccountDialog({
                             <option disabled value="">Alege clientul</option>
                             {customers.map((customer) => (
                               <option key={customer.id} value={customer.id}>
-                                {customer.name}{!customer.idno || !customer.address ? " · date incomplete" : ""}
+                                {customer.name}{!customer.idno || !customer.address ? " (date incomplete)" : ""}
                               </option>
                             ))}
                           </select>
@@ -216,7 +252,17 @@ export function PaymentAccountDialog({
                             <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
                             <ProductSearchCombobox
                               showHint={false}
-                              onSelect={(product) => updateLine(line.id, "price", product.salePriceLei)}
+                              initialProduct={
+                                line.productId ? { id: line.productId, label: line.label } : null
+                              }
+                              onSelect={(product) =>
+                                updateLine(line.id, {
+                                  productId: product.id,
+                                  label: product.label,
+                                  price: product.salePriceLei,
+                                })
+                              }
+                              onClear={() => updateLine(line.id, { productId: "", label: "" })}
                             />
                           </div>
                           <Field label="Cantitate">
@@ -227,7 +273,7 @@ export function PaymentAccountDialog({
                               required
                               type="number"
                               value={line.quantity}
-                              onChange={(event) => updateLine(line.id, "quantity", event.currentTarget.value)}
+                              onChange={(event) => updateLine(line.id, { quantity: event.currentTarget.value })}
                             />
                           </Field>
                           <Field label="Preț cu TVA">
@@ -239,13 +285,13 @@ export function PaymentAccountDialog({
                               step="0.01"
                               type="number"
                               value={line.price}
-                              onChange={(event) => updateLine(line.id, "price", event.currentTarget.value)}
+                              onChange={(event) => updateLine(line.id, { price: event.currentTarget.value })}
                             />
                           </Field>
                           <Field label="Linie">
                             <div className="flex h-11 flex-col justify-center rounded-md bg-[#f6f6f4] px-3 font-mono text-xs">
                               <span className="font-semibold">{money(calculated.gross)} lei</span>
-                              <span className="text-[#6f6b63]">TVA {money(calculated.vat)} · net {money(calculated.net)}</span>
+                              <span className="text-[#6f6b63]">TVA {money(calculated.vat)}, net {money(calculated.net)}</span>
                             </div>
                           </Field>
                           <button
@@ -280,11 +326,7 @@ export function PaymentAccountDialog({
                   </div>
                 </div>
 
-                {state.message && !state.ok ? (
-                  <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]">
-                    {state.message}
-                  </div>
-                ) : null}
+                {state.ok ? null : <DrawerMessage state={state} onRetry={retry} />}
 
                 <div className="flex justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                   <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold" type="button" onClick={() => setOpen(false)}>

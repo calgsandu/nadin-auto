@@ -92,7 +92,7 @@ function ResetPasswordDrawer({ userId, username, onClose }: { userId: string; us
   const [state, formAction] = useActionState(resetStaffPasswordAction, initialState);
   const [password, setPassword] = useState("");
   return (
-    <StaffDrawer title={`Parolă nouă · ${username}`} onClose={onClose}>
+    <StaffDrawer title={`Parolă nouă — ${username}`} onClose={onClose}>
       {state.ok && state.revealedPassword ? (
         <RevealedPassword password={state.revealedPassword} onClose={onClose} />
       ) : (
@@ -160,7 +160,7 @@ function IssueTwoFactorActivationDrawer({
   );
 
   return (
-    <StaffDrawer title={`Activare 2FA · ${username}`} onClose={onClose}>
+    <StaffDrawer title={`Activare 2FA — ${username}`} onClose={onClose}>
       {state.revealedActivationCode && state.activationExpiresAt ? (
         <div className="grid gap-4">
           <ActionMessage state={state} />
@@ -197,7 +197,7 @@ function ResetTwoFactorDrawer({
   const [state, formAction] = useActionState(resetStaffTwoFactorAction, initialState);
 
   return (
-    <StaffDrawer title={`Resetare 2FA · ${username}`} onClose={onClose}>
+    <StaffDrawer title={`Resetare 2FA — ${username}`} onClose={onClose}>
       {state.revealedActivationCode && state.activationExpiresAt ? (
         <div className="grid gap-4">
           <ActionMessage state={state} />
@@ -262,8 +262,7 @@ function StaffDrawer({ title, onClose, children }: { title: string; onClose: () 
         <aside className="motion-drawer-panel relative flex h-full w-full max-w-lg flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
           <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
             <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">Personal</p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#1b1a17]">{title}</h2>
+              <h2 className="text-2xl font-semibold text-[#1b1a17]">{title}</h2>
             </div>
             <RowButton onClick={onClose}>Închide</RowButton>
           </div>

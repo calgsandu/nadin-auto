@@ -32,6 +32,56 @@ for (const file of DIALOGS) {
   }
 }
 
+// Ciorna în localStorage: fiecare dialog de operațiune o ține, ca refreshul,
+// crashul de tab sau navigarea prin sidebar să nu piardă documentul început.
+const DRAFT_DIALOGS = [
+  "src/app/operations/stock-document-dialog.tsx",
+  "src/app/operations/inventory-dialog.tsx",
+  "src/app/operations/return-dialog.tsx",
+  "src/app/operations/document-row-actions.tsx",
+  "src/app/payment-accounts/payment-account-dialog.tsx",
+  "src/app/partners/payment-dialog.tsx",
+];
+
+for (const file of DRAFT_DIALOGS) {
+  const source = read(file);
+  assert.match(source, /useDrawerDraft\(/, `${file}: ciorna trebuie ținută prin useDrawerDraft`);
+  assert.match(source, /ref=\{attachForm\}/, `${file}: formularul trebuie legat de ciornă`);
+  assert.match(source, /draft\.clear\(\)/, `${file}: salvarea reușită trebuie să șteargă ciorna`);
+  // Ciorna recuperată trebuie să refacă și produsul ales pe rând, nu doar
+  // cifrele. Încasarea și returul n-au căutare de produs (returul își ia
+  // rândurile din vânzarea aleasă).
+  if (!file.endsWith("payment-dialog.tsx") && !file.endsWith("return-dialog.tsx")) {
+    assert.match(source, /initialProduct=\{/, `${file}: produsul de pe rând trebuie refăcut din ciornă`);
+  }
+}
+
+// Cheia de idempotență: aceeași ciornă retrimisă nu poate crea două documente.
+// Editarea documentului nu are nevoie (reversare + reaplicare dă aceeași stare).
+for (const file of DRAFT_DIALOGS.filter((f) => !f.endsWith("document-row-actions.tsx"))) {
+  assert.match(
+    read(file),
+    /name="idempotencyKey" type="hidden" value=\{draft\.token\}/,
+    `${file}: trimiterea trebuie să poarte cheia de idempotență`,
+  );
+}
+
+// Serverul verifică token-ul ÎNAINTE de a atinge stocul și îl scrie pe document.
+for (const file of [
+  "src/app/operations/actions.ts",
+  "src/app/partners/actions.ts",
+  "src/app/payment-accounts/actions.ts",
+]) {
+  const source = read(file);
+  assert.match(source, /readToken\(formData\)/, `${file}: acțiunea trebuie să citească token-ul`);
+  assert.match(source, /idempotencyKey: token/, `${file}: token-ul trebuie scris pe document`);
+  assert.match(
+    source,
+    /isDuplicateKeyError\(error\)/,
+    `${file}: trimiterea paralelă respinsă de baza de date înseamnă „salvat deja"`,
+  );
+}
+
 // Etichetele și căutarea peste rândurile adăugate trebuie să fie în AMBELE
 // dialoguri de inventar: cel de creare și cel de editare a documentului.
 for (const file of [
@@ -82,6 +132,11 @@ const drawer = read("src/app/components/operation-drawer.tsx");
 assert.match(drawer, /DrawerPortal locked=\{open\}/, "panoul ascuns nu blochează scrollul paginii");
 assert.match(drawer, /beforeunload/, "ciorna nesalvată avertizează la refresh/închidere de tab");
 assert.match(drawer, /formRef\.current\?\.reset\(\)/, "formularul se golește doar la salvare reușită");
+// Rețeaua căzută nu aruncă în afară: devine mesaj cu „Reîncearcă", care
+// retrimite ACELAȘI FormData (deci același token) — fără risc de dublare.
+assert.match(drawer, /navigator\.onLine === false/, "submitul fără conexiune nu pleacă deloc");
+assert.match(drawer, /lastFormData\.current/, "reîncercarea trimite exact același FormData");
+assert.match(drawer, /Reîncearcă/, "mesajul de eroare de transport are buton de reîncercare");
 
 const portal = read("src/app/components/drawer-portal.tsx");
 assert.match(portal, /locked = true/, "DrawerPortal trebuie să accepte blocarea condiționată");

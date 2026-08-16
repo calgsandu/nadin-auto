@@ -37,7 +37,6 @@ type CatalogDictionary = {
     categories: Record<"Prag" | "Aripa" | "Stop", string>;
   };
   search: {
-    eyebrow: string;
     title: string;
     description: string;
     placeholder: string;
@@ -102,7 +101,6 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       categories: { Prag: "Praguri", Aripa: "Aripi", Stop: "Optică" },
     },
     search: {
-      eyebrow: "Catalog Nadin Auto",
       title: "Caută piesa potrivită.",
       description: "Scrie codul, denumirea piesei, marca sau modelul mașinii.",
       placeholder: "ex. prag Golf 4, aripă Logan, 506584",
@@ -166,7 +164,6 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       categories: { Prag: "Пороги", Aripa: "Крылья", Stop: "Оптика" },
     },
     search: {
-      eyebrow: "Каталог Nadin Auto",
       title: "Найдите подходящую деталь.",
       description: "Введите код, название детали, марку или модель автомобиля.",
       placeholder: "например: порог Golf 4, крыло Logan, 506584",

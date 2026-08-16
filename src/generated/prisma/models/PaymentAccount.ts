@@ -55,6 +55,7 @@ export type PaymentAccountMinAggregateOutputType = {
   partnerId: string | null
   saleDocumentId: string | null
   notes: string | null
+  idempotencyKey: string | null
   customerName: string | null
   customerAddress: string | null
   customerIdno: string | null
@@ -89,6 +90,7 @@ export type PaymentAccountMaxAggregateOutputType = {
   partnerId: string | null
   saleDocumentId: string | null
   notes: string | null
+  idempotencyKey: string | null
   customerName: string | null
   customerAddress: string | null
   customerIdno: string | null
@@ -123,6 +125,7 @@ export type PaymentAccountCountAggregateOutputType = {
   partnerId: number
   saleDocumentId: number
   notes: number
+  idempotencyKey: number
   customerName: number
   customerAddress: number
   customerIdno: number
@@ -175,6 +178,7 @@ export type PaymentAccountMinAggregateInputType = {
   partnerId?: true
   saleDocumentId?: true
   notes?: true
+  idempotencyKey?: true
   customerName?: true
   customerAddress?: true
   customerIdno?: true
@@ -209,6 +213,7 @@ export type PaymentAccountMaxAggregateInputType = {
   partnerId?: true
   saleDocumentId?: true
   notes?: true
+  idempotencyKey?: true
   customerName?: true
   customerAddress?: true
   customerIdno?: true
@@ -243,6 +248,7 @@ export type PaymentAccountCountAggregateInputType = {
   partnerId?: true
   saleDocumentId?: true
   notes?: true
+  idempotencyKey?: true
   customerName?: true
   customerAddress?: true
   customerIdno?: true
@@ -364,6 +370,7 @@ export type PaymentAccountGroupByOutputType = {
   partnerId: string
   saleDocumentId: string | null
   notes: string | null
+  idempotencyKey: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -421,6 +428,7 @@ export type PaymentAccountWhereInput = {
   partnerId?: Prisma.StringFilter<"PaymentAccount"> | string
   saleDocumentId?: Prisma.StringNullableFilter<"PaymentAccount"> | string | null
   notes?: Prisma.StringNullableFilter<"PaymentAccount"> | string | null
+  idempotencyKey?: Prisma.StringNullableFilter<"PaymentAccount"> | string | null
   customerName?: Prisma.StringFilter<"PaymentAccount"> | string
   customerAddress?: Prisma.StringFilter<"PaymentAccount"> | string
   customerIdno?: Prisma.StringFilter<"PaymentAccount"> | string
@@ -459,6 +467,7 @@ export type PaymentAccountOrderByWithRelationInput = {
   partnerId?: Prisma.SortOrder
   saleDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerAddress?: Prisma.SortOrder
   customerIdno?: Prisma.SortOrder
@@ -488,6 +497,7 @@ export type PaymentAccountWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   number?: number
   saleDocumentId?: string
+  idempotencyKey?: string
   AND?: Prisma.PaymentAccountWhereInput | Prisma.PaymentAccountWhereInput[]
   OR?: Prisma.PaymentAccountWhereInput[]
   NOT?: Prisma.PaymentAccountWhereInput | Prisma.PaymentAccountWhereInput[]
@@ -523,7 +533,7 @@ export type PaymentAccountWhereUniqueInput = Prisma.AtLeast<{
   partner?: Prisma.XOR<Prisma.PartnerScalarRelationFilter, Prisma.PartnerWhereInput>
   saleDocument?: Prisma.XOR<Prisma.StockDocumentNullableScalarRelationFilter, Prisma.StockDocumentWhereInput> | null
   lines?: Prisma.PaymentAccountLineListRelationFilter
-}, "id" | "number" | "saleDocumentId">
+}, "id" | "number" | "saleDocumentId" | "idempotencyKey">
 
 export type PaymentAccountOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -538,6 +548,7 @@ export type PaymentAccountOrderByWithAggregationInput = {
   partnerId?: Prisma.SortOrder
   saleDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerAddress?: Prisma.SortOrder
   customerIdno?: Prisma.SortOrder
@@ -580,6 +591,7 @@ export type PaymentAccountScalarWhereWithAggregatesInput = {
   partnerId?: Prisma.StringWithAggregatesFilter<"PaymentAccount"> | string
   saleDocumentId?: Prisma.StringNullableWithAggregatesFilter<"PaymentAccount"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"PaymentAccount"> | string | null
+  idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"PaymentAccount"> | string | null
   customerName?: Prisma.StringWithAggregatesFilter<"PaymentAccount"> | string
   customerAddress?: Prisma.StringWithAggregatesFilter<"PaymentAccount"> | string
   customerIdno?: Prisma.StringWithAggregatesFilter<"PaymentAccount"> | string
@@ -611,6 +623,7 @@ export type PaymentAccountCreateInput = {
   fulfilledAt?: Date | string | null
   cancelledAt?: Date | string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -649,6 +662,7 @@ export type PaymentAccountUncheckedCreateInput = {
   partnerId: string
   saleDocumentId?: string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -681,6 +695,7 @@ export type PaymentAccountUpdateInput = {
   fulfilledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -719,6 +734,7 @@ export type PaymentAccountUncheckedUpdateInput = {
   partnerId?: Prisma.StringFieldUpdateOperationsInput | string
   saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -754,6 +770,7 @@ export type PaymentAccountCreateManyInput = {
   partnerId: string
   saleDocumentId?: string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -785,6 +802,7 @@ export type PaymentAccountUpdateManyMutationInput = {
   fulfilledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -819,6 +837,7 @@ export type PaymentAccountUncheckedUpdateManyInput = {
   partnerId?: Prisma.StringFieldUpdateOperationsInput | string
   saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -868,6 +887,7 @@ export type PaymentAccountCountOrderByAggregateInput = {
   partnerId?: Prisma.SortOrder
   saleDocumentId?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerAddress?: Prisma.SortOrder
   customerIdno?: Prisma.SortOrder
@@ -910,6 +930,7 @@ export type PaymentAccountMaxOrderByAggregateInput = {
   partnerId?: Prisma.SortOrder
   saleDocumentId?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerAddress?: Prisma.SortOrder
   customerIdno?: Prisma.SortOrder
@@ -944,6 +965,7 @@ export type PaymentAccountMinOrderByAggregateInput = {
   partnerId?: Prisma.SortOrder
   saleDocumentId?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerAddress?: Prisma.SortOrder
   customerIdno?: Prisma.SortOrder
@@ -1126,6 +1148,7 @@ export type PaymentAccountCreateWithoutWarehouseInput = {
   fulfilledAt?: Date | string | null
   cancelledAt?: Date | string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1162,6 +1185,7 @@ export type PaymentAccountUncheckedCreateWithoutWarehouseInput = {
   partnerId: string
   saleDocumentId?: string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1226,6 +1250,7 @@ export type PaymentAccountScalarWhereInput = {
   partnerId?: Prisma.StringFilter<"PaymentAccount"> | string
   saleDocumentId?: Prisma.StringNullableFilter<"PaymentAccount"> | string | null
   notes?: Prisma.StringNullableFilter<"PaymentAccount"> | string | null
+  idempotencyKey?: Prisma.StringNullableFilter<"PaymentAccount"> | string | null
   customerName?: Prisma.StringFilter<"PaymentAccount"> | string
   customerAddress?: Prisma.StringFilter<"PaymentAccount"> | string
   customerIdno?: Prisma.StringFilter<"PaymentAccount"> | string
@@ -1257,6 +1282,7 @@ export type PaymentAccountCreateWithoutPartnerInput = {
   fulfilledAt?: Date | string | null
   cancelledAt?: Date | string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1293,6 +1319,7 @@ export type PaymentAccountUncheckedCreateWithoutPartnerInput = {
   warehouseId: string
   saleDocumentId?: string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1351,6 +1378,7 @@ export type PaymentAccountCreateWithoutSaleDocumentInput = {
   fulfilledAt?: Date | string | null
   cancelledAt?: Date | string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1387,6 +1415,7 @@ export type PaymentAccountUncheckedCreateWithoutSaleDocumentInput = {
   warehouseId: string
   partnerId: string
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1435,6 +1464,7 @@ export type PaymentAccountUpdateWithoutSaleDocumentInput = {
   fulfilledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1471,6 +1501,7 @@ export type PaymentAccountUncheckedUpdateWithoutSaleDocumentInput = {
   warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
   partnerId?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1503,6 +1534,7 @@ export type PaymentAccountCreateWithoutLinesInput = {
   fulfilledAt?: Date | string | null
   cancelledAt?: Date | string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1540,6 +1572,7 @@ export type PaymentAccountUncheckedCreateWithoutLinesInput = {
   partnerId: string
   saleDocumentId?: string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1587,6 +1620,7 @@ export type PaymentAccountUpdateWithoutLinesInput = {
   fulfilledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1624,6 +1658,7 @@ export type PaymentAccountUncheckedUpdateWithoutLinesInput = {
   partnerId?: Prisma.StringFieldUpdateOperationsInput | string
   saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1657,6 +1692,7 @@ export type PaymentAccountCreateManyWarehouseInput = {
   partnerId: string
   saleDocumentId?: string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1688,6 +1724,7 @@ export type PaymentAccountUpdateWithoutWarehouseInput = {
   fulfilledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1724,6 +1761,7 @@ export type PaymentAccountUncheckedUpdateWithoutWarehouseInput = {
   partnerId?: Prisma.StringFieldUpdateOperationsInput | string
   saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1758,6 +1796,7 @@ export type PaymentAccountUncheckedUpdateManyWithoutWarehouseInput = {
   partnerId?: Prisma.StringFieldUpdateOperationsInput | string
   saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1791,6 +1830,7 @@ export type PaymentAccountCreateManyPartnerInput = {
   warehouseId: string
   saleDocumentId?: string | null
   notes?: string | null
+  idempotencyKey?: string | null
   customerName: string
   customerAddress: string
   customerIdno: string
@@ -1822,6 +1862,7 @@ export type PaymentAccountUpdateWithoutPartnerInput = {
   fulfilledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1858,6 +1899,7 @@ export type PaymentAccountUncheckedUpdateWithoutPartnerInput = {
   warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
   saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1892,6 +1934,7 @@ export type PaymentAccountUncheckedUpdateManyWithoutPartnerInput = {
   warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
   saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerAddress?: Prisma.StringFieldUpdateOperationsInput | string
   customerIdno?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1957,6 +2000,7 @@ export type PaymentAccountSelect<ExtArgs extends runtime.Types.Extensions.Intern
   partnerId?: boolean
   saleDocumentId?: boolean
   notes?: boolean
+  idempotencyKey?: boolean
   customerName?: boolean
   customerAddress?: boolean
   customerIdno?: boolean
@@ -1996,6 +2040,7 @@ export type PaymentAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   partnerId?: boolean
   saleDocumentId?: boolean
   notes?: boolean
+  idempotencyKey?: boolean
   customerName?: boolean
   customerAddress?: boolean
   customerIdno?: boolean
@@ -2033,6 +2078,7 @@ export type PaymentAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   partnerId?: boolean
   saleDocumentId?: boolean
   notes?: boolean
+  idempotencyKey?: boolean
   customerName?: boolean
   customerAddress?: boolean
   customerIdno?: boolean
@@ -2070,6 +2116,7 @@ export type PaymentAccountSelectScalar = {
   partnerId?: boolean
   saleDocumentId?: boolean
   notes?: boolean
+  idempotencyKey?: boolean
   customerName?: boolean
   customerAddress?: boolean
   customerIdno?: boolean
@@ -2091,7 +2138,7 @@ export type PaymentAccountSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PaymentAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "issueDate" | "dueDate" | "status" | "paidAt" | "fulfilledAt" | "cancelledAt" | "warehouseId" | "partnerId" | "saleDocumentId" | "notes" | "customerName" | "customerAddress" | "customerIdno" | "customerVatCode" | "customerPhone" | "customerEmail" | "customerIban" | "customerBankName" | "customerBankCode" | "totalNet" | "totalVat" | "totalGross" | "eFacturaStatus" | "eFacturaRequestId" | "eFacturaResponseCode" | "eFacturaMessage" | "eFacturaSubmittedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentAccount"]>
+export type PaymentAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "issueDate" | "dueDate" | "status" | "paidAt" | "fulfilledAt" | "cancelledAt" | "warehouseId" | "partnerId" | "saleDocumentId" | "notes" | "idempotencyKey" | "customerName" | "customerAddress" | "customerIdno" | "customerVatCode" | "customerPhone" | "customerEmail" | "customerIban" | "customerBankName" | "customerBankCode" | "totalNet" | "totalVat" | "totalGross" | "eFacturaStatus" | "eFacturaRequestId" | "eFacturaResponseCode" | "eFacturaMessage" | "eFacturaSubmittedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentAccount"]>
 export type PaymentAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
   partner?: boolean | Prisma.PartnerDefaultArgs<ExtArgs>
@@ -2131,6 +2178,10 @@ export type $PaymentAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
     partnerId: string
     saleDocumentId: string | null
     notes: string | null
+    /**
+     * Vezi StockDocument.idempotencyKey.
+     */
+    idempotencyKey: string | null
     customerName: string
     customerAddress: string
     customerIdno: string
@@ -2589,6 +2640,7 @@ export interface PaymentAccountFieldRefs {
   readonly partnerId: Prisma.FieldRef<"PaymentAccount", 'String'>
   readonly saleDocumentId: Prisma.FieldRef<"PaymentAccount", 'String'>
   readonly notes: Prisma.FieldRef<"PaymentAccount", 'String'>
+  readonly idempotencyKey: Prisma.FieldRef<"PaymentAccount", 'String'>
   readonly customerName: Prisma.FieldRef<"PaymentAccount", 'String'>
   readonly customerAddress: Prisma.FieldRef<"PaymentAccount", 'String'>
   readonly customerIdno: Prisma.FieldRef<"PaymentAccount", 'String'>

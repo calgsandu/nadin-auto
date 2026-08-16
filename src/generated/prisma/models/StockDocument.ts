@@ -56,6 +56,7 @@ export type StockDocumentMinAggregateOutputType = {
   paymentMethod: $Enums.SalePaymentMethod | null
   externalNumber: string | null
   discountPercent: runtime.Decimal | null
+  idempotencyKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -76,6 +77,7 @@ export type StockDocumentMaxAggregateOutputType = {
   paymentMethod: $Enums.SalePaymentMethod | null
   externalNumber: string | null
   discountPercent: runtime.Decimal | null
+  idempotencyKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -96,6 +98,7 @@ export type StockDocumentCountAggregateOutputType = {
   paymentMethod: number
   externalNumber: number
   discountPercent: number
+  idempotencyKey: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -132,6 +135,7 @@ export type StockDocumentMinAggregateInputType = {
   paymentMethod?: true
   externalNumber?: true
   discountPercent?: true
+  idempotencyKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -152,6 +156,7 @@ export type StockDocumentMaxAggregateInputType = {
   paymentMethod?: true
   externalNumber?: true
   discountPercent?: true
+  idempotencyKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -172,6 +177,7 @@ export type StockDocumentCountAggregateInputType = {
   paymentMethod?: true
   externalNumber?: true
   discountPercent?: true
+  idempotencyKey?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -279,6 +285,7 @@ export type StockDocumentGroupByOutputType = {
   paymentMethod: $Enums.SalePaymentMethod | null
   externalNumber: string | null
   discountPercent: runtime.Decimal | null
+  idempotencyKey: string | null
   createdAt: Date
   updatedAt: Date
   _count: StockDocumentCountAggregateOutputType | null
@@ -322,6 +329,7 @@ export type StockDocumentWhereInput = {
   paymentMethod?: Prisma.EnumSalePaymentMethodNullableFilter<"StockDocument"> | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.StringNullableFilter<"StockDocument"> | string | null
   discountPercent?: Prisma.DecimalNullableFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.StringNullableFilter<"StockDocument"> | string | null
   createdAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
   warehouse?: Prisma.XOR<Prisma.WarehouseScalarRelationFilter, Prisma.WarehouseWhereInput>
@@ -346,6 +354,7 @@ export type StockDocumentOrderByWithRelationInput = {
   paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   externalNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   discountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   warehouse?: Prisma.WarehouseOrderByWithRelationInput
@@ -356,6 +365,7 @@ export type StockDocumentOrderByWithRelationInput = {
 
 export type StockDocumentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  idempotencyKey?: string
   type_number?: Prisma.StockDocumentTypeNumberCompoundUniqueInput
   AND?: Prisma.StockDocumentWhereInput | Prisma.StockDocumentWhereInput[]
   OR?: Prisma.StockDocumentWhereInput[]
@@ -380,7 +390,7 @@ export type StockDocumentWhereUniqueInput = Prisma.AtLeast<{
   partner?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
   lines?: Prisma.StockDocumentLineListRelationFilter
   paymentAccount?: Prisma.XOR<Prisma.PaymentAccountNullableScalarRelationFilter, Prisma.PaymentAccountWhereInput> | null
-}, "id" | "type_number">
+}, "id" | "idempotencyKey" | "type_number">
 
 export type StockDocumentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -398,6 +408,7 @@ export type StockDocumentOrderByWithAggregationInput = {
   paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   externalNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   discountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.StockDocumentCountOrderByAggregateInput
@@ -426,6 +437,7 @@ export type StockDocumentScalarWhereWithAggregatesInput = {
   paymentMethod?: Prisma.EnumSalePaymentMethodNullableWithAggregatesFilter<"StockDocument"> | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.StringNullableWithAggregatesFilter<"StockDocument"> | string | null
   discountPercent?: Prisma.DecimalNullableWithAggregatesFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"StockDocument"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"StockDocument"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"StockDocument"> | Date | string
 }
@@ -444,6 +456,7 @@ export type StockDocumentCreateInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
@@ -468,6 +481,7 @@ export type StockDocumentUncheckedCreateInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
@@ -488,6 +502,7 @@ export type StockDocumentUpdateInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
@@ -512,6 +527,7 @@ export type StockDocumentUncheckedUpdateInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
@@ -534,6 +550,7 @@ export type StockDocumentCreateManyInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -552,6 +569,7 @@ export type StockDocumentUpdateManyMutationInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -572,6 +590,7 @@ export type StockDocumentUncheckedUpdateManyInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -607,6 +626,7 @@ export type StockDocumentCountOrderByAggregateInput = {
   paymentMethod?: Prisma.SortOrder
   externalNumber?: Prisma.SortOrder
   discountPercent?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -634,6 +654,7 @@ export type StockDocumentMaxOrderByAggregateInput = {
   paymentMethod?: Prisma.SortOrder
   externalNumber?: Prisma.SortOrder
   discountPercent?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -654,6 +675,7 @@ export type StockDocumentMinOrderByAggregateInput = {
   paymentMethod?: Prisma.SortOrder
   externalNumber?: Prisma.SortOrder
   discountPercent?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -815,6 +837,7 @@ export type StockDocumentCreateWithoutWarehouseInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   partner?: Prisma.PartnerCreateNestedOneWithoutDocumentsInput
@@ -837,6 +860,7 @@ export type StockDocumentUncheckedCreateWithoutWarehouseInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
@@ -888,6 +912,7 @@ export type StockDocumentScalarWhereInput = {
   paymentMethod?: Prisma.EnumSalePaymentMethodNullableFilter<"StockDocument"> | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.StringNullableFilter<"StockDocument"> | string | null
   discountPercent?: Prisma.DecimalNullableFilter<"StockDocument"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.StringNullableFilter<"StockDocument"> | string | null
   createdAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockDocument"> | Date | string
 }
@@ -906,6 +931,7 @@ export type StockDocumentCreateWithoutPartnerInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
@@ -928,6 +954,7 @@ export type StockDocumentUncheckedCreateWithoutPartnerInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
@@ -974,6 +1001,7 @@ export type StockDocumentCreateWithoutPaymentAccountInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
@@ -997,6 +1025,7 @@ export type StockDocumentUncheckedCreateWithoutPaymentAccountInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
@@ -1032,6 +1061,7 @@ export type StockDocumentUpdateWithoutPaymentAccountInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
@@ -1055,6 +1085,7 @@ export type StockDocumentUncheckedUpdateWithoutPaymentAccountInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
@@ -1074,6 +1105,7 @@ export type StockDocumentCreateWithoutLinesInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
@@ -1097,6 +1129,7 @@ export type StockDocumentUncheckedCreateWithoutLinesInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentAccount?: Prisma.PaymentAccountUncheckedCreateNestedOneWithoutSaleDocumentInput
@@ -1132,6 +1165,7 @@ export type StockDocumentUpdateWithoutLinesInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
@@ -1155,6 +1189,7 @@ export type StockDocumentUncheckedUpdateWithoutLinesInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentAccount?: Prisma.PaymentAccountUncheckedUpdateOneWithoutSaleDocumentNestedInput
@@ -1175,6 +1210,7 @@ export type StockDocumentCreateManyWarehouseInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1193,6 +1229,7 @@ export type StockDocumentUpdateWithoutWarehouseInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.PartnerUpdateOneWithoutDocumentsNestedInput
@@ -1215,6 +1252,7 @@ export type StockDocumentUncheckedUpdateWithoutWarehouseInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
@@ -1236,6 +1274,7 @@ export type StockDocumentUncheckedUpdateManyWithoutWarehouseInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1255,6 +1294,7 @@ export type StockDocumentCreateManyPartnerInput = {
   paymentMethod?: $Enums.SalePaymentMethod | null
   externalNumber?: string | null
   discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1273,6 +1313,7 @@ export type StockDocumentUpdateWithoutPartnerInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
@@ -1295,6 +1336,7 @@ export type StockDocumentUncheckedUpdateWithoutPartnerInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
@@ -1316,6 +1358,7 @@ export type StockDocumentUncheckedUpdateManyWithoutPartnerInput = {
   paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
   externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1367,6 +1410,7 @@ export type StockDocumentSelect<ExtArgs extends runtime.Types.Extensions.Interna
   paymentMethod?: boolean
   externalNumber?: boolean
   discountPercent?: boolean
+  idempotencyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
@@ -1392,6 +1436,7 @@ export type StockDocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   paymentMethod?: boolean
   externalNumber?: boolean
   discountPercent?: boolean
+  idempotencyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
@@ -1414,6 +1459,7 @@ export type StockDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   paymentMethod?: boolean
   externalNumber?: boolean
   discountPercent?: boolean
+  idempotencyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
@@ -1436,11 +1482,12 @@ export type StockDocumentSelectScalar = {
   paymentMethod?: boolean
   externalNumber?: boolean
   discountPercent?: boolean
+  idempotencyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type StockDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "number" | "documentDate" | "warehouseId" | "partnerId" | "sourceDocumentId" | "transferGroupId" | "notes" | "totalEuro" | "totalLei" | "cashRegistered" | "paymentMethod" | "externalNumber" | "discountPercent" | "createdAt" | "updatedAt", ExtArgs["result"]["stockDocument"]>
+export type StockDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "number" | "documentDate" | "warehouseId" | "partnerId" | "sourceDocumentId" | "transferGroupId" | "notes" | "totalEuro" | "totalLei" | "cashRegistered" | "paymentMethod" | "externalNumber" | "discountPercent" | "idempotencyKey" | "createdAt" | "updatedAt", ExtArgs["result"]["stockDocument"]>
 export type StockDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
   partner?: boolean | Prisma.StockDocument$partnerArgs<ExtArgs>
@@ -1499,6 +1546,11 @@ export type $StockDocumentPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * Discount aplicat pe document, în procente (prețurile liniilor sunt deja nete).
      */
     discountPercent: runtime.Decimal | null
+    /**
+     * Cheia de idempotență a formularului: reîncercarea aceleiași ciorne nu poate
+     * crea un al doilea document. Null pe documentele de dinaintea funcției.
+     */
+    idempotencyKey: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["stockDocument"]>
@@ -1943,6 +1995,7 @@ export interface StockDocumentFieldRefs {
   readonly paymentMethod: Prisma.FieldRef<"StockDocument", 'SalePaymentMethod'>
   readonly externalNumber: Prisma.FieldRef<"StockDocument", 'String'>
   readonly discountPercent: Prisma.FieldRef<"StockDocument", 'Decimal'>
+  readonly idempotencyKey: Prisma.FieldRef<"StockDocument", 'String'>
   readonly createdAt: Prisma.FieldRef<"StockDocument", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"StockDocument", 'DateTime'>
 }

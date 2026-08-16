@@ -92,9 +92,6 @@ function DetailsPanel({
         <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
           <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
             <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#6f6b63]">
-                Detalii operațiune
-              </p>
               <h2 className="mt-2 text-xl font-semibold text-[#1b1a17]">
                 {details.typeLabel} #{details.number}
               </h2>
@@ -116,7 +113,7 @@ function DetailsPanel({
                 label={details.partnerLabel}
                 value={
                   details.partner
-                    ? `${details.partner}${details.partnerPhone ? ` · ${details.partnerPhone}` : ""}`
+                    ? `${details.partner}${details.partnerPhone ? `, ${details.partnerPhone}` : ""}`
                     : "Consumator final"
                 }
               />
@@ -236,7 +233,7 @@ function DetailsPanel({
 function MetaItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-wide text-[#98948b]">{label}</dt>
+      <dt className="text-sm text-[#98948b]">{label}</dt>
       <dd className="mt-0.5 text-[#1b1a17]">{value}</dd>
     </div>
   );

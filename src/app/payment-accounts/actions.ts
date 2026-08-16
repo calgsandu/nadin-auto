@@ -20,6 +20,11 @@ import {
   assertCanCancelPaymentAccount,
   assertCanMarkPaymentAccountPaid,
 } from "@/lib/payment-accounts/status";
+import {
+  findByToken,
+  isDuplicateKeyError,
+  readToken,
+} from "@/lib/operations/idempotency";
 import { calculatePaymentTotals } from "@/lib/payment-accounts/totals";
 import { parsePaymentAccountForm } from "@/lib/payment-accounts/validate";
 import { postUnsignedInvoice } from "@/lib/e-factura/client";
@@ -41,6 +46,11 @@ export async function createPaymentAccountAction(
 ): Promise<PaymentAccountActionState> {
   try {
     const user = await requirePaymentAccountWrite();
+    const token = readToken(formData);
+    const alreadySaved = token ? await findByToken(prisma.paymentAccount, token) : null;
+    if (alreadySaved) {
+      return { ok: true, message: `Contul de plată #${alreadySaved.number} era deja emis.` };
+    }
     const input = parsePaymentAccountForm(formData);
 
     const created = await prisma.$transaction(async (tx) => {
@@ -108,6 +118,7 @@ export async function createPaymentAccountAction(
           warehouseId: warehouse.id,
           partnerId: resolvedPartner.id,
           notes: input.notes,
+          idempotencyKey: token,
           customerName: resolvedPartner.name,
           customerAddress: resolvedPartner.address,
           customerIdno: resolvedPartner.idno,
@@ -394,6 +405,10 @@ function readId(formData: FormData) {
 }
 
 function toActionError(error: unknown): PaymentAccountActionState {
+  // Același formular trimis de două ori în paralel: contul există deja.
+  if (isDuplicateKeyError(error)) {
+    return { ok: true, message: "Contul de plată era deja emis." };
+  }
   return error instanceof Error ? { ok: false, message: error.message } : INITIAL_ERROR;
 }
 
