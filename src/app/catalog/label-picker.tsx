@@ -153,11 +153,9 @@ export function LabelPicker({ children }: { children: ReactNode }) {
     });
   }
 
-  function print() {
-    if (selected.length === 0) return;
-    const query = buildLabelPrintQuery(selected);
-    window.open(`/print/labels?${query.toString()}`, "_blank", "noreferrer");
-  }
+  // Link real, nu `window.open`: popupurile programatice sunt blocate în
+  // Chromium-urile hardened (Helium) și butonul pare mort.
+  const printHref = `/print/labels?${buildLabelPrintQuery(selected).toString()}`;
 
   const stickerCount = selected.reduce((total, item) => total + item.count, 0);
 
@@ -325,13 +323,14 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                     >
                       Deselectează
                     </button>
-                    <button
-                      type="button"
-                      onClick={print}
+                    <a
+                      href={printHref}
+                      rel="noopener"
+                      target="_blank"
                       className="rounded-full bg-[#1b1a17] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#33312c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b1a17] sm:px-5"
                     >
                       Printează stickere
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>

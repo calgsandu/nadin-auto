@@ -61,13 +61,6 @@ export function LabelStickerCell({
   );
 }
 
-/** Deschide pagina de print cu exact rândurile bifate. */
-export function openStickerPrint(lines: StickerLine[]) {
-  const items = buildStickerItems(lines);
-  if (!items) return;
-  window.open(`/print/labels?items=${items}&layout=grid`, "_blank");
-}
-
 /** Căutare peste produsele deja adăugate în document (nu ascunde rândurile goale). */
 export function AddedLinesFilter({
   value,
@@ -95,17 +88,29 @@ export function AddedLinesFilter({
   );
 }
 
-/** Butonul „Etichete (N)" — deschide printul pentru rândurile bifate. */
+/**
+ * Butonul „Etichete (N)" — deschide printul pentru rândurile bifate.
+ * Link real, nu `window.open`: popupurile programatice sunt blocate în
+ * Chromium-urile hardened (Helium), unde butonul părea pur și simplu mort.
+ */
 export function StickerPrintButton({ lines }: { lines: StickerLine[] }) {
   const total = countStickers(lines);
+  const items = buildStickerItems(lines);
+  if (!total || !items) {
+    return (
+      <span aria-disabled="true" className={`${drawerSecondaryButton} opacity-60`}>
+        <Printer className="size-4" aria-hidden="true" /> Etichete (0)
+      </span>
+    );
+  }
   return (
-    <button
+    <a
       className={drawerSecondaryButton}
-      disabled={total === 0}
-      type="button"
-      onClick={() => openStickerPrint(lines)}
+      href={`/print/labels?items=${items}&layout=grid`}
+      rel="noopener"
+      target="_blank"
     >
       <Printer className="size-4" aria-hidden="true" /> Etichete ({total})
-    </button>
+    </a>
   );
 }
