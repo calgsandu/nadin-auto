@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
-import { canWriteCatalog } from "@/lib/roles";
+import { canReviewOperations, canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { logAuditRequired } from "@/lib/audit";
+import { getAuditEntryDetails } from "@/lib/audit/queries";
 import {
   aggregateRestockRequests,
   reconcileSaleRestockTasks,
@@ -304,4 +305,16 @@ export async function restoreDocumentAction(
     }
     return { ok: false, message: "Restaurarea a eșuat." };
   }
+}
+
+/**
+ * Snapshot-ul unei intrări de jurnal, cerut din UI doar la deschiderea
+ * secțiunii „Vezi detalii" — lista nu-l mai aduce (era ~9 MB pe 200 de rânduri).
+ */
+export async function loadAuditDetailsAction(id: string) {
+  const user = await requireCurrentAppUser();
+  if (!canReviewOperations(user.role)) {
+    throw new Error("Nu ai drepturi pentru jurnal.");
+  }
+  return getAuditEntryDetails(id);
 }

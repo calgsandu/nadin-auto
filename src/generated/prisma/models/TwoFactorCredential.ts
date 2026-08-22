@@ -910,7 +910,7 @@ export type $TwoFactorCredentialPayload<ExtArgs extends runtime.Types.Extensions
 export type TwoFactorCredentialGetPayload<S extends boolean | null | undefined | TwoFactorCredentialDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$TwoFactorCredentialPayload, S>
 
 export type TwoFactorCredentialCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<TwoFactorCredentialFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<TwoFactorCredentialFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: TwoFactorCredentialCountAggregateInputType | true
   }
 
@@ -1363,6 +1363,7 @@ export type TwoFactorCredentialFindUniqueArgs<ExtArgs extends runtime.Types.Exte
    * Filter, which TwoFactorCredential to fetch.
    */
   where: Prisma.TwoFactorCredentialWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1385,6 +1386,7 @@ export type TwoFactorCredentialFindUniqueOrThrowArgs<ExtArgs extends runtime.Typ
    * Filter, which TwoFactorCredential to fetch.
    */
   where: Prisma.TwoFactorCredentialWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1437,6 +1439,7 @@ export type TwoFactorCredentialFindFirstArgs<ExtArgs extends runtime.Types.Exten
    * Filter by unique combinations of TwoFactorCredentials.
    */
   distinct?: Prisma.TwoFactorCredentialScalarFieldEnum | Prisma.TwoFactorCredentialScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1489,6 +1492,7 @@ export type TwoFactorCredentialFindFirstOrThrowArgs<ExtArgs extends runtime.Type
    * Filter by unique combinations of TwoFactorCredentials.
    */
   distinct?: Prisma.TwoFactorCredentialScalarFieldEnum | Prisma.TwoFactorCredentialScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1541,6 +1545,7 @@ export type TwoFactorCredentialFindManyArgs<ExtArgs extends runtime.Types.Extens
    * Filter by unique combinations of TwoFactorCredentials.
    */
   distinct?: Prisma.TwoFactorCredentialScalarFieldEnum | Prisma.TwoFactorCredentialScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1563,6 +1568,7 @@ export type TwoFactorCredentialCreateArgs<ExtArgs extends runtime.Types.Extensio
    * The data needed to create a TwoFactorCredential.
    */
   data: Prisma.XOR<Prisma.TwoFactorCredentialCreateInput, Prisma.TwoFactorCredentialUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1623,6 +1629,7 @@ export type TwoFactorCredentialUpdateArgs<ExtArgs extends runtime.Types.Extensio
    * Choose, which TwoFactorCredential to update.
    */
   where: Prisma.TwoFactorCredentialWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1701,6 +1708,7 @@ export type TwoFactorCredentialUpsertArgs<ExtArgs extends runtime.Types.Extensio
    * In case the TwoFactorCredential was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.TwoFactorCredentialUpdateInput, Prisma.TwoFactorCredentialUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1723,6 +1731,7 @@ export type TwoFactorCredentialDeleteArgs<ExtArgs extends runtime.Types.Extensio
    * Filter which TwoFactorCredential to delete.
    */
   where: Prisma.TwoFactorCredentialWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

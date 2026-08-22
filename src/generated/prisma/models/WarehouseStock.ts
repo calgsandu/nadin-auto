@@ -713,7 +713,7 @@ export type $WarehouseStockPayload<ExtArgs extends runtime.Types.Extensions.Inte
 export type WarehouseStockGetPayload<S extends boolean | null | undefined | WarehouseStockDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$WarehouseStockPayload, S>
 
 export type WarehouseStockCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<WarehouseStockFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<WarehouseStockFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: WarehouseStockCountAggregateInputType | true
   }
 
@@ -1161,6 +1161,7 @@ export type WarehouseStockFindUniqueArgs<ExtArgs extends runtime.Types.Extension
    * Filter, which WarehouseStock to fetch.
    */
   where: Prisma.WarehouseStockWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1183,6 +1184,7 @@ export type WarehouseStockFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ex
    * Filter, which WarehouseStock to fetch.
    */
   where: Prisma.WarehouseStockWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1235,6 +1237,7 @@ export type WarehouseStockFindFirstArgs<ExtArgs extends runtime.Types.Extensions
    * Filter by unique combinations of WarehouseStocks.
    */
   distinct?: Prisma.WarehouseStockScalarFieldEnum | Prisma.WarehouseStockScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1287,6 +1290,7 @@ export type WarehouseStockFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ext
    * Filter by unique combinations of WarehouseStocks.
    */
   distinct?: Prisma.WarehouseStockScalarFieldEnum | Prisma.WarehouseStockScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1339,6 +1343,7 @@ export type WarehouseStockFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter by unique combinations of WarehouseStocks.
    */
   distinct?: Prisma.WarehouseStockScalarFieldEnum | Prisma.WarehouseStockScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1361,6 +1366,7 @@ export type WarehouseStockCreateArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data needed to create a WarehouseStock.
    */
   data: Prisma.XOR<Prisma.WarehouseStockCreateInput, Prisma.WarehouseStockUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1421,6 +1427,7 @@ export type WarehouseStockUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
    * Choose, which WarehouseStock to update.
    */
   where: Prisma.WarehouseStockWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1499,6 +1506,7 @@ export type WarehouseStockUpsertArgs<ExtArgs extends runtime.Types.Extensions.In
    * In case the WarehouseStock was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.WarehouseStockUpdateInput, Prisma.WarehouseStockUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1521,6 +1529,7 @@ export type WarehouseStockDeleteArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter which WarehouseStock to delete.
    */
   where: Prisma.WarehouseStockWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

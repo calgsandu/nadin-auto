@@ -191,15 +191,16 @@ export function twoFactorCookieOptions(expiresAt: Date) {
   };
 }
 
-export async function validateSessionProof(input: ProofBinding) {
-  const proof = await prisma.twoFactorSessionProof.findFirst({
-    where: {
-      tokenHash: hashToken(input.rawToken),
-      authSessionHash: hashNeonSessionId(input.authSessionId),
-      appUserId: input.appUserId,
-      credentialId: input.credentialId,
-      expiresAt: { gt: input.now },
-    },
+/**
+ * Dovada legată de un token, căutată doar după `tokenHash` (index unic).
+ *
+ * Restul legăturilor — sesiune, utilizator, credențial, expirare — se verifică
+ * în `sessionProofMatches`, ca înainte; separarea permite pornirea căutării în
+ * paralel cu citirea utilizatorului, fără să aștepte `credentialId`.
+ */
+export async function findSessionProofByToken(rawToken: string) {
+  return prisma.twoFactorSessionProof.findUnique({
+    where: { tokenHash: hashToken(rawToken) },
     select: {
       tokenHash: true,
       authSessionHash: true,
@@ -208,5 +209,9 @@ export async function validateSessionProof(input: ProofBinding) {
       expiresAt: true,
     },
   });
+}
+
+export async function validateSessionProof(input: ProofBinding) {
+  const proof = await findSessionProofByToken(input.rawToken);
   return proof ? sessionProofMatches(proof, input) : false;
 }

@@ -1312,7 +1312,7 @@ export type $PartnerPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type PartnerGetPayload<S extends boolean | null | undefined | PartnerDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$PartnerPayload, S>
 
 export type PartnerCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<PartnerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<PartnerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: PartnerCountAggregateInputType | true
   }
 
@@ -1771,6 +1771,7 @@ export type PartnerFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter, which Partner to fetch.
    */
   where: Prisma.PartnerWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1793,6 +1794,7 @@ export type PartnerFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extension
    * Filter, which Partner to fetch.
    */
   where: Prisma.PartnerWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1845,6 +1847,7 @@ export type PartnerFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Filter by unique combinations of Partners.
    */
   distinct?: Prisma.PartnerScalarFieldEnum | Prisma.PartnerScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1897,6 +1900,7 @@ export type PartnerFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    * Filter by unique combinations of Partners.
    */
   distinct?: Prisma.PartnerScalarFieldEnum | Prisma.PartnerScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1949,6 +1953,7 @@ export type PartnerFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Filter by unique combinations of Partners.
    */
   distinct?: Prisma.PartnerScalarFieldEnum | Prisma.PartnerScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1971,6 +1976,7 @@ export type PartnerCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * The data needed to create a Partner.
    */
   data: Prisma.XOR<Prisma.PartnerCreateInput, Prisma.PartnerUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2027,6 +2033,7 @@ export type PartnerUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Choose, which Partner to update.
    */
   where: Prisma.PartnerWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2101,6 +2108,7 @@ export type PartnerUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * In case the Partner was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.PartnerUpdateInput, Prisma.PartnerUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2123,6 +2131,7 @@ export type PartnerDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Filter which Partner to delete.
    */
   where: Prisma.PartnerWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

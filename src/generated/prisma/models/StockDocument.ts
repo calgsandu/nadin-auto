@@ -1560,7 +1560,7 @@ export type $StockDocumentPayload<ExtArgs extends runtime.Types.Extensions.Inter
 export type StockDocumentGetPayload<S extends boolean | null | undefined | StockDocumentDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$StockDocumentPayload, S>
 
 export type StockDocumentCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<StockDocumentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<StockDocumentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: StockDocumentCountAggregateInputType | true
   }
 
@@ -2022,6 +2022,7 @@ export type StockDocumentFindUniqueArgs<ExtArgs extends runtime.Types.Extensions
    * Filter, which StockDocument to fetch.
    */
   where: Prisma.StockDocumentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2044,6 +2045,7 @@ export type StockDocumentFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ext
    * Filter, which StockDocument to fetch.
    */
   where: Prisma.StockDocumentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2096,6 +2098,7 @@ export type StockDocumentFindFirstArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter by unique combinations of StockDocuments.
    */
   distinct?: Prisma.StockDocumentScalarFieldEnum | Prisma.StockDocumentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2148,6 +2151,7 @@ export type StockDocumentFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Exte
    * Filter by unique combinations of StockDocuments.
    */
   distinct?: Prisma.StockDocumentScalarFieldEnum | Prisma.StockDocumentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2200,6 +2204,7 @@ export type StockDocumentFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Filter by unique combinations of StockDocuments.
    */
   distinct?: Prisma.StockDocumentScalarFieldEnum | Prisma.StockDocumentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2222,6 +2227,7 @@ export type StockDocumentCreateArgs<ExtArgs extends runtime.Types.Extensions.Int
    * The data needed to create a StockDocument.
    */
   data: Prisma.XOR<Prisma.StockDocumentCreateInput, Prisma.StockDocumentUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2282,6 +2288,7 @@ export type StockDocumentUpdateArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Choose, which StockDocument to update.
    */
   where: Prisma.StockDocumentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2360,6 +2367,7 @@ export type StockDocumentUpsertArgs<ExtArgs extends runtime.Types.Extensions.Int
    * In case the StockDocument was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.StockDocumentUpdateInput, Prisma.StockDocumentUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2382,6 +2390,7 @@ export type StockDocumentDeleteArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Filter which StockDocument to delete.
    */
   where: Prisma.StockDocumentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

@@ -510,7 +510,7 @@ export type $ProductFitmentPayload<ExtArgs extends runtime.Types.Extensions.Inte
 export type ProductFitmentGetPayload<S extends boolean | null | undefined | ProductFitmentDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$ProductFitmentPayload, S>
 
 export type ProductFitmentCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<ProductFitmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<ProductFitmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: ProductFitmentCountAggregateInputType | true
   }
 
@@ -954,6 +954,7 @@ export type ProductFitmentFindUniqueArgs<ExtArgs extends runtime.Types.Extension
    * Filter, which ProductFitment to fetch.
    */
   where: Prisma.ProductFitmentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -976,6 +977,7 @@ export type ProductFitmentFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ex
    * Filter, which ProductFitment to fetch.
    */
   where: Prisma.ProductFitmentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1028,6 +1030,7 @@ export type ProductFitmentFindFirstArgs<ExtArgs extends runtime.Types.Extensions
    * Filter by unique combinations of ProductFitments.
    */
   distinct?: Prisma.ProductFitmentScalarFieldEnum | Prisma.ProductFitmentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1080,6 +1083,7 @@ export type ProductFitmentFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ext
    * Filter by unique combinations of ProductFitments.
    */
   distinct?: Prisma.ProductFitmentScalarFieldEnum | Prisma.ProductFitmentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1132,6 +1136,7 @@ export type ProductFitmentFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter by unique combinations of ProductFitments.
    */
   distinct?: Prisma.ProductFitmentScalarFieldEnum | Prisma.ProductFitmentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1154,6 +1159,7 @@ export type ProductFitmentCreateArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data needed to create a ProductFitment.
    */
   data: Prisma.XOR<Prisma.ProductFitmentCreateInput, Prisma.ProductFitmentUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1214,6 +1220,7 @@ export type ProductFitmentUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
    * Choose, which ProductFitment to update.
    */
   where: Prisma.ProductFitmentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1292,6 +1299,7 @@ export type ProductFitmentUpsertArgs<ExtArgs extends runtime.Types.Extensions.In
    * In case the ProductFitment was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.ProductFitmentUpdateInput, Prisma.ProductFitmentUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1314,6 +1322,7 @@ export type ProductFitmentDeleteArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter which ProductFitment to delete.
    */
   where: Prisma.ProductFitmentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

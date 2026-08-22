@@ -1,31 +1,58 @@
 import { prisma } from "@/lib/prisma";
 
-/** Data for the catalog-admin sections (brands, models, types, fitments, warehouses). */
-export async function getCatalogAdminData() {
+export type CatalogAdminSection =
+  | "branduri"
+  | "modele"
+  | "tipuri"
+  | "compatibilitati"
+  | "depozite";
+
+/**
+ * Datele pentru o secțiune de administrare a catalogului.
+ *
+ * Forma e aceeași pentru toate secțiunile, dar se citește doar ce afișează
+ * secțiunea cerută (plus lista de care are nevoie dialogul ei): înainte,
+ * deschiderea oricăreia aducea toate cele cinci seturi — inclusiv cele 292 de
+ * compatibilități cu modelul și brandul lor, ~256 KB degeaba.
+ */
+export async function getCatalogAdminData(section: CatalogAdminSection = "branduri") {
+  const needBrands = section === "branduri" || section === "modele";
+  const needModels = section === "modele" || section === "compatibilitati";
+
   const [brands, models, types, fitments, warehouses] = await Promise.all([
-    prisma.brand.findMany({
-      orderBy: { name: "asc" },
-      include: { _count: { select: { models: true } } },
-    }),
-    prisma.carModel.findMany({
-      orderBy: [{ brand: { name: "asc" } }, { name: "asc" }],
-      include: { brand: true, _count: { select: { fitments: true } } },
-    }),
-    prisma.productType.findMany({
-      orderBy: { name: "asc" },
-      include: { _count: { select: { products: true } } },
-    }),
-    prisma.vehicleFitment.findMany({
-      orderBy: [{ carModel: { name: "asc" } }, { label: "asc" }],
-      include: {
-        carModel: { include: { brand: true } },
-        _count: { select: { products: true } },
-      },
-    }),
-    prisma.warehouse.findMany({
-      orderBy: { name: "asc" },
-      include: { _count: { select: { stocks: true, documents: true } } },
-    }),
+    needBrands
+      ? prisma.brand.findMany({
+          orderBy: { name: "asc" },
+          include: { _count: { select: { models: true } } },
+        })
+      : Promise.resolve([]),
+    needModels
+      ? prisma.carModel.findMany({
+          orderBy: [{ brand: { name: "asc" } }, { name: "asc" }],
+          include: { brand: true, _count: { select: { fitments: true } } },
+        })
+      : Promise.resolve([]),
+    section === "tipuri"
+      ? prisma.productType.findMany({
+          orderBy: { name: "asc" },
+          include: { _count: { select: { products: true } } },
+        })
+      : Promise.resolve([]),
+    section === "compatibilitati"
+      ? prisma.vehicleFitment.findMany({
+          orderBy: [{ carModel: { name: "asc" } }, { label: "asc" }],
+          include: {
+            carModel: { include: { brand: true } },
+            _count: { select: { products: true } },
+          },
+        })
+      : Promise.resolve([]),
+    section === "depozite"
+      ? prisma.warehouse.findMany({
+          orderBy: { name: "asc" },
+          include: { _count: { select: { stocks: true, documents: true } } },
+        })
+      : Promise.resolve([]),
   ]);
 
   return { brands, models, types, fitments, warehouses };

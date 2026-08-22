@@ -2208,7 +2208,7 @@ export type $PaymentAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
 export type PaymentAccountGetPayload<S extends boolean | null | undefined | PaymentAccountDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$PaymentAccountPayload, S>
 
 export type PaymentAccountCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<PaymentAccountFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<PaymentAccountFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: PaymentAccountCountAggregateInputType | true
   }
 
@@ -2684,6 +2684,7 @@ export type PaymentAccountFindUniqueArgs<ExtArgs extends runtime.Types.Extension
    * Filter, which PaymentAccount to fetch.
    */
   where: Prisma.PaymentAccountWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2706,6 +2707,7 @@ export type PaymentAccountFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ex
    * Filter, which PaymentAccount to fetch.
    */
   where: Prisma.PaymentAccountWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2758,6 +2760,7 @@ export type PaymentAccountFindFirstArgs<ExtArgs extends runtime.Types.Extensions
    * Filter by unique combinations of PaymentAccounts.
    */
   distinct?: Prisma.PaymentAccountScalarFieldEnum | Prisma.PaymentAccountScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2810,6 +2813,7 @@ export type PaymentAccountFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ext
    * Filter by unique combinations of PaymentAccounts.
    */
   distinct?: Prisma.PaymentAccountScalarFieldEnum | Prisma.PaymentAccountScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2862,6 +2866,7 @@ export type PaymentAccountFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter by unique combinations of PaymentAccounts.
    */
   distinct?: Prisma.PaymentAccountScalarFieldEnum | Prisma.PaymentAccountScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2884,6 +2889,7 @@ export type PaymentAccountCreateArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data needed to create a PaymentAccount.
    */
   data: Prisma.XOR<Prisma.PaymentAccountCreateInput, Prisma.PaymentAccountUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2944,6 +2950,7 @@ export type PaymentAccountUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
    * Choose, which PaymentAccount to update.
    */
   where: Prisma.PaymentAccountWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -3022,6 +3029,7 @@ export type PaymentAccountUpsertArgs<ExtArgs extends runtime.Types.Extensions.In
    * In case the PaymentAccount was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.PaymentAccountUpdateInput, Prisma.PaymentAccountUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -3044,6 +3052,7 @@ export type PaymentAccountDeleteArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter which PaymentAccount to delete.
    */
   where: Prisma.PaymentAccountWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

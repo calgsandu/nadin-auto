@@ -1057,7 +1057,7 @@ export type $PaymentAccountLinePayload<ExtArgs extends runtime.Types.Extensions.
 export type PaymentAccountLineGetPayload<S extends boolean | null | undefined | PaymentAccountLineDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$PaymentAccountLinePayload, S>
 
 export type PaymentAccountLineCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<PaymentAccountLineFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<PaymentAccountLineFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: PaymentAccountLineCountAggregateInputType | true
   }
 
@@ -1513,6 +1513,7 @@ export type PaymentAccountLineFindUniqueArgs<ExtArgs extends runtime.Types.Exten
    * Filter, which PaymentAccountLine to fetch.
    */
   where: Prisma.PaymentAccountLineWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1535,6 +1536,7 @@ export type PaymentAccountLineFindUniqueOrThrowArgs<ExtArgs extends runtime.Type
    * Filter, which PaymentAccountLine to fetch.
    */
   where: Prisma.PaymentAccountLineWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1587,6 +1589,7 @@ export type PaymentAccountLineFindFirstArgs<ExtArgs extends runtime.Types.Extens
    * Filter by unique combinations of PaymentAccountLines.
    */
   distinct?: Prisma.PaymentAccountLineScalarFieldEnum | Prisma.PaymentAccountLineScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1639,6 +1642,7 @@ export type PaymentAccountLineFindFirstOrThrowArgs<ExtArgs extends runtime.Types
    * Filter by unique combinations of PaymentAccountLines.
    */
   distinct?: Prisma.PaymentAccountLineScalarFieldEnum | Prisma.PaymentAccountLineScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1691,6 +1695,7 @@ export type PaymentAccountLineFindManyArgs<ExtArgs extends runtime.Types.Extensi
    * Filter by unique combinations of PaymentAccountLines.
    */
   distinct?: Prisma.PaymentAccountLineScalarFieldEnum | Prisma.PaymentAccountLineScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1713,6 +1718,7 @@ export type PaymentAccountLineCreateArgs<ExtArgs extends runtime.Types.Extension
    * The data needed to create a PaymentAccountLine.
    */
   data: Prisma.XOR<Prisma.PaymentAccountLineCreateInput, Prisma.PaymentAccountLineUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1773,6 +1779,7 @@ export type PaymentAccountLineUpdateArgs<ExtArgs extends runtime.Types.Extension
    * Choose, which PaymentAccountLine to update.
    */
   where: Prisma.PaymentAccountLineWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1851,6 +1858,7 @@ export type PaymentAccountLineUpsertArgs<ExtArgs extends runtime.Types.Extension
    * In case the PaymentAccountLine was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.PaymentAccountLineUpdateInput, Prisma.PaymentAccountLineUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1873,6 +1881,7 @@ export type PaymentAccountLineDeleteArgs<ExtArgs extends runtime.Types.Extension
    * Filter which PaymentAccountLine to delete.
    */
   where: Prisma.PaymentAccountLineWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

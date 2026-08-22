@@ -703,7 +703,7 @@ export type $TwoFactorSessionProofPayload<ExtArgs extends runtime.Types.Extensio
 export type TwoFactorSessionProofGetPayload<S extends boolean | null | undefined | TwoFactorSessionProofDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$TwoFactorSessionProofPayload, S>
 
 export type TwoFactorSessionProofCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<TwoFactorSessionProofFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<TwoFactorSessionProofFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: TwoFactorSessionProofCountAggregateInputType | true
   }
 
@@ -1152,6 +1152,7 @@ export type TwoFactorSessionProofFindUniqueArgs<ExtArgs extends runtime.Types.Ex
    * Filter, which TwoFactorSessionProof to fetch.
    */
   where: Prisma.TwoFactorSessionProofWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1174,6 +1175,7 @@ export type TwoFactorSessionProofFindUniqueOrThrowArgs<ExtArgs extends runtime.T
    * Filter, which TwoFactorSessionProof to fetch.
    */
   where: Prisma.TwoFactorSessionProofWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1226,6 +1228,7 @@ export type TwoFactorSessionProofFindFirstArgs<ExtArgs extends runtime.Types.Ext
    * Filter by unique combinations of TwoFactorSessionProofs.
    */
   distinct?: Prisma.TwoFactorSessionProofScalarFieldEnum | Prisma.TwoFactorSessionProofScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1278,6 +1281,7 @@ export type TwoFactorSessionProofFindFirstOrThrowArgs<ExtArgs extends runtime.Ty
    * Filter by unique combinations of TwoFactorSessionProofs.
    */
   distinct?: Prisma.TwoFactorSessionProofScalarFieldEnum | Prisma.TwoFactorSessionProofScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1330,6 +1334,7 @@ export type TwoFactorSessionProofFindManyArgs<ExtArgs extends runtime.Types.Exte
    * Filter by unique combinations of TwoFactorSessionProofs.
    */
   distinct?: Prisma.TwoFactorSessionProofScalarFieldEnum | Prisma.TwoFactorSessionProofScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1352,6 +1357,7 @@ export type TwoFactorSessionProofCreateArgs<ExtArgs extends runtime.Types.Extens
    * The data needed to create a TwoFactorSessionProof.
    */
   data: Prisma.XOR<Prisma.TwoFactorSessionProofCreateInput, Prisma.TwoFactorSessionProofUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1412,6 +1418,7 @@ export type TwoFactorSessionProofUpdateArgs<ExtArgs extends runtime.Types.Extens
    * Choose, which TwoFactorSessionProof to update.
    */
   where: Prisma.TwoFactorSessionProofWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1490,6 +1497,7 @@ export type TwoFactorSessionProofUpsertArgs<ExtArgs extends runtime.Types.Extens
    * In case the TwoFactorSessionProof was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.TwoFactorSessionProofUpdateInput, Prisma.TwoFactorSessionProofUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1512,6 +1520,7 @@ export type TwoFactorSessionProofDeleteArgs<ExtArgs extends runtime.Types.Extens
    * Filter which TwoFactorSessionProof to delete.
    */
   where: Prisma.TwoFactorSessionProofWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

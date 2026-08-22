@@ -703,7 +703,7 @@ export type $TrustedDevicePayload<ExtArgs extends runtime.Types.Extensions.Inter
 export type TrustedDeviceGetPayload<S extends boolean | null | undefined | TrustedDeviceDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$TrustedDevicePayload, S>
 
 export type TrustedDeviceCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<TrustedDeviceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<TrustedDeviceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: TrustedDeviceCountAggregateInputType | true
   }
 
@@ -1152,6 +1152,7 @@ export type TrustedDeviceFindUniqueArgs<ExtArgs extends runtime.Types.Extensions
    * Filter, which TrustedDevice to fetch.
    */
   where: Prisma.TrustedDeviceWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1174,6 +1175,7 @@ export type TrustedDeviceFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ext
    * Filter, which TrustedDevice to fetch.
    */
   where: Prisma.TrustedDeviceWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1226,6 +1228,7 @@ export type TrustedDeviceFindFirstArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter by unique combinations of TrustedDevices.
    */
   distinct?: Prisma.TrustedDeviceScalarFieldEnum | Prisma.TrustedDeviceScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1278,6 +1281,7 @@ export type TrustedDeviceFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Exte
    * Filter by unique combinations of TrustedDevices.
    */
   distinct?: Prisma.TrustedDeviceScalarFieldEnum | Prisma.TrustedDeviceScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1330,6 +1334,7 @@ export type TrustedDeviceFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Filter by unique combinations of TrustedDevices.
    */
   distinct?: Prisma.TrustedDeviceScalarFieldEnum | Prisma.TrustedDeviceScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1352,6 +1357,7 @@ export type TrustedDeviceCreateArgs<ExtArgs extends runtime.Types.Extensions.Int
    * The data needed to create a TrustedDevice.
    */
   data: Prisma.XOR<Prisma.TrustedDeviceCreateInput, Prisma.TrustedDeviceUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1412,6 +1418,7 @@ export type TrustedDeviceUpdateArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Choose, which TrustedDevice to update.
    */
   where: Prisma.TrustedDeviceWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1490,6 +1497,7 @@ export type TrustedDeviceUpsertArgs<ExtArgs extends runtime.Types.Extensions.Int
    * In case the TrustedDevice was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.TrustedDeviceUpdateInput, Prisma.TrustedDeviceUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1512,6 +1520,7 @@ export type TrustedDeviceDeleteArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Filter which TrustedDevice to delete.
    */
   where: Prisma.TrustedDeviceWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

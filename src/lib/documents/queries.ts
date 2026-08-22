@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { productLabelInclude } from "@/lib/catalog/product-include";
 import type { Prisma } from "@/generated/prisma/client";
 import type { StockDocumentType } from "@/generated/prisma/enums";
 
@@ -51,7 +50,28 @@ export async function getDocumentsData(params: DocumentsSearchParams = {}) {
         warehouse: true,
         partner: true,
         _count: { select: { lines: true } },
-        lines: { include: { product: { include: productLabelInclude } }, take: 200 },
+        // Drawerul „Detalii" arată doar cod + descriere + fitmentul principal.
+        // `productLabelInclude` aducea în plus TOATE compatibilitățile fiecărui
+        // produs de pe fiecare linie a celor 50 de documente (~500 KB/pagină).
+        lines: {
+          include: {
+            product: {
+              select: {
+                description: true,
+                externalCode: true,
+                fitment: {
+                  select: {
+                    yearStart: true,
+                    yearEnd: true,
+                    yearOpenEnded: true,
+                    carModel: { select: { name: true, brand: { select: { name: true } } } },
+                  },
+                },
+              },
+            },
+          },
+          take: 200,
+        },
       },
     }),
     prisma.stockDocument.count({ where }),

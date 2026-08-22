@@ -871,7 +871,7 @@ export type $RestockTaskPayload<ExtArgs extends runtime.Types.Extensions.Interna
 export type RestockTaskGetPayload<S extends boolean | null | undefined | RestockTaskDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$RestockTaskPayload, S>
 
 export type RestockTaskCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<RestockTaskFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<RestockTaskFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: RestockTaskCountAggregateInputType | true
   }
 
@@ -1323,6 +1323,7 @@ export type RestockTaskFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    * Filter, which RestockTask to fetch.
    */
   where: Prisma.RestockTaskWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1345,6 +1346,7 @@ export type RestockTaskFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    * Filter, which RestockTask to fetch.
    */
   where: Prisma.RestockTaskWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1397,6 +1399,7 @@ export type RestockTaskFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter by unique combinations of RestockTasks.
    */
   distinct?: Prisma.RestockTaskScalarFieldEnum | Prisma.RestockTaskScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1449,6 +1452,7 @@ export type RestockTaskFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    * Filter by unique combinations of RestockTasks.
    */
   distinct?: Prisma.RestockTaskScalarFieldEnum | Prisma.RestockTaskScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1501,6 +1505,7 @@ export type RestockTaskFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Filter by unique combinations of RestockTasks.
    */
   distinct?: Prisma.RestockTaskScalarFieldEnum | Prisma.RestockTaskScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1523,6 +1528,7 @@ export type RestockTaskCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * The data needed to create a RestockTask.
    */
   data: Prisma.XOR<Prisma.RestockTaskCreateInput, Prisma.RestockTaskUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1583,6 +1589,7 @@ export type RestockTaskUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Choose, which RestockTask to update.
    */
   where: Prisma.RestockTaskWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1661,6 +1668,7 @@ export type RestockTaskUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * In case the RestockTask was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.RestockTaskUpdateInput, Prisma.RestockTaskUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1683,6 +1691,7 @@ export type RestockTaskDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter which RestockTask to delete.
    */
   where: Prisma.RestockTaskWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

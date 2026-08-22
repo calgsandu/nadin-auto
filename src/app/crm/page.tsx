@@ -68,6 +68,7 @@ import {
   type DocumentDetailsValue,
 } from "@/app/operations/document-details";
 import { RestoreButton } from "@/app/istoric/restore-button";
+import { AuditDetails } from "@/app/istoric/audit-details";
 import { ReturnDialog, type ReturnableSale } from "@/app/operations/return-dialog";
 import { RestockCheckbox } from "@/app/operations/restock-checkbox";
 import { RoleForm } from "@/app/staff/role-form";
@@ -108,6 +109,7 @@ import {
   getOperationsData,
   getSalesDayData,
   type InventoryData,
+  type OperationsSection,
   type SalesDayData,
 } from "@/lib/operations/queries";
 import { SalesDayNav } from "./sales-day-nav";
@@ -117,6 +119,7 @@ import { getStaffData, type StaffRow } from "@/lib/staff/queries";
 import {
   getCatalogAdminData,
   type BrandRow,
+  type CatalogAdminSection,
   type ModelRow,
   type TypeRow,
   type FitmentRow,
@@ -172,7 +175,7 @@ type CatalogAdminData = Awaited<ReturnType<typeof getCatalogAdminData>>;
 type DocumentsData = Awaited<ReturnType<typeof getDocumentsData>>;
 type PaymentAccountsData = Awaited<ReturnType<typeof getPaymentAccountsData>>;
 
-const OPERATIONS_SECTIONS = new Set<WorkspaceSectionId>([
+const OPERATIONS_SECTIONS = new Set<OperationsSection>([
   "receptii",
   "transferuri",
   "vanzari",
@@ -181,7 +184,7 @@ const OPERATIONS_SECTIONS = new Set<WorkspaceSectionId>([
   "fara-stoc",
 ]);
 
-const CATALOG_ADMIN_SECTIONS = new Set<WorkspaceSectionId>([
+const CATALOG_ADMIN_SECTIONS = new Set<CatalogAdminSection>([
   "branduri",
   "modele",
   "tipuri",
@@ -212,14 +215,24 @@ export default async function Home({ searchParams }: HomeProps) {
     activeSectionId === "produse"
       ? getCatalogData(params, { onlyInStock: appUser.role === "ANGAJAT" })
       : null;
-  const operationsPromise = OPERATIONS_SECTIONS.has(activeSectionId)
-    ? getOperationsData()
+  const operationsSection = OPERATIONS_SECTIONS.has(
+    activeSectionId as OperationsSection,
+  )
+    ? (activeSectionId as OperationsSection)
+    : null;
+  const operationsPromise = operationsSection
+    ? getOperationsData(operationsSection)
     : null;
   const partnersPromise =
     activeSectionId === "furnizori" ? getPartnersData() : null;
   const staffPromise = activeSectionId === "personal" ? getStaffData() : null;
-  const catalogAdminPromise = CATALOG_ADMIN_SECTIONS.has(activeSectionId)
-    ? getCatalogAdminData()
+  const catalogAdminSection = CATALOG_ADMIN_SECTIONS.has(
+    activeSectionId as CatalogAdminSection,
+  )
+    ? (activeSectionId as CatalogAdminSection)
+    : null;
+  const catalogAdminPromise = catalogAdminSection
+    ? getCatalogAdminData(catalogAdminSection)
     : null;
   const documentsPromise =
     activeSectionId === "documente"
@@ -2236,14 +2249,11 @@ function AuditRowView({ entry }: { entry: AuditRow }) {
     label: entry.action,
     className: "bg-[#f0efec] text-[#6f6b63]",
   };
-  const details = entry.details as
-    | { deleted?: unknown; restoredDocumentId?: string }
-    | null;
   const canRestore =
     entry.action === "DELETE" &&
     entry.entity === "StockDocument" &&
-    Boolean(details?.deleted) &&
-    !details?.restoredDocumentId;
+    entry.hasDeletedSnapshot &&
+    !entry.restoredDocumentId;
 
   return (
     <tr className="motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]">
@@ -2283,20 +2293,13 @@ function AuditRowView({ entry }: { entry: AuditRow }) {
       <TableCell align="right">
         <div className="flex flex-col items-end gap-2">
           {canRestore ? <RestoreButton auditId={entry.id} title={entry.summary} /> : null}
-          {details?.restoredDocumentId ? (
+          {entry.restoredDocumentId ? (
             <span className="rounded-full bg-[#dcfce7] px-2.5 py-0.5 text-xs font-semibold text-[#15803d]">
               Restaurat
             </span>
           ) : null}
-          {entry.details != null ? (
-            <details className="text-left">
-              <summary className="cursor-pointer whitespace-nowrap text-xs font-semibold text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4">
-                Vezi detalii
-              </summary>
-              <pre className="mt-2 max-h-72 max-w-xl overflow-auto rounded-md border border-[#e8e7e3] bg-[#fafaf9] p-2 text-left font-mono text-[11px] leading-relaxed text-[#33312c]">
-                {JSON.stringify(entry.details, null, 2)}
-              </pre>
-            </details>
+          {entry.hasDetails ? (
+            <AuditDetails id={entry.id} />
           ) : (
             <span className="text-xs text-[#98948b]">—</span>
           )}

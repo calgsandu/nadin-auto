@@ -1,3 +1,5 @@
+import { Prisma } from "@/generated/prisma/client";
+import type { AuditAction, ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { pendingSaleCustomerName } from "@/lib/pending-operations/display";
 import { parsePendingOperationPayload } from "@/lib/pending-operations/payload";
@@ -12,20 +14,62 @@ export type AuditSearchParams = {
 
 const ACTIONS = new Set(["CREATE", "UPDATE", "DELETE"]);
 
-/** Ultimele intrări din jurnalul de audit, cele mai noi primele. */
+/**
+ * Ultimele intrări din jurnal, cele mai noi primele.
+ *
+ * `details` (snapshot-ul complet al documentului) NU se citește aici: pe 200 de
+ * rânduri însemna ~9 MB de JSON și 7-17 s doar transfer. Lista are nevoie doar
+ * de trei indicii derivate din el, calculate în SQL; conținutul se cere la
+ * cerere, când omul deschide „Vezi detalii" (`getAuditEntryDetails`).
+ */
 export async function getAuditData(params: AuditSearchParams = {}) {
   const action = params.act && ACTIONS.has(params.act) ? (params.act as "CREATE" | "UPDATE" | "DELETE") : undefined;
 
-  const entries = await prisma.auditLog.findMany({
-    where: {
-      ...(params.doc ? { entityId: params.doc } : {}),
-      ...(action ? { action } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
+  const conditions: Prisma.Sql[] = [];
+  if (params.doc) conditions.push(Prisma.sql`"entityId" = ${params.doc}`);
+  if (action) conditions.push(Prisma.sql`action = ${action}::"AuditAction"`);
+  const where =
+    conditions.length > 0
+      ? Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}`
+      : Prisma.empty;
+
+  const entries = await prisma.$queryRaw<AuditListRow[]>`
+    SELECT id, "userName", "userEmail", action::text AS action, entity, "entityId",
+           summary, "createdAt", "reviewStatus"::text AS "reviewStatus", "reviewNote",
+           (details -> 'deleted') IS NOT NULL AS "hasDeletedSnapshot",
+           details ->> 'restoredDocumentId' AS "restoredDocumentId",
+           details IS NOT NULL AS "hasDetails"
+      FROM "AuditLog"
+      ${where}
+     ORDER BY "createdAt" DESC
+     LIMIT 200`;
 
   return { entries, filters: { doc: params.doc, act: action } };
+}
+
+export type AuditListRow = {
+  id: string;
+  userName: string | null;
+  userEmail: string | null;
+  action: AuditAction;
+  entity: string;
+  entityId: string | null;
+  summary: string;
+  createdAt: Date;
+  reviewStatus: ReviewStatus;
+  reviewNote: string | null;
+  hasDeletedSnapshot: boolean;
+  restoredDocumentId: string | null;
+  hasDetails: boolean;
+};
+
+/** Snapshot-ul unei intrări, cerut doar când se deschide „Vezi detalii". */
+export async function getAuditEntryDetails(id: string) {
+  const entry = await prisma.auditLog.findUnique({
+    where: { id },
+    select: { details: true },
+  });
+  return entry?.details ?? null;
 }
 
 export type AuditData = Awaited<ReturnType<typeof getAuditData>>;

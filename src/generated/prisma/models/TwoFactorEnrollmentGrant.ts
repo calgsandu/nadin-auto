@@ -454,7 +454,7 @@ export type $TwoFactorEnrollmentGrantPayload<ExtArgs extends runtime.Types.Exten
 export type TwoFactorEnrollmentGrantGetPayload<S extends boolean | null | undefined | TwoFactorEnrollmentGrantDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$TwoFactorEnrollmentGrantPayload, S>
 
 export type TwoFactorEnrollmentGrantCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<TwoFactorEnrollmentGrantFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<TwoFactorEnrollmentGrantFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: TwoFactorEnrollmentGrantCountAggregateInputType | true
   }
 
@@ -900,6 +900,7 @@ export type TwoFactorEnrollmentGrantFindUniqueArgs<ExtArgs extends runtime.Types
    * Filter, which TwoFactorEnrollmentGrant to fetch.
    */
   where: Prisma.TwoFactorEnrollmentGrantWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -922,6 +923,7 @@ export type TwoFactorEnrollmentGrantFindUniqueOrThrowArgs<ExtArgs extends runtim
    * Filter, which TwoFactorEnrollmentGrant to fetch.
    */
   where: Prisma.TwoFactorEnrollmentGrantWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -974,6 +976,7 @@ export type TwoFactorEnrollmentGrantFindFirstArgs<ExtArgs extends runtime.Types.
    * Filter by unique combinations of TwoFactorEnrollmentGrants.
    */
   distinct?: Prisma.TwoFactorEnrollmentGrantScalarFieldEnum | Prisma.TwoFactorEnrollmentGrantScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1026,6 +1029,7 @@ export type TwoFactorEnrollmentGrantFindFirstOrThrowArgs<ExtArgs extends runtime
    * Filter by unique combinations of TwoFactorEnrollmentGrants.
    */
   distinct?: Prisma.TwoFactorEnrollmentGrantScalarFieldEnum | Prisma.TwoFactorEnrollmentGrantScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1078,6 +1082,7 @@ export type TwoFactorEnrollmentGrantFindManyArgs<ExtArgs extends runtime.Types.E
    * Filter by unique combinations of TwoFactorEnrollmentGrants.
    */
   distinct?: Prisma.TwoFactorEnrollmentGrantScalarFieldEnum | Prisma.TwoFactorEnrollmentGrantScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1100,6 +1105,7 @@ export type TwoFactorEnrollmentGrantCreateArgs<ExtArgs extends runtime.Types.Ext
    * The data needed to create a TwoFactorEnrollmentGrant.
    */
   data: Prisma.XOR<Prisma.TwoFactorEnrollmentGrantCreateInput, Prisma.TwoFactorEnrollmentGrantUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1160,6 +1166,7 @@ export type TwoFactorEnrollmentGrantUpdateArgs<ExtArgs extends runtime.Types.Ext
    * Choose, which TwoFactorEnrollmentGrant to update.
    */
   where: Prisma.TwoFactorEnrollmentGrantWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1238,6 +1245,7 @@ export type TwoFactorEnrollmentGrantUpsertArgs<ExtArgs extends runtime.Types.Ext
    * In case the TwoFactorEnrollmentGrant was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.TwoFactorEnrollmentGrantUpdateInput, Prisma.TwoFactorEnrollmentGrantUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1260,6 +1268,7 @@ export type TwoFactorEnrollmentGrantDeleteArgs<ExtArgs extends runtime.Types.Ext
    * Filter which TwoFactorEnrollmentGrant to delete.
    */
   where: Prisma.TwoFactorEnrollmentGrantWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

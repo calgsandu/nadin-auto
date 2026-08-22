@@ -470,7 +470,7 @@ export type $ProductTypePayload<ExtArgs extends runtime.Types.Extensions.Interna
 export type ProductTypeGetPayload<S extends boolean | null | undefined | ProductTypeDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$ProductTypePayload, S>
 
 export type ProductTypeCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<ProductTypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<ProductTypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: ProductTypeCountAggregateInputType | true
   }
 
@@ -916,6 +916,7 @@ export type ProductTypeFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    * Filter, which ProductType to fetch.
    */
   where: Prisma.ProductTypeWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -938,6 +939,7 @@ export type ProductTypeFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    * Filter, which ProductType to fetch.
    */
   where: Prisma.ProductTypeWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -990,6 +992,7 @@ export type ProductTypeFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter by unique combinations of ProductTypes.
    */
   distinct?: Prisma.ProductTypeScalarFieldEnum | Prisma.ProductTypeScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1042,6 +1045,7 @@ export type ProductTypeFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    * Filter by unique combinations of ProductTypes.
    */
   distinct?: Prisma.ProductTypeScalarFieldEnum | Prisma.ProductTypeScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1094,6 +1098,7 @@ export type ProductTypeFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Filter by unique combinations of ProductTypes.
    */
   distinct?: Prisma.ProductTypeScalarFieldEnum | Prisma.ProductTypeScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1116,6 +1121,7 @@ export type ProductTypeCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * The data needed to create a ProductType.
    */
   data: Prisma.XOR<Prisma.ProductTypeCreateInput, Prisma.ProductTypeUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1172,6 +1178,7 @@ export type ProductTypeUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Choose, which ProductType to update.
    */
   where: Prisma.ProductTypeWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1246,6 +1253,7 @@ export type ProductTypeUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * In case the ProductType was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.ProductTypeUpdateInput, Prisma.ProductTypeUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1268,6 +1276,7 @@ export type ProductTypeDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter which ProductType to delete.
    */
   where: Prisma.ProductTypeWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

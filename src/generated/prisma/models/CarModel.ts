@@ -622,7 +622,7 @@ export type $CarModelPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type CarModelGetPayload<S extends boolean | null | undefined | CarModelDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$CarModelPayload, S>
 
 export type CarModelCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<CarModelFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<CarModelFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: CarModelCountAggregateInputType | true
   }
 
@@ -1069,6 +1069,7 @@ export type CarModelFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Filter, which CarModel to fetch.
    */
   where: Prisma.CarModelWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1091,6 +1092,7 @@ export type CarModelFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    * Filter, which CarModel to fetch.
    */
   where: Prisma.CarModelWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1143,6 +1145,7 @@ export type CarModelFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter by unique combinations of CarModels.
    */
   distinct?: Prisma.CarModelScalarFieldEnum | Prisma.CarModelScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1195,6 +1198,7 @@ export type CarModelFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extension
    * Filter by unique combinations of CarModels.
    */
   distinct?: Prisma.CarModelScalarFieldEnum | Prisma.CarModelScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1247,6 +1251,7 @@ export type CarModelFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Filter by unique combinations of CarModels.
    */
   distinct?: Prisma.CarModelScalarFieldEnum | Prisma.CarModelScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1269,6 +1274,7 @@ export type CarModelCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * The data needed to create a CarModel.
    */
   data: Prisma.XOR<Prisma.CarModelCreateInput, Prisma.CarModelUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1329,6 +1335,7 @@ export type CarModelUpdateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Choose, which CarModel to update.
    */
   where: Prisma.CarModelWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1407,6 +1414,7 @@ export type CarModelUpsertArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * In case the CarModel was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.CarModelUpdateInput, Prisma.CarModelUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1429,6 +1437,7 @@ export type CarModelDeleteArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Filter which CarModel to delete.
    */
   where: Prisma.CarModelWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

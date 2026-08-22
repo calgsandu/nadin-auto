@@ -1,11 +1,16 @@
 import type { AppUser } from "@/generated/prisma/client";
+import type { TwoFactorCredentialStatus } from "@/generated/prisma/enums";
+
+export type AppUserWithCredential = AppUser & {
+  twoFactorCredential: { id: string; status: TwoFactorCredentialStatus } | null;
+};
 
 export type PrimaryAuthContext = {
   sessionId: string;
   sessionCreatedAt: Date;
   sessionExpiresAt: Date;
   authUserId: string;
-  appUser: AppUser;
+  appUser: AppUserWithCredential;
 };
 
 export type AuthAccessState =

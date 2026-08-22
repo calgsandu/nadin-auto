@@ -962,7 +962,7 @@ export type $AppUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type AppUserGetPayload<S extends boolean | null | undefined | AppUserDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$AppUserPayload, S>
 
 export type AppUserCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<AppUserFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<AppUserFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: AppUserCountAggregateInputType | true
   }
 
@@ -1416,6 +1416,7 @@ export type AppUserFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter, which AppUser to fetch.
    */
   where: Prisma.AppUserWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1438,6 +1439,7 @@ export type AppUserFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extension
    * Filter, which AppUser to fetch.
    */
   where: Prisma.AppUserWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1490,6 +1492,7 @@ export type AppUserFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Filter by unique combinations of AppUsers.
    */
   distinct?: Prisma.AppUserScalarFieldEnum | Prisma.AppUserScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1542,6 +1545,7 @@ export type AppUserFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    * Filter by unique combinations of AppUsers.
    */
   distinct?: Prisma.AppUserScalarFieldEnum | Prisma.AppUserScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1594,6 +1598,7 @@ export type AppUserFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Filter by unique combinations of AppUsers.
    */
   distinct?: Prisma.AppUserScalarFieldEnum | Prisma.AppUserScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1616,6 +1621,7 @@ export type AppUserCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * The data needed to create a AppUser.
    */
   data: Prisma.XOR<Prisma.AppUserCreateInput, Prisma.AppUserUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1672,6 +1678,7 @@ export type AppUserUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Choose, which AppUser to update.
    */
   where: Prisma.AppUserWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1746,6 +1753,7 @@ export type AppUserUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * In case the AppUser was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.AppUserUpdateInput, Prisma.AppUserUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1768,6 +1776,7 @@ export type AppUserDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Filter which AppUser to delete.
    */
   where: Prisma.AppUserWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

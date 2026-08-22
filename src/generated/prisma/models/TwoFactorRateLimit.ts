@@ -473,7 +473,7 @@ export type $TwoFactorRateLimitPayload<ExtArgs extends runtime.Types.Extensions.
 export type TwoFactorRateLimitGetPayload<S extends boolean | null | undefined | TwoFactorRateLimitDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$TwoFactorRateLimitPayload, S>
 
 export type TwoFactorRateLimitCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<TwoFactorRateLimitFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<TwoFactorRateLimitFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: TwoFactorRateLimitCountAggregateInputType | true
   }
 
@@ -916,6 +916,7 @@ export type TwoFactorRateLimitFindUniqueArgs<ExtArgs extends runtime.Types.Exten
    * Filter, which TwoFactorRateLimit to fetch.
    */
   where: Prisma.TwoFactorRateLimitWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -934,6 +935,7 @@ export type TwoFactorRateLimitFindUniqueOrThrowArgs<ExtArgs extends runtime.Type
    * Filter, which TwoFactorRateLimit to fetch.
    */
   where: Prisma.TwoFactorRateLimitWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -982,6 +984,7 @@ export type TwoFactorRateLimitFindFirstArgs<ExtArgs extends runtime.Types.Extens
    * Filter by unique combinations of TwoFactorRateLimits.
    */
   distinct?: Prisma.TwoFactorRateLimitScalarFieldEnum | Prisma.TwoFactorRateLimitScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1030,6 +1033,7 @@ export type TwoFactorRateLimitFindFirstOrThrowArgs<ExtArgs extends runtime.Types
    * Filter by unique combinations of TwoFactorRateLimits.
    */
   distinct?: Prisma.TwoFactorRateLimitScalarFieldEnum | Prisma.TwoFactorRateLimitScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1078,6 +1082,7 @@ export type TwoFactorRateLimitFindManyArgs<ExtArgs extends runtime.Types.Extensi
    * Filter by unique combinations of TwoFactorRateLimits.
    */
   distinct?: Prisma.TwoFactorRateLimitScalarFieldEnum | Prisma.TwoFactorRateLimitScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1096,6 +1101,7 @@ export type TwoFactorRateLimitCreateArgs<ExtArgs extends runtime.Types.Extension
    * The data needed to create a TwoFactorRateLimit.
    */
   data: Prisma.XOR<Prisma.TwoFactorRateLimitCreateInput, Prisma.TwoFactorRateLimitUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1148,6 +1154,7 @@ export type TwoFactorRateLimitUpdateArgs<ExtArgs extends runtime.Types.Extension
    * Choose, which TwoFactorRateLimit to update.
    */
   where: Prisma.TwoFactorRateLimitWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1218,6 +1225,7 @@ export type TwoFactorRateLimitUpsertArgs<ExtArgs extends runtime.Types.Extension
    * In case the TwoFactorRateLimit was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.TwoFactorRateLimitUpdateInput, Prisma.TwoFactorRateLimitUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1236,6 +1244,7 @@ export type TwoFactorRateLimitDeleteArgs<ExtArgs extends runtime.Types.Extension
    * Filter which TwoFactorRateLimit to delete.
    */
   where: Prisma.TwoFactorRateLimitWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

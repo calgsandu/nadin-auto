@@ -941,7 +941,7 @@ export type $VehicleFitmentPayload<ExtArgs extends runtime.Types.Extensions.Inte
 export type VehicleFitmentGetPayload<S extends boolean | null | undefined | VehicleFitmentDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$VehicleFitmentPayload, S>
 
 export type VehicleFitmentCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<VehicleFitmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<VehicleFitmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: VehicleFitmentCountAggregateInputType | true
   }
 
@@ -1393,6 +1393,7 @@ export type VehicleFitmentFindUniqueArgs<ExtArgs extends runtime.Types.Extension
    * Filter, which VehicleFitment to fetch.
    */
   where: Prisma.VehicleFitmentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1415,6 +1416,7 @@ export type VehicleFitmentFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ex
    * Filter, which VehicleFitment to fetch.
    */
   where: Prisma.VehicleFitmentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1467,6 +1469,7 @@ export type VehicleFitmentFindFirstArgs<ExtArgs extends runtime.Types.Extensions
    * Filter by unique combinations of VehicleFitments.
    */
   distinct?: Prisma.VehicleFitmentScalarFieldEnum | Prisma.VehicleFitmentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1519,6 +1522,7 @@ export type VehicleFitmentFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ext
    * Filter by unique combinations of VehicleFitments.
    */
   distinct?: Prisma.VehicleFitmentScalarFieldEnum | Prisma.VehicleFitmentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1571,6 +1575,7 @@ export type VehicleFitmentFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter by unique combinations of VehicleFitments.
    */
   distinct?: Prisma.VehicleFitmentScalarFieldEnum | Prisma.VehicleFitmentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1593,6 +1598,7 @@ export type VehicleFitmentCreateArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data needed to create a VehicleFitment.
    */
   data: Prisma.XOR<Prisma.VehicleFitmentCreateInput, Prisma.VehicleFitmentUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1653,6 +1659,7 @@ export type VehicleFitmentUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
    * Choose, which VehicleFitment to update.
    */
   where: Prisma.VehicleFitmentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1731,6 +1738,7 @@ export type VehicleFitmentUpsertArgs<ExtArgs extends runtime.Types.Extensions.In
    * In case the VehicleFitment was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.VehicleFitmentUpdateInput, Prisma.VehicleFitmentUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1753,6 +1761,7 @@ export type VehicleFitmentDeleteArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter which VehicleFitment to delete.
    */
   where: Prisma.VehicleFitmentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

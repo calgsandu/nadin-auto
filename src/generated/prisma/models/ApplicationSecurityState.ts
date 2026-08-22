@@ -330,7 +330,7 @@ export type $ApplicationSecurityStatePayload<ExtArgs extends runtime.Types.Exten
 export type ApplicationSecurityStateGetPayload<S extends boolean | null | undefined | ApplicationSecurityStateDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$ApplicationSecurityStatePayload, S>
 
 export type ApplicationSecurityStateCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<ApplicationSecurityStateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<ApplicationSecurityStateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: ApplicationSecurityStateCountAggregateInputType | true
   }
 
@@ -770,6 +770,7 @@ export type ApplicationSecurityStateFindUniqueArgs<ExtArgs extends runtime.Types
    * Filter, which ApplicationSecurityState to fetch.
    */
   where: Prisma.ApplicationSecurityStateWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -788,6 +789,7 @@ export type ApplicationSecurityStateFindUniqueOrThrowArgs<ExtArgs extends runtim
    * Filter, which ApplicationSecurityState to fetch.
    */
   where: Prisma.ApplicationSecurityStateWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -836,6 +838,7 @@ export type ApplicationSecurityStateFindFirstArgs<ExtArgs extends runtime.Types.
    * Filter by unique combinations of ApplicationSecurityStates.
    */
   distinct?: Prisma.ApplicationSecurityStateScalarFieldEnum | Prisma.ApplicationSecurityStateScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -884,6 +887,7 @@ export type ApplicationSecurityStateFindFirstOrThrowArgs<ExtArgs extends runtime
    * Filter by unique combinations of ApplicationSecurityStates.
    */
   distinct?: Prisma.ApplicationSecurityStateScalarFieldEnum | Prisma.ApplicationSecurityStateScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -932,6 +936,7 @@ export type ApplicationSecurityStateFindManyArgs<ExtArgs extends runtime.Types.E
    * Filter by unique combinations of ApplicationSecurityStates.
    */
   distinct?: Prisma.ApplicationSecurityStateScalarFieldEnum | Prisma.ApplicationSecurityStateScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -950,6 +955,7 @@ export type ApplicationSecurityStateCreateArgs<ExtArgs extends runtime.Types.Ext
    * The data needed to create a ApplicationSecurityState.
    */
   data: Prisma.XOR<Prisma.ApplicationSecurityStateCreateInput, Prisma.ApplicationSecurityStateUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1002,6 +1008,7 @@ export type ApplicationSecurityStateUpdateArgs<ExtArgs extends runtime.Types.Ext
    * Choose, which ApplicationSecurityState to update.
    */
   where: Prisma.ApplicationSecurityStateWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1072,6 +1079,7 @@ export type ApplicationSecurityStateUpsertArgs<ExtArgs extends runtime.Types.Ext
    * In case the ApplicationSecurityState was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.ApplicationSecurityStateUpdateInput, Prisma.ApplicationSecurityStateUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1090,6 +1098,7 @@ export type ApplicationSecurityStateDeleteArgs<ExtArgs extends runtime.Types.Ext
    * Filter which ApplicationSecurityState to delete.
    */
   where: Prisma.ApplicationSecurityStateWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

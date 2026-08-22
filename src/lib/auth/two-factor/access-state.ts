@@ -1,9 +1,9 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import type { TwoFactorCredentialStatus } from "@/generated/prisma/enums";
-import { prisma } from "@/lib/prisma";
 import { readTwoFactorConfig } from "./config";
 import { readPrimaryAuthResult } from "./primary";
-import { validateSessionProof } from "./session";
+import { findSessionProofByToken, sessionProofMatches } from "./session";
 import type { AuthAccessState } from "./types";
 
 type ResolveAccessInput = {
@@ -27,8 +27,23 @@ export function resolveAccessKind(input: ResolveAccessInput): AuthAccessState["k
   return input.proofValid ? "AUTHENTICATED" : "TOTP_REQUIRED";
 }
 
-export async function getAuthAccessState(): Promise<AuthAccessState> {
-  const primaryResult = await readPrimaryAuthResult();
+/**
+ * Starea de acces, o singură dată per cerere.
+ *
+ * Înainte erau patru dus-întorsuri în serie (sesiune → AppUser → credențial →
+ * dovadă). Credențialul vine acum în interogarea utilizatorului, iar dovada de
+ * sesiune se caută în paralel după `tokenHash` (unic) și se validează în
+ * memorie cu `sessionProofMatches` — aceleași verificări, două dus-întorsuri.
+ */
+export const getAuthAccessState = cache(async (): Promise<AuthAccessState> => {
+  const config = readTwoFactorConfig();
+  const rawToken = (await cookies()).get(config.proofCookieName)?.value;
+
+  const [primaryResult, storedProof] = await Promise.all([
+    readPrimaryAuthResult(),
+    rawToken ? findSessionProofByToken(rawToken) : Promise.resolve(null),
+  ]);
+
   if (!primaryResult.primary) {
     return { kind: "UNAUTHENTICATED", reason: primaryResult.reason };
   }
@@ -41,10 +56,7 @@ export async function getAuthAccessState(): Promise<AuthAccessState> {
     return { kind: "UNAUTHENTICATED", reason: "STALE_AFTER_RESET" };
   }
 
-  const credential = await prisma.twoFactorCredential.findUnique({
-    where: { appUserId: primary.appUser.id },
-    select: { id: true, status: true },
-  });
+  const credential = primary.appUser.twoFactorCredential;
   if (!credential || credential.status === "PENDING") {
     return {
       kind: "ENROLLMENT_REQUIRED",
@@ -53,19 +65,18 @@ export async function getAuthAccessState(): Promise<AuthAccessState> {
     };
   }
 
-  const config = readTwoFactorConfig();
-  const rawToken = (await cookies()).get(config.proofCookieName)?.value;
-  const proofValid = rawToken
-    ? await validateSessionProof({
-        rawToken,
-        appUserId: primary.appUser.id,
-        credentialId: credential.id,
-        authSessionId: primary.sessionId,
-        now: new Date(),
-      })
-    : false;
+  const proofValid =
+    rawToken != null
+    && storedProof != null
+    && sessionProofMatches(storedProof, {
+      rawToken,
+      appUserId: primary.appUser.id,
+      credentialId: credential.id,
+      authSessionId: primary.sessionId,
+      now: new Date(),
+    });
 
   return proofValid
     ? { kind: "AUTHENTICATED", primary, credentialId: credential.id }
     : { kind: "TOTP_REQUIRED", primary, credentialId: credential.id };
-}
+});

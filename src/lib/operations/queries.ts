@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { productLabelInclude } from "@/lib/catalog/product-include";
 import { getPartnerBalances } from "@/lib/partners/debt";
 import type { VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
-import { aggregateSoldProducts } from "@/lib/operations/sales";
 import {
   aggregateRestockRequests,
   splitRestockTasksByStatus,
@@ -17,171 +16,142 @@ import {
 /** Câte documente arată o secțiune de operațiuni (filtrele complete sunt în Documente). */
 const SECTION_DOCUMENT_LIMIT = 50;
 
-export async function getOperationsData() {
-  await ensureDefaultWarehouses();
-  const today = getTodayRange();
+/** Ce încarcă fiecare secțiune de operațiuni — restul rămâne gol. */
+const SECTION_NEEDS = {
+  receptii: { warehouses: true, suppliers: true, receipts: true },
+  transferuri: { warehouses: true, suppliers: true, transfers: true },
+  vanzari: { warehouses: true, suppliers: true, customers: true },
+  retururi: { returns: true, salesArchive: true },
+  "de-adus": { warehouses: true, restock: true },
+  "fara-stoc": { restock: true },
+} as const satisfies Record<string, Partial<Record<OperationsNeed, true>>>;
 
-  const warehouses = await prisma.warehouse.findMany({
-    where: { active: true },
-    include: {
-      stocks: {
-        select: {
-          quantity: true,
-        },
-      },
-    },
-    orderBy: [{ isDefault: "desc" }, { name: "asc" }],
-  });
-  const restockWarehouse = warehouses.find((warehouse) => warehouse.name === "Pavilion 110A");
+type OperationsNeed =
+  | "warehouses"
+  | "suppliers"
+  | "customers"
+  | "receipts"
+  | "transferuri"
+  | "transfers"
+  | "returns"
+  | "salesArchive"
+  | "restock";
 
-  // Arhiva detaliată (cu linii) se limitează la 90 de zile; totalurile pe
-  // lună/an vin din SQL ca aplicația să nu încarce toate vânzările istorice.
-  const archiveSince = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+export type OperationsSection = keyof typeof SECTION_NEEDS;
 
-  const [
-    receipts,
-    transfers,
-    salesToday,
-    salesArchive,
-    returns,
-    restockTasks,
-    suppliers,
-    customers,
-  ] = await Promise.all([
-    prisma.stockDocument.findMany({
-      where: { type: "RECEIPT" },
-      include: {
-        warehouse: true,
-        partner: true,
-        lines: {
-          include: {
-            product: { include: productLabelInclude },
-          },
-        },
-      },
-      orderBy: [{ documentDate: "desc" }, { number: "desc" }],
-      take: SECTION_DOCUMENT_LIMIT,
-    }),
-    // Transferurile sunt tot ADJUSTMENT — se exclud inventarele, care au
-    // secțiunea lor. Ajustările vechi fără transferGroupId rămân aici, ca să
-    // nu dispară din aplicație.
-    prisma.stockDocument.findMany({
-      where: { type: "ADJUSTMENT", NOT: inventoryDocumentWhere() },
-      include: {
-        warehouse: true,
-        partner: true,
-        lines: {
-          include: {
-            product: { include: productLabelInclude },
-          },
-        },
-      },
-      orderBy: [{ documentDate: "desc" }, { number: "desc" }],
-      take: SECTION_DOCUMENT_LIMIT,
-    }),
-    prisma.stockDocument.findMany({
-      where: {
-        type: "SALE",
-        documentDate: {
-          gte: today.start,
-          lt: today.end,
-        },
-      },
-      include: {
-        warehouse: true,
-        partner: true,
-        lines: {
-          include: {
-            product: { include: productLabelInclude },
-          },
-        },
-      },
-      orderBy: [{ documentDate: "desc" }, { number: "desc" }],
-    }),
-    prisma.stockDocument.findMany({
-      where: {
-        type: "SALE",
-        documentDate: { gte: archiveSince },
-      },
-      include: {
-        warehouse: true,
-        partner: true,
-        lines: {
-          include: {
-            product: { include: productLabelInclude },
-          },
-        },
-      },
-      orderBy: [{ documentDate: "desc" }, { number: "desc" }],
-    }),
-    prisma.stockDocument.findMany({
-      where: { type: "RETURN" },
-      include: {
-        warehouse: true,
-        partner: true,
-        lines: { include: { product: { include: productLabelInclude } } },
-      },
-      orderBy: [{ documentDate: "desc" }, { number: "desc" }],
-      take: 50,
-    }),
-    restockWarehouse
-      ? prisma.restockTask.findMany({
-          where: {
-            warehouseId: restockWarehouse.id,
-            status: {
-              in: ["PENDING", "UNAVAILABLE"],
-            },
-          },
-          include: {
-            product: { include: productLabelInclude },
-          },
-          orderBy: [{ requestedAt: "asc" }, { createdAt: "asc" }],
-        })
-      : Promise.resolve([]),
-    prisma.partner.findMany({
-      where: { kind: { in: ["SUPPLIER", "BOTH"] } },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
-    prisma.partner.findMany({
-      where: { kind: { in: ["CUSTOMER", "BOTH"] } },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
-  ]);
+const documentInclude = {
+  warehouse: true,
+  partner: true,
+  lines: { include: { product: { include: productLabelInclude } } },
+} as const;
+
+const documentOrder = [
+  { documentDate: "desc" },
+  { number: "desc" },
+] as const;
+
+/**
+ * Datele unei secțiuni de operațiuni.
+ *
+ * Forma returnată e aceeași pentru toate secțiunile (ca UI-ul să nu se schimbe),
+ * dar se interoghează DOAR ce afișează secțiunea cerută: înainte fiecare dintre
+ * cele șase secțiuni aducea toate cele opt seturi de date (~1 s, din care
+ * majoritatea nefolosite).
+ */
+export async function getOperationsData(section: OperationsSection = "receptii") {
+  const needs: Partial<Record<OperationsNeed, true>> = SECTION_NEEDS[section];
+
+  const [warehouses, receipts, transfers, salesArchive, returns, suppliers, customers] =
+    await Promise.all([
+      // Doar id + nume: secțiunile folosesc depozitele ca opțiuni de dialog,
+      // iar `stocks` însemna 2.900 de rânduri aduse degeaba la fiecare afișare.
+      needs.warehouses || needs.restock
+        ? prisma.warehouse.findMany({
+            where: { active: true },
+            select: { id: true, name: true, isDefault: true, active: true },
+            orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+          })
+        : Promise.resolve([]),
+      needs.receipts
+        ? prisma.stockDocument.findMany({
+            where: { type: "RECEIPT" },
+            include: documentInclude,
+            orderBy: [...documentOrder],
+            take: SECTION_DOCUMENT_LIMIT,
+          })
+        : Promise.resolve([]),
+      // Transferurile sunt tot ADJUSTMENT — se exclud inventarele, care au
+      // secțiunea lor. Ajustările vechi fără transferGroupId rămân aici, ca să
+      // nu dispară din aplicație.
+      needs.transfers
+        ? prisma.stockDocument.findMany({
+            where: { type: "ADJUSTMENT", NOT: inventoryDocumentWhere() },
+            include: documentInclude,
+            orderBy: [...documentOrder],
+            take: SECTION_DOCUMENT_LIMIT,
+          })
+        : Promise.resolve([]),
+      // Dialogul de retur oferă ultimele 30 de vânzări — atât se și aduc.
+      needs.salesArchive
+        ? prisma.stockDocument.findMany({
+            where: { type: "SALE" },
+            include: documentInclude,
+            orderBy: [...documentOrder],
+            take: 30,
+          })
+        : Promise.resolve([]),
+      needs.returns
+        ? prisma.stockDocument.findMany({
+            where: { type: "RETURN" },
+            include: documentInclude,
+            orderBy: [...documentOrder],
+            take: SECTION_DOCUMENT_LIMIT,
+          })
+        : Promise.resolve([]),
+      needs.suppliers
+        ? prisma.partner.findMany({
+            where: { kind: { in: ["SUPPLIER", "BOTH"] } },
+            orderBy: { name: "asc" },
+            select: { id: true, name: true },
+          })
+        : Promise.resolve([]),
+      needs.customers
+        ? prisma.partner.findMany({
+            where: { kind: { in: ["CUSTOMER", "BOTH"] } },
+            orderBy: { name: "asc" },
+            select: { id: true, name: true },
+          })
+        : Promise.resolve([]),
+    ]);
 
   // Datoria clientului („Долг") se arată la alegerea lui în dialogul de vânzare.
-  const balances = await getPartnerBalances();
+  const balances = needs.customers ? await getPartnerBalances() : new Map<string, number>();
   const customersWithBalance = customers.map((customer) => ({
     ...customer,
     balanceLei: balances.get(customer.id) ?? 0,
   }));
 
-  const salesFrom110AToday = salesToday.filter(
-    (sale) => sale.warehouse.name === "Pavilion 110A",
+  const restockWarehouse = warehouses.find(
+    (warehouse) => warehouse.name === "Pavilion 110A",
   );
-  // „De adus" numără doar liniile de catalog — cele externe n-au stoc de refăcut.
-  const catalogLinesToday = salesFrom110AToday
-    .flatMap((sale) => sale.lines)
-    .filter(
-      (line): line is typeof line & { productId: string } => line.productId != null,
-    );
-  const soldToday = aggregateSoldProducts(catalogLinesToday);
-  const soldProductById = new Map(
-    catalogLinesToday.map((line) => [line.productId, line.product]),
-  );
+  const restockTasks =
+    needs.restock && restockWarehouse
+      ? await prisma.restockTask.findMany({
+          where: {
+            warehouseId: restockWarehouse.id,
+            status: { in: ["PENDING", "UNAVAILABLE"] },
+          },
+          include: { product: { include: productLabelInclude } },
+          orderBy: [{ requestedAt: "asc" }, { createdAt: "asc" }],
+        })
+      : [];
   const restockByStatus = splitRestockTasksByStatus(restockTasks);
 
   return {
     warehouses,
     receipts,
     transfers,
-    salesToday,
     salesArchive,
-    soldToday: soldToday.map((line) => ({
-      ...line,
-      product: soldProductById.get(line.productId)!,
-    })),
     restockPending: summarizeRestockTasks(restockByStatus.pending),
     restockUnavailable: summarizeRestockTasks(restockByStatus.unavailable),
     suppliers,
@@ -197,46 +167,41 @@ export async function getInventoryData(params: {
   to?: string;
   ipage?: string;
 } = {}) {
-  await ensureDefaultWarehouses();
-
-  const warehouses = await prisma.warehouse.findMany({
-    where: { active: true },
-    orderBy: [{ isDefault: "desc" }, { name: "asc" }],
-  });
+  const warehouses = await listActiveWarehouses();
   const selected =
     warehouses.find((warehouse) => warehouse.id === params.wh) ??
     warehouses.find((warehouse) => warehouse.name === "Pavilion 110A") ??
     warehouses[0] ??
     null;
 
-  const stocks = selected
-    ? await prisma.warehouseStock.findMany({
-        where: { warehouseId: selected.id, quantity: { not: 0 } },
-        include: {
-          product: {
-            select: {
-              externalCode: true,
-              description: true,
-              salePriceLei: true,
-              fitment: { include: { carModel: { include: { brand: true } } } },
-              productFitments: {
-                select: { fitment: { include: { carModel: { include: { brand: true } } } } },
-              },
-            },
-          },
-        },
-        orderBy: { product: { description: "asc" } },
-      })
-    : [];
-
   const page = normalizeInventoryPage(params.ipage);
   const where = selected
     ? inventoryWhere({ warehouseId: selected.id, from: params.from, to: params.to })
     : null;
 
-  const [operations, total] = where
-    ? await Promise.all([
-        prisma.stockDocument.findMany({
+  // Stocul și arhiva nu depind unul de altul — un singur dus-întors, nu trei.
+  const [stocks, operations, total] = await Promise.all([
+    selected
+      ? prisma.warehouseStock.findMany({
+          where: { warehouseId: selected.id, quantity: { not: 0 } },
+          include: {
+            product: {
+              select: {
+                externalCode: true,
+                description: true,
+                salePriceLei: true,
+                fitment: { include: { carModel: { include: { brand: true } } } },
+                productFitments: {
+                  select: { fitment: { include: { carModel: { include: { brand: true } } } } },
+                },
+              },
+            },
+          },
+          orderBy: { product: { description: "asc" } },
+        })
+      : Promise.resolve([]),
+    where
+      ? prisma.stockDocument.findMany({
           where,
           include: {
             warehouse: { select: { name: true } },
@@ -260,10 +225,10 @@ export async function getInventoryData(params: {
           orderBy: [{ documentDate: "desc" }, { number: "desc" }],
           skip: (page - 1) * INVENTORY_PAGE_SIZE,
           take: INVENTORY_PAGE_SIZE,
-        }),
-        prisma.stockDocument.count({ where }),
-      ])
-    : [[], 0];
+        })
+      : Promise.resolve([]),
+    where ? prisma.stockDocument.count({ where }) : Promise.resolve(0),
+  ]);
 
   return {
     warehouses,
@@ -320,41 +285,50 @@ function summarizeRestockTasks<
   });
 }
 
-async function ensureDefaultWarehouses() {
-  const existingDefault = await prisma.warehouse.findFirst({
-    where: { isDefault: true },
-  });
+const DEFAULT_WAREHOUSE_NAMES = [
+  "Depozit principal",
+  "Pavilion 110A",
+  "Pavilion 514",
+  "Marfă în tranzit",
+];
 
-  await prisma.warehouse.upsert({
-    where: { name: "Depozit principal" },
-    create: {
-      name: "Depozit principal",
-      isDefault: true,
-    },
-    update: existingDefault
-      ? {}
-      : {
-          isDefault: true,
-        },
+/**
+ * Depozitele active, semănându-le pe cele implicite doar dacă lipsesc.
+ *
+ * Înainte, fiecare afișare de operațiuni/inventar făcea un findFirst + patru
+ * upsert-uri „pentru orice eventualitate" — cinci dus-întorsuri irosite la
+ * fiecare încărcare de pagină. Verificarea se face acum pe lista deja citită.
+ */
+async function listActiveWarehouses() {
+  const warehouses = await prisma.warehouse.findMany({
+    where: { active: true },
+    orderBy: [{ isDefault: "desc" }, { name: "asc" }],
   });
+  const complete =
+    warehouses.some((warehouse) => warehouse.isDefault) &&
+    DEFAULT_WAREHOUSE_NAMES.every((name) =>
+      warehouses.some((warehouse) => warehouse.name === name),
+    );
+  if (complete) return warehouses;
 
-  await Promise.all(
-    ["Pavilion 110A", "Pavilion 514", "Marfă în tranzit"].map((name) =>
-      prisma.warehouse.upsert({
-        where: { name },
-        create: { name },
-        update: {},
-      }),
-    ),
-  );
+  await seedDefaultWarehouses(warehouses.some((warehouse) => warehouse.isDefault));
+  return prisma.warehouse.findMany({
+    where: { active: true },
+    orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+  });
 }
 
-function getTodayRange() {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
-  return { start, end };
+async function seedDefaultWarehouses(hasDefault: boolean) {
+  await prisma.warehouse.upsert({
+    where: { name: "Depozit principal" },
+    create: { name: "Depozit principal", isDefault: true },
+    update: hasDefault ? {} : { isDefault: true },
+  });
+  await Promise.all(
+    DEFAULT_WAREHOUSE_NAMES.slice(1).map((name) =>
+      prisma.warehouse.upsert({ where: { name }, create: { name }, update: {} }),
+    ),
+  );
 }
 
 function localDayKey(date: Date) {

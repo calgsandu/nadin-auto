@@ -804,7 +804,7 @@ export type $WarehousePayload<ExtArgs extends runtime.Types.Extensions.InternalA
 export type WarehouseGetPayload<S extends boolean | null | undefined | WarehouseDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$WarehousePayload, S>
 
 export type WarehouseCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<WarehouseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<WarehouseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: WarehouseCountAggregateInputType | true
   }
 
@@ -1254,6 +1254,7 @@ export type WarehouseFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Filter, which Warehouse to fetch.
    */
   where: Prisma.WarehouseWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1276,6 +1277,7 @@ export type WarehouseFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensi
    * Filter, which Warehouse to fetch.
    */
   where: Prisma.WarehouseWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1328,6 +1330,7 @@ export type WarehouseFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Filter by unique combinations of Warehouses.
    */
   distinct?: Prisma.WarehouseScalarFieldEnum | Prisma.WarehouseScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1380,6 +1383,7 @@ export type WarehouseFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    * Filter by unique combinations of Warehouses.
    */
   distinct?: Prisma.WarehouseScalarFieldEnum | Prisma.WarehouseScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1432,6 +1436,7 @@ export type WarehouseFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter by unique combinations of Warehouses.
    */
   distinct?: Prisma.WarehouseScalarFieldEnum | Prisma.WarehouseScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1454,6 +1459,7 @@ export type WarehouseCreateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * The data needed to create a Warehouse.
    */
   data: Prisma.XOR<Prisma.WarehouseCreateInput, Prisma.WarehouseUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1510,6 +1516,7 @@ export type WarehouseUpdateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Choose, which Warehouse to update.
    */
   where: Prisma.WarehouseWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1584,6 +1591,7 @@ export type WarehouseUpsertArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * In case the Warehouse was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.WarehouseUpdateInput, Prisma.WarehouseUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1606,6 +1614,7 @@ export type WarehouseDeleteArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Filter which Warehouse to delete.
    */
   where: Prisma.WarehouseWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

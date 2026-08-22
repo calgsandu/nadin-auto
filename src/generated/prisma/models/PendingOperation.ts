@@ -714,7 +714,7 @@ export type $PendingOperationPayload<ExtArgs extends runtime.Types.Extensions.In
 export type PendingOperationGetPayload<S extends boolean | null | undefined | PendingOperationDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$PendingOperationPayload, S>
 
 export type PendingOperationCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<PendingOperationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<PendingOperationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: PendingOperationCountAggregateInputType | true
   }
 
@@ -1168,6 +1168,7 @@ export type PendingOperationFindUniqueArgs<ExtArgs extends runtime.Types.Extensi
    * Filter, which PendingOperation to fetch.
    */
   where: Prisma.PendingOperationWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1186,6 +1187,7 @@ export type PendingOperationFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.
    * Filter, which PendingOperation to fetch.
    */
   where: Prisma.PendingOperationWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1234,6 +1236,7 @@ export type PendingOperationFindFirstArgs<ExtArgs extends runtime.Types.Extensio
    * Filter by unique combinations of PendingOperations.
    */
   distinct?: Prisma.PendingOperationScalarFieldEnum | Prisma.PendingOperationScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1282,6 +1285,7 @@ export type PendingOperationFindFirstOrThrowArgs<ExtArgs extends runtime.Types.E
    * Filter by unique combinations of PendingOperations.
    */
   distinct?: Prisma.PendingOperationScalarFieldEnum | Prisma.PendingOperationScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1330,6 +1334,7 @@ export type PendingOperationFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Filter by unique combinations of PendingOperations.
    */
   distinct?: Prisma.PendingOperationScalarFieldEnum | Prisma.PendingOperationScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1348,6 +1353,7 @@ export type PendingOperationCreateArgs<ExtArgs extends runtime.Types.Extensions.
    * The data needed to create a PendingOperation.
    */
   data: Prisma.XOR<Prisma.PendingOperationCreateInput, Prisma.PendingOperationUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1400,6 +1406,7 @@ export type PendingOperationUpdateArgs<ExtArgs extends runtime.Types.Extensions.
    * Choose, which PendingOperation to update.
    */
   where: Prisma.PendingOperationWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1470,6 +1477,7 @@ export type PendingOperationUpsertArgs<ExtArgs extends runtime.Types.Extensions.
    * In case the PendingOperation was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.PendingOperationUpdateInput, Prisma.PendingOperationUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1488,6 +1496,7 @@ export type PendingOperationDeleteArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter which PendingOperation to delete.
    */
   where: Prisma.PendingOperationWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { auth } from "@/lib/auth/server";
 import { findActiveAppUser } from "@/lib/users";
 import type { PrimaryAuthContext } from "./types";
@@ -6,7 +7,8 @@ export type PrimaryAuthResult =
   | { primary: PrimaryAuthContext; reason: null }
   | { primary: null; reason: "NO_SESSION" | "NO_ACTIVE_APP_USER" };
 
-export async function readPrimaryAuthResult(): Promise<PrimaryAuthResult> {
+/** `cache` = o singură verificare de sesiune per cerere, oricâți o cer. */
+export const readPrimaryAuthResult = cache(async (): Promise<PrimaryAuthResult> => {
   const { data, error } = await auth.getSession();
   if (error) {
     throw new Error("Nu am putut verifica sesiunea de autentificare.");
@@ -30,7 +32,7 @@ export async function readPrimaryAuthResult(): Promise<PrimaryAuthResult> {
     },
     reason: null,
   };
-}
+});
 
 export async function getPrimaryAuthContext() {
   const result = await readPrimaryAuthResult();

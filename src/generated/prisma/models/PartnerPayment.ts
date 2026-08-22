@@ -662,7 +662,7 @@ export type $PartnerPaymentPayload<ExtArgs extends runtime.Types.Extensions.Inte
 export type PartnerPaymentGetPayload<S extends boolean | null | undefined | PartnerPaymentDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$PartnerPaymentPayload, S>
 
 export type PartnerPaymentCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<PartnerPaymentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<PartnerPaymentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: PartnerPaymentCountAggregateInputType | true
   }
 
@@ -1111,6 +1111,7 @@ export type PartnerPaymentFindUniqueArgs<ExtArgs extends runtime.Types.Extension
    * Filter, which PartnerPayment to fetch.
    */
   where: Prisma.PartnerPaymentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1133,6 +1134,7 @@ export type PartnerPaymentFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ex
    * Filter, which PartnerPayment to fetch.
    */
   where: Prisma.PartnerPaymentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1185,6 +1187,7 @@ export type PartnerPaymentFindFirstArgs<ExtArgs extends runtime.Types.Extensions
    * Filter by unique combinations of PartnerPayments.
    */
   distinct?: Prisma.PartnerPaymentScalarFieldEnum | Prisma.PartnerPaymentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1237,6 +1240,7 @@ export type PartnerPaymentFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ext
    * Filter by unique combinations of PartnerPayments.
    */
   distinct?: Prisma.PartnerPaymentScalarFieldEnum | Prisma.PartnerPaymentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1289,6 +1293,7 @@ export type PartnerPaymentFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter by unique combinations of PartnerPayments.
    */
   distinct?: Prisma.PartnerPaymentScalarFieldEnum | Prisma.PartnerPaymentScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1311,6 +1316,7 @@ export type PartnerPaymentCreateArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data needed to create a PartnerPayment.
    */
   data: Prisma.XOR<Prisma.PartnerPaymentCreateInput, Prisma.PartnerPaymentUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1371,6 +1377,7 @@ export type PartnerPaymentUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
    * Choose, which PartnerPayment to update.
    */
   where: Prisma.PartnerPaymentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1449,6 +1456,7 @@ export type PartnerPaymentUpsertArgs<ExtArgs extends runtime.Types.Extensions.In
    * In case the PartnerPayment was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.PartnerPaymentUpdateInput, Prisma.PartnerPaymentUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1471,6 +1479,7 @@ export type PartnerPaymentDeleteArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter which PartnerPayment to delete.
    */
   where: Prisma.PartnerPaymentWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
