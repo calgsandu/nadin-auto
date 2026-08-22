@@ -17,6 +17,15 @@ export const metadata: Metadata = {
   ),
   title: "Nadin Auto",
   description: "Catalog intern Nadin Auto",
+  // Cardul pentru WhatsApp/Facebook/Telegram; imaginea vine din
+  // `opengraph-image.tsx`, iar iconițele din icon.png / apple-icon.png.
+  openGraph: {
+    type: "website",
+    siteName: "Nadin Auto",
+    locale: "ro_MD",
+    alternateLocale: ["ru_MD"],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function RootLayout({

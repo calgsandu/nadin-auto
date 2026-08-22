@@ -53,6 +53,9 @@ export const config = {
   matcher: [
     "/catalog/:path*",
     "/ru/catalog/:path*",
-    "/((?!$|api/auth|auth|catalog|ru/catalog|robots.txt|sitemap.xml|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    // `opengraph-image` trebuie să rămână public: cardul de link e cerut de
+    // WhatsApp/Facebook fără cookie, iar în spatele gardei primeau un 307 spre
+    // sign-in și linkul apărea fără imagine.
+    "/((?!$|api/auth|auth|catalog|ru/catalog|robots.txt|sitemap.xml|opengraph-image|twitter-image|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
