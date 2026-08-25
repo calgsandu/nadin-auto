@@ -67,6 +67,7 @@ export function PaymentAccountsWorkspace({
                       dueDate={account.dueDate ? account.dueDate.toISOString().slice(0, 10) : ""}
                       notes={account.notes ?? ""}
                       eFacturaMessage={account.eFacturaMessage}
+                      eFacturaResponseCode={account.eFacturaResponseCode}
                       eFacturaStatus={account.eFacturaStatus}
                       fulfilled={Boolean(account.fulfilledAt)}
                       id={account.id}

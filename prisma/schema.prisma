@@ -315,6 +315,7 @@ model Product {
   alternativeCode String?
   description String
   descriptionRu String?
+  /// PUBLIC: apare în fișa piesei de pe site, nu e notă internă.
   notes       String?
   notesRu     String?
   stock       Int?
@@ -393,6 +394,7 @@ model Partner {
   iban      String?
   bankName  String?
   bankCode  String?
+  /// Observații interne; se văd în lista de parteneri, nu pleacă în documente.
   notes     String?
   documents StockDocument[]
   paymentAccounts PaymentAccount[]
@@ -529,6 +531,7 @@ model PaymentAccount {
   customerIdno     String
   customerVatCode  String?
   customerPhone    String?
+  /// Copiat de la partener la emitere; ajunge în PDF, lângă telefon.
   customerEmail    String?
   customerIban     String?
   customerBankName String?

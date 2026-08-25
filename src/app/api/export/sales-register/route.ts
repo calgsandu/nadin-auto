@@ -12,6 +12,7 @@ import {
   type PdfColumn,
 } from "@/lib/export/pdf";
 import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
+import { lineDescription } from "@/lib/operations/line-display";
 
 export const dynamic = "force-dynamic";
 
@@ -86,7 +87,7 @@ export async function GET(request: Request) {
             : "Nespecificat",
         buyer: doc.partner?.name ?? "Consumator final",
         code: line.product?.externalCode ?? line.externalCode ?? (line.product ? "—" : "extern"),
-        description: line.product?.description ?? line.externalName ?? "Piesă externă",
+        description: lineDescription(line),
         quantity: sign * line.quantity,
         unitPrice: unit,
         value: sign * unit * line.quantity,

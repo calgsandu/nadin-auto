@@ -1302,6 +1302,9 @@ export type $PartnerPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     iban: string | null
     bankName: string | null
     bankCode: string | null
+    /**
+     * Observații interne; se văd în lista de parteneri, nu pleacă în documente.
+     */
     notes: string | null
     createdAt: Date
     updatedAt: Date

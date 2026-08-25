@@ -38,6 +38,7 @@ export function PaymentAccountRowActions({
   canSubmitEFactura,
   eFacturaStatus,
   eFacturaMessage,
+  eFacturaResponseCode,
   dueDate,
   notes,
 }: {
@@ -49,6 +50,8 @@ export function PaymentAccountRowActions({
   canSubmitEFactura: boolean;
   eFacturaStatus: EFacturaSubmissionStatus;
   eFacturaMessage: string | null;
+  /** Statutul numeric de la SIA; se scria și nu se citea nicăieri. */
+  eFacturaResponseCode: number | null;
   /** YYYY-MM-DD, pentru corectare. */
   dueDate: string;
   notes: string;
@@ -117,7 +120,12 @@ export function PaymentAccountRowActions({
           className={`basis-full pt-1 text-right text-[11px] ${
             eFacturaStatus === "ERROR" ? "text-[#b91c1c]" : "text-[#166534]"
           }`}
-          title={eFacturaMessage ?? undefined}
+          title={[
+            eFacturaMessage,
+            eFacturaResponseCode != null ? `Statut SIA: ${eFacturaResponseCode}` : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         >
           {/* „Necesită semnare" era spus și pentru facturi doar acceptate spre
               execuție, care nici măcar nu fuseseră procesate. */}

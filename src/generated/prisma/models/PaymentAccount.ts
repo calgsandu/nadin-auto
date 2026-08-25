@@ -2187,6 +2187,9 @@ export type $PaymentAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
     customerIdno: string
     customerVatCode: string | null
     customerPhone: string | null
+    /**
+     * Copiat de la partener la emitere; ajunge în PDF, lângă telefon.
+     */
     customerEmail: string | null
     customerIban: string | null
     customerBankName: string | null

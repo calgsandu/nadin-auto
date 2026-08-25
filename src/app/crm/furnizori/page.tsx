@@ -87,6 +87,11 @@ function PartnersWorkspace({
                   </TableCell>
                   <TableCell secondary className="max-w-xs text-[#6f6b63]">
                     {formatText(partner.address)}
+                    {/* Se scriau („Observații, condiții de livrare") și se citeau
+                        doar ca să reumple același formular. */}
+                    {partner.notes ? (
+                      <span className="mt-0.5 block text-xs text-[#98948b]">{partner.notes}</span>
+                    ) : null}
                   </TableCell>
                   <TableCell align="right">
                     <span

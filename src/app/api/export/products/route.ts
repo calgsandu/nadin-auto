@@ -37,6 +37,10 @@ export async function GET() {
     "Stoc",
     "Preț vânzare (lei)",
     ...(canViewCost ? ["Cost aducere (lei)", "Preț EUR", "Valoare stoc (lei)"] : []),
+    // `source` și `sourceItem` se scriau la import și nu se citeau nicăieri.
+    // Aici își au rostul: la o reimportare vezi de unde a venit fiecare rând și
+    // care sunt piesele adăugate de mână, care n-au pereche în fișier.
+    "Proveniență",
   ];
   const rows = products.map((p) => {
     const stock = p.stock ?? 0;
@@ -53,6 +57,7 @@ export async function GET() {
       ...(canViewCost
         ? [cost ?? "", p.priceEuro != null ? Number(p.priceEuro) : "", cost != null ? cost * stock : ""]
         : []),
+      productOrigin(p),
     ];
   });
 
@@ -109,4 +114,18 @@ export async function GET() {
   XLSX.utils.book_append_sheet(wb, wsStock, "Stoc pe depozite");
 
   return xlsxResponse(wb, `produse-${stamp}.xlsx`);
+}
+
+/** „Excel, poz. 412" / „Adăugat manual" — plus semnul editării ulterioare. */
+function productOrigin(product: {
+  source: string;
+  sourceRow: number;
+  sourceItem: string | null;
+  manuallyEdited: boolean;
+}) {
+  const base =
+    product.source === "MANUAL"
+      ? "Adăugat manual"
+      : `Excel, poz. ${product.sourceItem?.trim() || product.sourceRow}`;
+  return product.manuallyEdited && product.source !== "MANUAL" ? `${base} (editat)` : base;
 }

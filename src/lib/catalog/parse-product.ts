@@ -98,9 +98,6 @@ export function normalizeCode(value: unknown) {
   return text.length > 0 ? text : null;
 }
 
-export function parseHeaderBrand(value: unknown) {
-  return parseHeaderVehicles(value)[0]?.brandName ?? null;
-}
 
 export function parseVehicle(value: unknown, fallbackBrandName?: string | null): ParsedVehicle {
   const original = normalizeText(value);

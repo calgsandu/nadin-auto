@@ -382,15 +382,20 @@ export function ProductFormDialog({
                 />
               </Field>
 
+              {/*
+                Câmpul se numea „Notițe" și suna a notă internă, dar se publică
+                pe site-ul public, în fișa piesei. Eticheta o spune acum.
+              */}
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Notițe">
+                <Field label="Mențiune publică (apare pe site)">
                   <textarea
                     className={`${inputClassName} min-h-20 resize-y py-3`}
                     name="notes"
                     defaultValue={product?.notes ?? ""}
+                    placeholder="ex. Livrare în 2 zile. Nu scrie aici note interne."
                   />
                 </Field>
-                <Field label="Notițe în rusă">
+                <Field label="Mențiune publică în rusă">
                   <textarea
                     className={`${inputClassName} min-h-20 resize-y py-3`}
                     name="notesRu"

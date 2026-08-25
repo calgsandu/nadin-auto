@@ -2470,6 +2470,9 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     alternativeCode: string | null
     description: string
     descriptionRu: string | null
+    /**
+     * PUBLIC: apare în fișa piesei de pe site, nu e notă internă.
+     */
     notes: string | null
     notesRu: string | null
     stock: number | null

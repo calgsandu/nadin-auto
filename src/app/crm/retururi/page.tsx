@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getOperationsData, type OperationsData } from "@/lib/operations/queries";
 import { ReturnDialog, type ReturnableSale } from "@/app/operations/return-dialog";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
+import { lineDescription } from "@/lib/operations/line-display";
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
@@ -114,7 +115,7 @@ function ReturnsWorkspace({
                             {line.product?.externalCode ? (
                               <span className="mr-1.5 font-semibold text-[#1b1a17]">{line.product.externalCode}</span>
                             ) : null}
-                            {line.product?.description ?? line.externalName ?? "Piesă externă"}
+                            {lineDescription(line)}
                             <span className="font-mono text-[#6f6b63]"> x{line.quantity}</span>
                             <VehicleSubline product={line.product} />
                           </span>

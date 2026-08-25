@@ -16,6 +16,7 @@ export type PaymentAccountPdfData = {
   customerIdno: string;
   customerVatCode: string | null;
   customerPhone: string | null;
+  customerEmail: string | null;
   customerIban: string | null;
   customerBankName: string | null;
   customerBankCode: string | null;
@@ -74,6 +75,9 @@ export function createPaymentAccountPdf(account: PaymentAccountPdfData) {
     pdf.text(`${account.customerBankName ?? ""}${account.customerBankCode ? `   BIC: ${account.customerBankCode}` : ""}`, left, pdf.y, { width: fullWidth });
   }
   if (account.customerPhone) pdf.text(`Telefon: ${account.customerPhone}`, left, pdf.y, { width: fullWidth });
+  // Se copia de la partener la emitere și nu se citea nicăieri, spre deosebire
+  // de telefon și datele bancare, care ajungeau în PDF.
+  if (account.customerEmail) pdf.text(`E-mail: ${account.customerEmail}`, left, pdf.y, { width: fullWidth });
   pdf.moveDown(1);
 
   const columns: PdfColumn[] = [

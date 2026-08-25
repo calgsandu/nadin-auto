@@ -8,6 +8,7 @@ import { CashRegisterBadge, CashRegisterControl } from "@/app/operations/cash-re
 import { SalePaymentMethodBadge, SalePaymentMethodControl } from "@/app/operations/sale-payment-method-control";
 import { DocumentDetailsButton, type DocumentDetailsValue } from "@/app/operations/document-details";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
+import { lineDescription } from "@/lib/operations/line-display";
 import type { SupplierOption, WarehouseOption } from "@/app/operations/stock-document-dialog";
 import { TableCell, TableHead, VehicleSubline } from "./ui";
 import { dateTimeFormat, formatDate, formatDocumentType, formatMoney, formatNumber } from "./format";
@@ -44,7 +45,7 @@ export function SaleLines({ lines }: { lines: SaleLineWithProduct[] }) {
                 {line.product?.externalCode ?? line.externalCode}
               </span>
             ) : null}
-            {line.product?.description ?? line.externalName ?? "Piesă externă"}
+            {lineDescription(line)}
             {!line.product ? (
               <span
                 className="ml-1.5 rounded bg-[#dbebfe] px-1 text-xs font-semibold text-[#175cd3]"
@@ -190,7 +191,7 @@ export function toDocumentDetails(
       return {
         id: line.id,
         code: line.product?.externalCode ?? line.externalCode ?? (line.product ? null : "extern"),
-        description: line.product?.description ?? line.externalName ?? "Piesă externă",
+        description: lineDescription(line),
         vehicle: line.product ? productLineSubtitle(line.product) : null,
         quantity: line.quantity,
         price: price != null ? Number(price) : null,

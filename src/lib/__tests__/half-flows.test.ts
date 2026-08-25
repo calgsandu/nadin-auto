@@ -104,4 +104,34 @@ const rates = read("src/lib/currency/rates.ts");
 assert.doesNotMatch(rates, /\} catch \{/, "catch-ul gol înghițea motivul");
 assert.match(rates, /console\.warn\(`\[curs valutar\]/, "căderea trebuie să lase urmă în loguri");
 
-console.log("half flows test passed");
+// --- C+D: câmpuri scrise și necitite, module neimportate -----------------
+// „Notițe" suna a notă internă, dar se publică pe site.
+const productForm = read("src/app/catalog/product-form-dialog.tsx");
+assert.match(productForm, /Mențiune publică \(apare pe site\)/, "eticheta trebuie să spună că e publică");
+assert.doesNotMatch(productForm, /label="Notițe"/, "eticheta veche inducea în eroare");
+
+// Observațiile partenerului se citeau doar ca să reumple același formular.
+assert.match(read("src/app/crm/furnizori/page.tsx"), /partner\.notes \?/, "observațiile trebuie să se vadă");
+// E-mailul clientului se copia și nu ajungea nicăieri, spre deosebire de telefon.
+assert.match(read("src/lib/payment-accounts/pdf.ts"), /E-mail: \$\{account\.customerEmail\}/, "e-mailul intră în PDF");
+// Codul de răspuns SIA se scria și nu se citea.
+assert.match(
+  read("src/app/payment-accounts/payment-account-row-actions.tsx"),
+  /Statut SIA: \$\{eFacturaResponseCode\}/,
+  "codul de răspuns trebuie citit undeva",
+);
+// `source` / `sourceItem` — proveniența piesei, utilă la reimportare.
+assert.match(read("src/app/api/export/products/route.ts"), /function productOrigin/, "proveniența intră în export");
+
+// Modulul de afișare exista și nu-l importa nimeni; expresia era copiată.
+const lineDisplay = read("src/lib/operations/line-display.ts");
+assert.doesNotMatch(lineDisplay, /export function lineLabel|export function lineCode|isExternalLine/, "exporturile fără cerere se scot");
+for (const file of [
+  "src/app/crm/retururi/page.tsx",
+  "src/app/crm/_components/documents-table.tsx",
+  "src/app/api/export/sales-register/route.ts",
+]) {
+  assert.match(read(file), /lineDescription\(/, `${file}: trebuie să folosească modulul, nu o copie`);
+}
+
+console.log("half flows + dead code test passed");
