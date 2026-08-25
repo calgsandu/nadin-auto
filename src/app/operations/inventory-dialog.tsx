@@ -9,7 +9,6 @@ import {
 import {
   DrawerField,
   DrawerFooter,
-  DrawerMessage,
   DrawerSection,
   OperationDrawer,
   focusFirstLineSearch,
@@ -81,7 +80,7 @@ export function InventoryDialog({
     reset: resetLines,
   });
   const { attachForm } = draft;
-  const { state, pending, onSubmit, retry } = useDrawerAction(
+  const { pending, onSubmit } = useDrawerAction(
     createInventoryAction,
     initialState,
     () => {
@@ -225,7 +224,6 @@ export function InventoryDialog({
               />
             </DrawerField>
 
-            <DrawerMessage state={state} onRetry={retry} />
             <DrawerFooter
               onCancel={() => setOpen(false)}
               pending={pending}

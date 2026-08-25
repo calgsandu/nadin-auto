@@ -8,6 +8,7 @@ import {
   type ApprovalActionState,
 } from "@/app/aprobari/actions";
 import { ActionFeedback } from "@/app/components/action-feedback";
+import { useActionToast } from "@/app/components/action-toast";
 
 const initial: ApprovalActionState = { ok: false, message: "" };
 
@@ -25,7 +26,7 @@ export function ApproveButton({ operationId }: { operationId: string }) {
         pendingLabel="Se aplică…"
         className="button-secondary rounded-md border border-[#bbf7d0] bg-white px-3 py-1.5 text-xs font-semibold text-[#15803d] hover:bg-[#f0fdf4] disabled:cursor-wait disabled:opacity-60"
       />
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }
@@ -35,6 +36,10 @@ export function RejectButton({ operationId }: { operationId: string }) {
     rejectPendingOperationAction,
     initial,
   );
+  // Hook, nu componentă randată: formularul apare abia DUPĂ ce sosește un
+  // mesaj, deci un <ActionFeedback> dinăuntru s-ar monta prea târziu ca să
+  // mai apuce să scoată notificarea.
+  useActionToast(state);
   const [open, setOpen] = useState(false);
 
   if (!open && !state.message) {
@@ -77,7 +82,6 @@ export function RejectButton({ operationId }: { operationId: string }) {
           className="rounded-md bg-[#b91c1c] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#991b1b] disabled:cursor-wait disabled:opacity-60"
         />
       </div>
-      <ActionFeedback state={state} compact />
     </form>
   );
 }

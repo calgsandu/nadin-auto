@@ -8,7 +8,6 @@ import {
 import {
   DrawerField,
   DrawerFooter,
-  DrawerMessage,
   OperationDrawer,
   useDrawerAction,
   drawerFormClassName,
@@ -40,7 +39,7 @@ export function PartnerPaymentDialog({
     reset: () => {},
   });
   const { attachForm } = draft;
-  const { state, pending, onSubmit, retry } = useDrawerAction(
+  const { pending, onSubmit } = useDrawerAction(
     registerPartnerPaymentAction,
     initial,
     () => {
@@ -100,7 +99,6 @@ export function PartnerPaymentDialog({
                 placeholder="numerar, transfer, cine a predat banii"
               />
             </DrawerField>
-            <DrawerMessage state={state} onRetry={retry} />
             <DrawerFooter onCancel={() => setOpen(false)} pending={pending} submitLabel="Salvează încasarea" />
           </form>
         </OperationDrawer>

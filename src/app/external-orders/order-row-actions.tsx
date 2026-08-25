@@ -11,7 +11,6 @@ import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   DrawerField,
   DrawerFooter,
-  DrawerMessage,
   OperationDrawer,
   drawerFormClassName,
   drawerInputClassName,
@@ -49,7 +48,7 @@ export function OrderStatusControl({
               <StatusButton key={next} status={next} />
             ))}
           </div>
-          <ActionFeedback state={state} compact />
+          <ActionFeedback state={state} />
         </form>
       ) : null}
     </div>
@@ -64,7 +63,7 @@ export function OrderStatusControl({
 function DeliverControl({ orderId }: { orderId: string }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { state, pending, onSubmit, retry } = useDrawerAction(
+  const { pending, onSubmit } = useDrawerAction(
     setExternalOrderStatusAction,
     initialState,
     () => {
@@ -108,7 +107,6 @@ function DeliverControl({ orderId }: { orderId: string }) {
             <label className="flex items-center gap-2 text-sm font-medium text-[#33312c]">
               <input name="cashRegistered" type="checkbox" /> Bătută în casa de marcat
             </label>
-            <DrawerMessage onRetry={retry} state={state} />
             <DrawerFooter
               pending={pending}
               submitLabel="Livrează"
@@ -162,7 +160,7 @@ export function OrderDeleteButton({
     >
       <input name="orderId" type="hidden" value={orderId} />
       <DeleteButton />
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }

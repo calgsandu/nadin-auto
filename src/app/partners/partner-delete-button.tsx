@@ -31,7 +31,7 @@ export function PartnerDeleteButton({
     >
       <input name="partnerId" type="hidden" value={partnerId} />
       <DeleteButton />
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }

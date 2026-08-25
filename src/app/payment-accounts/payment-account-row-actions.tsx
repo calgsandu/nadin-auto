@@ -15,7 +15,6 @@ import {
 import {
   DrawerField,
   DrawerFooter,
-  DrawerMessage,
   OperationDrawer,
   drawerFormClassName,
   drawerInputClassName,
@@ -174,7 +173,7 @@ function ActionForm({
         <input key={name} name={name} type="hidden" value={value} />
       ))}
       <ActionButton danger={danger} icon={icon} label={label} primary={primary} />
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }
@@ -221,7 +220,7 @@ function CorrectionForm({
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { state, pending, onSubmit, retry } = useDrawerAction(
+  const { pending, onSubmit } = useDrawerAction(
     updatePaymentAccountAction,
     initialState,
     () => {
@@ -272,7 +271,6 @@ function CorrectionForm({
                 name="notes"
               />
             </DrawerField>
-            <DrawerMessage onRetry={retry} state={state} />
             <DrawerFooter
               pending={pending}
               submitLabel="Salvează corectura"

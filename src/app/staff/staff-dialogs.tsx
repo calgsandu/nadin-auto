@@ -4,7 +4,7 @@ import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { drawerPanelClassName } from "@/app/components/operation-drawer";
-import { ActionFeedback } from "@/app/components/action-feedback";
+import { useActionToast } from "@/app/components/action-toast";
 import {
   createStaffUserAction,
   issueStaffTwoFactorActivationAction,
@@ -40,6 +40,7 @@ export function CreateStaffDialog() {
 
 function CreateStaffDrawer({ onClose }: { onClose: () => void }) {
   const [state, formAction] = useActionState(createStaffUserAction, initialState);
+  useActionToast(state);
   const [password, setPassword] = useState("");
 
   return (
@@ -71,7 +72,6 @@ function CreateStaffDrawer({ onClose }: { onClose: () => void }) {
             </Field>
           </div>
           <PasswordField value={password} onChange={setPassword} />
-          <ActionMessage state={state} />
           <DrawerActions onClose={onClose} submitLabel="Creează utilizator" />
         </form>
       )}
@@ -93,6 +93,7 @@ export function ResetPasswordDialog({ userId, username }: { userId: string; user
 
 function ResetPasswordDrawer({ userId, username, onClose }: { userId: string; username: string; onClose: () => void }) {
   const [state, formAction] = useActionState(resetStaffPasswordAction, initialState);
+  useActionToast(state);
   const [password, setPassword] = useState("");
   return (
     <StaffDrawer title={`Parolă nouă — ${username}`} onClose={onClose}>
@@ -102,7 +103,6 @@ function ResetPasswordDrawer({ userId, username, onClose }: { userId: string; us
         <form action={formAction} className="grid gap-5">
           <input type="hidden" name="userId" value={userId} />
           <PasswordField value={password} onChange={setPassword} />
-          <ActionMessage state={state} />
           <DrawerActions onClose={onClose} submitLabel="Resetează parola" />
         </form>
       )}
@@ -161,12 +161,12 @@ function IssueTwoFactorActivationDrawer({
     issueStaffTwoFactorActivationAction,
     initialState,
   );
+  useActionToast(state);
 
   return (
     <StaffDrawer title={`Activare 2FA — ${username}`} onClose={onClose}>
       {state.revealedActivationCode && state.activationExpiresAt ? (
         <div className="grid gap-4">
-          <ActionMessage state={state} />
           <RevealedActivationCode
             code={state.revealedActivationCode}
             expiresAt={state.activationExpiresAt}
@@ -180,7 +180,6 @@ function IssueTwoFactorActivationDrawer({
           <div className="rounded-lg border border-[#facc15] bg-[#fefce8] p-4 text-sm leading-6 text-[#854d0e]">
             Un cod nou îl invalidează pe cel emis anterior și orice configurare QR nefinalizată.
           </div>
-          <ActionMessage state={state} />
           <DrawerActions onClose={onClose} submitLabel="Emite cod 2FA" />
         </form>
       )}
@@ -198,12 +197,12 @@ function ResetTwoFactorDrawer({
   onClose: () => void;
 }) {
   const [state, formAction] = useActionState(resetStaffTwoFactorAction, initialState);
+  useActionToast(state);
 
   return (
     <StaffDrawer title={`Resetare 2FA — ${username}`} onClose={onClose}>
       {state.revealedActivationCode && state.activationExpiresAt ? (
         <div className="grid gap-4">
-          <ActionMessage state={state} />
           <RevealedActivationCode
             code={state.revealedActivationCode}
             expiresAt={state.activationExpiresAt}
@@ -229,7 +228,6 @@ function ResetTwoFactorDrawer({
               placeholder={username}
             />
           </Field>
-          <ActionMessage state={state} />
           <DrawerActions onClose={onClose} submitLabel="Resetează 2FA" />
         </form>
       )}
@@ -239,6 +237,7 @@ function ResetTwoFactorDrawer({
 
 export function StaffActiveButton({ userId, active, label }: { userId: string; active: boolean; label: string }) {
   const [state, formAction] = useActionState(setStaffActiveAction, initialState);
+  useActionToast(state);
 
   return (
     <form
@@ -252,7 +251,6 @@ export function StaffActiveButton({ userId, active, label }: { userId: string; a
       <input type="hidden" name="userId" value={userId} />
       <input type="hidden" name="active" value={active ? "false" : "true"} />
       <ActiveSubmit active={active} />
-      <ActionFeedback state={state} compact />
     </form>
   );
 }
@@ -398,16 +396,6 @@ function RowButton({ onClick, children }: { onClick: () => void; children: React
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">{label}{children}</label>;
-}
-
-function ActionMessage({ state }: { state: StaffActionState }) {
-  if (!state.message) return null;
-  const tone = state.warning
-    ? "border-[#facc15] bg-[#fefce8] text-[#854d0e]"
-    : state.ok
-      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
-      : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]";
-  return <div className={`rounded-md border px-3 py-2 text-sm ${tone}`}>{state.message}</div>;
 }
 
 function generatePassword() {

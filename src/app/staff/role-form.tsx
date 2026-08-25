@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { useActionToast } from "@/app/components/action-toast";
 import type { AppRole } from "@/generated/prisma/enums";
 import { setUserRoleAction, type StaffActionState } from "@/app/staff/actions";
 
@@ -14,6 +15,7 @@ const ROLE_OPTIONS: { value: AppRole; label: string }[] = [
 
 export function RoleForm({ userId, currentRole }: { userId: string; currentRole: AppRole }) {
   const [state, formAction] = useActionState(setUserRoleAction, initialState);
+  useActionToast(state);
   return (
     <form action={formAction} className="flex items-center gap-2">
       <input name="userId" type="hidden" value={userId} />
@@ -21,7 +23,6 @@ export function RoleForm({ userId, currentRole }: { userId: string; currentRole:
         {ROLE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select>
       <SaveButton />
-      {state.message ? <span className={`text-xs ${state.ok ? "text-[#166534]" : "text-[#b91c1c]"}`}>{state.message}</span> : null}
     </form>
   );
 }

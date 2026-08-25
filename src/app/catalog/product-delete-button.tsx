@@ -20,7 +20,7 @@ export function ProductDeleteButton({ productId, label }: { productId: string; l
     >
       <input type="hidden" name="productId" value={productId} />
       <DeleteButton />
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }

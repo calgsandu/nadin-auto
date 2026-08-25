@@ -23,7 +23,7 @@ export function RestoreButton({ auditId, title }: { auditId: string; title: stri
     >
       <input type="hidden" name="auditId" value={auditId} />
       <SubmitButton />
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }

@@ -5,7 +5,6 @@ import { useMemo, useRef, useState } from "react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
   DraftBanner,
-  DrawerMessage,
   drawerPanelClassName,
   focusFirstLineSearch,
   useDrawerAction,
@@ -79,7 +78,7 @@ export function PaymentAccountDialog({
     reset: resetForm,
   });
   const { attachForm } = draft;
-  const { state, pending, onSubmit, retry } = useDrawerAction(
+  const { pending, onSubmit } = useDrawerAction(
     createPaymentAccountAction,
     initialState,
     () => {
@@ -327,7 +326,6 @@ export function PaymentAccountDialog({
                   </div>
                 </div>
 
-                {state.ok ? null : <DrawerMessage state={state} onRetry={retry} />}
 
                 <div className="flex justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                   <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold" type="button" onClick={() => setOpen(false)}>

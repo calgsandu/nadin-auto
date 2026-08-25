@@ -161,7 +161,7 @@ function DeletePayment({ id, onDeleted }: { id: string; onDeleted: () => void })
     >
       <input name="paymentId" type="hidden" value={id} />
       <DeleteButton />
-      <ActionFeedback compact state={state} />
+      <ActionFeedback state={state} />
     </form>
   );
 }

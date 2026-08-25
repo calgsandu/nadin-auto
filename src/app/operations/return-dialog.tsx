@@ -7,7 +7,6 @@ import {
 } from "@/app/operations/actions";
 import {
   DrawerField,
-  DrawerMessage,
   DrawerSubmit,
   OperationDrawer,
   handleEnterNavigation,
@@ -41,13 +40,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
   const [saleId, setSaleId] = useState("");
   const [documentDate, setDocumentDate] = useState(today);
   const [notes, setNotes] = useState("");
-  const [showFeedback, setShowFeedback] = useState(false);
   const [quantities, setQuantities] = useState<Record<string, string>>({});
-  async function returnAction(previousState: OperationActionState, formData: FormData) {
-    // Înainte de trimitere: și rețeaua căzută trebuie să aibă unde să se vadă.
-    setShowFeedback(true);
-    return createReturnAction(previousState, formData);
-  }
   function resetForm() {
     setSaleId("");
     setDocumentDate(today);
@@ -69,7 +62,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
   });
   // Fără resetul automat al React: la eroare rămâne tot completat.
   const { attachForm } = draft;
-  const { state, pending, onSubmit, retry } = useDrawerAction(returnAction, initialState, () => {
+  const { pending, onSubmit } = useDrawerAction(createReturnAction, initialState, () => {
     setOpen(false);
     resetForm();
     draft.clear();
@@ -90,10 +83,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
       <button
         className={primaryButtonClassName}
         type="button"
-        onClick={() => {
-          setShowFeedback(false);
-          setOpen(true);
-        }}
+        onClick={() => setOpen(true)}
       >
         Adaugă retur
       </button>
@@ -211,9 +201,6 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                   />
                 </Field>
 
-                {showFeedback && state.message ? (
-                  <DrawerMessage state={state} onRetry={retry} />
-                ) : null}
 
                 <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                   <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>

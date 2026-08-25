@@ -7,7 +7,6 @@ import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   DrawerField,
   DrawerFooter,
-  DrawerMessage,
   DrawerSection,
   OperationDrawer,
   focusFirstLineSearch,
@@ -211,7 +210,7 @@ function EditPanel({
     },
   });
   const { attachForm } = draft;
-  const { state, pending, onSubmit, retry } = useDrawerAction(
+  const { pending, onSubmit } = useDrawerAction(
     updateDocumentLinesAction,
     initial,
     () => {
@@ -451,7 +450,6 @@ function EditPanel({
           />
         </DrawerField>
 
-        <DrawerMessage state={state} onRetry={retry} />
         <DrawerFooter onCancel={() => setOpen(false)} pending={pending} submitLabel="Salvează" />
       </form>
     </OperationDrawer>
@@ -464,7 +462,7 @@ function DeleteForm({ id, title }: { id: string; title: string }) {
     <form className="grid justify-items-end gap-1" action={formAction} onSubmit={(e) => { if (!window.confirm(`Ștergi ${title}? Stocul va fi reversat.`)) e.preventDefault(); }}>
       <input type="hidden" name="id" value={id} />
       <DeleteButton />
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }

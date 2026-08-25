@@ -10,7 +10,6 @@ import {
 } from "@/app/operations/actions";
 import {
   DrawerField,
-  DrawerMessage,
   DrawerSubmit,
   OperationDrawer,
   focusFirstLineSearch,
@@ -105,7 +104,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
     reset: resetLines,
   });
   const { attachForm } = draft;
-  const { state, pending, onSubmit, retry } = useDrawerAction(
+  const { pending, onSubmit } = useDrawerAction(
     createReceiptAction,
     initialState,
     () => {
@@ -336,7 +335,6 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                 />
               </Field>
 
-              <DrawerMessage state={state} onRetry={retry} />
 
               <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button
@@ -378,7 +376,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
     reset: resetLines,
   });
   const { attachForm } = draft;
-  const { state, pending, onSubmit, retry } = useDrawerAction(
+  const { pending, onSubmit } = useDrawerAction(
     createTransferAction,
     initialState,
     () => {
@@ -547,7 +545,6 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                 />
               </Field>
 
-              <DrawerMessage state={state} onRetry={retry} />
 
               <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button
@@ -648,7 +645,7 @@ export function StockSaleDialog({
     reset: resetForm,
   });
   const { attachForm } = draft;
-  const { state, pending, onSubmit, retry } = useDrawerAction(createSaleAction, initialState, () => {
+  const { pending, onSubmit } = useDrawerAction(createSaleAction, initialState, () => {
     setOpen(false);
     setMounted(false);
     resetForm();
@@ -1089,7 +1086,6 @@ export function StockSaleDialog({
               <Field label="Notițe">
                 <textarea className={`${inputClassName} min-h-24 resize-y py-3`} name="notes" placeholder="client, comandă, explicații" />
               </Field>
-              <DrawerMessage state={state} onRetry={retry} />
               <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>Anulează</button>
                 <SubmitButton label="Salvează vânzarea" pending={pending} />

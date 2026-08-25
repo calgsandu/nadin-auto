@@ -27,15 +27,12 @@ assert.doesNotMatch(
   /<form action=/,
   "`<form action>` resetează câmpurile după o eroare de server",
 );
-assert.match(
+// Feedback-ul vechi nu mai poate rămâne pe ecran la redeschidere: răspunsul
+// iese ca notificare, deci nu mai există un element persistent de ascuns.
+assert.doesNotMatch(
   source,
-  /setShowFeedback\(false\)[\s\S]*setOpen\(true\)/,
-  "redeschiderea formularului trebuie să ascundă feedback-ul vechi",
-);
-assert.match(
-  source,
-  /showFeedback && state\.message/,
-  "feedback-ul trebuie afișat numai pentru trimiterea curentă",
+  /showFeedback/,
+  "feedback-ul returului trece prin notificare, nu printr-un bloc în formular",
 );
 
 console.log("return form state test passed");

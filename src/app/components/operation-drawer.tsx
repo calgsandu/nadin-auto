@@ -14,6 +14,7 @@ import {
 } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { useActionToast } from "@/app/components/action-toast";
 import type { DrawerDraftBanner } from "@/app/components/use-drawer-draft";
 
 /**
@@ -268,6 +269,8 @@ export function useDrawerAction<S extends { ok: boolean; message: string }>(
   initial: S,
   /** Primește starea returnată de acțiune — acolo vine entitatea creată (`created`). */
   onSuccess?: (state: S) => void,
+  /** false = succesul are deja alt semnal pe ecran, deci nu mai iese notificare. */
+  toastSuccess = true,
 ) {
   const [failure, setFailure] = useState<string | null>(null);
   // Acțiunea se poate reconstrui la fiecare randare (return-dialog o face);
@@ -335,14 +338,20 @@ export function useDrawerAction<S extends { ok: boolean; message: string }>(
     if (lastFormData.current) send(lastFormData.current);
   }
 
-  return {
+  // Memoizat: fără asta obiectul se reconstruia la FIECARE randare cât timp
+  // `failure` e setat, iar notificarea (care se declanșează pe identitate) ar
+  // fi ieșit din nou la fiecare tastare în formular.
+  const publicState = useMemo(
     // Eșecul de transport bate ultimul răspuns al serverului până la reîncercare.
-    state: (failure ? { ...state, ok: false, message: failure } : state) as S,
-    pending,
-    onSubmit,
-    /** Dat = trimiterea n-a ajuns la server; retrimite același FormData. */
-    retry: failure ? retry : undefined,
-  };
+    () => (failure ? { ...state, ok: false, message: failure } : state) as S,
+    [state, failure],
+  );
+  /** Dat = trimiterea n-a ajuns la server; retrimite același FormData. */
+  const publicRetry = failure ? retry : undefined;
+
+  useActionToast(publicState, { onRetry: publicRetry, success: toastSuccess });
+
+  return { state: publicState, pending, onSubmit, retry: publicRetry };
 }
 
 export function DrawerFooter({
@@ -379,38 +388,6 @@ export function DrawerSubmit({ label, pending }: { label: string; pending?: bool
     >
       {busy ? "Se salvează..." : label}
     </button>
-  );
-}
-
-/** Mesajul de stare al formularului (aceeași formă în toate drawerele). */
-export function DrawerMessage({
-  state,
-  onRetry,
-}: {
-  state: { ok: boolean; message: string };
-  /** Dat de `useDrawerAction` când trimiterea n-a ajuns la server. */
-  onRetry?: () => void;
-}) {
-  if (!state.message) return null;
-  return (
-    <div
-      className={`flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border px-3 py-2 text-sm ${
-        state.ok
-          ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
-          : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
-      }`}
-    >
-      {state.message}
-      {onRetry ? (
-        <button
-          className="rounded-md border border-[#b91c1c] px-2.5 py-1 text-xs font-semibold hover:bg-[#fee2e2]"
-          type="button"
-          onClick={onRetry}
-        >
-          Reîncearcă
-        </button>
-      ) : null}
-    </div>
   );
 }
 

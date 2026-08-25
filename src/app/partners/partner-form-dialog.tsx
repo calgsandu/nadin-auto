@@ -69,7 +69,7 @@ export function PartnerFormDialog({
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const action = partner ? updatePartnerAction : createPartnerAction;
-  const { state, pending, onSubmit } = useDrawerAction(action, initialState, (saved) => {
+  const { pending, onSubmit } = useDrawerAction(action, initialState, (saved) => {
     setOpen(false);
     setMounted(false);
     if (saved.created) onCreated?.(saved.created);
@@ -252,18 +252,6 @@ export function PartnerFormDialog({
                     placeholder="Observații, condiții de livrare etc."
                   />
                 </Field>
-
-                {state.message ? (
-                  <div
-                    className={`rounded-md border px-3 py-2 text-sm lg:col-span-2 ${
-                      state.ok
-                        ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
-                        : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
-                    }`}
-                  >
-                    {state.message}
-                  </div>
-                ) : null}
 
                 <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5 lg:col-span-2">
                   <button

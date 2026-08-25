@@ -99,7 +99,7 @@ function Drawer({
 }) {
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(open);
-  const { state, pending, onSubmit } = useDrawerAction(action, initial, (saved) => {
+  const { pending, onSubmit } = useDrawerAction(action, initial, (saved) => {
     setOpen(false);
     setMounted(false);
     if (saved.created) onCreated?.(saved.created);
@@ -141,11 +141,6 @@ function Drawer({
         </div>
         <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6 lg:grid-cols-2">
           {children}
-          {state.message && !state.ok ? (
-            <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c] lg:col-span-2">
-              {state.message}
-            </div>
-          ) : null}
           <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5 lg:col-span-2">
             <button
               type="button"
@@ -570,7 +565,7 @@ export function AdminDeleteButton({
     >
       <input type="hidden" name="id" value={id} />
       <DeleteSubmit />
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }

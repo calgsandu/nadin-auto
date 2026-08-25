@@ -44,7 +44,7 @@ export function RestockCheckbox({
           formRef.current?.requestSubmit();
         }}
       />
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }

@@ -136,7 +136,7 @@ export function ProductFormDialog({
   );
   const action = product ? updateProductAction : createProductAction;
   // Fără resetul automat al React: la eroare rămâne tot completat.
-  const { state, pending, onSubmit } = useDrawerAction(action, initialState, (saved) => {
+  const { pending, onSubmit } = useDrawerAction(action, initialState, (saved) => {
     setOpen(false);
     setMounted(false);
     // Cel care a deschis dialogul primește produsul gata de selectat pe rândul
@@ -439,18 +439,6 @@ export function ProductFormDialog({
                   />
                 </Field>
               </div>
-
-              {state.message ? (
-                <div
-                  className={`rounded-md border px-3 py-2 text-sm ${
-                    state.ok
-                      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
-                      : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
-                  }`}
-                >
-                  {state.message}
-                </div>
-              ) : null}
 
               <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button

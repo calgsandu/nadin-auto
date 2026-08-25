@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { useActionToast } from "@/app/components/action-toast";
 import { drawerPanelClassName } from "@/app/components/operation-drawer";
 import {
   changeOwnPasswordAction,
@@ -31,6 +32,8 @@ export function ChangePasswordDialog({ compact = false }: { compact?: boolean })
 
 function PasswordDrawer({ onClose }: { onClose: () => void }) {
   const [state, formAction] = useActionState(changeOwnPasswordAction, initialState);
+  // Succesul are deja panoul lui pe ecran; doar eroarea are nevoie de notificare.
+  useActionToast(state, { success: false });
   return (
     <DrawerPortal>
       <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
@@ -54,7 +57,6 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
                 <PasswordInput name="newPassword" label="Parola nouă" autoComplete="new-password" />
                 <PasswordInput name="confirmPassword" label="Confirmă parola nouă" autoComplete="new-password" />
               </div>
-              {state.message ? <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]">{state.message}</div> : null}
               <div className="flex justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold" type="button" onClick={onClose}>Anulează</button>
                 <PasswordSubmit />

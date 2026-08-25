@@ -52,7 +52,7 @@ export function CashRegisterControl({
         </select>
         <SaveButton />
       </div>
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }

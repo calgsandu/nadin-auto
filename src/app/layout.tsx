@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Manrope, Roboto_Mono } from "next/font/google";
-import { NeonAuthUIProvider } from "@neondatabase/auth/react";
-import { authClient } from "@/lib/auth/client";
+import { Toaster } from "@/app/components/action-toast";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
 import "./globals.css";
 
@@ -52,9 +51,8 @@ export default async function RootLayout({
         <Script id="crm-sidebar-state" strategy="beforeInteractive">
           {`try{if(localStorage.getItem("nadin-crm-collapsed")==="1")document.documentElement.setAttribute("data-crm-collapsed","")}catch(e){}`}
         </Script>
-        <NeonAuthUIProvider authClient={authClient} redirectTo="/">
-          {children}
-        </NeonAuthUIProvider>
+        {children}
+        <Toaster />
       </body>
     </html>
   );

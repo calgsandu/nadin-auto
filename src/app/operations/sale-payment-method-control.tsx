@@ -65,7 +65,7 @@ export function SalePaymentMethodControl({
         </select>
         <SaveButton />
       </div>
-      <ActionFeedback state={state} compact />
+      <ActionFeedback state={state} />
     </form>
   );
 }
