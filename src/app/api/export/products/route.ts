@@ -71,7 +71,7 @@ export async function GET() {
 
   const stamp = new Date().toISOString().slice(0, 10);
   const aoa = [
-    [`CAROS — Catalog produse (${stamp})`],
+    [`NADIN AUTO — Catalog produse (${stamp})`],
     [],
     header,
     ...rows,

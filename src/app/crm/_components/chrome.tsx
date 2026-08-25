@@ -78,11 +78,11 @@ export function Sidebar({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.png"
-            alt="Caros"
+            alt="Nadin Auto"
             className="h-7 w-10 shrink-0 object-contain"
           />
           <p className="crm-nav-label truncate text-[15px] font-semibold tracking-tight text-[#1b1a17]">
-            Caros
+            Nadin Auto
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2 lg:hidden">

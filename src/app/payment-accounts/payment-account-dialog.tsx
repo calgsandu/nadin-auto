@@ -6,6 +6,7 @@ import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
   DraftBanner,
   DrawerMessage,
+  drawerPanelClassName,
   focusFirstLineSearch,
   useDrawerAction,
 } from "@/app/components/operation-drawer";
@@ -144,7 +145,7 @@ export function PaymentAccountDialog({
               type="button"
               onClick={() => setOpen(false)}
             />
-            <aside className="motion-drawer-panel relative flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <aside className={drawerPanelClassName}>
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
                 <div>
                   <h2 className="text-2xl font-semibold text-[#1b1a17]">Cont de plată nou</h2>

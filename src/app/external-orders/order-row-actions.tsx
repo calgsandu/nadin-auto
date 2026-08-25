@@ -87,7 +87,6 @@ function DeliverControl({ orderId }: { orderId: string }) {
       {mounted ? (
         <OperationDrawer
           open={open}
-          size="narrow"
           title="Livrează comanda"
           onClose={() => setOpen(false)}
         >

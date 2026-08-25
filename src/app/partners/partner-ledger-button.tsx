@@ -78,7 +78,6 @@ export function PartnerLedgerButton({
       </button>
       {open ? (
         <OperationDrawer
-          size="narrow"
           title={`Fișa lui ${partnerName}`}
           onClose={() => setOpen(false)}
         >

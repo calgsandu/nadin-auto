@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Download, FileText, History } from "lucide-react";
 import Link from "next/link";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { drawerPanelClassName } from "@/app/components/operation-drawer";
 import { cashRegisterLabel } from "@/lib/operations/cash-register";
 import {
   salePaymentMethodLabel,
@@ -89,7 +90,7 @@ function DetailsPanel({
           aria-label="Închide"
           onClick={onClose}
         />
-        <aside className="motion-drawer-panel relative flex h-full w-full max-w-7xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+        <aside className={drawerPanelClassName}>
           <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
             <div>
               <h2 className="mt-2 text-xl font-semibold text-[#1b1a17]">

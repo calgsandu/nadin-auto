@@ -7,11 +7,11 @@ import {
   matchTotpStep,
 } from "@/lib/auth/two-factor/totp";
 
-test("creates an authenticator-compatible Caros enrollment", () => {
+test("creates an authenticator-compatible Nadin Auto enrollment", () => {
   const { secret, uri } = createTotpEnrollment("ion");
 
   assert.match(secret, /^[A-Z2-7]+$/);
-  assert.match(uri, /^otpauth:\/\/totp\/Caros:ion\?/);
+  assert.match(uri, /^otpauth:\/\/totp\/Nadin(?:%20| )Auto:ion\?/);
   assert.equal(createTotpUri(secret, "ion"), uri);
 });
 
@@ -19,7 +19,7 @@ test("accepts six-digit SHA1 codes only inside a one-step window", () => {
   const { secret } = createTotpEnrollment("ion");
   const timestamp = 1_800_000_000_000;
   const totp = new OTPAuth.TOTP({
-    issuer: "Caros",
+    issuer: "Nadin Auto",
     label: "ion",
     algorithm: "SHA1",
     digits: 6,

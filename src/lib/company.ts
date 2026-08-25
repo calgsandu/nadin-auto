@@ -3,7 +3,7 @@
  * Completează IDNO/adresa reale înainte de a folosi documentele fiscal.
  */
 export const COMPANY = {
-  name: "CAROS",
+  name: "NADIN AUTO",
   legalName: "«NADIN AUTO» S.R.L.",
   idno: "1017600020085",
   vatCode: "0612067",

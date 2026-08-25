@@ -69,7 +69,6 @@ export function OperationDrawer({
   title,
   onClose,
   children,
-  size = "wide",
   open = true,
   submitLabel,
   pending,
@@ -78,8 +77,6 @@ export function OperationDrawer({
   title: string;
   onClose: () => void;
   children: ReactNode;
-  /** „wide" = documente cu linii de produse; „narrow" = formulare simple. */
-  size?: "wide" | "narrow";
   /** false = ciornă păstrată în DOM, panoul doar ascuns. */
   open?: boolean;
   /** Dat = buton de salvare în antetul lipit sus (documentele lungi n-au nevoie de scroll). */
@@ -149,9 +146,7 @@ export function OperationDrawer({
             event.stopPropagation();
             onClose();
           }}
-          className={`motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-[#fafaf9] shadow-xl ${
-            size === "wide" ? "max-w-7xl" : "max-w-2xl"
-          }`}
+          className={drawerPanelClassName}
         >
           <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
             <div>
@@ -485,6 +480,14 @@ export function handleEnterNavigation(
   });
 }
 
+/**
+ * Shell-ul panoului, IDENTIC pentru toate dialogurile (operațiuni, produs,
+ * partener, nomenclator). Lățimea e procentuală, nu `max-w-*` fix: cu 672px
+ * rândurile de compatibilitate și tabelele documentelor își înghesuiau textul,
+ * iar pe monitor rămâneau două treimi de ecran nefolosite.
+ */
+export const drawerPanelClassName =
+  "motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-[#fafaf9] shadow-xl md:max-w-[90vw]";
 export const drawerFormClassName = "grid gap-6 px-6 py-6";
 export const drawerInputClassName =
   "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b]";

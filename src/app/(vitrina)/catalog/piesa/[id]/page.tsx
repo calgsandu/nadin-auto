@@ -21,7 +21,7 @@ export async function generateMetadata({
   if (!product) return {};
   const suffix = `/piesa/${id}`;
   return {
-    title: `${product.description} — Caros`,
+    title: `${product.description} — Nadin Auto`,
     description: `${product.brand.name} ${product.model.name}, ${product.fitLabel}, cod ${product.code ?? product.type}`,
     alternates: {
       canonical: catalogHref(locale, suffix),

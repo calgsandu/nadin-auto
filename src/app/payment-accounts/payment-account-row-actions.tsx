@@ -244,7 +244,6 @@ function CorrectionForm({
       {mounted ? (
         <OperationDrawer
           open={open}
-          size="narrow"
           title={`Corectează contul #${number}`}
           onClose={() => setOpen(false)}
         >

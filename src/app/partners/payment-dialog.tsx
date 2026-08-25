@@ -66,7 +66,6 @@ export function PartnerPaymentDialog({
       {mounted ? (
         <OperationDrawer
           title={`Încasare — ${partnerName}`}
-          size="narrow"
           open={open}
           pending={pending}
           submitLabel="Salvează încasarea"

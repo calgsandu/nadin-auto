@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   createProductAction,
   updateProductAction,
@@ -9,6 +9,7 @@ import {
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
   drawerBoundaryProps,
+  drawerPanelClassName,
   useDrawerAction,
   useDrawerStackChild,
 } from "@/app/components/operation-drawer";
@@ -122,17 +123,16 @@ export function ProductFormDialog({
   const open = controlled ? controlledOpen : selfOpen;
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
-  const [brandId, setBrandId] = useState(product?.brandId ?? "");
-  const [modelId, setModelId] = useState(product?.modelId ?? "");
-  const [newBrandName, setNewBrandName] = useState("");
   const [warehouseQuantities, setWarehouseQuantities] = useState<Record<string, string>>(
     () => getWarehouseQuantities(product, warehouses),
   );
-  const [yearOpenEnded, setYearOpenEnded] = useState(
-    product?.yearOpenEnded ?? false,
-  );
-  const [extras, setExtras] = useState<ExtraFitmentValue[]>(
-    () => product?.extraFitments ?? [],
+  /**
+   * Compatibilitățile produsului, într-o SINGURĂ listă: prima e cea principală
+   * (brandul/modelul/anii produsului), restul sunt gemenii. Înainte erau două
+   * locuri diferite în formular pentru același lucru.
+   */
+  const [fitments, setFitments] = useState<ExtraFitmentValue[]>(
+    () => toFitments(product),
   );
   const action = product ? updateProductAction : createProductAction;
   // Fără resetul automat al React: la eroare rămâne tot completat.
@@ -152,11 +152,7 @@ export function ProductFormDialog({
   }
 
   function initFields() {
-    setBrandId(product?.brandId ?? "");
-    setModelId(product?.modelId ?? "");
-    setNewBrandName("");
-    setYearOpenEnded(product?.yearOpenEnded ?? false);
-    setExtras(product?.extraFitments ?? []);
+    setFitments(toFitments(product));
     setWarehouseQuantities(getWarehouseQuantities(product, warehouses));
   }
 
@@ -168,29 +164,18 @@ export function ProductFormDialog({
     initFields();
     setMounted(true);
   }
-  const filteredModels = useMemo(() => {
-    if (!brandId || newBrandName.trim()) {
-      return [];
-    }
-
-    return models.filter((model) => model.brandId === brandId);
-  }, [brandId, models, newBrandName]);
-
-  function addExtra() {
-    setExtras((current) => [
-      ...current,
-      { brandId: "", modelId: "", yearStart: "", yearEnd: "", yearOpenEnded: false },
-    ]);
+  function addFitment() {
+    setFitments((current) => [...current, emptyFitment()]);
   }
 
-  function patchExtra(index: number, patch: Partial<ExtraFitmentValue>) {
-    setExtras((current) =>
-      current.map((extra, position) => (position === index ? { ...extra, ...patch } : extra)),
+  function patchFitment(index: number, patch: Partial<ExtraFitmentValue>) {
+    setFitments((current) =>
+      current.map((row, position) => (position === index ? { ...row, ...patch } : row)),
     );
   }
 
-  function removeExtra(index: number) {
-    setExtras((current) => current.filter((_, position) => position !== index));
+  function removeFitment(index: number) {
+    setFitments((current) => current.filter((_, position) => position !== index));
   }
 
   function openDialog() {
@@ -233,7 +218,7 @@ export function ProductFormDialog({
             onClick={() => setOpen(false)}
           />
           <aside
-            className="motion-drawer-panel relative flex h-full w-full max-w-2xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl"
+            className={drawerPanelClassName}
             onKeyDown={(event) => {
               if (event.key !== "Escape") return;
               event.stopPropagation();
@@ -260,7 +245,7 @@ export function ProductFormDialog({
                 <input name="productId" type="hidden" value={product.id} />
               ) : null}
 
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Field label="Cod">
                   <input
                     className={inputClassName}
@@ -291,96 +276,34 @@ export function ProductFormDialog({
                     ))}
                   </select>
                 </Field>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Brand existent">
-                  <select
-                    className={inputClassName}
-                    name="brandId"
-                    value={newBrandName.trim() ? "" : brandId}
-                    disabled={Boolean(newBrandName.trim())}
-                    onChange={(event) => {
-                      setBrandId(event.target.value);
-                      setModelId("");
-                    }}
-                  >
-                    <option value="">Alege brandul</option>
-                    {brands.map((brand) => (
-                      <option key={brand.id} value={brand.id}>
-                        {brand.name}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="Brand nou">
+                <Field label="Tip produs nou">
                   <input
                     className={inputClassName}
-                    name="newBrandName"
-                    value={newBrandName}
-                    onChange={(event) => {
-                      setNewBrandName(event.target.value);
-                      setModelId("");
-                    }}
-                    placeholder="Completează doar dacă nu există"
+                    name="newTypeName"
+                    placeholder="Doar dacă nu există în listă"
                   />
                 </Field>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Model existent">
-                  <select
-                    className={inputClassName}
-                    name="modelId"
-                    value={newBrandName.trim() ? "" : modelId}
-                    disabled={Boolean(newBrandName.trim())}
-                    onChange={(event) => setModelId(event.target.value)}
-                  >
-                    <option value="">
-                      {brandId ? "Alege modelul" : "Alege întâi brandul"}
-                    </option>
-                    {filteredModels.map((model) => (
-                      <option key={model.id} value={model.id}>
-                        {model.name}
-                      </option>
-                    ))}
-                  </select>
+                <Field label="Descriere">
+                  <textarea
+                    className={`${inputClassName} min-h-24 resize-y py-3`}
+                    name="description"
+                    defaultValue={product?.description ?? initialDescription ?? ""}
+                    placeholder="ex. Prag 4/5uși L"
+                    required
+                  />
                 </Field>
-                <Field label="Model nou">
-                  <input
-                    className={inputClassName}
-                    name="newModelName"
-                    placeholder="Completează doar dacă nu există"
+                <Field label="Descriere în rusă">
+                  <textarea
+                    className={`${inputClassName} min-h-24 resize-y py-3`}
+                    name="descriptionRu"
+                    defaultValue={product?.descriptionRu ?? ""}
+                    placeholder="ex. Левый порог для 4/5 дверей"
                   />
                 </Field>
               </div>
-
-              <Field label="Tip produs nou">
-                <input
-                  className={inputClassName}
-                  name="newTypeName"
-                  placeholder="Completează doar dacă nu există în listă"
-                />
-              </Field>
-
-              <Field label="Descriere">
-                <textarea
-                  className={`${inputClassName} min-h-24 resize-y py-3`}
-                  name="description"
-                  defaultValue={product?.description ?? initialDescription ?? ""}
-                  placeholder="ex. Prag 4/5uși L"
-                  required
-                />
-              </Field>
-
-              <Field label="Descriere în rusă">
-                <textarea
-                  className={`${inputClassName} min-h-24 resize-y py-3`}
-                  name="descriptionRu"
-                  defaultValue={product?.descriptionRu ?? ""}
-                  placeholder="ex. Левый порог для 4/5 дверей"
-                />
-              </Field>
 
               {/*
                 Câmpul se numea „Notițe" și suna a notă internă, dar se publică
@@ -404,145 +327,38 @@ export function ProductFormDialog({
                 </Field>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Field label="Ani de la">
-                  <input
-                    className={inputClassName}
-                    name="yearStart"
-                    defaultValue={product?.yearStart ?? ""}
-                    inputMode="numeric"
-                    placeholder="1995"
-                  />
-                </Field>
-                <Field label="Ani până la">
-                  <input
-                    className={inputClassName}
-                    name="yearEnd"
-                    defaultValue={product?.yearEnd ?? ""}
-                    disabled={yearOpenEnded}
-                    inputMode="numeric"
-                    placeholder="2006"
-                  />
-                </Field>
-                <label className="field-control flex items-center gap-2 self-end rounded-md border border-[#e8e7e3] bg-white px-3 py-3 text-sm text-[#33312c]">
-                  <input
-                    name="yearOpenEnded"
-                    type="checkbox"
-                    checked={yearOpenEnded}
-                    onChange={(event) => setYearOpenEnded(event.target.checked)}
-                  />
-                  În continuare
-                </label>
-              </div>
-
               <section className="rounded-xl border border-[#e8e7e3] bg-white p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-semibold text-[#1b1a17]">Alte compatibilități</h3>
-                    <p className="mt-1 text-xs text-[#6f6b63]">
-                      Aceeași piesă pe alte modele (Sprinter ↔ Crafter).
-                    </p>
-                  </div>
-                  <button
-                    className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
-                    type="button"
-                    onClick={addExtra}
-                  >
-                    + Adaugă compatibilitate
-                  </button>
+                <div>
+                  <h3 className="font-semibold text-[#1b1a17]">Compatibilități</h3>
+                  <p className="mt-1 text-xs text-[#6f6b63]">
+                    Prima linie e mașina principală. Adaugă câte linii are piesa (Sprinter ↔ Crafter).
+                  </p>
                 </div>
 
-                {extras.length === 0 ? (
-                  <p className="mt-3 text-sm text-[#98948b]">Nicio compatibilitate suplimentară.</p>
-                ) : (
-                  <div className="mt-4 grid gap-3">
-                    {extras.map((extra, index) => (
-                      <div
-                        key={index}
-                        className="grid gap-3 rounded-md border border-[#efeeeb] p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6rem_6rem_auto] sm:items-end"
-                      >
-                        <input name="extraModelId" type="hidden" value={extra.modelId} readOnly />
-                        <input
-                          name="extraYearStart"
-                          type="hidden"
-                          value={extra.yearStart}
-                          readOnly
-                        />
-                        <input name="extraYearEnd" type="hidden" value={extra.yearEnd} readOnly />
-                        <input
-                          name="extraYearOpenEnded"
-                          type="hidden"
-                          value={extra.yearOpenEnded ? "1" : ""}
-                          readOnly
-                        />
-                        <Field label="Brand">
-                          <BrandSelect
-                            brands={brands}
-                            value={extra.brandId}
-                            onChange={(brandId) => patchExtra(index, { brandId, modelId: "" })}
-                          />
-                        </Field>
-                        <Field label="Model">
-                          <ModelSelect
-                            brands={brands}
-                            defaultBrandId={extra.brandId}
-                            emptyLabel={extra.brandId ? "Alege modelul" : "Alege întâi brandul"}
-                            models={models.filter((model) => model.brandId === extra.brandId)}
-                            value={extra.modelId}
-                            onChange={(modelId) => patchExtra(index, { modelId })}
-                          />
-                        </Field>
-                        <Field label="Ani de la">
-                          <input
-                            className={inputClassName}
-                            inputMode="numeric"
-                            placeholder="1995"
-                            value={extra.yearStart}
-                            onChange={(event) =>
-                              patchExtra(index, { yearStart: event.target.value })
-                            }
-                          />
-                        </Field>
-                        <Field label="Până la">
-                          <input
-                            className={inputClassName}
-                            disabled={extra.yearOpenEnded}
-                            inputMode="numeric"
-                            placeholder="2006"
-                            value={extra.yearEnd}
-                            onChange={(event) => patchExtra(index, { yearEnd: event.target.value })}
-                          />
-                        </Field>
-                        <div className="flex items-center gap-2">
-                          <label className="flex items-center gap-1.5 text-xs text-[#33312c]">
-                            <input
-                              checked={extra.yearOpenEnded}
-                              type="checkbox"
-                              onChange={(event) =>
-                                patchExtra(index, {
-                                  yearOpenEnded: event.target.checked,
-                                  yearEnd: event.target.checked ? "" : extra.yearEnd,
-                                })
-                              }
-                            />
-                            În continuare
-                          </label>
-                          <button
-                            aria-label={`Șterge compatibilitatea ${index + 1}`}
-                            className="button-danger rounded-md border border-[#e8e7e3] bg-white px-2 py-2 text-sm font-semibold text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2]"
-                            type="button"
-                            onClick={() => removeExtra(index)}
-                          >
-                            Șterge
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="mt-4 grid gap-3">
+                  {fitments.map((fitment, index) => (
+                    <FitmentRow
+                      key={index}
+                      brands={brands}
+                      models={models}
+                      primary={index === 0}
+                      value={fitment}
+                      onChange={(patch) => patchFitment(index, patch)}
+                      onRemove={index === 0 ? undefined : () => removeFitment(index)}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  className="button-secondary mt-3 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                  type="button"
+                  onClick={addFitment}
+                >
+                  + Adaugă altă compatibilitate
+                </button>
               </section>
 
-              <label className="field-control flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-3 text-sm text-[#33312c]">
+              <label className="field-control flex items-center gap-2 self-start rounded-md border border-[#e8e7e3] bg-white px-3 py-3 text-sm text-[#33312c]">
                 <input name="isLocal" type="checkbox" defaultChecked={product?.isLocal ?? false} />
                 Piesă fabricată local (manufactura proprie)
               </label>
@@ -587,7 +403,7 @@ export function ProductFormDialog({
                 </div>
               </section>
 
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Field label="Stoc minim (alertă) — gol = 3">
                   <input
                     className={inputClassName}
@@ -613,17 +429,16 @@ export function ProductFormDialog({
                     inputMode="decimal"
                   />
                 </Field>
+                <Field label="Preț vânzare (lei) — gol = 2× cost">
+                  <input
+                    className={inputClassName}
+                    name="salePriceLei"
+                    defaultValue={product?.salePriceLei ?? ""}
+                    inputMode="decimal"
+                    placeholder="automat din cost"
+                  />
+                </Field>
               </div>
-
-              <Field label="Preț vânzare (lei) — gol = automat (2× cost, rotunjit la 50)">
-                <input
-                  className={inputClassName}
-                  name="salePriceLei"
-                  defaultValue={product?.salePriceLei ?? ""}
-                  inputMode="decimal"
-                  placeholder="se calculează automat din cost"
-                />
-              </Field>
 
               {state.message ? (
                 <div
@@ -656,15 +471,138 @@ export function ProductFormDialog({
   );
 }
 
+/**
+ * Un rând din lista de compatibilități. Primul rând ESTE mașina principală a
+ * produsului, deci trimite `brandId/modelId/yearStart/...`; restul trimit
+ * perechea `extra*`, pe care serverul o citește pozițional — de aceea
+ * „În continuare" rămâne un input ascuns, nu o bifă cu `name` (bifa nebifată
+ * nu s-ar trimite și ar decala anii de pe rândurile următoare).
+ */
+function FitmentRow({
+  brands,
+  models,
+  primary,
+  value,
+  onChange,
+  onRemove,
+}: {
+  brands: CatalogFormOptions["brands"];
+  models: CatalogFormOptions["models"];
+  primary: boolean;
+  value: ExtraFitmentValue;
+  onChange: (patch: Partial<ExtraFitmentValue>) => void;
+  /** Lipsă = rândul principal, care nu se poate șterge. */
+  onRemove?: () => void;
+}) {
+  return (
+    <div className="grid gap-3 rounded-md border border-[#efeeeb] p-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_8rem_8rem_13rem] lg:items-start">
+      <input
+        name={primary ? "yearOpenEnded" : "extraYearOpenEnded"}
+        type="hidden"
+        value={value.yearOpenEnded ? "1" : ""}
+        readOnly
+      />
+      <Field label="Brand">
+        <BrandSelect
+          brands={brands}
+          name={primary ? "brandId" : undefined}
+          required={primary}
+          value={value.brandId}
+          onChange={(brandId) => onChange({ brandId, modelId: "" })}
+        />
+      </Field>
+      <Field label="Model">
+        <ModelSelect
+          brands={brands}
+          defaultBrandId={value.brandId}
+          emptyLabel={value.brandId ? "Alege modelul" : "Alege întâi brandul"}
+          models={models.filter((model) => model.brandId === value.brandId)}
+          name={primary ? "modelId" : "extraModelId"}
+          required={primary}
+          value={value.modelId}
+          onChange={(modelId) => onChange({ modelId })}
+        />
+      </Field>
+      <Field label="Ani de la">
+        <input
+          className={inputClassName}
+          inputMode="numeric"
+          name={primary ? "yearStart" : "extraYearStart"}
+          placeholder="1995"
+          value={value.yearStart}
+          onChange={(event) => onChange({ yearStart: event.target.value })}
+        />
+      </Field>
+      <Field label="Până la">
+        <input
+          className={inputClassName}
+          disabled={value.yearOpenEnded}
+          inputMode="numeric"
+          name={primary ? "yearEnd" : "extraYearEnd"}
+          placeholder="2006"
+          value={value.yearEnd}
+          onChange={(event) => onChange({ yearEnd: event.target.value })}
+        />
+      </Field>
+      <div className="flex items-center gap-3 lg:mt-7">
+        <label className="flex items-center gap-1.5 whitespace-nowrap text-xs text-[#33312c]">
+          <input
+            checked={value.yearOpenEnded}
+            type="checkbox"
+            onChange={(event) =>
+              onChange({
+                yearOpenEnded: event.target.checked,
+                yearEnd: event.target.checked ? "" : value.yearEnd,
+              })
+            }
+          />
+          În continuare
+        </label>
+        {onRemove ? (
+          <button
+            aria-label="Șterge compatibilitatea"
+            className="button-danger rounded-md border border-[#e8e7e3] bg-white px-2 py-2 text-sm font-semibold text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2]"
+            type="button"
+            onClick={onRemove}
+          >
+            Șterge
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function emptyFitment(): ExtraFitmentValue {
+  return { brandId: "", modelId: "", yearStart: "", yearEnd: "", yearOpenEnded: false };
+}
+
+/** Prima poziție e compatibilitatea principală a produsului, apoi gemenii. */
+function toFitments(product: ProductFormValue | undefined): ExtraFitmentValue[] {
+  if (!product) return [emptyFitment()];
+  return [
+    {
+      brandId: product.brandId,
+      modelId: product.modelId,
+      yearStart: product.yearStart,
+      yearEnd: product.yearEnd,
+      yearOpenEnded: product.yearOpenEnded,
+    },
+    ...product.extraFitments,
+  ];
+}
+
 function Field({
   label,
   children,
+  className = "",
 }: {
   label: string;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
+    <label className={`grid content-start gap-1.5 text-sm font-medium text-[#33312c] ${className}`}>
       {label}
       {children}
     </label>

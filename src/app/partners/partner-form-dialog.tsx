@@ -10,6 +10,7 @@ import {
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
   drawerBoundaryProps,
+  drawerPanelClassName,
   useDrawerAction,
   useDrawerStackChild,
 } from "@/app/components/operation-drawer";
@@ -115,7 +116,7 @@ export function PartnerFormDialog({
               onClick={() => setOpen(false)}
             />
             <aside
-              className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl"
+              className={drawerPanelClassName}
               onKeyDown={(event) => {
                 if (event.key !== "Escape") return;
                 event.stopPropagation();
@@ -137,7 +138,7 @@ export function PartnerFormDialog({
                 </button>
               </div>
 
-              <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6">
+              <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6 lg:grid-cols-2">
                 {partner ? (
                   <input name="partnerId" type="hidden" value={partner.id} />
                 ) : null}
@@ -176,30 +177,28 @@ export function PartnerFormDialog({
                   />
                 </Field>
 
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Field label="E-mail">
-                    <input
-                      className={inputClassName}
-                      name="email"
-                      defaultValue={partner?.email ?? ""}
-                      inputMode="email"
-                      placeholder="ex. contabilitate@firma.md"
-                      type="email"
-                    />
-                  </Field>
+                <Field label="E-mail">
+                  <input
+                    className={inputClassName}
+                    name="email"
+                    defaultValue={partner?.email ?? ""}
+                    inputMode="email"
+                    placeholder="ex. contabilitate@firma.md"
+                    type="email"
+                  />
+                </Field>
 
-                  <Field label="IDNO / Cod fiscal">
-                    <input
-                      className={inputClassName}
-                      name="idno"
-                      defaultValue={partner?.idno ?? ""}
-                      inputMode="numeric"
-                      placeholder="ex. 1006600052073"
-                    />
-                  </Field>
-                </div>
+                <Field label="IDNO / Cod fiscal">
+                  <input
+                    className={inputClassName}
+                    name="idno"
+                    defaultValue={partner?.idno ?? ""}
+                    inputMode="numeric"
+                    placeholder="ex. 1006600052073"
+                  />
+                </Field>
 
-                <Field label="Adresa juridică">
+                <Field className="lg:col-span-2" label="Adresa juridică">
                   <input
                     className={inputClassName}
                     name="address"
@@ -208,26 +207,24 @@ export function PartnerFormDialog({
                   />
                 </Field>
 
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Field label="Cod TVA">
-                    <input
-                      className={inputClassName}
-                      name="vatCode"
-                      defaultValue={partner?.vatCode ?? ""}
-                      inputMode="numeric"
-                      placeholder="opțional"
-                    />
-                  </Field>
+                <Field label="Cod TVA">
+                  <input
+                    className={inputClassName}
+                    name="vatCode"
+                    defaultValue={partner?.vatCode ?? ""}
+                    inputMode="numeric"
+                    placeholder="opțional"
+                  />
+                </Field>
 
-                  <Field label="Cod bancar / BIC">
-                    <input
-                      className={inputClassName}
-                      name="bankCode"
-                      defaultValue={partner?.bankCode ?? ""}
-                      placeholder="ex. MOBBMD22"
-                    />
-                  </Field>
-                </div>
+                <Field label="Cod bancar / BIC">
+                  <input
+                    className={inputClassName}
+                    name="bankCode"
+                    defaultValue={partner?.bankCode ?? ""}
+                    placeholder="ex. MOBBMD22"
+                  />
+                </Field>
 
                 <Field label="IBAN">
                   <input
@@ -247,7 +244,7 @@ export function PartnerFormDialog({
                   />
                 </Field>
 
-                <Field label="Note">
+                <Field className="lg:col-span-2" label="Note">
                   <textarea
                     className={`${inputClassName} min-h-24 resize-y py-3`}
                     name="notes"
@@ -258,7 +255,7 @@ export function PartnerFormDialog({
 
                 {state.message ? (
                   <div
-                    className={`rounded-md border px-3 py-2 text-sm ${
+                    className={`rounded-md border px-3 py-2 text-sm lg:col-span-2 ${
                       state.ok
                         ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
                         : "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
@@ -268,7 +265,7 @@ export function PartnerFormDialog({
                   </div>
                 ) : null}
 
-                <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
+                <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5 lg:col-span-2">
                   <button
                     className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                     type="button"
@@ -287,9 +284,17 @@ export function PartnerFormDialog({
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({
+  label,
+  children,
+  className = "",
+}: {
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
+    <label className={`grid content-start gap-1.5 text-sm font-medium text-[#33312c] ${className}`}>
       {label}
       {children}
     </label>

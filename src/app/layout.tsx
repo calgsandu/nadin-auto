@@ -22,13 +22,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   ),
-  title: "Caros",
-  description: "Catalog intern Caros",
+  title: "Nadin Auto",
+  description: "Catalog intern Nadin Auto",
   // Cardul pentru WhatsApp/Facebook/Telegram; imaginea vine din
   // `opengraph-image.tsx`, iar iconițele din icon.png / apple-icon.png.
   openGraph: {
     type: "website",
-    siteName: "Caros",
+    siteName: "Nadin Auto",
     locale: "ro_MD",
     alternateLocale: ["ru_MD"],
   },

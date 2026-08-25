@@ -7,7 +7,10 @@ import {
   type ExternalOrderActionState,
 } from "@/app/external-orders/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { useDrawerAction } from "@/app/components/operation-drawer";
+import {
+  drawerPanelClassName,
+  useDrawerAction,
+} from "@/app/components/operation-drawer";
 import { SupplierPicker } from "@/app/partners/supplier-picker";
 
 export type ExternalOrderFormValue = {
@@ -79,7 +82,7 @@ export function ExternalOrderDialog({
               aria-label="Închide formularul"
               onClick={() => setOpen(false)}
             />
-            <aside className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <aside className={drawerPanelClassName}>
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
                 <div>
                   <h2 className="text-2xl font-semibold text-[#1b1a17]">

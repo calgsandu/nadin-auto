@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
   drawerBoundaryProps,
+  drawerPanelClassName,
   useDrawerAction,
   useDrawerStackChild,
 } from "@/app/components/operation-drawer";
@@ -60,9 +61,17 @@ function SubmitButton({ label, pending }: { label: string; pending?: boolean }) 
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({
+  label,
+  children,
+  className = "",
+}: {
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
+    <label className={`grid content-start gap-1.5 text-sm font-medium text-[#33312c] ${className}`}>
       {label}
       {children}
     </label>
@@ -111,7 +120,7 @@ function Drawer({
     >
       <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={() => setOpen(false)} />
       <aside
-        className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl"
+        className={drawerPanelClassName}
         onKeyDown={(event) => {
           if (event.key !== "Escape") return;
           event.stopPropagation();
@@ -130,14 +139,14 @@ function Drawer({
             Închide
           </button>
         </div>
-        <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6">
+        <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6 lg:grid-cols-2">
           {children}
           {state.message && !state.ok ? (
-            <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]">
+            <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c] lg:col-span-2">
               {state.message}
             </div>
           ) : null}
-          <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
+          <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5 lg:col-span-2">
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -256,10 +265,10 @@ export function WarehouseDialog({
         <Field label="Nume">
           <input className={inputClassName} name="name" defaultValue={warehouse?.name ?? ""} placeholder="ex. Pavilion 110A" required />
         </Field>
-        <label className="flex items-center gap-2 text-sm text-[#33312c]">
+        <label className="flex items-center gap-2 self-start text-sm text-[#33312c] lg:col-span-2">
           <input type="checkbox" name="isDefault" defaultChecked={warehouse?.isDefault ?? false} /> Depozit implicit
         </label>
-        <label className="flex items-center gap-2 text-sm text-[#33312c]">
+        <label className="flex items-center gap-2 self-start text-sm text-[#33312c] lg:col-span-2">
           <input type="checkbox" name="active" defaultChecked={warehouse?.active ?? true} /> Activ
         </label>
       </Drawer>
@@ -380,15 +389,13 @@ export function FitmentDialog({
         <Field label="Etichetă în rusă">
           <input className={inputClassName} name="labelRu" defaultValue={fitment?.labelRu ?? ""} placeholder="ex. все годы" />
         </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="An început">
-            <input className={inputClassName} name="yearStart" defaultValue={fitment?.yearStart ?? ""} inputMode="numeric" placeholder="2005" />
-          </Field>
-          <Field label="An sfârșit">
-            <input className={inputClassName} name="yearEnd" defaultValue={fitment?.yearEnd ?? ""} inputMode="numeric" placeholder="2010" />
-          </Field>
-        </div>
-        <label className="flex items-center gap-2 text-sm text-[#33312c]">
+        <Field label="An început">
+          <input className={inputClassName} name="yearStart" defaultValue={fitment?.yearStart ?? ""} inputMode="numeric" placeholder="2005" />
+        </Field>
+        <Field label="An sfârșit">
+          <input className={inputClassName} name="yearEnd" defaultValue={fitment?.yearEnd ?? ""} inputMode="numeric" placeholder="2010" />
+        </Field>
+        <label className="flex items-center gap-2 self-start text-sm text-[#33312c] lg:col-span-2">
           <input type="checkbox" name="yearOpenEnded" defaultChecked={fitment?.yearOpenEnded ?? false} /> În continuare (fără an de sfârșit)
         </label>
       </Drawer>

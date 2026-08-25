@@ -1,6 +1,6 @@
 export const LABEL_PHONE = "0 (68) 677885";
-export const LABEL_SITE = "caros.md";
-export const LABEL_BRAND = "CAROS";
+export const LABEL_SITE = "nadinauto.md";
+export const LABEL_BRAND = "NADIN AUTO";
 export const LABEL_COMPATIBILITY_PREFIX = "Piesă auto compatibilă cu modelul";
 
 export type LabelCompatibilityInput = {

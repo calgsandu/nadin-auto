@@ -3,6 +3,7 @@
 import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { drawerPanelClassName } from "@/app/components/operation-drawer";
 import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   createStaffUserAction,
@@ -47,26 +48,28 @@ function CreateStaffDrawer({ onClose }: { onClose: () => void }) {
         <RevealedPassword password={state.revealedPassword} onClose={onClose} />
       ) : (
         <form action={formAction} className="grid gap-5">
-          <Field label="Nume">
-            <input className={inputClassName} name="name" required placeholder="ex. Ion Popescu" />
-          </Field>
-          <Field label="Nume de utilizator">
-            <input
-              className={inputClassName}
-              name="username"
-              required
-              autoCapitalize="none"
-              spellCheck={false}
-              placeholder="ex. ion"
-            />
-          </Field>
-          <Field label="Rol">
-            <select className={inputClassName} name="role" defaultValue="ANGAJAT">
-              {ROLE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </Field>
+          <div className="grid gap-5 md:grid-cols-3">
+            <Field label="Nume">
+              <input className={inputClassName} name="name" required placeholder="ex. Ion Popescu" />
+            </Field>
+            <Field label="Nume de utilizator">
+              <input
+                className={inputClassName}
+                name="username"
+                required
+                autoCapitalize="none"
+                spellCheck={false}
+                placeholder="ex. ion"
+              />
+            </Field>
+            <Field label="Rol">
+              <select className={inputClassName} name="role" defaultValue="ANGAJAT">
+                {ROLE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
           <PasswordField value={password} onChange={setPassword} />
           <ActionMessage state={state} />
           <DrawerActions onClose={onClose} submitLabel="Creează utilizator" />
@@ -259,7 +262,7 @@ function StaffDrawer({ title, onClose, children }: { title: string; onClose: () 
     <DrawerPortal>
       <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
         <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={onClose} />
-        <aside className="motion-drawer-panel relative flex h-full w-full max-w-lg flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+        <aside className={drawerPanelClassName}>
           <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
             <div>
               <h2 className="text-2xl font-semibold text-[#1b1a17]">{title}</h2>

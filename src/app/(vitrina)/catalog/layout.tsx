@@ -35,12 +35,12 @@ export default async function VitrinaLayout({
           <Link href={catalogHref(locale)} className="flex items-center gap-2.5">
             <Image
               src="/logo.png"
-              alt="Caros"
+              alt="Nadin Auto"
               width={48}
               height={32}
               className="h-7 w-10 shrink-0 object-contain sm:h-8 sm:w-12"
             />
-            <span className="whitespace-nowrap text-[15px] font-bold sm:text-base">Caros</span>
+            <span className="whitespace-nowrap text-[15px] font-bold sm:text-base">Nadin Auto</span>
           </Link>
           <div className="hidden items-center gap-1 text-sm text-[#57534a] sm:flex">
             <Link

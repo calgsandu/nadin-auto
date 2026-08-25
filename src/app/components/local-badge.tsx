@@ -8,7 +8,7 @@ export function LocalBadge({
 }) {
   return (
     <span
-      title={locale === "ru" ? "Местное производство Caros" : "Fabricat local — manufactura Caros"}
+      title={locale === "ru" ? "Местное производство Nadin Auto" : "Fabricat local — manufactura Nadin Auto"}
       className={`inline-flex shrink-0 items-center gap-1 rounded-md bg-[#2e90fa]/10 px-1.5 py-0.5 text-xs font-semibold text-[#1570d6] ${className}`}
     >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="size-2.5" aria-hidden>

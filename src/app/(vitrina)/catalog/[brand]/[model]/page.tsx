@@ -28,8 +28,8 @@ export async function generateMetadata({
   const suffix = `/${brand}/${model}`;
   return {
     title: locale === "ru"
-      ? `${data.brand.name} ${data.model.name}: детали — Caros`
-      : `${data.brand.name} ${data.model.name}: piese — Caros`,
+      ? `${data.brand.name} ${data.model.name}: детали — Nadin Auto`
+      : `${data.brand.name} ${data.model.name}: piese — Nadin Auto`,
     alternates: {
       canonical: catalogHref(locale, suffix),
       languages: { ro: catalogHref("ro", suffix), ru: catalogHref("ru", suffix) },

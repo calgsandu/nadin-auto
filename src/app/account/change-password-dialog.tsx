@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { drawerPanelClassName } from "@/app/components/operation-drawer";
 import {
   changeOwnPasswordAction,
   type PasswordChangeState,
@@ -34,7 +35,7 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
     <DrawerPortal>
       <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
         <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={onClose} />
-        <aside className="motion-drawer-panel relative h-full w-full max-w-md overflow-y-auto bg-[#fafaf9] shadow-xl">
+        <aside className={drawerPanelClassName}>
           <div className="flex items-start justify-between border-b border-[#e8e7e3] px-6 py-5">
             <div>
               <h2 className="mt-2 text-2xl font-semibold">Schimbă parola</h2>
@@ -48,9 +49,11 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
             </div>
           ) : (
             <form action={formAction} className="grid gap-4 px-6 py-6">
-              <PasswordInput name="currentPassword" label="Parola actuală" autoComplete="current-password" />
-              <PasswordInput name="newPassword" label="Parola nouă" autoComplete="new-password" />
-              <PasswordInput name="confirmPassword" label="Confirmă parola nouă" autoComplete="new-password" />
+              <div className="grid gap-4 md:grid-cols-3">
+                <PasswordInput name="currentPassword" label="Parola actuală" autoComplete="current-password" />
+                <PasswordInput name="newPassword" label="Parola nouă" autoComplete="new-password" />
+                <PasswordInput name="confirmPassword" label="Confirmă parola nouă" autoComplete="new-password" />
+              </div>
               {state.message ? <div className="rounded-md border border-[#fca5a5] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]">{state.message}</div> : null}
               <div className="flex justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold" type="button" onClick={onClose}>Anulează</button>
