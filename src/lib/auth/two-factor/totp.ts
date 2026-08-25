@@ -1,6 +1,6 @@
 import * as OTPAuth from "otpauth";
 
-const ISSUER = "Nadin Auto";
+const ISSUER = "Caros";
 const PERIOD_SECONDS = 30;
 const PERIOD_MS = PERIOD_SECONDS * 1_000;
 

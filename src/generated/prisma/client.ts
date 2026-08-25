@@ -168,3 +168,9 @@ export type StockDocumentLine = Prisma.StockDocumentLineModel
  * 
  */
 export type RestockTask = Prisma.RestockTaskModel
+/**
+ * Model PriceChange
+ * Istoricul prețurilor unui produs: se scrie DOAR când o valoare chiar s-a
+ * schimbat, ca să se poată răspunde la „de când s-a scumpit și cu cât".
+ */
+export type PriceChange = Prisma.PriceChangeModel

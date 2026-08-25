@@ -159,7 +159,7 @@ export async function createPaymentAccountAction(
       summary: `Cont de plată #${created.number} emis pentru ${created.customerName} (${Number(created.totalGross)} lei)`,
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: `Contul de plată #${created.number} a fost emis.` };
   } catch (error) {
     return toActionError(error);
@@ -193,7 +193,7 @@ export async function markPaymentAccountPaidAction(
       entityId: id,
       summary: `Cont de plată #${account.number} marcat achitat`,
     });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: `Contul #${account.number} a fost marcat achitat.` };
   } catch (error) {
     return toActionError(error);
@@ -227,7 +227,7 @@ export async function cancelPaymentAccountAction(
       entityId: id,
       summary: `Cont de plată #${account.number} anulat`,
     });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: `Contul #${account.number} a fost anulat.` };
   } catch (error) {
     return toActionError(error);
@@ -252,7 +252,7 @@ export async function fulfillPaymentAccountAction(
           totalGross: Number(account.totalGross),
         }),
       );
-      revalidatePath("/crm");
+      revalidatePath("/crm", "layout");
       return {
         ok: true,
         message:
@@ -263,7 +263,7 @@ export async function fulfillPaymentAccountAction(
     const result = await prisma.$transaction((tx) =>
       executePaymentAccountFulfillment(tx, user, id),
     );
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: `Marfa a fost predată. Vânzarea #${result.saleNumber} a fost creată din contul #${result.accountNumber}.`,
@@ -362,7 +362,7 @@ export async function submitPaymentAccountToEFacturaAction(
     }
 
     if (!success) {
-      revalidatePath("/crm");
+      revalidatePath("/crm", "layout");
       return { ok: false, message };
     }
 
@@ -372,13 +372,13 @@ export async function submitPaymentAccountToEFacturaAction(
       entityId: id,
       summary: `Cont de plată #${account.number} trimis nesemnat către SIA e-Factura`,
     });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: `Contul #${account.number} a fost transmis. Semnează factura în SIA e-Factura.`,
     };
   } catch (error) {
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return toActionError(error);
   }
 }

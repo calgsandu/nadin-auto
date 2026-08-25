@@ -58,7 +58,7 @@ export function LoginForm() {
       <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#1b1a17] p-10 text-white md:flex">
         <div className="relative">
           <h1 className="text-4xl font-semibold leading-tight tracking-tight">
-            Nadin Auto
+            Caros
           </h1>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#a8a49b]">
             Catalog, stoc și operațiuni de depozit într-un singur loc.
@@ -76,7 +76,7 @@ export function LoginForm() {
       </aside>
 
       <section className="bg-[#fafaf9] p-8 sm:p-10">
-        <p className="text-base font-bold text-[#1b1a17] md:hidden">Nadin Auto</p>
+        <p className="text-base font-bold text-[#1b1a17] md:hidden">Caros</p>
         <h2 className="mt-4 text-2xl font-semibold text-[#1b1a17] md:mt-0">Bine ai revenit</h2>
         <p className="mt-1 text-sm text-[#6f6b63]">
           Autentifică-te cu datele primite de la administrator.

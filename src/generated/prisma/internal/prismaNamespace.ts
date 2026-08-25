@@ -408,7 +408,8 @@ export const ModelName = {
   PaymentAccount: 'PaymentAccount',
   PaymentAccountLine: 'PaymentAccountLine',
   StockDocumentLine: 'StockDocumentLine',
-  RestockTask: 'RestockTask'
+  RestockTask: 'RestockTask',
+  PriceChange: 'PriceChange'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "auditLog" | "pendingOperation" | "appUser" | "twoFactorCredential" | "twoFactorEnrollmentGrant" | "twoFactorSessionProof" | "trustedDevice" | "twoFactorRateLimit" | "applicationSecurityState" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "externalOrder" | "stockDocument" | "partnerPayment" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask"
+    modelProps: "auditLog" | "pendingOperation" | "appUser" | "twoFactorCredential" | "twoFactorEnrollmentGrant" | "twoFactorSessionProof" | "trustedDevice" | "twoFactorRateLimit" | "applicationSecurityState" | "brand" | "carModel" | "vehicleFitment" | "productType" | "product" | "productFitment" | "warehouse" | "warehouseStock" | "partner" | "externalOrder" | "stockDocument" | "partnerPayment" | "paymentAccount" | "paymentAccountLine" | "stockDocumentLine" | "restockTask" | "priceChange"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2278,6 +2279,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PriceChange: {
+      payload: Prisma.$PriceChangePayload<ExtArgs>
+      fields: Prisma.PriceChangeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PriceChangeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PriceChangeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload>
+        }
+        findFirst: {
+          args: Prisma.PriceChangeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PriceChangeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload>
+        }
+        findMany: {
+          args: Prisma.PriceChangeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload>[]
+        }
+        create: {
+          args: Prisma.PriceChangeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload>
+        }
+        createMany: {
+          args: Prisma.PriceChangeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PriceChangeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload>[]
+        }
+        delete: {
+          args: Prisma.PriceChangeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload>
+        }
+        update: {
+          args: Prisma.PriceChangeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload>
+        }
+        deleteMany: {
+          args: Prisma.PriceChangeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PriceChangeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PriceChangeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload>[]
+        }
+        upsert: {
+          args: Prisma.PriceChangeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceChangePayload>
+        }
+        aggregate: {
+          args: Prisma.PriceChangeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePriceChange>
+        }
+        groupBy: {
+          args: Prisma.PriceChangeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PriceChangeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PriceChangeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PriceChangeCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2742,6 +2817,23 @@ export const RestockTaskScalarFieldEnum = {
 } as const
 
 export type RestockTaskScalarFieldEnum = (typeof RestockTaskScalarFieldEnum)[keyof typeof RestockTaskScalarFieldEnum]
+
+
+export const PriceChangeScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  costLeiBefore: 'costLeiBefore',
+  costLeiAfter: 'costLeiAfter',
+  salePriceLeiBefore: 'salePriceLeiBefore',
+  salePriceLeiAfter: 'salePriceLeiAfter',
+  priceEuroBefore: 'priceEuroBefore',
+  priceEuroAfter: 'priceEuroAfter',
+  changedById: 'changedById',
+  changedByName: 'changedByName',
+  createdAt: 'createdAt'
+} as const
+
+export type PriceChangeScalarFieldEnum = (typeof PriceChangeScalarFieldEnum)[keyof typeof PriceChangeScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -3247,6 +3339,7 @@ export type GlobalOmitConfig = {
   paymentAccountLine?: Prisma.PaymentAccountLineOmit
   stockDocumentLine?: Prisma.StockDocumentLineOmit
   restockTask?: Prisma.RestockTaskOmit
+  priceChange?: Prisma.PriceChangeOmit
 }
 
 /* Types for Logging */

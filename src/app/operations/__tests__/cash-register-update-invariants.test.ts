@@ -19,6 +19,6 @@ assert.match(source, /data: \{ cashRegistered \}/);
 assert.match(source, /logAuditRequired/);
 assert.match(source, /before: \{ cashRegistered: doc\.cashRegistered \}/);
 assert.match(source, /after: \{ cashRegistered \}/);
-assert.match(source, /revalidatePath\("\/crm"\)/);
+assert.match(source, /revalidatePath\("\/crm", "layout"\)/);
 
 console.log("cash register update invariants passed");

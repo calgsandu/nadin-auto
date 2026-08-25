@@ -18,14 +18,22 @@ function shiftDay(key: string, delta: number) {
   return toKey(date);
 }
 
-const dayHref = (key: string) => `/crm?section=vanzari&day=${key}`;
-
 const navButton =
   "button-secondary inline-flex size-10 shrink-0 items-center justify-center rounded-md border border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]";
 
-/** Navigare pe zile pentru Vânzări: chevron înapoi/înainte + selector de dată. */
-export function SalesDayNav({ dayKey }: { dayKey: string }) {
+/**
+ * Navigare pe zile: chevron înapoi/înainte + selector de dată. Folosită de
+ * Vânzări și de Închiderea de zi, de aici parametrul `basePath`.
+ */
+export function SalesDayNav({
+  dayKey,
+  basePath = "/crm/vanzari",
+}: {
+  dayKey: string;
+  basePath?: string;
+}) {
   const router = useRouter();
+  const dayHref = (key: string) => `${basePath}?day=${key}`;
   const todayKey = toKey(new Date());
   const isToday = dayKey >= todayKey;
 

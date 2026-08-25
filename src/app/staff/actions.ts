@@ -102,7 +102,7 @@ export async function createStaffUserAction(
       summary: `Utilizator creat: ${input.username} (${input.role})`,
       details: { username: input.username, role: input.role },
     });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: "Utilizatorul a fost creat.",
@@ -229,7 +229,7 @@ export async function resetStaffTwoFactorAction(
     try {
       await revokeAuthSessions(target.authUserId);
     } catch {
-      revalidatePath("/crm");
+      revalidatePath("/crm", "layout");
       return {
         ok: false,
         warning: true,
@@ -240,7 +240,7 @@ export async function resetStaffTwoFactorAction(
       };
     }
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: "2FA a fost resetat. Comunică utilizatorului noul cod de activare.",
@@ -294,7 +294,7 @@ export async function issueStaffTwoFactorActivationAction(
       return issued;
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: "Codul de activare 2FA a fost emis.",
@@ -338,7 +338,7 @@ export async function setStaffActiveAction(
         await banAuthIdentity(target.authUserId);
         await revokeAuthSessions(target.authUserId);
       } catch {
-        revalidatePath("/crm");
+        revalidatePath("/crm", "layout");
         return {
           ok: false,
           message:
@@ -357,7 +357,7 @@ export async function setStaffActiveAction(
       summary: `${active ? "Cont reactivat" : "Cont dezactivat"}: ${target.username ?? target.name ?? target.id}`,
       details: { username: target.username, active },
     });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: active ? "Contul a fost reactivat." : "Contul a fost dezactivat.",
@@ -402,7 +402,7 @@ export async function setUserRoleAction(
       }
       throw error;
     }
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Rolul a fost actualizat." };
   } catch (error) {
     return toActionError(error);

@@ -181,7 +181,7 @@ function ApprovalCard({
         </div>
 
         <div className="overflow-x-auto rounded-lg border border-[#efeeeb]">
-          <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+          <table className="crm-table w-full min-w-[620px] border-collapse text-left text-sm">
             <thead className="bg-[#fafaf9] text-xs text-[#6f6b63]">
               <tr>
                 <th className="px-3 py-2 font-semibold">Produs</th>
@@ -224,7 +224,7 @@ function ApprovalCard({
         {mode === "approved" && entry.appliedEntityId ? (
           <div className="flex justify-end">
             <Link
-              href={`/crm?section=istoric&doc=${entry.appliedEntityId}`}
+              href={`/crm/istoric?doc=${entry.appliedEntityId}`}
               className="text-sm font-semibold text-[#175cd3] underline decoration-[#84adff] underline-offset-4"
             >
               Vezi documentul în istoric

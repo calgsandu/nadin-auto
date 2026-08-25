@@ -73,7 +73,7 @@ export async function GET(
       ? [["Metoda de plată:", salePaymentMethodLabel(doc.paymentMethod)]]
       : [];
   const aoa: (string | number)[][] = [
-    ["NADIN AUTO — DOCUMENT INTERN"],
+    ["CAROS — DOCUMENT INTERN"],
     [],
     [`Fișă internă de ${TYPE_LABEL[doc.type]?.toLowerCase() ?? doc.type} nr. ${doc.number} din ${date}`],
     [],

@@ -25,7 +25,7 @@ export function PaymentAccountsWorkspace({
 
       <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1040px] border-collapse text-left text-sm">
+          <table className="crm-table w-full min-w-[1040px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e8e7e3] bg-[#fafaf9] text-xs text-[#6f6b63]">
               <tr>
                 <Head>Cont</Head><Head>Client</Head><Head>Marfă</Head><Head>Flux</Head><Head right>Total</Head><Head right>Documente</Head>

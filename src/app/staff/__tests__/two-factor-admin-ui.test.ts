@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 test("staff UI shows 2FA status and hides issue/reset for the current administrator", () => {
-  const crm = readFileSync("src/app/crm/page.tsx", "utf8");
+  const crm = readFileSync("src/app/crm/personal/page.tsx", "utf8");
   const dialogs = readFileSync("src/app/staff/staff-dialogs.tsx", "utf8");
 
   assert.match(crm, />2FA</);

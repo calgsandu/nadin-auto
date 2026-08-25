@@ -34,7 +34,7 @@ function id(formData: FormData) {
 }
 
 function done(message: string): AdminActionState {
-  revalidatePath("/crm");
+  revalidatePath("/crm", "layout");
   return { ok: true, message };
 }
 

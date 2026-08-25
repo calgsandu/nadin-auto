@@ -8,7 +8,7 @@ function source(relativePath: string) {
 const schema = source("../../../../prisma/schema.prisma");
 const form = source("../product-form-dialog.tsx");
 const actions = source("../actions.ts");
-const crmPage = source("../../crm/page.tsx");
+const crmPage = source("../../crm/produse/page.tsx");
 const labelPicker = source("../label-picker.tsx");
 const htmlLabels = source("../../print/labels/page.tsx");
 const labelControls = source("../../print/labels/label-controls.tsx");

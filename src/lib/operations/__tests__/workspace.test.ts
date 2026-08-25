@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync, readdirSync } from "node:fs";
 import {
   getSection,
   navigationEntries,
@@ -33,6 +34,9 @@ const expectedSections = [
   "istoric",
   "rapoarte",
   "statistici",
+  "inchidere-zi",
+  "tva",
+  "preturi",
 ];
 
 assert.deepEqual(
@@ -59,6 +63,9 @@ assert.equal(getSection("fara-stoc").title, "Fără stoc 110A");
 assert.equal(getSection("depozite").title, "Depozite");
 assert.equal(getSection("furnizori").title, "Parteneri");
 assert.equal(getSection("personal").title, "Personal");
+assert.equal(getSection("inchidere-zi").title, "Închidere de zi");
+assert.equal(getSection("tva").title, "Registrul TVA");
+assert.equal(getSection("preturi").title, "Istoric prețuri");
 assert.equal(resolveSection("furnizori"), "furnizori");
 assert.equal(resolveSection("personal"), "personal");
 
@@ -72,5 +79,26 @@ assert.ok(
   navigationEntries.every((entry) => entry.icon),
   "Fiecare intrare din sidebar trebuie să aibă icon.",
 );
+
+// Fiecare secțiune trebuie să aibă ruta ei sub /crm — altfel nav-ul duce în 404.
+const routes = readdirSync("src/app/crm", { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && !entry.name.startsWith("_"))
+  .map((entry) => entry.name)
+  .sort();
+
+assert.deepEqual(
+  routes,
+  [...expectedSections].sort(),
+  "Secțiunile din nav și folderele de rute trebuie să coincidă.",
+);
+
+// Fiecare rută are și un schelet de încărcare, ca trecerea între tab-uri să nu
+// arate un ecran înghețat cât timp se citește din bază.
+for (const route of routes) {
+  assert.ok(
+    existsSync(`src/app/crm/${route}/loading.tsx`),
+    `Ruta /crm/${route} trebuie să aibă loading.tsx.`,
+  );
+}
 
 console.log("workspace tests passed");

@@ -2,6 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { findMatchingProductIds } from "@/lib/catalog/product-match";
 import type { Prisma } from "@/generated/prisma/client";
 
+/**
+ * Filtrele catalogului. Restul secțiunilor și-au primit ruta proprie, deci
+ * fiecare își declară singură parametrii — aici rămân doar cei ai catalogului.
+ */
 export type CatalogSearchParams = {
   q?: string;
   brand?: string;
@@ -9,23 +13,6 @@ export type CatalogSearchParams = {
   type?: string;
   year?: string;
   page?: string;
-  section?: string;
-  /** Selected warehouse for the inventory section. */
-  wh?: string;
-  /** Inventar: pagina din lista de inventare (intervalul vine din from/to). */
-  ipage?: string;
-  /** Audit history: filter by document id. */
-  doc?: string;
-  /** Audit history: filter by action (CREATE/UPDATE/DELETE). */
-  act?: string;
-  /** Documents section: type / partner / date range / page. */
-  dtype?: string;
-  partner?: string;
-  from?: string;
-  to?: string;
-  dpage?: string;
-  /** Vânzări: ziua selectată (YYYY-MM-DD). */
-  day?: string;
 };
 
 const PAGE_SIZE = 50;
@@ -141,7 +128,6 @@ export async function getCatalogData(
       model: params.model,
       type: params.type,
       year: params.year,
-      section: params.section,
     },
     brands,
     models,

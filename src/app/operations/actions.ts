@@ -137,7 +137,7 @@ export async function createReceiptAction(
       return document;
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: `Recepția a fost salvată cu ${lines.length} produse.`,
@@ -246,7 +246,7 @@ export async function createTransferAction(
       });
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: `Transferul a fost salvat cu ${lines.length} produse.`,
@@ -320,7 +320,7 @@ export async function createSaleAction(
         payload,
         saleRequestSummary(payload, warehouse.name),
       );
-      revalidatePath("/crm");
+      revalidatePath("/crm", "layout");
       return {
         ok: true,
         message:
@@ -331,7 +331,7 @@ export async function createSaleAction(
     const sale = await prisma.$transaction((tx) =>
       executeSale(tx, user, payload, token),
     );
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: `Vânzarea #${sale.number} a fost salvată cu ${lines.length} produse.`,
@@ -489,7 +489,7 @@ export async function createReturnAction(
       await reconcileSaleRestockTasks(tx, sale.id);
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: `Returul a fost salvat cu ${lines.length} produse.`,
@@ -594,7 +594,7 @@ export async function createInventoryAction(
     // Marjă peste cele 5 s implicite: inventarele mari plus latența spre Neon.
     }, DOCUMENT_TX_OPTIONS);
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: `Inventarul a fost salvat: ${adjustedCount} poziții ajustate.`,
@@ -652,7 +652,7 @@ async function markRestockTasks(
       throw new Error("Nu mai există produse active pentru această poziție.");
     }
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: successMessage };
   } catch (error) {
     return toActionError(error);

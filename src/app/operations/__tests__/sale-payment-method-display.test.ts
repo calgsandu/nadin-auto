@@ -3,7 +3,11 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const crm = readFileSync(
-  fileURLToPath(new URL("../../crm/page.tsx", import.meta.url)),
+  fileURLToPath(new URL("../../crm/_components/documents-table.tsx", import.meta.url)),
+  "utf8",
+);
+const documents = readFileSync(
+  fileURLToPath(new URL("../../crm/documente/page.tsx", import.meta.url)),
   "utf8",
 );
 const details = readFileSync(
@@ -16,9 +20,10 @@ const control = readFileSync(
 );
 
 assert.match(crm, /SalePaymentMethodBadge/);
+assert.match(documents, /SalePaymentMethodBadge/);
 assert.match(crm, /SalePaymentMethodControl/);
 assert.match(crm, /document\.paymentMethod/);
-assert.match(crm, /d\.paymentMethod/);
+assert.match(documents, /d\.paymentMethod/);
 assert.match(crm, /paymentMethod: doc\.paymentMethod/);
 assert.match(crm, />Plată</);
 assert.match(crm, /colSpan=\{COMPANY\.vatPayer \? 10 : 9\}/);

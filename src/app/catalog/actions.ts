@@ -7,6 +7,7 @@ import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { logAudit, logAuditRequired } from "@/lib/audit";
 import { computeSalePrice } from "@/lib/catalog/pricing";
+import { recordPriceChange } from "@/lib/catalog/price-history";
 import {
   parseExtraFitments,
   type ExtraFitmentInput,
@@ -81,7 +82,7 @@ export async function createProductAction(
       });
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Produsul a fost adăugat." };
   } catch (error) {
     return toActionError(error);
@@ -141,6 +142,7 @@ export async function updateProductAction(
         skipDuplicates: true,
       });
       const after = await saveWarehouseStocks(tx, productId, warehouseAssignments);
+      await recordPriceChange(tx, productId, before, updated, user);
 
       await logAuditRequired(tx, user, {
         action: "UPDATE",
@@ -159,7 +161,7 @@ export async function updateProductAction(
       });
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Produsul a fost salvat." };
   } catch (error) {
     return toActionError(error);
@@ -191,7 +193,7 @@ export async function deleteProductAction(
       details: { deleted: productAuditSnapshot(deleted) },
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Produsul a fost șters." };
   } catch (error) {
     return toActionError(error);

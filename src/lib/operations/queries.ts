@@ -160,6 +160,8 @@ export async function getOperationsData(section: OperationsSection = "receptii")
   };
 }
 
+export type OperationsData = Awaited<ReturnType<typeof getOperationsData>>;
+
 /** Stock rows for one warehouse (inventory check) + inventarele trecute, filtrate pe perioadă. */
 export async function getInventoryData(params: {
   wh?: string;

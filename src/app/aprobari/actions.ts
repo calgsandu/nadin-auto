@@ -24,10 +24,10 @@ export async function approvePendingOperationAction(
     const reviewer = await requireCurrentAppUser();
     const operationId = readOperationId(formData);
     const result = await approvePendingOperation(operationId, reviewer);
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: result.resultMessage };
   } catch (error) {
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return toState(error);
   }
 }
@@ -41,10 +41,10 @@ export async function rejectPendingOperationAction(
     const operationId = readOperationId(formData);
     const reason = String(formData.get("reason") ?? "");
     await rejectPendingOperation(operationId, reviewer, reason);
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Cererea a fost respinsă." };
   } catch (error) {
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return toState(error);
   }
 }

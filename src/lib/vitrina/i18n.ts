@@ -91,7 +91,7 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       brandsTitle: "Alege marca. Vezi tot ce avem.",
       explainer:
         "Fiecare piesă din catalog e legată de model și anii de fabricație — alegi mașina și vezi exact ce avem pentru ea.",
-      warehouseAlt: "Depozitul Nadin Auto",
+      warehouseAlt: "Depozitul Caros",
       stats: {
         products: "repere în catalog",
         brands: "mărci auto",
@@ -119,10 +119,10 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       imageAlt: (description) => description,
     },
     metadata: {
-      title: "Nadin Auto — Catalog piese de caroserie",
+      title: "Caros — Catalog piese de caroserie",
       description:
-        "Catalog public Nadin Auto: piese de caroserie pentru 30 de mărci auto — praguri, aripi, panouri, faruri și multe altele.",
-      searchTitle: "Caută piese auto — Nadin Auto",
+        "Catalog public Caros: piese de caroserie pentru 30 de mărci auto — praguri, aripi, panouri, faruri și multe altele.",
+      searchTitle: "Caută piese auto — Caros",
       searchDescription: "Caută piese de caroserie după cod, denumire, marcă sau model.",
     },
   },
@@ -154,7 +154,7 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       brandsTitle: "Выберите марку и посмотрите наш ассортимент.",
       explainer:
         "Каждая деталь связана с моделью и годами выпуска — выберите автомобиль и сразу увидите подходящие позиции.",
-      warehouseAlt: "Склад Nadin Auto",
+      warehouseAlt: "Склад Caros",
       stats: {
         products: "позиций в каталоге",
         brands: "автомобильных марок",
@@ -182,10 +182,10 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       imageAlt: (description) => description,
     },
     metadata: {
-      title: "Nadin Auto — Каталог кузовных деталей",
+      title: "Caros — Каталог кузовных деталей",
       description:
-        "Открытый каталог Nadin Auto: кузовные детали для автомобилей — пороги, крылья, панели, фары и многое другое.",
-      searchTitle: "Поиск автозапчастей — Nadin Auto",
+        "Открытый каталог Caros: кузовные детали для автомобилей — пороги, крылья, панели, фары и многое другое.",
+      searchTitle: "Поиск автозапчастей — Caros",
       searchDescription: "Поиск кузовных деталей по коду, названию, марке или модели.",
     },
   },

@@ -32,7 +32,7 @@ export async function generateMetadata({
   if (!brand) return {};
   const suffix = `/${brandSlug}`;
   return {
-    title: locale === "ru" ? `${brand.name}: кузовные детали — Nadin Auto` : `${brand.name}: piese de caroserie — Nadin Auto`,
+    title: locale === "ru" ? `${brand.name}: кузовные детали — Caros` : `${brand.name}: piese de caroserie — Caros`,
     alternates: {
       canonical: catalogHref(locale, suffix),
       languages: { ro: catalogHref("ro", suffix), ru: catalogHref("ru", suffix) },

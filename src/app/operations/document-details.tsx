@@ -145,7 +145,7 @@ function DetailsPanel({
                 Produse ({details.lines.length})
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+                <table className="crm-table w-full min-w-[520px] border-collapse text-left text-sm">
                   <thead className="border-b border-[#e8e7e3] bg-[#fafaf9] text-xs text-[#6f6b63]">
                     <tr>
                       <th className="px-3 py-2 font-semibold">Cod</th>
@@ -216,7 +216,7 @@ function DetailsPanel({
                   <Download className="size-4" aria-hidden="true" /> Excel intern
                 </a>
                 <Link
-                  href={`/crm?section=istoric&doc=${details.id}`}
+                  href={`/crm/istoric?doc=${details.id}`}
                   className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                 >
                   <History className="size-4" aria-hidden="true" /> Istoric modificări

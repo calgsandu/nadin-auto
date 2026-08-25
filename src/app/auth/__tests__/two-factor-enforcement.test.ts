@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 
 const protectedRoutes = [
@@ -39,15 +39,43 @@ test("every protected route and server-action module uses the authorization faca
 });
 
 test("CRM and label pages resolve 2FA state before protected queries", () => {
-  const crm = readFileSync("src/app/crm/page.tsx", "utf8");
+  const layout = readFileSync("src/app/crm/layout.tsx", "utf8");
+  const guard = readFileSync("src/app/crm/_components/guard.ts", "utf8");
   const labels = readFileSync("src/app/print/labels/page.tsx", "utf8");
-  const crmBody = crm.slice(crm.indexOf("export default async function"));
   const labelsBody = labels.slice(labels.indexOf("export default async function"));
 
-  assert.ok(crmBody.indexOf("getAuthAccessState()") >= 0);
-  assert.ok(crmBody.indexOf("getAuthAccessState()") < crmBody.indexOf("getCatalogData("));
+  assert.match(layout, /getAuthAccessState\(\)/);
+  assert.match(guard, /getAuthAccessState\(\)/);
+  assert.match(guard, /canViewSection/);
+
   assert.ok(labelsBody.indexOf("getAuthAccessState()") >= 0);
   assert.ok(
     labelsBody.indexOf("getAuthAccessState()") < labelsBody.indexOf("prisma.product.findMany"),
   );
+});
+
+test("every CRM section page passes through requireCrmSection before querying", () => {
+  const pages = readdirSync("src/app/crm", { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("_"))
+    .map((entry) => `src/app/crm/${entry.name}/page.tsx`);
+
+  assert.ok(pages.length >= 20, "toate secțiunile trebuie să aibă rută proprie");
+
+  for (const path of pages) {
+    const source = readFileSync(path, "utf8");
+    assert.match(
+      source,
+      /await requireCrmSection\("[a-z-]+"\)/,
+      `${path} trebuie să ceară sesiune + 2FA + rol înainte de orice interogare`,
+    );
+    const body = source.slice(source.indexOf("export default async function"));
+    const guardAt = body.indexOf("requireCrmSection(");
+    const firstQueryAt = body.search(/\bget[A-Z]\w*Data\(/);
+    if (firstQueryAt >= 0) {
+      assert.ok(
+        guardAt < firstQueryAt,
+        `${path}: interogarea nu are voie să pornească înaintea gardului`,
+      );
+    }
+  }
 });

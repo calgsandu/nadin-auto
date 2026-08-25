@@ -297,7 +297,7 @@ export async function restoreDocumentAction(
       restoredNumber = number;
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: `Document restaurat cu numărul #${restoredNumber}.` };
   } catch (error) {
     if (error instanceof Error && error.message) {

@@ -54,7 +54,7 @@ export async function createExternalOrderAction(
       entityId: order.id,
       summary: `Comandă externă #${order.number}: ${order.productName} pentru ${order.customerName}`,
     });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: `Comanda #${order.number} a fost creată.` };
   } catch (error) {
     return toActionError(error);
@@ -78,7 +78,7 @@ export async function updateExternalOrderAction(
       entityId: order.id,
       summary: `Comandă externă #${order.number} actualizată.`,
     });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Comanda a fost actualizată." };
   } catch (error) {
     return toActionError(error);
@@ -124,7 +124,7 @@ export async function setExternalOrderStatusAction(
       entityId: updated.id,
       summary: `Comandă externă #${updated.number}: ${STATUS_LABELS[order.status]} → ${STATUS_LABELS[status]}`,
     });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: `Comanda #${updated.number}: ${STATUS_LABELS[status]}.` };
   } catch (error) {
     return toActionError(error);
@@ -150,7 +150,7 @@ export async function deleteExternalOrderAction(
       entityId: order.id,
       summary: `Comandă externă #${order.number} ștearsă (${order.productName}, ${order.customerName}).`,
     });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: `Comanda #${order.number} a fost ștearsă.` };
   } catch (error) {
     return toActionError(error);

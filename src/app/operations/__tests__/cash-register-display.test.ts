@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const crm = readFileSync(
-  fileURLToPath(new URL("../../crm/page.tsx", import.meta.url)),
+  fileURLToPath(new URL("../../crm/_components/documents-table.tsx", import.meta.url)),
   "utf8",
 );
 const details = readFileSync(
@@ -15,7 +15,7 @@ assert.match(crm, /CashRegisterBadge/);
 assert.match(crm, /CashRegisterControl/);
 assert.match(crm, /document\.type === "SALE"/);
 assert.match(crm, /document\.cashRegistered/);
-assert.match(crm, /<TableHead>Casă<\/TableHead>/);
+assert.match(crm, /<TableHead secondary>Casă<\/TableHead>/);
 
 assert.match(details, /cashRegistered/);
 assert.match(details, /Statut casă/);

@@ -115,5 +115,12 @@ assert.equal(canViewSection("ADMIN", "istoric"), true);
 assert.equal(canViewSection("DIRECTOR", "personal"), false);
 assert.equal(canViewSection("ADMIN", "personal"), true);
 assert.equal(canViewSection(null, "produse"), false);
+// Rapoartele financiare noi rămân la director/administrator.
+assert.equal(canViewSection("ANGAJAT", "inchidere-zi"), false);
+assert.equal(canViewSection("ANGAJAT", "tva"), false);
+assert.equal(canViewSection("ANGAJAT", "preturi"), false);
+assert.equal(canViewSection("DIRECTOR", "inchidere-zi"), true);
+assert.equal(canViewSection("DIRECTOR", "tva"), true);
+assert.equal(canViewSection("DIRECTOR", "preturi"), true);
 
 console.log("roles tests passed");

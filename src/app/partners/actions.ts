@@ -40,7 +40,7 @@ export async function createPartnerAction(
     if (existing) throw new Error("Există deja un partener cu acest nume.");
 
     await prisma.partner.create({ data: parsed.data });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Partenerul a fost adăugat." };
   } catch (error) {
     return toActionError(error);
@@ -65,7 +65,7 @@ export async function updatePartnerAction(
     if (clash) throw new Error("Există deja un partener cu acest nume.");
 
     await prisma.partner.update({ where: { id }, data: parsed.data });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Partenerul a fost actualizat." };
   } catch (error) {
     return toActionError(error);
@@ -92,7 +92,7 @@ export async function deletePartnerAction(
     }
 
     await prisma.partner.delete({ where: { id } });
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Partenerul a fost șters." };
   } catch (error) {
     return toActionError(error);
@@ -151,7 +151,7 @@ export async function registerPartnerPaymentAction(
       details: { partnerId, amount, paidAt: paidAt.toISOString(), notes },
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: `Încasare de ${amount} lei înregistrată.` };
   } catch (error) {
     return toActionError(error);

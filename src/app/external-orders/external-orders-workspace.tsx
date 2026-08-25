@@ -90,7 +90,7 @@ function OrdersTable({
         <h2 className="font-semibold text-[#1b1a17]">{title}</h2>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1080px] border-collapse text-left text-sm">
+        <table className="crm-table w-full min-w-[1080px] border-collapse text-left text-sm">
           <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
             <tr>
               <TableHead>Nr.</TableHead>

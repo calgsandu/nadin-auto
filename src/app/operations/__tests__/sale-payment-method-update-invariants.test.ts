@@ -14,6 +14,6 @@ assert.match(source, /select: \{ id: true, type: true, number: true, paymentMeth
 assert.match(source, /data: \{ paymentMethod \}/);
 assert.match(source, /before: \{ paymentMethod: doc\.paymentMethod \}/);
 assert.match(source, /after: \{ paymentMethod \}/);
-assert.match(source, /revalidatePath\("\/crm"\)/);
+assert.match(source, /revalidatePath\("\/crm", "layout"\)/);
 
 console.log("sale payment method update invariants passed");

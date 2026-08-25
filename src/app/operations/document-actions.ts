@@ -105,7 +105,7 @@ export async function updateCashRegisteredAction(
       changed = true;
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: changed ? "Statutul de casă a fost actualizat." : "Statutul de casă este deja setat astfel.",
@@ -154,7 +154,7 @@ export async function updateSalePaymentMethodAction(
       changed = true;
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return {
       ok: true,
       message: changed
@@ -267,7 +267,7 @@ export async function deleteDocumentAction(
     // Reversarea merge linie cu linie: documentele lungi depășesc cele 5 s implicite.
     }, DOCUMENT_TX_OPTIONS);
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message };
   } catch (error) {
     return fail(error);
@@ -638,7 +638,7 @@ export async function updateDocumentLinesAction(
     // un inventar cu zeci de poziții trece lejer de cele 5 s implicite.
     }, DOCUMENT_TX_OPTIONS);
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Document actualizat (linii + stoc)." };
   } catch (error) {
     return fail(error);
@@ -704,7 +704,7 @@ export async function updateDocumentHeaderAction(
       },
     });
 
-    revalidatePath("/crm");
+    revalidatePath("/crm", "layout");
     return { ok: true, message: "Document actualizat." };
   } catch (error) {
     return fail(error);

@@ -75,7 +75,8 @@ export const ModelName = {
   PaymentAccount: 'PaymentAccount',
   PaymentAccountLine: 'PaymentAccountLine',
   StockDocumentLine: 'StockDocumentLine',
-  RestockTask: 'RestockTask'
+  RestockTask: 'RestockTask',
+  PriceChange: 'PriceChange'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -519,6 +520,23 @@ export const RestockTaskScalarFieldEnum = {
 } as const
 
 export type RestockTaskScalarFieldEnum = (typeof RestockTaskScalarFieldEnum)[keyof typeof RestockTaskScalarFieldEnum]
+
+
+export const PriceChangeScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  costLeiBefore: 'costLeiBefore',
+  costLeiAfter: 'costLeiAfter',
+  salePriceLeiBefore: 'salePriceLeiBefore',
+  salePriceLeiAfter: 'salePriceLeiAfter',
+  priceEuroBefore: 'priceEuroBefore',
+  priceEuroAfter: 'priceEuroAfter',
+  changedById: 'changedById',
+  changedByName: 'changedByName',
+  createdAt: 'createdAt'
+} as const
+
+export type PriceChangeScalarFieldEnum = (typeof PriceChangeScalarFieldEnum)[keyof typeof PriceChangeScalarFieldEnum]
 
 
 export const SortOrder = {

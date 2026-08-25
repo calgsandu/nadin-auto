@@ -323,6 +323,7 @@ model Product {
   stockLines   StockDocumentLine[]
   restockTasks RestockTask[]
   paymentAccountLines PaymentAccountLine[]
+  priceChanges PriceChange[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
@@ -465,6 +466,9 @@ model StockDocument {
 
   @@unique([type, number])
   @@index([documentDate])
+  /// Rapoartele și statisticile filtrează mereu „un tip, un interval de date";
+  /// indexul pe documentDate singur nu poate sări peste recepții și transferuri.
+  @@index([type, documentDate])
   @@index([warehouseId])
   @@index([partnerId])
   @@index([sourceDocumentId])
@@ -603,4 +607,26 @@ model RestockTask {
   @@index([productId, status])
   @@index([sourceDocumentId])
   @@index([requestedAt])
+}
+
+/// Istoricul prețurilor unui produs: se scrie DOAR când o valoare chiar s-a
+/// schimbat, ca să se poată răspunde la „de când s-a scumpit și cu cât".
+model PriceChange {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  costLeiBefore      Decimal? @db.Decimal(10, 2)
+  costLeiAfter       Decimal? @db.Decimal(10, 2)
+  salePriceLeiBefore Decimal? @db.Decimal(10, 2)
+  salePriceLeiAfter  Decimal? @db.Decimal(10, 2)
+  priceEuroBefore    Decimal? @db.Decimal(10, 2)
+  priceEuroAfter     Decimal? @db.Decimal(10, 2)
+
+  changedById   String?
+  changedByName String?
+  createdAt     DateTime @default(now())
+
+  @@index([productId, createdAt])
+  @@index([createdAt])
 }

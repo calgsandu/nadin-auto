@@ -20,7 +20,10 @@ export type WorkspaceSectionId =
   | "aprobari"
   | "istoric"
   | "rapoarte"
-  | "statistici";
+  | "statistici"
+  | "inchidere-zi"
+  | "tva"
+  | "preturi";
 
 type WorkspaceSection = {
   id: WorkspaceSectionId;
@@ -163,6 +166,21 @@ export const workspaceSections: WorkspaceSection[] = [
     title: "Statistici",
     description: "Totaluri zilnice, săptămânale și lunare pentru vânzări.",
   },
+  {
+    id: "inchidere-zi",
+    title: "Închidere de zi",
+    description: "Cât s-a încasat azi, cum s-a plătit și ce s-a bătut la casă.",
+  },
+  {
+    id: "tva",
+    title: "Registrul TVA",
+    description: "TVA colectată pe luni, din vânzări și retururi.",
+  },
+  {
+    id: "preturi",
+    title: "Istoric prețuri",
+    description: "Când și cu cât s-a schimbat costul sau prețul de vânzare.",
+  },
 ];
 
 export const navigationEntries: NavigationEntry[] = [
@@ -299,6 +317,24 @@ export const navigationEntries: NavigationEntry[] = [
     description: "Totaluri & grafice",
     icon: "BarChart3",
   },
+  {
+    section: "inchidere-zi",
+    label: "Închidere de zi",
+    description: "Încasări și casa de marcat",
+    icon: "CalendarRange",
+  },
+  {
+    section: "tva",
+    label: "Registrul TVA",
+    description: "TVA pe luni",
+    icon: "FileText",
+  },
+  {
+    section: "preturi",
+    label: "Istoric prețuri",
+    description: "Schimbări de cost și preț",
+    icon: "Tag",
+  },
 ];
 
 type NavGroupIcon =
@@ -361,7 +397,7 @@ export const navigationGroups: NavGroup[] = [
     label: "Rapoarte",
     description: "Situații & vânzări",
     icon: "BarChart3",
-    sections: ["rapoarte", "statistici"],
+    sections: ["rapoarte", "statistici", "inchidere-zi", "tva", "preturi"],
   },
 ];
 

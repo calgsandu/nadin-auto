@@ -1,10 +1,13 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@/generated/prisma/client";
 import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 import { prisma } from "@/lib/prisma";
 import {
+  LABEL_BRAND,
   LABEL_COMPATIBILITY_PREFIX,
   LABEL_PHONE,
+  LABEL_SITE,
   buildCombinedCompatibilityLabel,
   buildPartLabel,
   buildProductCodeLabel,
@@ -134,7 +137,14 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
           overflow: hidden;
           box-sizing: border-box;
           padding-inline: ${dim.padX}mm;
+          /* fără hinting per-OS: aceleași lățimi de glif pe orice browser */
+          text-rendering: geometricPrecision;
+          font-kerning: none;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
         }
+        .label-head > * { min-width: 0; }
+        .label-logo { flex: none; }
         .label-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .label-detail { margin-left: ${dim.detailOffsetX}mm; }
         .label-model { white-space: normal; overflow: hidden; line-height: 1.05; max-height: 4.2em; }
@@ -165,6 +175,9 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
             {layout === "roll"
               ? `rolă ${dim.w}×${dim.h} mm`
               : `${sheets.length} ${sheets.length === 1 ? "foaie" : "foi"} A4, ${dim.w}×${dim.h} mm, ${perSheet}/foaie`}
+          </p>
+          <p className="mt-1 text-xs text-[#8a857c]">
+            În dialogul de print: Scală 100% (nu „Potrivire la pagină”), Margini: Fără.
           </p>
         </div>
         <LabelControls
@@ -297,16 +310,47 @@ function LabelSticker({
   );
 
   return (
-    <div className="label-sticker flex flex-col bg-white pb-[6mm] pt-[3.5mm] text-[#111]">
+    <div
+      className="label-sticker flex flex-col bg-white text-[#111]"
+      style={{ paddingTop: `${dim.h * 0.05}mm`, paddingBottom: `${dim.h * 0.09}mm` }}
+    >
+      <div className="label-head flex items-center justify-between gap-[1.5mm]">
+        <span className="flex flex-none items-center gap-[1mm]">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={612}
+            height={408}
+            unoptimized
+            className="label-logo w-auto"
+            style={{ height: `${dim.phone * 1.4}px` }}
+          />
+          <span
+            className="font-bold leading-none tracking-[0.02em]"
+            style={{ fontSize: `${dim.phone * 0.8}px` }}
+          >
+            {LABEL_BRAND}
+          </span>
+        </span>
+        <span
+          className="label-line leading-none"
+          style={{ fontSize: `${dim.phone * 0.8}px` }}
+        >
+          {LABEL_SITE}
+        </span>
+      </div>
       <p
         className="label-line text-center font-mono font-bold leading-none tracking-[0.04em]"
-        style={{ fontSize: `${dim.code}px` }}
+        style={{ fontSize: `${dim.code}px`, marginTop: `${dim.h * 0.04}mm` }}
       >
         {code}
       </p>
       <p
-        className="label-line mt-[4mm] text-center font-sans leading-none"
-        style={{ fontSize: `${Math.max(dim.model * 0.45, 5)}px` }}
+        className="label-line text-center font-sans leading-none"
+        style={{
+          fontSize: `${Math.max(dim.model * 0.45, 5)}px`,
+          marginTop: `${dim.h * 0.075}mm`,
+        }}
       >
         {LABEL_COMPATIBILITY_PREFIX}
       </p>

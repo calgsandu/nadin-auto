@@ -3,7 +3,7 @@
  * Completează IDNO/adresa reale înainte de a folosi documentele fiscal.
  */
 export const COMPANY = {
-  name: "NADIN AUTO",
+  name: "CAROS",
   legalName: "«NADIN AUTO» S.R.L.",
   idno: "1017600020085",
   vatCode: "0612067",
@@ -22,8 +22,11 @@ export const COMPANY = {
   vatPayer: true,
 } as const;
 
-/** Prețurile sunt cu TVA inclus: TVA = total ÷ 6 la cota de 20%. */
-export function vatFromGross(totalGross: number) {
-  const tva = Math.round((totalGross / 6) * 100) / 100;
+/**
+ * Prețurile sunt cu TVA inclus, deci TVA se extrage din total, nu se adaugă:
+ * la cota de 20% asta înseamnă total ÷ 6.
+ */
+export function vatFromGross(totalGross: number, vatRate: number = COMPANY.vatRate) {
+  const tva = Math.round((totalGross * (vatRate / (1 + vatRate))) * 100) / 100;
   return { tva, net: Math.round((totalGross - tva) * 100) / 100 };
 }

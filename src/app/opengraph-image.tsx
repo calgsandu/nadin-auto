@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
 
-export const alt = "Nadin Auto — piese de caroserie";
+export const alt = "Caros — piese de caroserie";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -39,7 +39,7 @@ export default async function OpengraphImage() {
 
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -3 }}>
-            Nadin Auto
+            Caros
           </div>
           <div style={{ fontSize: 42, color: "#57534a", marginTop: 8 }}>
             Piese de caroserie pentru mașina ta.
