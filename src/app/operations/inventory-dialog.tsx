@@ -31,6 +31,7 @@ import {
 } from "@/app/operations/drawer-line-tools";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import type { WarehouseOption } from "@/app/operations/stock-document-dialog";
+import { DEFAULT_QUANTITY } from "@/lib/operations/default-quantity";
 
 const initialState: OperationActionState = { ok: false, message: "" };
 
@@ -47,7 +48,7 @@ const emptyLine = (id: number): InventoryLine => ({
   id,
   productId: "",
   label: "",
-  counted: "",
+  counted: DEFAULT_QUANTITY,
   sticker: false,
   copies: "",
 });

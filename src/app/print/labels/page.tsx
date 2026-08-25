@@ -7,7 +7,6 @@ import {
   LABEL_BRAND,
   LABEL_COMPATIBILITY_PREFIX,
   LABEL_PHONE,
-  LABEL_SITE,
   buildCombinedCompatibilityLabel,
   buildPartLabel,
   buildProductCodeLabel,
@@ -314,7 +313,7 @@ function LabelSticker({
       className="label-sticker flex flex-col bg-white text-[#111]"
       style={{ paddingTop: `${dim.h * 0.05}mm`, paddingBottom: `${dim.h * 0.09}mm` }}
     >
-      <div className="label-head flex items-center justify-between gap-[1.5mm]">
+      <div className="label-head flex items-center justify-center gap-[1.5mm]">
         <span className="flex flex-none items-center gap-[1mm]">
           <Image
             src="/logo.png"
@@ -331,12 +330,6 @@ function LabelSticker({
           >
             {LABEL_BRAND}
           </span>
-        </span>
-        <span
-          className="label-line leading-none"
-          style={{ fontSize: `${dim.phone * 0.8}px` }}
-        >
-          {LABEL_SITE}
         </span>
       </div>
       <p

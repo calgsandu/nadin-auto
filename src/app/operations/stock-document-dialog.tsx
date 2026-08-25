@@ -28,6 +28,7 @@ import { PartnerFormDialog } from "@/app/partners/partner-form-dialog";
 import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import { PRICE_CATEGORIES, applyDiscount } from "@/lib/operations/sale-pricing";
+import { DEFAULT_QUANTITY } from "@/lib/operations/default-quantity";
 
 export type WarehouseOption = {
   id: string;
@@ -68,7 +69,7 @@ const emptyReceiptLine = (id: number): ReceiptLine => ({
   id,
   productId: "",
   label: "",
-  qty: "",
+  qty: DEFAULT_QUANTITY,
   price: "",
   oldCost: "",
 });
@@ -516,6 +517,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                       <Field label="Cantitate">
                         <input
                           className={inputClassName}
+                          defaultValue={DEFAULT_QUANTITY}
                           inputMode="numeric"
                           min={1}
                           name="quantity"
@@ -589,7 +591,7 @@ function emptySaleLine(id: number, external = false): SaleLineState {
     external,
     productId: "",
     label: "",
-    qty: "",
+    qty: DEFAULT_QUANTITY,
     price: "",
     name: "",
     code: "",

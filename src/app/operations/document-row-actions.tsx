@@ -37,6 +37,7 @@ import type {
   SupplierOption,
   WarehouseOption,
 } from "@/app/operations/stock-document-dialog";
+import { DEFAULT_QUANTITY } from "@/lib/operations/default-quantity";
 
 const initial: DocumentActionState = { ok: false, message: "" };
 
@@ -188,7 +189,7 @@ function EditPanel({
             id: index + 1,
             quantity: normalizeQuantity(line.quantity, isInventory),
           }))
-        : [{ id: 1, productId: "", label: "", quantity: "", price: "" }],
+        : [{ id: 1, productId: "", label: "", quantity: DEFAULT_QUANTITY, price: "" }],
     [lines, isInventory],
   );
   const [editableLines, setEditableLines] = useState<EditableLine[]>(savedLines);
@@ -224,7 +225,7 @@ function EditPanel({
     const id = nextLineId;
     setNextLineId(id + 1);
     setEditableLines((current) => [
-      { id, productId: "", label: "", quantity: "", price: "" },
+      { id, productId: "", label: "", quantity: DEFAULT_QUANTITY, price: "" },
       ...current,
     ]);
     focusFirstLineSearch();

@@ -1,4 +1,5 @@
 export const LABEL_PHONE = "0 (68) 677885";
+/** Parcată: eticheta se printează fără adresa de site până la altă decizie. */
 export const LABEL_SITE = "nadinauto.md";
 export const LABEL_BRAND = "NADIN AUTO";
 export const LABEL_COMPATIBILITY_PREFIX = "Piesă auto compatibilă cu modelul";
