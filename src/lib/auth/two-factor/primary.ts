@@ -11,7 +11,12 @@ export type PrimaryAuthResult =
 export const readPrimaryAuthResult = cache(async (): Promise<PrimaryAuthResult> => {
   const { data, error } = await auth.getSession();
   if (error) {
-    throw new Error("Nu am putut verifica sesiunea de autentificare.");
+    // Cauza era aruncată la gunoi, deci un esec de sesiune (Neon Auth pornit
+    // la rece, retea cazuta) ajungea pe ecran ca o eroare fara explicatie si
+    // fara nimic in loguri. Acum ramane atasata: `cause` pentru stiva,
+    // `console.error` pentru logurile serverului.
+    console.error("[auth] getSession a esuat", error);
+    throw new Error("Nu am putut verifica sesiunea de autentificare.", { cause: error });
   }
   if (!data?.user || !data.session) {
     return { primary: null, reason: "NO_SESSION" };

@@ -54,6 +54,18 @@ type CatalogDictionary = {
     related: string;
     imageAlt: (description: string) => string;
   };
+  notFound: {
+    title: string;
+    message: string;
+    home: string;
+    search: string;
+  };
+  error: {
+    title: string;
+    message: string;
+    retry: string;
+    code: string;
+  };
   metadata: {
     title: string;
     description: string;
@@ -118,6 +130,18 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       related: "Piese similare",
       imageAlt: (description) => description,
     },
+    notFound: {
+      title: "Piesa nu mai e aici",
+      message: "Linkul e vechi sau piesa nu mai e în catalog.",
+      home: "Catalogul",
+      search: "Caută piesa",
+    },
+    error: {
+      title: "Catalogul nu răspunde",
+      message: "Încearcă din nou peste câteva secunde.",
+      retry: "Încearcă din nou",
+      code: "Cod",
+    },
     metadata: {
       title: "Nadin Auto — Catalog piese de caroserie",
       description:
@@ -180,6 +204,18 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       notes: "Подробности",
       related: "Похожие детали",
       imageAlt: (description) => description,
+    },
+    notFound: {
+      title: "Этой детали здесь больше нет",
+      message: "Ссылка устарела или детали больше нет в каталоге.",
+      home: "Каталог",
+      search: "Найти деталь",
+    },
+    error: {
+      title: "Каталог не отвечает",
+      message: "Попробуйте ещё раз через несколько секунд.",
+      retry: "Попробовать снова",
+      code: "Код",
     },
     metadata: {
       title: "Nadin Auto — Каталог кузовных деталей",
