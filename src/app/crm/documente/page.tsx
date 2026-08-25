@@ -59,6 +59,9 @@ async function Loader({
 
 function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModify: boolean }) {
   const { documents, filters, partners, warehouses, page, pageCount, total, pageSize } = data;
+  // Fără asta, editarea unei recepții arăta „Nu există furnizori" cu selectul
+  // dezactivat, deși furnizorii existau: prop-ul pur și simplu nu era dat.
+  const suppliers = partners.filter((p) => p.kind === "SUPPLIER" || p.kind === "BOTH");
   const filterInputCls =
     "h-10 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
@@ -201,6 +204,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                           notes={d.notes ?? ""}
                           partnerId={d.partner?.id ?? ""}
                           partnerName={d.partner?.name ?? ""}
+                          suppliers={suppliers}
                           warehouses={warehouses}
                           warehouseId={d.warehouseId}
                           lines={toDocLines(d)}

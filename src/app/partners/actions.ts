@@ -11,6 +11,12 @@ import { isDuplicateKeyError, readToken } from "@/lib/operations/idempotency";
 export type PartnerActionState = {
   ok: boolean;
   message: string;
+  /**
+   * Partenerul tocmai creat. Dat doar la creare, ca selectul din care s-a
+   * plecat (recepție, comandă externă, editare document) să-l poată alege
+   * fără să aștepte `revalidatePath`.
+   */
+  created?: { id: string; name: string };
 };
 
 const INITIAL_ERROR: PartnerActionState = {
@@ -39,9 +45,13 @@ export async function createPartnerAction(
     });
     if (existing) throw new Error("Există deja un partener cu acest nume.");
 
-    await prisma.partner.create({ data: parsed.data });
+    const created = await prisma.partner.create({ data: parsed.data });
     revalidatePath("/crm", "layout");
-    return { ok: true, message: "Partenerul a fost adăugat." };
+    return {
+      ok: true,
+      message: "Partenerul a fost adăugat.",
+      created: { id: created.id, name: created.name },
+    };
   } catch (error) {
     return toActionError(error);
   }

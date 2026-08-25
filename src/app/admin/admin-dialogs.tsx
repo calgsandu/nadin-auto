@@ -3,7 +3,12 @@
 import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { useDrawerAction } from "@/app/components/operation-drawer";
+import {
+  drawerBoundaryProps,
+  useDrawerAction,
+  useDrawerStackChild,
+} from "@/app/components/operation-drawer";
+import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
 import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   createBrandAction,
@@ -72,6 +77,7 @@ function Drawer({
   action,
   children,
   submitLabel,
+  onCreated,
 }: {
   open: boolean;
   setOpen: (v: boolean) => void;
@@ -79,13 +85,18 @@ function Drawer({
   action: Action;
   children: ReactNode;
   submitLabel: string;
+  /** Entitatea creată, pentru selectul din care s-a deschis dialogul. */
+  onCreated?: (entity: { id: string; name: string }) => void;
 }) {
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(open);
-  const { state, pending, onSubmit } = useDrawerAction(action, initial, () => {
+  const { state, pending, onSubmit } = useDrawerAction(action, initial, (saved) => {
     setOpen(false);
     setMounted(false);
+    if (saved.created) onCreated?.(saved.created);
   });
+  // Cât timp panoul ăsta e deschis, cel din care s-a plecat se ascunde.
+  useDrawerStackChild(open);
 
   // Latch: o dată deschis, panoul rămâne montat (ciorna nu se pierde la închidere).
   if (open && !mounted) setMounted(true);
@@ -96,9 +107,17 @@ function Drawer({
     <div
       className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
       style={open ? undefined : { display: "none" }}
+      {...drawerBoundaryProps}
     >
       <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={() => setOpen(false)} />
-      <aside className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+      <aside
+        className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl"
+        onKeyDown={(event) => {
+          if (event.key !== "Escape") return;
+          event.stopPropagation();
+          setOpen(false);
+        }}
+      >
         <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
           <div>
             <h2 className="text-2xl font-semibold text-[#1b1a17]">{title}</h2>
@@ -146,26 +165,43 @@ export function NameDialog({
   triggerKind = "primary",
   placeholder,
   translated = false,
+  open: controlledOpen,
+  onOpenChange,
+  onCreated,
 }: {
   entityName: string;
   entity?: { id: string; name: string; nameRu?: string | null };
   createAction: Action;
   updateAction: Action;
-  triggerLabel: string;
+  /** Ignorat în modul controlat. */
+  triggerLabel?: string;
   triggerKind?: "primary" | "row";
   placeholder?: string;
   translated?: boolean;
+  /** Dat = mod controlat: fără buton propriu, deschiderea vine din selectul-părinte. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onCreated?: (entity: { id: string; name: string }) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const controlled = controlledOpen !== undefined;
+  const [selfOpen, setSelfOpen] = useState(false);
+  const open = controlled ? controlledOpen : selfOpen;
+  const setOpen = (next: boolean) => {
+    if (!controlled) setSelfOpen(next);
+    onOpenChange?.(next);
+  };
   return (
     <>
-      <TriggerButton label={triggerLabel} kind={triggerKind} onClick={() => setOpen(true)} />
+      {controlled ? null : (
+        <TriggerButton label={triggerLabel ?? ""} kind={triggerKind} onClick={() => setOpen(true)} />
+      )}
       <Drawer
         open={open}
         setOpen={setOpen}
         title={entity ? `Editează ${entityName.toLowerCase()}` : `Adaugă ${entityName.toLowerCase()}`}
         action={entity ? updateAction : createAction}
         submitLabel={entity ? "Salvează" : "Adaugă"}
+        onCreated={onCreated}
       >
         {entity ? <input type="hidden" name="id" value={entity.id} /> : null}
         <Field label="Nume">
@@ -236,33 +272,54 @@ export function WarehouseDialog({
 export function ModelDialog({
   brands,
   model,
+  defaultBrandId,
   triggerLabel,
   triggerKind = "primary",
+  open: controlledOpen,
+  onOpenChange,
+  onCreated,
 }: {
   brands: { id: string; name: string }[];
   model?: { id: string; name: string; brandId: string };
-  triggerLabel: string;
+  /** Brandul deja ales pe rândul din care s-a deschis dialogul. */
+  defaultBrandId?: string;
+  /** Ignorat în modul controlat. */
+  triggerLabel?: string;
   triggerKind?: "primary" | "row";
+  /** Dat = mod controlat: deschis din selectul de model al altui dialog. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onCreated?: (entity: { id: string; name: string }) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const controlled = controlledOpen !== undefined;
+  const [selfOpen, setSelfOpen] = useState(false);
+  const open = controlled ? controlledOpen : selfOpen;
+  const setOpen = (next: boolean) => {
+    if (!controlled) setSelfOpen(next);
+    onOpenChange?.(next);
+  };
   return (
     <>
-      <TriggerButton label={triggerLabel} kind={triggerKind} onClick={() => setOpen(true)} />
+      {controlled ? null : (
+        <TriggerButton label={triggerLabel ?? ""} kind={triggerKind} onClick={() => setOpen(true)} />
+      )}
       <Drawer
         open={open}
         setOpen={setOpen}
         title={model ? "Editează model" : "Adaugă model"}
         action={model ? updateModelAction : createModelAction}
         submitLabel={model ? "Salvează" : "Adaugă"}
+        onCreated={onCreated}
       >
         {model ? <input type="hidden" name="id" value={model.id} /> : null}
         <Field label="Brand">
-          <select className={inputClassName} name="brandId" defaultValue={model?.brandId ?? ""} required>
-            <option value="">Alege brandul</option>
-            {brands.map((b) => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
-          </select>
+          {/* Lanțul se închide aici: modelul unui brand nou se face fără să ieși. */}
+          <BrandSelect
+            defaultValue={model?.brandId ?? defaultBrandId ?? ""}
+            brands={brands}
+            name="brandId"
+            required
+          />
         </Field>
         <Field label="Nume model">
           <input className={inputClassName} name="name" defaultValue={model?.name ?? ""} placeholder="ex. Passat B6" required />
@@ -276,11 +333,14 @@ export function ModelDialog({
 
 export function FitmentDialog({
   models,
+  brands = [],
   fitment,
   triggerLabel,
   triggerKind = "primary",
 }: {
   models: { id: string; label: string }[];
+  /** Necesare dialogului de model deschis din interior; fără ele butonul dispare. */
+  brands?: { id: string; name: string }[];
   fitment?: {
     id: string;
     carModelId: string;
@@ -306,12 +366,13 @@ export function FitmentDialog({
       >
         {fitment ? <input type="hidden" name="id" value={fitment.id} /> : null}
         <Field label="Model">
-          <select className={inputClassName} name="carModelId" defaultValue={fitment?.carModelId ?? ""} required>
-            <option value="">Alege modelul</option>
-            {models.map((m) => (
-              <option key={m.id} value={m.id}>{m.label}</option>
-            ))}
-          </select>
+          <ModelSelect
+            brands={brands}
+            defaultValue={fitment?.carModelId ?? ""}
+            models={models.map((m) => ({ id: m.id, name: m.label }))}
+            name="carModelId"
+            required
+          />
         </Field>
         <Field label="Etichetă (generație)">
           <input className={inputClassName} name="label" defaultValue={fitment?.label ?? ""} placeholder="ex. B6 (2005-2010)" required />
@@ -332,6 +393,150 @@ export function FitmentDialog({
         </label>
       </Drawer>
     </>
+  );
+}
+
+
+/* ------------------------- Selecte cu creare pe loc ------------------------ */
+
+/**
+ * Brandul ales, cu ieșire spre dialogul de brand.
+ *
+ * Brandul creat intră optimist în listă și rămâne selectat: `revalidatePath`
+ * reîmprospătează pagina, dar prop-ul sosește după ce selectul a primit deja
+ * valoarea, iar rândul ar fi rămas gol exact în secunda în care te uiți la el.
+ */
+export function BrandSelect({
+  brands,
+  name,
+  defaultValue = "",
+  value,
+  onChange,
+  required,
+}: {
+  brands: readonly { id: string; name: string }[];
+  name?: string;
+  defaultValue?: string;
+  /** Dat = selectul e controlat de părinte (rândurile din „Alte compatibilități"). */
+  value?: string;
+  onChange?: (brandId: string) => void;
+  required?: boolean;
+}) {
+  const { options, add } = useOptimisticOptions(brands);
+  const controlled = value !== undefined;
+  const [selfValue, setSelfValue] = useState(defaultValue);
+  const [creating, setCreating] = useState(false);
+  const current = controlled ? value : selfValue;
+
+  function select(next: string) {
+    if (!controlled) setSelfValue(next);
+    onChange?.(next);
+  }
+
+  return (
+    <div className="grid gap-2">
+      <select
+        className={inputClassName}
+        name={name}
+        required={required}
+        value={current}
+        onChange={(event) => select(event.currentTarget.value)}
+      >
+        <option value="">Alege brandul</option>
+        {options.map((brand) => (
+          <option key={brand.id} value={brand.id}>{brand.name}</option>
+        ))}
+      </select>
+      <button
+        className="button-secondary justify-self-start rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+        type="button"
+        onClick={() => setCreating(true)}
+      >
+        Brand nou
+      </button>
+      <BrandDialog
+        open={creating}
+        onOpenChange={setCreating}
+        onCreated={(brand) => {
+          add(brand);
+          select(brand.id);
+        }}
+      />
+    </div>
+  );
+}
+
+/** Modelul ales, cu ieșire spre dialogul de model (care are la rândul lui „Brand nou"). */
+export function ModelSelect({
+  models,
+  brands,
+  name,
+  defaultValue = "",
+  value,
+  onChange,
+  required,
+  emptyLabel = "Alege modelul",
+  defaultBrandId,
+}: {
+  models: readonly { id: string; name: string }[];
+  brands: readonly { id: string; name: string }[];
+  name?: string;
+  defaultValue?: string;
+  value?: string;
+  onChange?: (modelId: string) => void;
+  required?: boolean;
+  emptyLabel?: string;
+  /** Brandul rândului: modelul nou se creează implicit sub el. */
+  defaultBrandId?: string;
+}) {
+  const { options, add } = useOptimisticOptions(models);
+  const controlled = value !== undefined;
+  const [selfValue, setSelfValue] = useState(defaultValue);
+  const [creating, setCreating] = useState(false);
+  const current = controlled ? value : selfValue;
+
+  function select(next: string) {
+    if (!controlled) setSelfValue(next);
+    onChange?.(next);
+  }
+
+  return (
+    <div className="grid gap-2">
+      <select
+        className={inputClassName}
+        name={name}
+        required={required}
+        value={current}
+        onChange={(event) => select(event.currentTarget.value)}
+      >
+        <option value="">{emptyLabel}</option>
+        {options.map((model) => (
+          <option key={model.id} value={model.id}>{model.name}</option>
+        ))}
+      </select>
+      {/* Fără lista de branduri n-am ce pune în dialogul de model. */}
+      {brands.length > 0 ? (
+        <>
+          <button
+            className="button-secondary justify-self-start rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+            type="button"
+            onClick={() => setCreating(true)}
+          >
+            Model nou
+          </button>
+          <ModelDialog
+            brands={[...brands]}
+            defaultBrandId={defaultBrandId}
+            open={creating}
+            onOpenChange={setCreating}
+            onCreated={(model) => {
+              add(model);
+              select(model.id);
+            }}
+          />
+        </>
+      ) : null}
+    </div>
   );
 }
 

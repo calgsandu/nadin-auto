@@ -12,7 +12,16 @@ import {
   parseWarehouse,
 } from "@/lib/admin/validate";
 
-export type AdminActionState = { ok: boolean; message: string };
+export type AdminActionState = {
+  ok: boolean;
+  message: string;
+  /**
+   * Entitatea tocmai creată. Dată doar la creare, ca selectul din care s-a
+   * plecat s-o poată alege pe loc: lanțul brand → model → compatibilitate se
+   * parcurge fără să părăsești formularul început.
+   */
+  created?: { id: string; name: string };
+};
 
 const FALLBACK: AdminActionState = { ok: false, message: "Operațiunea a eșuat." };
 
@@ -33,9 +42,9 @@ function id(formData: FormData) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function done(message: string): AdminActionState {
+function done(message: string, created?: { id: string; name: string }): AdminActionState {
   revalidatePath("/crm", "layout");
-  return { ok: true, message };
+  return { ok: true, message, created };
 }
 
 /* ---------------------------------- Brand --------------------------------- */
@@ -47,8 +56,8 @@ export async function createBrandAction(_s: AdminActionState, fd: FormData): Pro
     if (!parsed.ok) throw new Error(parsed.message);
     if (await prisma.brand.findUnique({ where: { name: parsed.data.name } }))
       throw new Error("Există deja un brand cu acest nume.");
-    await prisma.brand.create({ data: parsed.data });
-    return done("Brand adăugat.");
+    const brand = await prisma.brand.create({ data: parsed.data });
+    return done("Brand adăugat.", { id: brand.id, name: brand.name });
   } catch (e) {
     return fail(e);
   }
@@ -93,8 +102,8 @@ export async function createTypeAction(_s: AdminActionState, fd: FormData): Prom
     if (!parsed.ok) throw new Error(parsed.message);
     if (await prisma.productType.findUnique({ where: { name: parsed.data.name } }))
       throw new Error("Există deja un tip cu acest nume.");
-    await prisma.productType.create({ data: parsed.data });
-    return done("Tip de produs adăugat.");
+    const type = await prisma.productType.create({ data: parsed.data });
+    return done("Tip de produs adăugat.", { id: type.id, name: type.name });
   } catch (e) {
     return fail(e);
   }
@@ -139,8 +148,14 @@ export async function createModelAction(_s: AdminActionState, fd: FormData): Pro
     if (!parsed.ok) throw new Error(parsed.message);
     if (await prisma.carModel.findFirst({ where: { brandId: parsed.data.brandId, name: parsed.data.name } }))
       throw new Error("Acest model există deja pentru brandul ales.");
-    await prisma.carModel.create({ data: parsed.data });
-    return done("Model adăugat.");
+    const model = await prisma.carModel.create({
+      data: parsed.data,
+      include: { brand: true },
+    });
+    return done("Model adăugat.", {
+      id: model.id,
+      name: `${model.brand.name} ${model.name}`,
+    });
   } catch (e) {
     return fail(e);
   }
@@ -185,8 +200,8 @@ export async function createFitmentAction(_s: AdminActionState, fd: FormData): P
     if (!parsed.ok) throw new Error(parsed.message);
     if (await prisma.vehicleFitment.findFirst({ where: { carModelId: parsed.data.carModelId, label: parsed.data.label } }))
       throw new Error("Această compatibilitate există deja pentru model.");
-    await prisma.vehicleFitment.create({ data: parsed.data });
-    return done("Compatibilitate adăugată.");
+    const fitment = await prisma.vehicleFitment.create({ data: parsed.data });
+    return done("Compatibilitate adăugată.", { id: fitment.id, name: fitment.label });
   } catch (e) {
     return fail(e);
   }

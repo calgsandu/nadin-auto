@@ -16,7 +16,10 @@ export type CatalogAdminSection =
  * compatibilități cu modelul și brandul lor, ~256 KB degeaba.
  */
 export async function getCatalogAdminData(section: CatalogAdminSection = "branduri") {
-  const needBrands = section === "branduri" || section === "modele";
+  // Compatibilitățile le cer pentru dialogul de model deschis din interiorul lor
+  // (lanțul brand → model → compatibilitate, fără să părăsești formularul).
+  const needBrands =
+    section === "branduri" || section === "modele" || section === "compatibilitati";
   const needModels = section === "modele" || section === "compatibilitati";
 
   const [brands, models, types, fitments, warehouses] = await Promise.all([

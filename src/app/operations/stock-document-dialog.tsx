@@ -23,6 +23,9 @@ import {
 } from "@/app/components/operation-drawer";
 import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
+import { SupplierPicker } from "@/app/partners/supplier-picker";
+import { PartnerFormDialog } from "@/app/partners/partner-form-dialog";
+import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import { PRICE_CATEGORIES, applyDiscount } from "@/lib/operations/sale-pricing";
 
@@ -205,20 +208,11 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                   <input className={inputClassName} name="externalNumber" placeholder="ex. AA 0123456" />
                 </Field>
                 <Field label="Furnizor">
-                  <select
+                  <SupplierPicker
                     className={inputClassName}
-                    disabled={suppliers.length === 0}
                     name="partnerId"
-                  >
-                    <option value="">
-                      {suppliers.length > 0 ? "Alege furnizorul" : "Nu există furnizori"}
-                    </option>
-                    {suppliers.map((supplier) => (
-                      <option key={supplier.id} value={supplier.id}>
-                        {supplier.name}
-                      </option>
-                    ))}
-                  </select>
+                    suppliers={suppliers}
+                  />
                 </Field>
               </div>
 
@@ -619,6 +613,13 @@ export function StockSaleDialog({
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const [newClient, setNewClient] = useState(false);
+  // „Client nou" scrie doar numele, iar partenerul apare mai târziu cu „(date
+  // incomplete)" la contul de plată. De aici se deschide fișa întreagă.
+  const [customerForm, setCustomerForm] = useState(false);
+  const [customerFormName, setCustomerFormName] = useState("");
+  const newCustomerRef = useRef<HTMLInputElement>(null);
+  // Clientul creat din fișa completă intră în listă fără să aștepte pagina.
+  const { options: customerOptions, add: addCustomer } = useOptimisticOptions(customers);
   const [discount, setDiscount] = useState("0");
   const [customerId, setCustomerId] = useState("");
   const nextLineId = useRef(2);
@@ -734,7 +735,7 @@ export function StockSaleDialog({
   const faraTva = Math.round((valoare - tvaTotal) * 100) / 100;
   const money = (v: number) => new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 2 }).format(v);
   const selectedCustomerDebt =
-    customers.find((customer) => customer.id === customerId)?.balanceLei ?? 0;
+    customerOptions.find((customer) => customer.id === customerId)?.balanceLei ?? 0;
 
   function openDrawer() {
     setMounted(true);
@@ -776,6 +777,7 @@ export function StockSaleDialog({
                         className={inputClassName}
                         name="newCustomerName"
                         placeholder="nume client nou"
+                        ref={newCustomerRef}
                         required
                       />
                     ) : (
@@ -786,7 +788,7 @@ export function StockSaleDialog({
                         onChange={(event) => setCustomerId(event.currentTarget.value)}
                       >
                         <option value="">Consumator final</option>
-                        {customers.map((customer) => (
+                        {customerOptions.map((customer) => (
                           <option key={customer.id} value={customer.id}>{customer.name}</option>
                         ))}
                       </select>
@@ -798,7 +800,34 @@ export function StockSaleDialog({
                     >
                       {newClient ? "Alege din listă" : "Client nou"}
                     </button>
+                    {newClient ? (
+                      <button
+                        className={`${secondaryButtonClassName} shrink-0`}
+                        type="button"
+                        onClick={() => {
+                          // Numele tastat deja trece în fișă, ca să nu-l scrie de două ori.
+                          setCustomerFormName(newCustomerRef.current?.value ?? "");
+                          setCustomerForm(true);
+                        }}
+                      >
+                        Fișă completă
+                      </button>
+                    ) : null}
                   </div>
+
+                  <PartnerFormDialog
+                    defaultKind="CUSTOMER"
+                    initialName={customerFormName}
+                    open={customerForm}
+                    onOpenChange={setCustomerForm}
+                    onCreated={(partner) => {
+                      addCustomer(partner);
+                      setCustomerId(partner.id);
+                      // Clientul are acum fișă: inputul rapid n-ar face decât
+                      // să creeze un al doilea partener cu același nume.
+                      setNewClient(false);
+                    }}
+                  />
                   {selectedCustomerDebt > 0 ? (
                     <span className="font-mono text-[11px] font-semibold text-[#b91c1c]">
                       Datorie curentă: {money(selectedCustomerDebt)} lei
@@ -910,17 +939,14 @@ export function StockSaleDialog({
                             />
                           </Field>
                           <Field label="Furnizor">
-                            <select
+                            <SupplierPicker
                               className={inputClassName}
                               name="externalSupplierId"
+                              noneLabel="Fără furnizor"
+                              suppliers={suppliers}
                               value={line.supplierId}
-                              onChange={(e) => setLineField(line.id, "supplierId", e.currentTarget.value)}
-                            >
-                              <option value="">Fără furnizor</option>
-                              {suppliers.map((supplier) => (
-                                <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
-                              ))}
-                            </select>
+                              onChange={(supplierId) => setLineField(line.id, "supplierId", supplierId)}
+                            />
                           </Field>
                           <Field label="Cantitate">
                             <input

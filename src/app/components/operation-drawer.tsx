@@ -1,9 +1,12 @@
 "use client";
 
 import {
+  createContext,
   useActionState,
   useCallback,
+  useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useTransition,
@@ -12,6 +15,45 @@ import {
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import type { DrawerDraftBanner } from "@/app/components/use-drawer-draft";
+
+/**
+ * Stiva de drawere. Un dialog poate deschide alt dialog (creezi produsul lipsă
+ * fără să abandonezi vânzarea), dar NU unul peste altul: cât timp copilul e
+ * deschis, părintele se ascunde — rămâne montat, deci ciorna e intactă.
+ *
+ * Așa dispar dintr-un foc z-index-ul, Escape-ul care ar închide două panouri
+ * și panoul-peste-panou de pe telefon.
+ */
+const DrawerStackContext = createContext<{ open: () => void; close: () => void } | null>(null);
+
+/**
+ * Ține ascuns drawerul-părinte cât timp `open` e adevărat. Fără părinte
+ * (dialogul e deschis dintr-o pagină) nu face nimic.
+ */
+export function useDrawerStackChild(open: boolean) {
+  const stack = useContext(DrawerStackContext);
+
+  useEffect(() => {
+    if (!open || !stack) return;
+    stack.open();
+    return stack.close;
+  }, [open, stack]);
+}
+
+/**
+ * Granița dintre un dialog-copil și părintele lui.
+ *
+ * Portalul mută nodurile în `body`, dar evenimentele React urcă prin arborele
+ * de COMPONENTE, nu prin DOM: fără asta, submitul copilului ar trimite și
+ * formularul părinte, Enter-ul ar naviga în el, iar tastarea în copil l-ar
+ * marca „murdar". Se pune pe rădăcina portalului, deci handlerele proprii ale
+ * copilului (care sunt mai adânc) apucă să ruleze primele.
+ */
+export const drawerBoundaryProps = {
+  onKeyDown: (event: React.SyntheticEvent) => event.stopPropagation(),
+  onSubmit: (event: React.SyntheticEvent) => event.stopPropagation(),
+  onInput: (event: React.SyntheticEvent) => event.stopPropagation(),
+} as const;
 
 /**
  * Panoul lateral folosit de TOATE operațiunile — adăugare și editare deopotrivă.
@@ -48,8 +90,21 @@ export function OperationDrawer({
 }) {
   const panelRef = useRef<HTMLElement>(null);
   const dirtyRef = useRef(false);
+  // Câte dialoguri-copil sunt deschise peste panoul ăsta. >0 = ne dăm la o parte.
+  const [childCount, setChildCount] = useState(0);
+  const stack = useMemo(
+    () => ({
+      open: () => setChildCount((count) => count + 1),
+      close: () => setChildCount((count) => Math.max(0, count - 1)),
+    }),
+    [],
+  );
+  const visible = open && childCount === 0;
 
   // Operatorul intră direct în căutarea de produs, fără drum cu mouse-ul.
+  // Depinde de `open`, nu de `visible`: la întoarcerea dintr-un dialog-copil
+  // rândul are deja produsul ales, deci câmpul de căutare e ascuns sub fișă și
+  // focusul lui ar fi fost pus pe un element invizibil.
   useEffect(() => {
     if (!open) return;
     panelRef.current?.querySelector<HTMLInputElement>('input[role="combobox"]')?.focus();
@@ -65,12 +120,14 @@ export function OperationDrawer({
   }, []);
 
   return (
-    <DrawerPortal locked={open}>
+    <DrawerPortal locked={visible}>
       <div
         className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
-        style={open ? undefined : { display: "none" }}
-        onInput={() => {
+        style={visible ? undefined : { display: "none" }}
+        {...drawerBoundaryProps}
+        onInput={(event) => {
           dirtyRef.current = true;
+          drawerBoundaryProps.onInput(event);
         }}
         // form.reset() la salvare reușită curăță și avertismentul.
         onReset={() => {
@@ -86,7 +143,11 @@ export function OperationDrawer({
         <aside
           ref={panelRef}
           onKeyDown={(event) => {
-            if (event.key === "Escape") onClose();
+            if (event.key !== "Escape") return;
+            // Escape tratat aici nu mai are ce căuta mai sus: dacă panoul e un
+            // dialog-copil, ar închide și părintele în aceeași apăsare.
+            event.stopPropagation();
+            onClose();
           }}
           className={`motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-[#fafaf9] shadow-xl ${
             size === "wide" ? "max-w-7xl" : "max-w-2xl"
@@ -119,7 +180,7 @@ export function OperationDrawer({
             </div>
           </div>
           <DraftBanner draft={draft} />
-          {children}
+          <DrawerStackContext.Provider value={stack}>{children}</DrawerStackContext.Provider>
         </aside>
       </div>
     </DrawerPortal>
@@ -210,7 +271,8 @@ const NO_ANSWER_MESSAGE =
 export function useDrawerAction<S extends { ok: boolean; message: string }>(
   action: (previous: S, formData: FormData) => S | Promise<S>,
   initial: S,
-  onSuccess?: () => void,
+  /** Primește starea returnată de acțiune — acolo vine entitatea creată (`created`). */
+  onSuccess?: (state: S) => void,
 ) {
   const [failure, setFailure] = useState<string | null>(null);
   // Acțiunea se poate reconstrui la fiecare randare (return-dialog o face);
@@ -249,7 +311,7 @@ export function useDrawerAction<S extends { ok: boolean; message: string }>(
   useEffect(() => {
     if (state !== seenState.current && state.ok) {
       formRef.current?.reset();
-      onSuccess?.();
+      onSuccess?.(state as S);
     }
     seenState.current = state;
   }, [state, onSuccess]);
@@ -266,6 +328,9 @@ export function useDrawerAction<S extends { ok: boolean; message: string }>(
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // Un dialog-copil își randează formularul în portal, dar evenimentul urcă
+    // prin arborele React: fără asta ar trimite și formularul părinte.
+    event.stopPropagation();
     const form = event.currentTarget;
     formRef.current = form;
     send(new FormData(form));

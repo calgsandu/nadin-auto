@@ -1,23 +1,70 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import type { Brand, CarModel, ProductType } from "@/generated/prisma/client";
 import {
   createProductAction,
   updateProductAction,
   type CatalogActionState,
 } from "@/app/catalog/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { useDrawerAction } from "@/app/components/operation-drawer";
+import {
+  drawerBoundaryProps,
+  useDrawerAction,
+  useDrawerStackChild,
+} from "@/app/components/operation-drawer";
+import { BrandSelect, ModelSelect } from "@/app/admin/admin-dialogs";
+import type { ProductSearchResult } from "@/lib/catalog/product-search";
 
-type ProductFormDialogProps = {
-  brands: Brand[];
-  models: CarModel[];
-  types: ProductType[];
+/**
+ * Doar câmpurile folosite de formular, nu modelele Prisma întregi: aceleași
+ * liste vin și de la pagina server (obiecte Prisma), și prin JSON de la
+ * `/api/catalog/form-options` (unde datele calendaristice ar fi devenit text).
+ */
+export type CatalogFormOptions = {
+  brands: Array<{ id: string; name: string }>;
+  models: Array<{ id: string; name: string; brandId: string }>;
+  types: Array<{ id: string; name: string }>;
   warehouses: Array<{ id: string; name: string }>;
+};
+
+/**
+ * Opțiunile cerute la nevoie, pentru formularul deschis din INTERIORUL altui
+ * dialog: paginile de operațiuni nu au brandurile/modelele/tipurile, fiindcă
+ * `getOperationsData` a fost subțiat intenționat. O singură cerere pe sesiune
+ * de pagină, oricâte rânduri ar avea documentul.
+ */
+let optionsPromise: Promise<CatalogFormOptions> | null = null;
+
+export function loadCatalogFormOptions() {
+  optionsPromise ??= fetch("/api/catalog/form-options")
+    .then((response) => {
+      if (!response.ok) throw new Error(`form-options: ${response.status}`);
+      return response.json() as Promise<CatalogFormOptions>;
+    })
+    .catch((error: unknown) => {
+      // O cădere de rețea n-are voie să ascundă butonul până la refresh.
+      optionsPromise = null;
+      throw error;
+    });
+
+  return optionsPromise;
+}
+
+type ProductFormDialogProps = CatalogFormOptions & {
   product?: ProductFormValue;
-  triggerLabel: string;
+  /** Ignorat în modul controlat (butonul îl randează cel care deschide dialogul). */
+  triggerLabel?: string;
   triggerKind?: "primary" | "row";
+  /**
+   * Dat = mod controlat: dialogul nu-și mai randează butonul, iar deschiderea
+   * o decide părintele (dialogul din care s-a plecat).
+   */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Produsul creat, gata de pus înapoi pe rândul din care s-a plecat. */
+  onCreated?: (product: ProductSearchResult) => void;
+  /** Preumple descrierea cu ce apucase operatorul să tasteze în căutare. */
+  initialDescription?: string;
 };
 
 export type ExtraFitmentValue = {
@@ -65,8 +112,14 @@ export function ProductFormDialog({
   product,
   triggerLabel,
   triggerKind = "primary",
+  open: controlledOpen,
+  onOpenChange,
+  onCreated,
+  initialDescription,
 }: ProductFormDialogProps) {
-  const [open, setOpen] = useState(false);
+  const controlled = controlledOpen !== undefined;
+  const [selfOpen, setSelfOpen] = useState(false);
+  const open = controlled ? controlledOpen : selfOpen;
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const [brandId, setBrandId] = useState(product?.brandId ?? "");
@@ -83,10 +136,38 @@ export function ProductFormDialog({
   );
   const action = product ? updateProductAction : createProductAction;
   // Fără resetul automat al React: la eroare rămâne tot completat.
-  const { state, pending, onSubmit } = useDrawerAction(action, initialState, () => {
+  const { state, pending, onSubmit } = useDrawerAction(action, initialState, (saved) => {
     setOpen(false);
     setMounted(false);
+    // Cel care a deschis dialogul primește produsul gata de selectat pe rândul
+    // în lucru — altfel ar trebui să-l caute din nou după ce l-a creat.
+    if (saved.created) onCreated?.(saved.created);
   });
+  // Cât timp formularul ăsta e deschis, drawerul din care s-a plecat se ascunde.
+  useDrawerStackChild(open);
+
+  function setOpen(next: boolean) {
+    if (!controlled) setSelfOpen(next);
+    onOpenChange?.(next);
+  }
+
+  function initFields() {
+    setBrandId(product?.brandId ?? "");
+    setModelId(product?.modelId ?? "");
+    setNewBrandName("");
+    setYearOpenEnded(product?.yearOpenEnded ?? false);
+    setExtras(product?.extraFitments ?? []);
+    setWarehouseQuantities(getWarehouseQuantities(product, warehouses));
+  }
+
+  // În modul controlat nu trece nimeni prin `openDialog`, dar panoul tot trebuie
+  // montat (și inițializat) la prima deschidere. Ajustarea stării în timpul
+  // randării, nu într-un efect: altfel prima randare a panoului ar pleca cu
+  // valorile vechi și abia a doua le-ar corecta.
+  if (open && !mounted) {
+    initFields();
+    setMounted(true);
+  }
   const filteredModels = useMemo(() => {
     if (!brandId || newBrandName.trim()) {
       return [];
@@ -116,12 +197,7 @@ export function ProductFormDialog({
     // Ciorna se păstrează: câmpurile se re-inițializează doar la prima deschidere
     // (sau după o salvare reușită, care demontează panoul).
     if (!mounted) {
-      setBrandId(product?.brandId ?? "");
-      setModelId(product?.modelId ?? "");
-      setNewBrandName("");
-      setYearOpenEnded(product?.yearOpenEnded ?? false);
-      setExtras(product?.extraFitments ?? []);
-      setWarehouseQuantities(getWarehouseQuantities(product, warehouses));
+      initFields();
       setMounted(true);
     }
     setOpen(true);
@@ -129,23 +205,26 @@ export function ProductFormDialog({
 
   return (
     <>
-      <button
-        className={
-          triggerKind === "row"
-            ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
-            : "button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
-        }
-        type="button"
-        onClick={openDialog}
-      >
-        {triggerLabel}
-      </button>
+      {controlled ? null : (
+        <button
+          className={
+            triggerKind === "row"
+              ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+              : "button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
+          }
+          type="button"
+          onClick={openDialog}
+        >
+          {triggerLabel}
+        </button>
+      )}
 
       {mounted ? (
         <DrawerPortal locked={open}>
           <div
             className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
             style={open ? undefined : { display: "none" }}
+            {...drawerBoundaryProps}
           >
           <button
             className="absolute inset-0 cursor-default"
@@ -153,7 +232,14 @@ export function ProductFormDialog({
             aria-label="Închide formularul"
             onClick={() => setOpen(false)}
           />
-          <aside className="motion-drawer-panel relative flex h-full w-full max-w-2xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+          <aside
+            className="motion-drawer-panel relative flex h-full w-full max-w-2xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl"
+            onKeyDown={(event) => {
+              if (event.key !== "Escape") return;
+              event.stopPropagation();
+              setOpen(false);
+            }}
+          >
             <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
               <div>
                 <h2 className="text-2xl font-semibold text-[#1b1a17]">
@@ -281,7 +367,7 @@ export function ProductFormDialog({
                 <textarea
                   className={`${inputClassName} min-h-24 resize-y py-3`}
                   name="description"
-                  defaultValue={product?.description ?? ""}
+                  defaultValue={product?.description ?? initialDescription ?? ""}
                   placeholder="ex. Prag 4/5uși L"
                   required
                 />
@@ -349,7 +435,7 @@ export function ProductFormDialog({
                   <div>
                     <h3 className="font-semibold text-[#1b1a17]">Alte compatibilități</h3>
                     <p className="mt-1 text-xs text-[#6f6b63]">
-                      Aceeași piesă pe alte modele (Sprinter ↔ Crafter). Doar branduri și modele existente.
+                      Aceeași piesă pe alte modele (Sprinter ↔ Crafter).
                     </p>
                   </div>
                   <button
@@ -385,38 +471,21 @@ export function ProductFormDialog({
                           readOnly
                         />
                         <Field label="Brand">
-                          <select
-                            className={inputClassName}
+                          <BrandSelect
+                            brands={brands}
                             value={extra.brandId}
-                            onChange={(event) =>
-                              patchExtra(index, { brandId: event.target.value, modelId: "" })
-                            }
-                          >
-                            <option value="">Alege brandul</option>
-                            {brands.map((brand) => (
-                              <option key={brand.id} value={brand.id}>
-                                {brand.name}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(brandId) => patchExtra(index, { brandId, modelId: "" })}
+                          />
                         </Field>
                         <Field label="Model">
-                          <select
-                            className={inputClassName}
+                          <ModelSelect
+                            brands={brands}
+                            defaultBrandId={extra.brandId}
+                            emptyLabel={extra.brandId ? "Alege modelul" : "Alege întâi brandul"}
+                            models={models.filter((model) => model.brandId === extra.brandId)}
                             value={extra.modelId}
-                            onChange={(event) => patchExtra(index, { modelId: event.target.value })}
-                          >
-                            <option value="">
-                              {extra.brandId ? "Alege modelul" : "Alege întâi brandul"}
-                            </option>
-                            {models
-                              .filter((model) => model.brandId === extra.brandId)
-                              .map((model) => (
-                                <option key={model.id} value={model.id}>
-                                  {model.name}
-                                </option>
-                              ))}
-                          </select>
+                            onChange={(modelId) => patchExtra(index, { modelId })}
+                          />
                         </Field>
                         <Field label="Ani de la">
                           <input

@@ -75,7 +75,12 @@ export async function getDocumentsData(params: DocumentsSearchParams = {}) {
       },
     }),
     prisma.stockDocument.count({ where }),
-    prisma.partner.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    // `kind` = filtrul de parteneri și lista de furnizori din editarea recepției,
+    // dintr-o singură citire.
+    prisma.partner.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, kind: true },
+    }),
     prisma.warehouse.findMany({
       where: { active: true },
       orderBy: [{ isDefault: "desc" }, { name: "asc" }],

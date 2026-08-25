@@ -8,6 +8,7 @@ import {
 } from "@/app/external-orders/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { useDrawerAction } from "@/app/components/operation-drawer";
+import { SupplierPicker } from "@/app/partners/supplier-picker";
 
 export type ExternalOrderFormValue = {
   id: string;
@@ -154,18 +155,13 @@ export function ExternalOrderDialog({
                 </div>
 
                 <Field label="Furnizor">
-                  <select
+                  <SupplierPicker
                     className={inputClassName}
-                    name="supplierId"
                     defaultValue={order?.supplierId ?? ""}
-                  >
-                    <option value="">— de stabilit —</option>
-                    {suppliers.map((supplier) => (
-                      <option key={supplier.id} value={supplier.id}>
-                        {supplier.name}
-                      </option>
-                    ))}
-                  </select>
+                    name="supplierId"
+                    noneLabel="— de stabilit —"
+                    suppliers={suppliers}
+                  />
                 </Field>
 
                 <div className="grid gap-5 sm:grid-cols-2">

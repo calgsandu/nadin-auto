@@ -42,7 +42,11 @@ function fitmentModelOptions(models: ModelRow[]) {
 async function AddFitmentButton({ dataPromise }: { dataPromise: Promise<CatalogAdminData> }) {
   const data = await dataPromise;
   return (
-    <FitmentDialog models={fitmentModelOptions(data.models)} triggerLabel="Adaugă compatibilitate" />
+    <FitmentDialog
+      brands={data.brands}
+      models={fitmentModelOptions(data.models)}
+      triggerLabel="Adaugă compatibilitate"
+    />
   );
 }
 
@@ -76,6 +80,7 @@ async function Loader({
             <TableCell align="right">
               <RowActions>
                 <FitmentDialog
+                  brands={data.brands}
                   models={models}
                   fitment={{ id: f.id, carModelId: f.carModelId, label: f.label, labelRu: f.labelRu, yearStart: f.yearStart, yearEnd: f.yearEnd, yearOpenEnded: f.yearOpenEnded }}
                   triggerKind="row"

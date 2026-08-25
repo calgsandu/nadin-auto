@@ -7,8 +7,8 @@ export type ExtraFitmentInput = {
 
 /**
  * Compatibilitățile suplimentare din formularul de produs (aceeași piesă pe alte
- * modele). Doar modele existente — brandurile/modelele noi se creează pe
- * fitmentul principal. Rândurile fără model sunt ignorate.
+ * modele). Se trimite doar `extraModelId`: brandul de pe rând e strict pentru
+ * filtrarea listei de modele. Rândurile fără model sunt ignorate.
  */
 export function parseExtraFitments(formData: FormData): ExtraFitmentInput[] {
   const modelIds = readStrings(formData, "extraModelId");

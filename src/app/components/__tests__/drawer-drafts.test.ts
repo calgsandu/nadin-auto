@@ -129,7 +129,23 @@ assert.match(
 );
 
 const drawer = read("src/app/components/operation-drawer.tsx");
-assert.match(drawer, /DrawerPortal locked=\{open\}/, "panoul ascuns nu blochează scrollul paginii");
+// `visible` = deschis ȘI fără dialog-copil peste el; panoul ascuns, oricare ar
+// fi motivul, nu blochează scrollul paginii.
+assert.match(drawer, /DrawerPortal locked=\{visible\}/, "panoul ascuns nu blochează scrollul paginii");
+assert.match(
+  drawer,
+  /const visible = open && childCount === 0;/,
+  "panoul se dă la o parte cât timp are un dialog-copil deschis",
+);
+// Evenimentele React urcă prin arborele de componente, nu prin DOM: fără
+// oprirea lor, copilul randat în portal ar trimite formularul părinte și
+// Escape ar închide ambele panouri.
+assert.match(drawer, /drawerBoundaryProps/, "dialogul-copil trebuie izolat de părinte");
+assert.match(
+  drawer,
+  /if \(event\.key !== "Escape"\) return;\s*\n[^\n]*\n[^\n]*\n\s*event\.stopPropagation\(\);/,
+  "Escape tratat de panou nu mai urcă în părinte",
+);
 assert.match(drawer, /beforeunload/, "ciorna nesalvată avertizează la refresh/închidere de tab");
 assert.match(drawer, /formRef\.current\?\.reset\(\)/, "formularul se golește doar la salvare reușită");
 // Rețeaua căzută nu aruncă în afară: devine mesaj cu „Reîncearcă", care

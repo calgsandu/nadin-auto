@@ -17,12 +17,16 @@ export async function GET(request: NextRequest) {
   }
   const includeCosts = canWriteCatalog(user.role);
 
+  // Dreptul de a crea produsul lipsă direct din căutare vine de la server, nu
+  // dintr-un prop plimbat prin cele șase dialoguri care folosesc comboboxul.
+  const canCreate = canWriteCatalog(user.role);
+
   const query = normalizeProductSearchQuery(
     request.nextUrl.searchParams.get("q") ?? "",
   );
   const matchedIds = query ? await findMatchingProductIds(query) : null;
   if (matchedIds && matchedIds.length === 0) {
-    return Response.json({ products: [] });
+    return Response.json({ products: [], canCreate });
   }
 
   const products = await prisma.product.findMany({
@@ -41,6 +45,7 @@ export async function GET(request: NextRequest) {
     : products;
 
   return Response.json({
+    canCreate,
     products: ranked
       .slice(0, PRODUCT_SEARCH_LIMIT)
       .map((product) => toProductSearchResult(product, includeCosts)),

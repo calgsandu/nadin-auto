@@ -8,7 +8,11 @@ import {
   type PartnerActionState,
 } from "@/app/partners/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { useDrawerAction } from "@/app/components/operation-drawer";
+import {
+  drawerBoundaryProps,
+  useDrawerAction,
+  useDrawerStackChild,
+} from "@/app/components/operation-drawer";
 
 export type PartnerFormValue = {
   id: string;
@@ -27,8 +31,17 @@ export type PartnerFormValue = {
 
 type PartnerFormDialogProps = {
   partner?: PartnerFormValue;
-  triggerLabel: string;
+  /** Ignorat în modul controlat (butonul îl randează cel care deschide dialogul). */
+  triggerLabel?: string;
   triggerKind?: "primary" | "row";
+  /** Tipul preselectat la creare — „Furnizor nou" din recepție nu mai cere alegerea. */
+  defaultKind?: PartnerKind;
+  /** Dat = mod controlat: deschiderea o decide dialogul din care s-a plecat. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onCreated?: (partner: { id: string; name: string }) => void;
+  /** Preumple numele cu ce apucase operatorul să tasteze. */
+  initialName?: string;
 };
 
 const initialState: PartnerActionState = { ok: false, message: "" };
@@ -43,38 +56,57 @@ export function PartnerFormDialog({
   partner,
   triggerLabel,
   triggerKind = "primary",
+  defaultKind,
+  open: controlledOpen,
+  onOpenChange,
+  onCreated,
+  initialName,
 }: PartnerFormDialogProps) {
-  const [open, setOpen] = useState(false);
+  const controlled = controlledOpen !== undefined;
+  const [selfOpen, setSelfOpen] = useState(false);
+  const open = controlled ? controlledOpen : selfOpen;
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const action = partner ? updatePartnerAction : createPartnerAction;
-  const { state, pending, onSubmit } = useDrawerAction(action, initialState, () => {
+  const { state, pending, onSubmit } = useDrawerAction(action, initialState, (saved) => {
     setOpen(false);
     setMounted(false);
+    if (saved.created) onCreated?.(saved.created);
   });
+  // Cât timp formularul ăsta e deschis, dialogul din care s-a plecat se ascunde.
+  useDrawerStackChild(open);
+
+  function setOpen(next: boolean) {
+    if (!controlled) setSelfOpen(next);
+    onOpenChange?.(next);
+  }
+
+  // Latch: o dată deschis, panoul rămâne montat. Ajustare în timpul randării,
+  // nu într-un efect — altfel prima randare a panoului ar fi goală.
+  if (open && !mounted) setMounted(true);
 
   return (
     <>
-      <button
-        className={
-          triggerKind === "row"
-            ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
-            : "button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
-        }
-        type="button"
-        onClick={() => {
-          setMounted(true);
-          setOpen(true);
-        }}
-      >
-        {triggerLabel}
-      </button>
+      {controlled ? null : (
+        <button
+          className={
+            triggerKind === "row"
+              ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+              : "button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
+          }
+          type="button"
+          onClick={() => setOpen(true)}
+        >
+          {triggerLabel}
+        </button>
+      )}
 
       {mounted ? (
         <DrawerPortal locked={open}>
           <div
             className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
             style={open ? undefined : { display: "none" }}
+            {...drawerBoundaryProps}
           >
             <button
               className="absolute inset-0 cursor-default"
@@ -82,7 +114,14 @@ export function PartnerFormDialog({
               aria-label="Închide formularul"
               onClick={() => setOpen(false)}
             />
-            <aside className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl">
+            <aside
+              className="motion-drawer-panel relative flex h-full w-full max-w-xl flex-col overflow-y-auto bg-[#fafaf9] shadow-xl"
+              onKeyDown={(event) => {
+                if (event.key !== "Escape") return;
+                event.stopPropagation();
+                setOpen(false);
+              }}
+            >
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
                 <div>
                   <h2 className="text-2xl font-semibold text-[#1b1a17]">
@@ -107,7 +146,7 @@ export function PartnerFormDialog({
                   <input
                     className={inputClassName}
                     name="name"
-                    defaultValue={partner?.name ?? ""}
+                    defaultValue={partner?.name ?? initialName ?? ""}
                     placeholder="ex. Auto Parts SRL"
                     required
                   />
@@ -117,7 +156,7 @@ export function PartnerFormDialog({
                   <select
                     className={inputClassName}
                     name="kind"
-                    defaultValue={partner?.kind ?? "SUPPLIER"}
+                    defaultValue={partner?.kind ?? defaultKind ?? "SUPPLIER"}
                   >
                     {KIND_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>

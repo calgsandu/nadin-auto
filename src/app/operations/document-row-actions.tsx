@@ -21,6 +21,7 @@ import {
 } from "@/app/components/operation-drawer";
 import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
+import { SupplierPicker } from "@/app/partners/supplier-picker";
 import {
   AddedLinesFilter,
   LabelStickerCell,
@@ -280,21 +281,12 @@ function EditPanel({
           ) : null}
           {isInventory ? null : documentType === "RECEIPT" ? (
             <DrawerField label="Furnizor">
-              <select
+              <SupplierPicker
                 className={drawerInputClassName}
                 defaultValue={partnerId}
-                disabled={suppliers.length === 0}
                 name="partnerId"
-              >
-                <option value="">
-                  {suppliers.length > 0 ? "Alege furnizorul" : "Nu există furnizori"}
-                </option>
-                {suppliers.map((supplier) => (
-                  <option key={supplier.id} value={supplier.id}>
-                    {supplier.name}
-                  </option>
-                ))}
-              </select>
+                suppliers={suppliers}
+              />
             </DrawerField>
           ) : (
             <DrawerField label="Partener">

@@ -4,6 +4,11 @@ import { Search } from "lucide-react";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { focusNextField } from "@/app/components/operation-drawer";
+import {
+  ProductFormDialog,
+  loadCatalogFormOptions,
+  type CatalogFormOptions,
+} from "@/app/catalog/product-form-dialog";
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
 import { placeDropdown, type DropdownBox } from "@/lib/operations/dropdown-position";
 
@@ -33,6 +38,11 @@ export function ProductSearchCombobox({
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [box, setBox] = useState<DropdownBox | null>(null);
+  // Dreptul de creare vine de la server, odată cu rezultatele căutării: e
+  // singurul loc unde comboboxul află rolul, fără prop plimbat prin șase dialoguri.
+  const [canCreate, setCanCreate] = useState(false);
+  const [formOptions, setFormOptions] = useState<CatalogFormOptions | null>(null);
+  const [creating, setCreating] = useState(false);
   // Produsul ales se vede ca fișă (text integral, pe câte rânduri e nevoie);
   // dublu-click îl transformă înapoi în câmp de căutare.
   const [editing, setEditing] = useState(false);
@@ -43,6 +53,24 @@ export function ProductSearchCombobox({
   const excludedIds = new Set(excludedProductIds);
   const visibleResults = results.filter((product) => !excludedIds.has(product.id));
   const onlyExcludedResults = results.length > 0 && visibleResults.length === 0;
+  const noResults = open && !loading && visibleResults.length === 0 && !onlyExcludedResults;
+
+  // Formularul de produs are nevoie de branduri/modele/tipuri/depozite. Se cer
+  // în clipa în care căutarea rămâne fără rezultate — până citește operatorul
+  // mesajul, butonul e gata; dacă cererea pică, butonul pur și simplu nu apare.
+  useEffect(() => {
+    if (!noResults || !canCreate || formOptions) return;
+    let alive = true;
+    loadCatalogFormOptions().then(
+      (options) => {
+        if (alive) setFormOptions(options);
+      },
+      () => {},
+    );
+    return () => {
+      alive = false;
+    };
+  }, [noResults, canCreate, formOptions]);
 
   useEffect(() => {
     const normalized = query.trim();
@@ -64,9 +92,13 @@ export function ProductSearchCombobox({
         const response = await fetch(
           `/api/products/search?q=${encodeURIComponent(normalized)}`,
         );
-        const data = (await response.json()) as { products?: ProductSearchResult[] };
+        const data = (await response.json()) as {
+          products?: ProductSearchResult[];
+          canCreate?: boolean;
+        };
 
         if (requestIdRef.current === requestId) {
+          setCanCreate(data.canCreate ?? false);
           setResults(data.products ?? []);
           setActiveIndex(0);
           setOpen(true);
@@ -286,11 +318,30 @@ export function ProductSearchCombobox({
             ))
           ) : (
             <div className="px-3 py-3 text-sm font-medium text-[#6f6b63]">
-              {loading
-                ? "Se caută..."
-                : onlyExcludedResults
-                  ? "Produsul este deja adăugat pe altă poziție."
-                  : "Nu am găsit produse pentru căutarea curentă."}
+              {loading ? (
+                "Se caută..."
+              ) : onlyExcludedResults ? (
+                "Produsul este deja adăugat pe altă poziție."
+              ) : (
+                <>
+                  <span className="block">Nu am găsit produse pentru căutarea curentă.</span>
+                  {canCreate && formOptions ? (
+                    // „Adaugă produs" e deja luat în inventar, unde înseamnă
+                    // „adaugă un rând": aici se spune explicit unde intră piesa.
+                    <button
+                      className="button-secondary mt-2 block w-full break-words rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-left text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                      type="button"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => {
+                        setOpen(false);
+                        setCreating(true);
+                      }}
+                    >
+                      Adaugă „{query.trim()}” în catalog
+                    </button>
+                  ) : null}
+                </>
+              )}
             </div>
           )}
         </div>,
@@ -302,6 +353,20 @@ export function ProductSearchCombobox({
         <p className="mt-1 text-xs font-medium text-[#6f6b63]">
           Scrie cel puțin 3 caractere. ↑↓ alegi, Enter treci la cantitate.
         </p>
+      ) : null}
+
+      {formOptions ? (
+        <ProductFormDialog
+          brands={formOptions.brands}
+          models={formOptions.models}
+          types={formOptions.types}
+          warehouses={formOptions.warehouses}
+          open={creating}
+          onOpenChange={setCreating}
+          // Produsul creat se întoarce SELECTAT pe rândul din care s-a plecat.
+          onCreated={selectProduct}
+          initialDescription={query.trim()}
+        />
       ) : null}
     </div>
   );

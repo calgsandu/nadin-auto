@@ -8,6 +8,11 @@ import { prisma } from "@/lib/prisma";
 import { logAudit, logAuditRequired } from "@/lib/audit";
 import { computeSalePrice } from "@/lib/catalog/pricing";
 import { recordPriceChange } from "@/lib/catalog/price-history";
+import { productLabelInclude } from "@/lib/catalog/product-include";
+import {
+  toProductSearchResult,
+  type ProductSearchResult,
+} from "@/lib/catalog/product-search";
 import {
   parseExtraFitments,
   type ExtraFitmentInput,
@@ -21,6 +26,12 @@ import {
 export type CatalogActionState = {
   ok: boolean;
   message: string;
+  /**
+   * Produsul tocmai creat, în FORMA pe care o consumă căutarea din operațiuni.
+   * Dat doar la creare, ca dialogul din care s-a plecat (recepție, vânzare...)
+   * să-l poată pune înapoi, selectat, pe rândul în lucru.
+   */
+  created?: ProductSearchResult;
 };
 
 const INITIAL_ERROR: CatalogActionState = {
@@ -39,6 +50,7 @@ export async function createProductAction(
     const fitment = await findOrCreateFitment(input);
     const fitmentIds = await resolveFitmentIds(fitment.id, input.extraFitments);
     const type = await findOrCreateType(input.typeId, input.newTypeName);
+    let createdId = "";
 
     await prisma.$transaction(async (tx) => {
       const created = await tx.product.create({
@@ -64,6 +76,7 @@ export async function createProductAction(
           typeId: type.id,
         },
       });
+      createdId = created.id;
       await tx.productFitment.createMany({
         data: fitmentIds.map((fitmentId) => ({ productId: created.id, fitmentId })),
         skipDuplicates: true,
@@ -83,10 +96,28 @@ export async function createProductAction(
     });
 
     revalidatePath("/crm", "layout");
-    return { ok: true, message: "Produsul a fost adăugat." };
+    return {
+      ok: true,
+      message: "Produsul a fost adăugat.",
+      created: await productSearchResult(createdId),
+    };
   } catch (error) {
     return toActionError(error);
   }
+}
+
+/**
+ * Eticheta cere tipul + toate compatibilitățile, iar stocul îl scrie
+ * `saveWarehouseStocks` în tranzacție — deci produsul se recitește DUPĂ ea.
+ * O interogare în plus, doar la creare.
+ */
+async function productSearchResult(id: string) {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: productLabelInclude,
+  });
+
+  return product ? toProductSearchResult(product) : undefined;
 }
 
 export async function updateProductAction(
