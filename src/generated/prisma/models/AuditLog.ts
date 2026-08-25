@@ -634,7 +634,9 @@ export type $AuditLogPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     details: runtime.JsonValue | null
     createdAt: Date
     /**
-     * Aprobarea directorului: ANGAJAT → PENDING, DIRECTOR/ADMIN → auto-APPROVED.
+     * NEFOLOSIT. Aprobarea trăiește în `PendingOperation` + /crm/aprobari; aici
+     * nu s-a produs niciodată o intrare PENDING sau FLAGGED. Coloanele rămân ca
+     * să nu pierdem rânduri vechi, dar jurnalul se scrie mereu ca APPROVED.
      */
     reviewStatus: $Enums.ReviewStatus
     reviewedById: string | null

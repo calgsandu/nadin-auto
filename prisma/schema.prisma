@@ -56,7 +56,11 @@ enum PaymentAccountStatus {
 
 enum EFacturaSubmissionStatus {
   NOT_SENT
+  /// Statut 1 de la SIA: cererea a fost ACCEPTATĂ spre execuție, atât.
   SUBMITTED
+  /// Statut 2 de la SIA: factura a fost procesată. Semnarea rămâne în portal —
+  /// CRM-ul n-are de unde s-o afle, deci nu există stare „semnat".
+  PROCESSED
   ERROR
 }
 
@@ -115,7 +119,9 @@ model AuditLog {
   details   Json?
   createdAt DateTime    @default(now())
 
-  /// Aprobarea directorului: ANGAJAT → PENDING, DIRECTOR/ADMIN → auto-APPROVED.
+  /// NEFOLOSIT. Aprobarea trăiește în `PendingOperation` + /crm/aprobari; aici
+  /// nu s-a produs niciodată o intrare PENDING sau FLAGGED. Coloanele rămân ca
+  /// să nu pierdem rânduri vechi, dar jurnalul se scrie mereu ca APPROVED.
   reviewStatus   ReviewStatus @default(APPROVED)
   reviewedById   String?
   reviewedByName String?
@@ -124,7 +130,6 @@ model AuditLog {
 
   @@index([createdAt])
   @@index([entity, entityId])
-  @@index([reviewStatus])
 }
 
 model PendingOperation {
@@ -415,6 +420,11 @@ model ExternalOrder {
   supplierId String?
   supplier   Partner? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
 
+  /// Vânzarea creată la livrare. Fără ea comanda se oprea la LIVRAT și nu
+  /// ajungea în niciun raport — costul și prețul erau captate degeaba.
+  saleDocumentId String?        @unique
+  saleDocument   StockDocument? @relation("ExternalOrderSale", fields: [saleDocumentId], references: [id], onDelete: SetNull)
+
   /// Preț de achiziție per bucată, de la furnizor.
   supplierPriceLei Decimal? @db.Decimal(10, 2)
   /// Preț de vânzare per bucată, către client.
@@ -465,6 +475,7 @@ model StockDocument {
   partner     Partner?            @relation(fields: [partnerId], references: [id], onDelete: SetNull)
   lines       StockDocumentLine[]
   paymentAccount PaymentAccount? @relation("PaymentAccountSale")
+  externalOrder  ExternalOrder?  @relation("ExternalOrderSale")
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 

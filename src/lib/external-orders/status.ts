@@ -18,3 +18,14 @@ export const NEXT_STATUS: Record<ExternalOrderStatus, ExternalOrderStatus[]> = {
   LIVRAT: [],
   ANULAT: [],
 };
+
+/**
+ * Statusul venit din formular. Înainte se făcea `as ExternalOrderStatus` pe un
+ * string arbitrar: o valoare inventată trecea de cast și abia `NEXT_STATUS[...]`
+ * arunca, cu un mesaj despre „undefined".
+ */
+export function parseExternalOrderStatus(value: string): ExternalOrderStatus {
+  // `hasOwn`, nu `in`: „toString" și „constructor" trec prin lanțul de prototipuri.
+  if (Object.hasOwn(STATUS_LABELS, value)) return value as ExternalOrderStatus;
+  throw new Error("Status de comandă necunoscut.");
+}

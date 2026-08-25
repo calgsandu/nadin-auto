@@ -58,8 +58,9 @@ function RestockWorkspace({
           <StockTransferDialog warehouses={toWarehouseOptions(operations.warehouses)} />
         ) : null}
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <DailyMetric label="Poziții active" value={formatNumber(operations.restockPending.length)} />
+        <DailyMetric label="Aduse azi" value={formatNumber(operations.restockDeliveredToday.length)} />
         <DailyMetric label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
       </div>
       <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">

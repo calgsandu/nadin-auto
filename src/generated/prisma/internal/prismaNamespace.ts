@@ -2674,6 +2674,7 @@ export const ExternalOrderScalarFieldEnum = {
   productCode: 'productCode',
   quantity: 'quantity',
   supplierId: 'supplierId',
+  saleDocumentId: 'saleDocumentId',
   supplierPriceLei: 'supplierPriceLei',
   salePriceLei: 'salePriceLei',
   offerValidUntil: 'offerValidUntil',

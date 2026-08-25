@@ -149,19 +149,6 @@ function AuditRowView({ entry }: { entry: AuditRow }) {
         <p className="mt-1 text-xs text-[#98948b]">
           {AUDIT_ENTITY_LABEL[entry.entity] ?? entry.entity}
         </p>
-        {entry.reviewStatus === "PENDING" ? (
-          <span className="mt-1 inline-block whitespace-nowrap rounded-full bg-[#dbebfe] px-2 py-0.5 text-[11px] font-semibold text-[#175cd3]">
-            Neaprobat
-          </span>
-        ) : null}
-        {entry.reviewStatus === "FLAGGED" ? (
-          <span
-            className="mt-1 inline-block whitespace-nowrap rounded-full bg-[#fee2e2] px-2 py-0.5 text-[11px] font-semibold text-[#b91c1c]"
-            title={entry.reviewNote ?? undefined}
-          >
-            Semnalat
-          </span>
-        ) : null}
       </TableCell>
       <TableCell>{entry.summary}</TableCell>
       <TableCell align="right">

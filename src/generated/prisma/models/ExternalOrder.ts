@@ -51,6 +51,7 @@ export type ExternalOrderMinAggregateOutputType = {
   productCode: string | null
   quantity: number | null
   supplierId: string | null
+  saleDocumentId: string | null
   supplierPriceLei: runtime.Decimal | null
   salePriceLei: runtime.Decimal | null
   offerValidUntil: Date | null
@@ -74,6 +75,7 @@ export type ExternalOrderMaxAggregateOutputType = {
   productCode: string | null
   quantity: number | null
   supplierId: string | null
+  saleDocumentId: string | null
   supplierPriceLei: runtime.Decimal | null
   salePriceLei: runtime.Decimal | null
   offerValidUntil: Date | null
@@ -97,6 +99,7 @@ export type ExternalOrderCountAggregateOutputType = {
   productCode: number
   quantity: number
   supplierId: number
+  saleDocumentId: number
   supplierPriceLei: number
   salePriceLei: number
   offerValidUntil: number
@@ -136,6 +139,7 @@ export type ExternalOrderMinAggregateInputType = {
   productCode?: true
   quantity?: true
   supplierId?: true
+  saleDocumentId?: true
   supplierPriceLei?: true
   salePriceLei?: true
   offerValidUntil?: true
@@ -159,6 +163,7 @@ export type ExternalOrderMaxAggregateInputType = {
   productCode?: true
   quantity?: true
   supplierId?: true
+  saleDocumentId?: true
   supplierPriceLei?: true
   salePriceLei?: true
   offerValidUntil?: true
@@ -182,6 +187,7 @@ export type ExternalOrderCountAggregateInputType = {
   productCode?: true
   quantity?: true
   supplierId?: true
+  saleDocumentId?: true
   supplierPriceLei?: true
   salePriceLei?: true
   offerValidUntil?: true
@@ -292,6 +298,7 @@ export type ExternalOrderGroupByOutputType = {
   productCode: string | null
   quantity: number
   supplierId: string | null
+  saleDocumentId: string | null
   supplierPriceLei: runtime.Decimal | null
   salePriceLei: runtime.Decimal | null
   offerValidUntil: Date | null
@@ -338,6 +345,7 @@ export type ExternalOrderWhereInput = {
   productCode?: Prisma.StringNullableFilter<"ExternalOrder"> | string | null
   quantity?: Prisma.IntFilter<"ExternalOrder"> | number
   supplierId?: Prisma.StringNullableFilter<"ExternalOrder"> | string | null
+  saleDocumentId?: Prisma.StringNullableFilter<"ExternalOrder"> | string | null
   supplierPriceLei?: Prisma.DecimalNullableFilter<"ExternalOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: Prisma.DecimalNullableFilter<"ExternalOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Prisma.DateTimeNullableFilter<"ExternalOrder"> | Date | string | null
@@ -350,6 +358,7 @@ export type ExternalOrderWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ExternalOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExternalOrder"> | Date | string
   supplier?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
+  saleDocument?: Prisma.XOR<Prisma.StockDocumentNullableScalarRelationFilter, Prisma.StockDocumentWhereInput> | null
 }
 
 export type ExternalOrderOrderByWithRelationInput = {
@@ -362,6 +371,7 @@ export type ExternalOrderOrderByWithRelationInput = {
   productCode?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
+  saleDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierPriceLei?: Prisma.SortOrderInput | Prisma.SortOrder
   salePriceLei?: Prisma.SortOrderInput | Prisma.SortOrder
   offerValidUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -374,11 +384,13 @@ export type ExternalOrderOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   supplier?: Prisma.PartnerOrderByWithRelationInput
+  saleDocument?: Prisma.StockDocumentOrderByWithRelationInput
 }
 
 export type ExternalOrderWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   number?: number
+  saleDocumentId?: string
   AND?: Prisma.ExternalOrderWhereInput | Prisma.ExternalOrderWhereInput[]
   OR?: Prisma.ExternalOrderWhereInput[]
   NOT?: Prisma.ExternalOrderWhereInput | Prisma.ExternalOrderWhereInput[]
@@ -401,7 +413,8 @@ export type ExternalOrderWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ExternalOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExternalOrder"> | Date | string
   supplier?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
-}, "id" | "number">
+  saleDocument?: Prisma.XOR<Prisma.StockDocumentNullableScalarRelationFilter, Prisma.StockDocumentWhereInput> | null
+}, "id" | "number" | "saleDocumentId">
 
 export type ExternalOrderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -413,6 +426,7 @@ export type ExternalOrderOrderByWithAggregationInput = {
   productCode?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
+  saleDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierPriceLei?: Prisma.SortOrderInput | Prisma.SortOrder
   salePriceLei?: Prisma.SortOrderInput | Prisma.SortOrder
   offerValidUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -444,6 +458,7 @@ export type ExternalOrderScalarWhereWithAggregatesInput = {
   productCode?: Prisma.StringNullableWithAggregatesFilter<"ExternalOrder"> | string | null
   quantity?: Prisma.IntWithAggregatesFilter<"ExternalOrder"> | number
   supplierId?: Prisma.StringNullableWithAggregatesFilter<"ExternalOrder"> | string | null
+  saleDocumentId?: Prisma.StringNullableWithAggregatesFilter<"ExternalOrder"> | string | null
   supplierPriceLei?: Prisma.DecimalNullableWithAggregatesFilter<"ExternalOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: Prisma.DecimalNullableWithAggregatesFilter<"ExternalOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"ExternalOrder"> | Date | string | null
@@ -478,6 +493,7 @@ export type ExternalOrderCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier?: Prisma.PartnerCreateNestedOneWithoutExternalOrdersInput
+  saleDocument?: Prisma.StockDocumentCreateNestedOneWithoutExternalOrderInput
 }
 
 export type ExternalOrderUncheckedCreateInput = {
@@ -490,6 +506,7 @@ export type ExternalOrderUncheckedCreateInput = {
   productCode?: string | null
   quantity?: number
   supplierId?: string | null
+  saleDocumentId?: string | null
   supplierPriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Date | string | null
@@ -524,6 +541,7 @@ export type ExternalOrderUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.PartnerUpdateOneWithoutExternalOrdersNestedInput
+  saleDocument?: Prisma.StockDocumentUpdateOneWithoutExternalOrderNestedInput
 }
 
 export type ExternalOrderUncheckedUpdateInput = {
@@ -536,6 +554,7 @@ export type ExternalOrderUncheckedUpdateInput = {
   productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierPriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -559,6 +578,7 @@ export type ExternalOrderCreateManyInput = {
   productCode?: string | null
   quantity?: number
   supplierId?: string | null
+  saleDocumentId?: string | null
   supplierPriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Date | string | null
@@ -604,6 +624,7 @@ export type ExternalOrderUncheckedUpdateManyInput = {
   productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierPriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -637,6 +658,7 @@ export type ExternalOrderCountOrderByAggregateInput = {
   productCode?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  saleDocumentId?: Prisma.SortOrder
   supplierPriceLei?: Prisma.SortOrder
   salePriceLei?: Prisma.SortOrder
   offerValidUntil?: Prisma.SortOrder
@@ -667,6 +689,7 @@ export type ExternalOrderMaxOrderByAggregateInput = {
   productCode?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  saleDocumentId?: Prisma.SortOrder
   supplierPriceLei?: Prisma.SortOrder
   salePriceLei?: Prisma.SortOrder
   offerValidUntil?: Prisma.SortOrder
@@ -690,6 +713,7 @@ export type ExternalOrderMinOrderByAggregateInput = {
   productCode?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  saleDocumentId?: Prisma.SortOrder
   supplierPriceLei?: Prisma.SortOrder
   salePriceLei?: Prisma.SortOrder
   offerValidUntil?: Prisma.SortOrder
@@ -708,6 +732,11 @@ export type ExternalOrderSumOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   supplierPriceLei?: Prisma.SortOrder
   salePriceLei?: Prisma.SortOrder
+}
+
+export type ExternalOrderNullableScalarRelationFilter = {
+  is?: Prisma.ExternalOrderWhereInput | null
+  isNot?: Prisma.ExternalOrderWhereInput | null
 }
 
 export type ExternalOrderCreateNestedManyWithoutSupplierInput = {
@@ -756,6 +785,38 @@ export type EnumExternalOrderStatusFieldUpdateOperationsInput = {
   set?: $Enums.ExternalOrderStatus
 }
 
+export type ExternalOrderCreateNestedOneWithoutSaleDocumentInput = {
+  create?: Prisma.XOR<Prisma.ExternalOrderCreateWithoutSaleDocumentInput, Prisma.ExternalOrderUncheckedCreateWithoutSaleDocumentInput>
+  connectOrCreate?: Prisma.ExternalOrderCreateOrConnectWithoutSaleDocumentInput
+  connect?: Prisma.ExternalOrderWhereUniqueInput
+}
+
+export type ExternalOrderUncheckedCreateNestedOneWithoutSaleDocumentInput = {
+  create?: Prisma.XOR<Prisma.ExternalOrderCreateWithoutSaleDocumentInput, Prisma.ExternalOrderUncheckedCreateWithoutSaleDocumentInput>
+  connectOrCreate?: Prisma.ExternalOrderCreateOrConnectWithoutSaleDocumentInput
+  connect?: Prisma.ExternalOrderWhereUniqueInput
+}
+
+export type ExternalOrderUpdateOneWithoutSaleDocumentNestedInput = {
+  create?: Prisma.XOR<Prisma.ExternalOrderCreateWithoutSaleDocumentInput, Prisma.ExternalOrderUncheckedCreateWithoutSaleDocumentInput>
+  connectOrCreate?: Prisma.ExternalOrderCreateOrConnectWithoutSaleDocumentInput
+  upsert?: Prisma.ExternalOrderUpsertWithoutSaleDocumentInput
+  disconnect?: Prisma.ExternalOrderWhereInput | boolean
+  delete?: Prisma.ExternalOrderWhereInput | boolean
+  connect?: Prisma.ExternalOrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ExternalOrderUpdateToOneWithWhereWithoutSaleDocumentInput, Prisma.ExternalOrderUpdateWithoutSaleDocumentInput>, Prisma.ExternalOrderUncheckedUpdateWithoutSaleDocumentInput>
+}
+
+export type ExternalOrderUncheckedUpdateOneWithoutSaleDocumentNestedInput = {
+  create?: Prisma.XOR<Prisma.ExternalOrderCreateWithoutSaleDocumentInput, Prisma.ExternalOrderUncheckedCreateWithoutSaleDocumentInput>
+  connectOrCreate?: Prisma.ExternalOrderCreateOrConnectWithoutSaleDocumentInput
+  upsert?: Prisma.ExternalOrderUpsertWithoutSaleDocumentInput
+  disconnect?: Prisma.ExternalOrderWhereInput | boolean
+  delete?: Prisma.ExternalOrderWhereInput | boolean
+  connect?: Prisma.ExternalOrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ExternalOrderUpdateToOneWithWhereWithoutSaleDocumentInput, Prisma.ExternalOrderUpdateWithoutSaleDocumentInput>, Prisma.ExternalOrderUncheckedUpdateWithoutSaleDocumentInput>
+}
+
 export type ExternalOrderCreateWithoutSupplierInput = {
   id?: string
   number: number
@@ -776,6 +837,7 @@ export type ExternalOrderCreateWithoutSupplierInput = {
   cancelledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  saleDocument?: Prisma.StockDocumentCreateNestedOneWithoutExternalOrderInput
 }
 
 export type ExternalOrderUncheckedCreateWithoutSupplierInput = {
@@ -787,6 +849,7 @@ export type ExternalOrderUncheckedCreateWithoutSupplierInput = {
   productName: string
   productCode?: string | null
   quantity?: number
+  saleDocumentId?: string | null
   supplierPriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Date | string | null
@@ -839,6 +902,7 @@ export type ExternalOrderScalarWhereInput = {
   productCode?: Prisma.StringNullableFilter<"ExternalOrder"> | string | null
   quantity?: Prisma.IntFilter<"ExternalOrder"> | number
   supplierId?: Prisma.StringNullableFilter<"ExternalOrder"> | string | null
+  saleDocumentId?: Prisma.StringNullableFilter<"ExternalOrder"> | string | null
   supplierPriceLei?: Prisma.DecimalNullableFilter<"ExternalOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: Prisma.DecimalNullableFilter<"ExternalOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Prisma.DateTimeNullableFilter<"ExternalOrder"> | Date | string | null
@@ -852,6 +916,114 @@ export type ExternalOrderScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"ExternalOrder"> | Date | string
 }
 
+export type ExternalOrderCreateWithoutSaleDocumentInput = {
+  id?: string
+  number: number
+  status?: $Enums.ExternalOrderStatus
+  customerName: string
+  customerPhone?: string | null
+  productName: string
+  productCode?: string | null
+  quantity?: number
+  supplierPriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salePriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  offerValidUntil?: Date | string | null
+  notes?: string | null
+  quotedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.PartnerCreateNestedOneWithoutExternalOrdersInput
+}
+
+export type ExternalOrderUncheckedCreateWithoutSaleDocumentInput = {
+  id?: string
+  number: number
+  status?: $Enums.ExternalOrderStatus
+  customerName: string
+  customerPhone?: string | null
+  productName: string
+  productCode?: string | null
+  quantity?: number
+  supplierId?: string | null
+  supplierPriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salePriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  offerValidUntil?: Date | string | null
+  notes?: string | null
+  quotedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  receivedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ExternalOrderCreateOrConnectWithoutSaleDocumentInput = {
+  where: Prisma.ExternalOrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExternalOrderCreateWithoutSaleDocumentInput, Prisma.ExternalOrderUncheckedCreateWithoutSaleDocumentInput>
+}
+
+export type ExternalOrderUpsertWithoutSaleDocumentInput = {
+  update: Prisma.XOR<Prisma.ExternalOrderUpdateWithoutSaleDocumentInput, Prisma.ExternalOrderUncheckedUpdateWithoutSaleDocumentInput>
+  create: Prisma.XOR<Prisma.ExternalOrderCreateWithoutSaleDocumentInput, Prisma.ExternalOrderUncheckedCreateWithoutSaleDocumentInput>
+  where?: Prisma.ExternalOrderWhereInput
+}
+
+export type ExternalOrderUpdateToOneWithWhereWithoutSaleDocumentInput = {
+  where?: Prisma.ExternalOrderWhereInput
+  data: Prisma.XOR<Prisma.ExternalOrderUpdateWithoutSaleDocumentInput, Prisma.ExternalOrderUncheckedUpdateWithoutSaleDocumentInput>
+}
+
+export type ExternalOrderUpdateWithoutSaleDocumentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumExternalOrderStatusFieldUpdateOperationsInput | $Enums.ExternalOrderStatus
+  customerName?: Prisma.StringFieldUpdateOperationsInput | string
+  customerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productName?: Prisma.StringFieldUpdateOperationsInput | string
+  productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  supplierPriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salePriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  offerValidUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.PartnerUpdateOneWithoutExternalOrdersNestedInput
+}
+
+export type ExternalOrderUncheckedUpdateWithoutSaleDocumentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumExternalOrderStatusFieldUpdateOperationsInput | $Enums.ExternalOrderStatus
+  customerName?: Prisma.StringFieldUpdateOperationsInput | string
+  customerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productName?: Prisma.StringFieldUpdateOperationsInput | string
+  productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierPriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salePriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  offerValidUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type ExternalOrderCreateManySupplierInput = {
   id?: string
   number: number
@@ -861,6 +1033,7 @@ export type ExternalOrderCreateManySupplierInput = {
   productName: string
   productCode?: string | null
   quantity?: number
+  saleDocumentId?: string | null
   supplierPriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Date | string | null
@@ -894,6 +1067,7 @@ export type ExternalOrderUpdateWithoutSupplierInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  saleDocument?: Prisma.StockDocumentUpdateOneWithoutExternalOrderNestedInput
 }
 
 export type ExternalOrderUncheckedUpdateWithoutSupplierInput = {
@@ -905,6 +1079,7 @@ export type ExternalOrderUncheckedUpdateWithoutSupplierInput = {
   productName?: Prisma.StringFieldUpdateOperationsInput | string
   productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierPriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -927,6 +1102,7 @@ export type ExternalOrderUncheckedUpdateManyWithoutSupplierInput = {
   productName?: Prisma.StringFieldUpdateOperationsInput | string
   productCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  saleDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierPriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   salePriceLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   offerValidUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -952,6 +1128,7 @@ export type ExternalOrderSelect<ExtArgs extends runtime.Types.Extensions.Interna
   productCode?: boolean
   quantity?: boolean
   supplierId?: boolean
+  saleDocumentId?: boolean
   supplierPriceLei?: boolean
   salePriceLei?: boolean
   offerValidUntil?: boolean
@@ -964,6 +1141,7 @@ export type ExternalOrderSelect<ExtArgs extends runtime.Types.Extensions.Interna
   createdAt?: boolean
   updatedAt?: boolean
   supplier?: boolean | Prisma.ExternalOrder$supplierArgs<ExtArgs>
+  saleDocument?: boolean | Prisma.ExternalOrder$saleDocumentArgs<ExtArgs>
 }, ExtArgs["result"]["externalOrder"]>
 
 export type ExternalOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -976,6 +1154,7 @@ export type ExternalOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   productCode?: boolean
   quantity?: boolean
   supplierId?: boolean
+  saleDocumentId?: boolean
   supplierPriceLei?: boolean
   salePriceLei?: boolean
   offerValidUntil?: boolean
@@ -988,6 +1167,7 @@ export type ExternalOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   supplier?: boolean | Prisma.ExternalOrder$supplierArgs<ExtArgs>
+  saleDocument?: boolean | Prisma.ExternalOrder$saleDocumentArgs<ExtArgs>
 }, ExtArgs["result"]["externalOrder"]>
 
 export type ExternalOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1000,6 +1180,7 @@ export type ExternalOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   productCode?: boolean
   quantity?: boolean
   supplierId?: boolean
+  saleDocumentId?: boolean
   supplierPriceLei?: boolean
   salePriceLei?: boolean
   offerValidUntil?: boolean
@@ -1012,6 +1193,7 @@ export type ExternalOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   supplier?: boolean | Prisma.ExternalOrder$supplierArgs<ExtArgs>
+  saleDocument?: boolean | Prisma.ExternalOrder$saleDocumentArgs<ExtArgs>
 }, ExtArgs["result"]["externalOrder"]>
 
 export type ExternalOrderSelectScalar = {
@@ -1024,6 +1206,7 @@ export type ExternalOrderSelectScalar = {
   productCode?: boolean
   quantity?: boolean
   supplierId?: boolean
+  saleDocumentId?: boolean
   supplierPriceLei?: boolean
   salePriceLei?: boolean
   offerValidUntil?: boolean
@@ -1037,21 +1220,25 @@ export type ExternalOrderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ExternalOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "status" | "customerName" | "customerPhone" | "productName" | "productCode" | "quantity" | "supplierId" | "supplierPriceLei" | "salePriceLei" | "offerValidUntil" | "notes" | "quotedAt" | "confirmedAt" | "receivedAt" | "deliveredAt" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["externalOrder"]>
+export type ExternalOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "status" | "customerName" | "customerPhone" | "productName" | "productCode" | "quantity" | "supplierId" | "saleDocumentId" | "supplierPriceLei" | "salePriceLei" | "offerValidUntil" | "notes" | "quotedAt" | "confirmedAt" | "receivedAt" | "deliveredAt" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["externalOrder"]>
 export type ExternalOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.ExternalOrder$supplierArgs<ExtArgs>
+  saleDocument?: boolean | Prisma.ExternalOrder$saleDocumentArgs<ExtArgs>
 }
 export type ExternalOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.ExternalOrder$supplierArgs<ExtArgs>
+  saleDocument?: boolean | Prisma.ExternalOrder$saleDocumentArgs<ExtArgs>
 }
 export type ExternalOrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.ExternalOrder$supplierArgs<ExtArgs>
+  saleDocument?: boolean | Prisma.ExternalOrder$saleDocumentArgs<ExtArgs>
 }
 
 export type $ExternalOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ExternalOrder"
   objects: {
     supplier: Prisma.$PartnerPayload<ExtArgs> | null
+    saleDocument: Prisma.$StockDocumentPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1063,6 +1250,11 @@ export type $ExternalOrderPayload<ExtArgs extends runtime.Types.Extensions.Inter
     productCode: string | null
     quantity: number
     supplierId: string | null
+    /**
+     * Vânzarea creată la livrare. Fără ea comanda se oprea la LIVRAT și nu
+     * ajungea în niciun raport — costul și prețul erau captate degeaba.
+     */
+    saleDocumentId: string | null
     /**
      * Preț de achiziție per bucată, de la furnizor.
      */
@@ -1475,6 +1667,7 @@ readonly fields: ExternalOrderFieldRefs;
 export interface Prisma__ExternalOrderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   supplier<T extends Prisma.ExternalOrder$supplierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExternalOrder$supplierArgs<ExtArgs>>): Prisma.Prisma__PartnerClient<runtime.Types.Result.GetResult<Prisma.$PartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  saleDocument<T extends Prisma.ExternalOrder$saleDocumentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExternalOrder$saleDocumentArgs<ExtArgs>>): Prisma.Prisma__StockDocumentClient<runtime.Types.Result.GetResult<Prisma.$StockDocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1513,6 +1706,7 @@ export interface ExternalOrderFieldRefs {
   readonly productCode: Prisma.FieldRef<"ExternalOrder", 'String'>
   readonly quantity: Prisma.FieldRef<"ExternalOrder", 'Int'>
   readonly supplierId: Prisma.FieldRef<"ExternalOrder", 'String'>
+  readonly saleDocumentId: Prisma.FieldRef<"ExternalOrder", 'String'>
   readonly supplierPriceLei: Prisma.FieldRef<"ExternalOrder", 'Decimal'>
   readonly salePriceLei: Prisma.FieldRef<"ExternalOrder", 'Decimal'>
   readonly offerValidUntil: Prisma.FieldRef<"ExternalOrder", 'DateTime'>
@@ -1950,6 +2144,25 @@ export type ExternalOrder$supplierArgs<ExtArgs extends runtime.Types.Extensions.
    */
   include?: Prisma.PartnerInclude<ExtArgs> | null
   where?: Prisma.PartnerWhereInput
+}
+
+/**
+ * ExternalOrder.saleDocument
+ */
+export type ExternalOrder$saleDocumentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockDocument
+   */
+  select?: Prisma.StockDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockDocument
+   */
+  omit?: Prisma.StockDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockDocumentInclude<ExtArgs> | null
+  where?: Prisma.StockDocumentWhereInput
 }
 
 /**

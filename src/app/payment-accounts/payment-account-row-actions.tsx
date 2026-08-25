@@ -69,7 +69,11 @@ export function PaymentAccountRowActions({
           <FileCode2 className="size-3.5" aria-hidden="true" /> XML fiscal
         </a>
       ) : null}
-      {canSubmitEFactura && fulfilled && !cancelled && eFacturaStatus !== "SUBMITTED" ? (
+      {canSubmitEFactura &&
+      fulfilled &&
+      !cancelled &&
+      eFacturaStatus !== "SUBMITTED" &&
+      eFacturaStatus !== "PROCESSED" ? (
         <ActionForm
           action={submitPaymentAccountToEFacturaAction}
           confirmText={`Trimiți contul #${number} nesemnat către SIA e-Factura? După transmitere trebuie semnat în portal.`}
@@ -110,10 +114,18 @@ export function PaymentAccountRowActions({
       ) : null}
       {fulfilled && eFacturaStatus !== "NOT_SENT" ? (
         <span
-          className={`basis-full pt-1 text-right text-[11px] ${eFacturaStatus === "SUBMITTED" ? "text-[#166534]" : "text-[#b91c1c]"}`}
+          className={`basis-full pt-1 text-right text-[11px] ${
+            eFacturaStatus === "ERROR" ? "text-[#b91c1c]" : "text-[#166534]"
+          }`}
           title={eFacturaMessage ?? undefined}
         >
-          {eFacturaStatus === "SUBMITTED" ? "Trimis în e-Factura, necesită semnare" : `Eroare e-Factura${eFacturaMessage ? `: ${eFacturaMessage}` : ""}`}
+          {/* „Necesită semnare" era spus și pentru facturi doar acceptate spre
+              execuție, care nici măcar nu fuseseră procesate. */}
+          {eFacturaStatus === "PROCESSED"
+            ? "Procesat de SIA — semnează în portal"
+            : eFacturaStatus === "SUBMITTED"
+              ? "Acceptat spre executare de SIA"
+              : `Eroare e-Factura${eFacturaMessage ? `: ${eFacturaMessage}` : ""}`}
         </span>
       ) : null}
     </div>

@@ -4,11 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
-import {
-  documentSnapshot,
-  logAudit,
-  logAuditRequired,
-} from "@/lib/audit";
+import { documentSnapshot, logAuditRequired } from "@/lib/audit";
 import {
   aggregateRestockRequests,
   reconcileSaleRestockTasks,
@@ -640,72 +636,6 @@ export async function updateDocumentLinesAction(
 
     revalidatePath("/crm", "layout");
     return { ok: true, message: "Document actualizat (linii + stoc)." };
-  } catch (error) {
-    return fail(error);
-  }
-}
-
-/** Edit document header fields (date, notes, partner). Does not touch stock/lines. */
-export async function updateDocumentHeaderAction(
-  _state: DocumentActionState,
-  formData: FormData,
-): Promise<DocumentActionState> {
-  try {
-    const user = await requireWrite();
-    const id = readString(formData, "id");
-    if (!id) throw new Error("Document lipsă.");
-
-    const dateRaw = readString(formData, "documentDate");
-    const notes = readString(formData, "notes") || null;
-    const partnerName = readString(formData, "partnerName");
-
-    const documentDate = dateRaw ? new Date(`${dateRaw}T12:00:00`) : undefined;
-    if (documentDate && Number.isNaN(documentDate.getTime())) {
-      throw new Error("Data documentului nu este validă.");
-    }
-
-    let partnerId: string | null | undefined = undefined;
-    if (partnerName) {
-      const partner = await prisma.partner.upsert({
-        where: { name: partnerName },
-        create: { name: partnerName },
-        update: {},
-      });
-      partnerId = partner.id;
-    }
-
-    const before = await prisma.stockDocument.findUnique({
-      where: { id },
-      select: { type: true, number: true, documentDate: true, notes: true, partner: { select: { name: true } } },
-    });
-    if (!before) throw new Error("Document inexistent.");
-
-    await prisma.stockDocument.update({
-      where: { id },
-      data: { documentDate, notes, ...(partnerId !== undefined ? { partnerId } : {}) },
-    });
-
-    await logAudit(prisma, user, {
-      action: "UPDATE",
-      entity: "StockDocument",
-      entityId: id,
-      summary: `${TYPE_LABEL[before.type] ?? before.type} #${before.number} — antet editat`,
-      details: {
-        before: {
-          documentDate: before.documentDate.toISOString().slice(0, 10),
-          notes: before.notes,
-          partner: before.partner?.name ?? null,
-        },
-        after: {
-          documentDate: (documentDate ?? before.documentDate).toISOString().slice(0, 10),
-          notes,
-          partner: partnerName || (before.partner?.name ?? null),
-        },
-      },
-    });
-
-    revalidatePath("/crm", "layout");
-    return { ok: true, message: "Document actualizat." };
   } catch (error) {
     return fail(error);
   }

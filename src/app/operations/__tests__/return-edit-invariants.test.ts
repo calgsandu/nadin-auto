@@ -6,9 +6,12 @@ const source = readFileSync(
   path.join(process.cwd(), "src/app/operations/document-actions.ts"),
   "utf8",
 );
+// `updateDocumentLinesAction` e ultima acțiune exportată din fișier: felia
+// merge până la capăt. (Înainte se oprea la `updateDocumentHeaderAction`, o
+// acțiune fără apelant, ștearsă între timp — `updateDocumentLinesAction` scrie
+// oricum și antetul, nu doar liniile.)
 const updateAction = source.slice(
   source.indexOf("export async function updateDocumentLinesAction"),
-  source.indexOf("export async function updateDocumentHeaderAction"),
 );
 
 assert.match(

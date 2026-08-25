@@ -336,6 +336,7 @@ export type StockDocumentWhereInput = {
   partner?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
   lines?: Prisma.StockDocumentLineListRelationFilter
   paymentAccount?: Prisma.XOR<Prisma.PaymentAccountNullableScalarRelationFilter, Prisma.PaymentAccountWhereInput> | null
+  externalOrder?: Prisma.XOR<Prisma.ExternalOrderNullableScalarRelationFilter, Prisma.ExternalOrderWhereInput> | null
 }
 
 export type StockDocumentOrderByWithRelationInput = {
@@ -361,6 +362,7 @@ export type StockDocumentOrderByWithRelationInput = {
   partner?: Prisma.PartnerOrderByWithRelationInput
   lines?: Prisma.StockDocumentLineOrderByRelationAggregateInput
   paymentAccount?: Prisma.PaymentAccountOrderByWithRelationInput
+  externalOrder?: Prisma.ExternalOrderOrderByWithRelationInput
 }
 
 export type StockDocumentWhereUniqueInput = Prisma.AtLeast<{
@@ -390,6 +392,7 @@ export type StockDocumentWhereUniqueInput = Prisma.AtLeast<{
   partner?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
   lines?: Prisma.StockDocumentLineListRelationFilter
   paymentAccount?: Prisma.XOR<Prisma.PaymentAccountNullableScalarRelationFilter, Prisma.PaymentAccountWhereInput> | null
+  externalOrder?: Prisma.XOR<Prisma.ExternalOrderNullableScalarRelationFilter, Prisma.ExternalOrderWhereInput> | null
 }, "id" | "idempotencyKey" | "type_number">
 
 export type StockDocumentOrderByWithAggregationInput = {
@@ -463,6 +466,7 @@ export type StockDocumentCreateInput = {
   partner?: Prisma.PartnerCreateNestedOneWithoutDocumentsInput
   lines?: Prisma.StockDocumentLineCreateNestedManyWithoutDocumentInput
   paymentAccount?: Prisma.PaymentAccountCreateNestedOneWithoutSaleDocumentInput
+  externalOrder?: Prisma.ExternalOrderCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentUncheckedCreateInput = {
@@ -486,6 +490,7 @@ export type StockDocumentUncheckedCreateInput = {
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
   paymentAccount?: Prisma.PaymentAccountUncheckedCreateNestedOneWithoutSaleDocumentInput
+  externalOrder?: Prisma.ExternalOrderUncheckedCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentUpdateInput = {
@@ -509,6 +514,7 @@ export type StockDocumentUpdateInput = {
   partner?: Prisma.PartnerUpdateOneWithoutDocumentsNestedInput
   lines?: Prisma.StockDocumentLineUpdateManyWithoutDocumentNestedInput
   paymentAccount?: Prisma.PaymentAccountUpdateOneWithoutSaleDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentUncheckedUpdateInput = {
@@ -532,6 +538,7 @@ export type StockDocumentUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
   paymentAccount?: Prisma.PaymentAccountUncheckedUpdateOneWithoutSaleDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUncheckedUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentCreateManyInput = {
@@ -603,6 +610,11 @@ export type StockDocumentListRelationFilter = {
 
 export type StockDocumentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type StockDocumentNullableScalarRelationFilter = {
+  is?: Prisma.StockDocumentWhereInput | null
+  isNot?: Prisma.StockDocumentWhereInput | null
 }
 
 export type StockDocumentTypeNumberCompoundUniqueInput = {
@@ -685,11 +697,6 @@ export type StockDocumentSumOrderByAggregateInput = {
   totalEuro?: Prisma.SortOrder
   totalLei?: Prisma.SortOrder
   discountPercent?: Prisma.SortOrder
-}
-
-export type StockDocumentNullableScalarRelationFilter = {
-  is?: Prisma.StockDocumentWhereInput | null
-  isNot?: Prisma.StockDocumentWhereInput | null
 }
 
 export type StockDocumentScalarRelationFilter = {
@@ -781,6 +788,22 @@ export type StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput = {
   deleteMany?: Prisma.StockDocumentScalarWhereInput | Prisma.StockDocumentScalarWhereInput[]
 }
 
+export type StockDocumentCreateNestedOneWithoutExternalOrderInput = {
+  create?: Prisma.XOR<Prisma.StockDocumentCreateWithoutExternalOrderInput, Prisma.StockDocumentUncheckedCreateWithoutExternalOrderInput>
+  connectOrCreate?: Prisma.StockDocumentCreateOrConnectWithoutExternalOrderInput
+  connect?: Prisma.StockDocumentWhereUniqueInput
+}
+
+export type StockDocumentUpdateOneWithoutExternalOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.StockDocumentCreateWithoutExternalOrderInput, Prisma.StockDocumentUncheckedCreateWithoutExternalOrderInput>
+  connectOrCreate?: Prisma.StockDocumentCreateOrConnectWithoutExternalOrderInput
+  upsert?: Prisma.StockDocumentUpsertWithoutExternalOrderInput
+  disconnect?: Prisma.StockDocumentWhereInput | boolean
+  delete?: Prisma.StockDocumentWhereInput | boolean
+  connect?: Prisma.StockDocumentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StockDocumentUpdateToOneWithWhereWithoutExternalOrderInput, Prisma.StockDocumentUpdateWithoutExternalOrderInput>, Prisma.StockDocumentUncheckedUpdateWithoutExternalOrderInput>
+}
+
 export type EnumStockDocumentTypeFieldUpdateOperationsInput = {
   set?: $Enums.StockDocumentType
 }
@@ -843,6 +866,7 @@ export type StockDocumentCreateWithoutWarehouseInput = {
   partner?: Prisma.PartnerCreateNestedOneWithoutDocumentsInput
   lines?: Prisma.StockDocumentLineCreateNestedManyWithoutDocumentInput
   paymentAccount?: Prisma.PaymentAccountCreateNestedOneWithoutSaleDocumentInput
+  externalOrder?: Prisma.ExternalOrderCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentUncheckedCreateWithoutWarehouseInput = {
@@ -865,6 +889,7 @@ export type StockDocumentUncheckedCreateWithoutWarehouseInput = {
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
   paymentAccount?: Prisma.PaymentAccountUncheckedCreateNestedOneWithoutSaleDocumentInput
+  externalOrder?: Prisma.ExternalOrderUncheckedCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentCreateOrConnectWithoutWarehouseInput = {
@@ -937,6 +962,7 @@ export type StockDocumentCreateWithoutPartnerInput = {
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
   lines?: Prisma.StockDocumentLineCreateNestedManyWithoutDocumentInput
   paymentAccount?: Prisma.PaymentAccountCreateNestedOneWithoutSaleDocumentInput
+  externalOrder?: Prisma.ExternalOrderCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentUncheckedCreateWithoutPartnerInput = {
@@ -959,6 +985,7 @@ export type StockDocumentUncheckedCreateWithoutPartnerInput = {
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
   paymentAccount?: Prisma.PaymentAccountUncheckedCreateNestedOneWithoutSaleDocumentInput
+  externalOrder?: Prisma.ExternalOrderUncheckedCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentCreateOrConnectWithoutPartnerInput = {
@@ -987,6 +1014,114 @@ export type StockDocumentUpdateManyWithWhereWithoutPartnerInput = {
   data: Prisma.XOR<Prisma.StockDocumentUpdateManyMutationInput, Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerInput>
 }
 
+export type StockDocumentCreateWithoutExternalOrderInput = {
+  id?: string
+  type: $Enums.StockDocumentType
+  number: number
+  documentDate?: Date | string
+  sourceDocumentId?: string | null
+  transferGroupId?: string | null
+  notes?: string | null
+  totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
+  externalNumber?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
+  partner?: Prisma.PartnerCreateNestedOneWithoutDocumentsInput
+  lines?: Prisma.StockDocumentLineCreateNestedManyWithoutDocumentInput
+  paymentAccount?: Prisma.PaymentAccountCreateNestedOneWithoutSaleDocumentInput
+}
+
+export type StockDocumentUncheckedCreateWithoutExternalOrderInput = {
+  id?: string
+  type: $Enums.StockDocumentType
+  number: number
+  documentDate?: Date | string
+  warehouseId: string
+  partnerId?: string | null
+  sourceDocumentId?: string | null
+  transferGroupId?: string | null
+  notes?: string | null
+  totalEuro?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalLei?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: boolean | null
+  paymentMethod?: $Enums.SalePaymentMethod | null
+  externalNumber?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
+  paymentAccount?: Prisma.PaymentAccountUncheckedCreateNestedOneWithoutSaleDocumentInput
+}
+
+export type StockDocumentCreateOrConnectWithoutExternalOrderInput = {
+  where: Prisma.StockDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockDocumentCreateWithoutExternalOrderInput, Prisma.StockDocumentUncheckedCreateWithoutExternalOrderInput>
+}
+
+export type StockDocumentUpsertWithoutExternalOrderInput = {
+  update: Prisma.XOR<Prisma.StockDocumentUpdateWithoutExternalOrderInput, Prisma.StockDocumentUncheckedUpdateWithoutExternalOrderInput>
+  create: Prisma.XOR<Prisma.StockDocumentCreateWithoutExternalOrderInput, Prisma.StockDocumentUncheckedCreateWithoutExternalOrderInput>
+  where?: Prisma.StockDocumentWhereInput
+}
+
+export type StockDocumentUpdateToOneWithWhereWithoutExternalOrderInput = {
+  where?: Prisma.StockDocumentWhereInput
+  data: Prisma.XOR<Prisma.StockDocumentUpdateWithoutExternalOrderInput, Prisma.StockDocumentUncheckedUpdateWithoutExternalOrderInput>
+}
+
+export type StockDocumentUpdateWithoutExternalOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumStockDocumentTypeFieldUpdateOperationsInput | $Enums.StockDocumentType
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  documentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
+  externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
+  partner?: Prisma.PartnerUpdateOneWithoutDocumentsNestedInput
+  lines?: Prisma.StockDocumentLineUpdateManyWithoutDocumentNestedInput
+  paymentAccount?: Prisma.PaymentAccountUpdateOneWithoutSaleDocumentNestedInput
+}
+
+export type StockDocumentUncheckedUpdateWithoutExternalOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumStockDocumentTypeFieldUpdateOperationsInput | $Enums.StockDocumentType
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  documentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalEuro?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalLei?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cashRegistered?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  paymentMethod?: Prisma.NullableEnumSalePaymentMethodFieldUpdateOperationsInput | $Enums.SalePaymentMethod | null
+  externalNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
+  paymentAccount?: Prisma.PaymentAccountUncheckedUpdateOneWithoutSaleDocumentNestedInput
+}
+
 export type StockDocumentCreateWithoutPaymentAccountInput = {
   id?: string
   type: $Enums.StockDocumentType
@@ -1007,6 +1142,7 @@ export type StockDocumentCreateWithoutPaymentAccountInput = {
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
   partner?: Prisma.PartnerCreateNestedOneWithoutDocumentsInput
   lines?: Prisma.StockDocumentLineCreateNestedManyWithoutDocumentInput
+  externalOrder?: Prisma.ExternalOrderCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentUncheckedCreateWithoutPaymentAccountInput = {
@@ -1029,6 +1165,7 @@ export type StockDocumentUncheckedCreateWithoutPaymentAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutDocumentInput
+  externalOrder?: Prisma.ExternalOrderUncheckedCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentCreateOrConnectWithoutPaymentAccountInput = {
@@ -1067,6 +1204,7 @@ export type StockDocumentUpdateWithoutPaymentAccountInput = {
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
   partner?: Prisma.PartnerUpdateOneWithoutDocumentsNestedInput
   lines?: Prisma.StockDocumentLineUpdateManyWithoutDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentUncheckedUpdateWithoutPaymentAccountInput = {
@@ -1089,6 +1227,7 @@ export type StockDocumentUncheckedUpdateWithoutPaymentAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUncheckedUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentCreateWithoutLinesInput = {
@@ -1111,6 +1250,7 @@ export type StockDocumentCreateWithoutLinesInput = {
   warehouse: Prisma.WarehouseCreateNestedOneWithoutDocumentsInput
   partner?: Prisma.PartnerCreateNestedOneWithoutDocumentsInput
   paymentAccount?: Prisma.PaymentAccountCreateNestedOneWithoutSaleDocumentInput
+  externalOrder?: Prisma.ExternalOrderCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentUncheckedCreateWithoutLinesInput = {
@@ -1133,6 +1273,7 @@ export type StockDocumentUncheckedCreateWithoutLinesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentAccount?: Prisma.PaymentAccountUncheckedCreateNestedOneWithoutSaleDocumentInput
+  externalOrder?: Prisma.ExternalOrderUncheckedCreateNestedOneWithoutSaleDocumentInput
 }
 
 export type StockDocumentCreateOrConnectWithoutLinesInput = {
@@ -1171,6 +1312,7 @@ export type StockDocumentUpdateWithoutLinesInput = {
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
   partner?: Prisma.PartnerUpdateOneWithoutDocumentsNestedInput
   paymentAccount?: Prisma.PaymentAccountUpdateOneWithoutSaleDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentUncheckedUpdateWithoutLinesInput = {
@@ -1193,6 +1335,7 @@ export type StockDocumentUncheckedUpdateWithoutLinesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentAccount?: Prisma.PaymentAccountUncheckedUpdateOneWithoutSaleDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUncheckedUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentCreateManyWarehouseInput = {
@@ -1235,6 +1378,7 @@ export type StockDocumentUpdateWithoutWarehouseInput = {
   partner?: Prisma.PartnerUpdateOneWithoutDocumentsNestedInput
   lines?: Prisma.StockDocumentLineUpdateManyWithoutDocumentNestedInput
   paymentAccount?: Prisma.PaymentAccountUpdateOneWithoutSaleDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentUncheckedUpdateWithoutWarehouseInput = {
@@ -1257,6 +1401,7 @@ export type StockDocumentUncheckedUpdateWithoutWarehouseInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
   paymentAccount?: Prisma.PaymentAccountUncheckedUpdateOneWithoutSaleDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUncheckedUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentUncheckedUpdateManyWithoutWarehouseInput = {
@@ -1319,6 +1464,7 @@ export type StockDocumentUpdateWithoutPartnerInput = {
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutDocumentsNestedInput
   lines?: Prisma.StockDocumentLineUpdateManyWithoutDocumentNestedInput
   paymentAccount?: Prisma.PaymentAccountUpdateOneWithoutSaleDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentUncheckedUpdateWithoutPartnerInput = {
@@ -1341,6 +1487,7 @@ export type StockDocumentUncheckedUpdateWithoutPartnerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutDocumentNestedInput
   paymentAccount?: Prisma.PaymentAccountUncheckedUpdateOneWithoutSaleDocumentNestedInput
+  externalOrder?: Prisma.ExternalOrderUncheckedUpdateOneWithoutSaleDocumentNestedInput
 }
 
 export type StockDocumentUncheckedUpdateManyWithoutPartnerInput = {
@@ -1417,6 +1564,7 @@ export type StockDocumentSelect<ExtArgs extends runtime.Types.Extensions.Interna
   partner?: boolean | Prisma.StockDocument$partnerArgs<ExtArgs>
   lines?: boolean | Prisma.StockDocument$linesArgs<ExtArgs>
   paymentAccount?: boolean | Prisma.StockDocument$paymentAccountArgs<ExtArgs>
+  externalOrder?: boolean | Prisma.StockDocument$externalOrderArgs<ExtArgs>
   _count?: boolean | Prisma.StockDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["stockDocument"]>
 
@@ -1493,6 +1641,7 @@ export type StockDocumentInclude<ExtArgs extends runtime.Types.Extensions.Intern
   partner?: boolean | Prisma.StockDocument$partnerArgs<ExtArgs>
   lines?: boolean | Prisma.StockDocument$linesArgs<ExtArgs>
   paymentAccount?: boolean | Prisma.StockDocument$paymentAccountArgs<ExtArgs>
+  externalOrder?: boolean | Prisma.StockDocument$externalOrderArgs<ExtArgs>
   _count?: boolean | Prisma.StockDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type StockDocumentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1511,6 +1660,7 @@ export type $StockDocumentPayload<ExtArgs extends runtime.Types.Extensions.Inter
     partner: Prisma.$PartnerPayload<ExtArgs> | null
     lines: Prisma.$StockDocumentLinePayload<ExtArgs>[]
     paymentAccount: Prisma.$PaymentAccountPayload<ExtArgs> | null
+    externalOrder: Prisma.$ExternalOrderPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1951,6 +2101,7 @@ export interface Prisma__StockDocumentClient<T, Null = never, ExtArgs extends ru
   partner<T extends Prisma.StockDocument$partnerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockDocument$partnerArgs<ExtArgs>>): Prisma.Prisma__PartnerClient<runtime.Types.Result.GetResult<Prisma.$PartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   lines<T extends Prisma.StockDocument$linesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockDocument$linesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockDocumentLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   paymentAccount<T extends Prisma.StockDocument$paymentAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockDocument$paymentAccountArgs<ExtArgs>>): Prisma.Prisma__PaymentAccountClient<runtime.Types.Result.GetResult<Prisma.$PaymentAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  externalOrder<T extends Prisma.StockDocument$externalOrderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockDocument$externalOrderArgs<ExtArgs>>): Prisma.Prisma__ExternalOrderClient<runtime.Types.Result.GetResult<Prisma.$ExternalOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2467,6 +2618,25 @@ export type StockDocument$paymentAccountArgs<ExtArgs extends runtime.Types.Exten
    */
   include?: Prisma.PaymentAccountInclude<ExtArgs> | null
   where?: Prisma.PaymentAccountWhereInput
+}
+
+/**
+ * StockDocument.externalOrder
+ */
+export type StockDocument$externalOrderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExternalOrder
+   */
+  select?: Prisma.ExternalOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExternalOrder
+   */
+  omit?: Prisma.ExternalOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalOrderInclude<ExtArgs> | null
+  where?: Prisma.ExternalOrderWhereInput
 }
 
 /**

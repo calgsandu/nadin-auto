@@ -4,8 +4,15 @@ import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canCreateSales, canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { logAudit } from "@/lib/audit";
-import { NEXT_STATUS, STATUS_LABELS } from "@/lib/external-orders/status";
+import {
+  NEXT_STATUS,
+  STATUS_LABELS,
+  parseExternalOrderStatus,
+} from "@/lib/external-orders/status";
+import { nextStockDocumentNumber } from "@/lib/operations/stock-mutations";
+import { parseRequiredSalePaymentMethod } from "@/lib/operations/sale-payment-method";
 import type { ExternalOrderStatus } from "@/generated/prisma/enums";
 
 export type ExternalOrderActionState = {
@@ -36,6 +43,7 @@ export async function createExternalOrderAction(
   try {
     const appUser = await requireOrderAccess();
     const data = parseOrderForm(formData);
+    await assertSupplier(data.supplierId);
 
     const order = await prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('externalorder'))`;
@@ -70,6 +78,7 @@ export async function updateExternalOrderAction(
     const id = readString(formData, "orderId");
     if (!id) throw new Error("Lipsește comanda pentru editare.");
     const data = parseOrderForm(formData);
+    await assertSupplier(data.supplierId);
 
     const order = await prisma.externalOrder.update({ where: { id }, data });
     await logAudit(prisma, appUser, {
@@ -92,8 +101,9 @@ export async function setExternalOrderStatusAction(
   try {
     const appUser = await requireOrderAccess();
     const id = readString(formData, "orderId");
-    const status = readString(formData, "status") as ExternalOrderStatus;
-    if (!id || !status) throw new Error("Lipsește comanda sau statusul.");
+    const rawStatus = readString(formData, "status");
+    if (!id || !rawStatus) throw new Error("Lipsește comanda sau statusul.");
+    const status = parseExternalOrderStatus(rawStatus);
 
     const order = await prisma.externalOrder.findUnique({ where: { id } });
     if (!order) throw new Error("Comanda nu există.");
@@ -110,12 +120,18 @@ export async function setExternalOrderStatusAction(
     }
 
     const timestampField = STATUS_TIMESTAMP[status];
-    const updated = await prisma.externalOrder.update({
-      where: { id },
-      data: {
-        status,
-        ...(timestampField ? { [timestampField]: new Date() } : {}),
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      const saleDocumentId =
+        status === "LIVRAT" ? await createDeliverySale(tx, order, formData) : undefined;
+
+      return tx.externalOrder.update({
+        where: { id },
+        data: {
+          status,
+          ...(timestampField ? { [timestampField]: new Date() } : {}),
+          ...(saleDocumentId ? { saleDocumentId } : {}),
+        },
+      });
     });
 
     await logAudit(prisma, appUser, {
@@ -157,6 +173,116 @@ export async function deleteExternalOrderAction(
   }
 }
 
+/**
+ * Vânzarea născută la livrarea unei comenzi externe.
+ *
+ * Fluxul se oprea la LIVRAT și nu ajungea în NICIUN raport — nici închiderea de
+ * zi, nici TVA, nici statistici, nici profitul pe client — deși costul și prețul
+ * erau deja captate. Documentul creat aici e exact forma pe care rapoartele o
+ * știu deja: o vânzare cu o linie externă (`productId` null), deci stocul nu se
+ * atinge, iar cealaltă implementare a aceleiași idei (linii externe pe vânzări
+ * obișnuite) și aceasta ajung în sfârșit în același loc.
+ */
+async function createDeliverySale(
+  tx: Prisma.TransactionClient,
+  order: {
+    id: string;
+    number: number;
+    customerName: string;
+    productName: string;
+    productCode: string | null;
+    quantity: number;
+    supplierId: string | null;
+    supplierPriceLei: Prisma.Decimal | null;
+    salePriceLei: Prisma.Decimal | null;
+    saleDocumentId: string | null;
+  },
+  formData: FormData,
+) {
+  // Livrarea se poate confirma o singură dată: a doua ar dubla vânzarea.
+  // Citirea de dinaintea tranzacției poate fi deja veche, deci rândul se
+  // blochează aici — două file deschise nu pot livra amândouă.
+  const locked = await tx.$queryRaw<{ saleDocumentId: string | null }[]>`
+    SELECT "saleDocumentId" FROM "ExternalOrder" WHERE id = ${order.id} FOR UPDATE`;
+  if (locked.length === 0) throw new Error("Comanda nu există.");
+  if (locked[0].saleDocumentId) {
+    throw new Error("Comanda are deja o vânzare înregistrată.");
+  }
+  if (order.salePriceLei == null) {
+    throw new Error("Completează prețul de vânzare înainte de livrare.");
+  }
+
+  // Banii au nevoie de metodă: fără ea vânzarea ar cădea în „Nespecificat" la
+  // închiderea de zi și n-ar intra în datoria clientului.
+  const paymentMethod = parseRequiredSalePaymentMethod(
+    readString(formData, "paymentMethod"),
+  );
+  const cashRegistered = formData.get("cashRegistered") === "on";
+
+  const warehouse = await tx.warehouse.findFirst({
+    where: { active: true },
+    orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+    select: { id: true },
+  });
+  if (!warehouse) throw new Error("Nu există niciun depozit activ.");
+
+  // Clientul e text liber pe comandă; ca vânzarea să intre și în profitul pe
+  // client, îi trebuie un partener — aceeași potrivire pe nume ca la editarea
+  // documentelor.
+  const partner = await tx.partner.upsert({
+    where: { name: order.customerName },
+    create: { name: order.customerName, kind: "CUSTOMER" },
+    update: {},
+    select: { id: true },
+  });
+
+  const unitPriceLei = Number(order.salePriceLei);
+  const sale = await tx.stockDocument.create({
+    data: {
+      type: "SALE",
+      number: await nextStockDocumentNumber(tx, "SALE"),
+      documentDate: new Date(),
+      warehouseId: warehouse.id,
+      partnerId: partner.id,
+      notes: `Comandă la furnizor #${order.number}`,
+      totalLei: unitPriceLei * order.quantity,
+      paymentMethod,
+      cashRegistered,
+      lines: {
+        create: [
+          {
+            // Linie externă: piesa nu e în catalog, deci stocul nu se mișcă.
+            productId: null,
+            externalName: order.productName,
+            externalCode: order.productCode,
+            externalSupplierId: order.supplierId,
+            quantity: order.quantity,
+            unitPriceEuro: unitPriceLei,
+            unitCostLei: order.supplierPriceLei,
+          },
+        ],
+      },
+    },
+    select: { id: true },
+  });
+
+  return sale.id;
+}
+
+/**
+ * `supplierId` venea din formular nevalidat: un id inventat trecea până la FK,
+ * iar un CLIENT ales din greșeală ar fi rămas „furnizorul" comenzii.
+ */
+async function assertSupplier(supplierId: string | null) {
+  if (!supplierId) return;
+  const partner = await prisma.partner.findUnique({
+    where: { id: supplierId },
+    select: { kind: true },
+  });
+  if (!partner) throw new Error("Furnizorul ales nu există.");
+  if (partner.kind === "CUSTOMER") throw new Error("Partenerul ales nu este furnizor.");
+}
+
 function parseOrderForm(formData: FormData) {
   const customerName = readString(formData, "customerName");
   const productName = readString(formData, "productName");
@@ -179,9 +305,22 @@ function parseOrderForm(formData: FormData) {
     supplierId: readString(formData, "supplierId") || null,
     supplierPriceLei: readDecimal(formData, "supplierPriceLei"),
     salePriceLei: readDecimal(formData, "salePriceLei"),
-    offerValidUntil: offerValidUntil ? new Date(offerValidUntil) : null,
+    offerValidUntil: parseOfferDate(offerValidUntil),
     notes: readString(formData, "notes") || null,
   };
+}
+
+/**
+ * Valabilitatea ofertei. Fără gardă, o dată tastată greșit ajungea `Invalid
+ * Date` în baza de date — spre deosebire de conturile de plată, care o verifică.
+ */
+function parseOfferDate(value: string) {
+  if (!value) return null;
+  const date = new Date(`${value}T12:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("Data de valabilitate a ofertei nu este validă.");
+  }
+  return date;
 }
 
 function readDecimal(formData: FormData, key: string) {

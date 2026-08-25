@@ -4,6 +4,7 @@ import { useActionState, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import {
   markRestockDeliveredAction,
+  markRestockPendingAction,
   markRestockUnavailableAction,
   type OperationActionState,
 } from "@/app/operations/actions";
@@ -15,8 +16,14 @@ type RestockCheckboxProps = {
   productId: string;
   warehouseId: string;
   label: string;
-  kind: "delivered" | "unavailable";
+  kind: "delivered" | "unavailable" | "pending";
 };
+
+const ACTIONS = {
+  delivered: markRestockDeliveredAction,
+  unavailable: markRestockUnavailableAction,
+  pending: markRestockPendingAction,
+} as const;
 
 export function RestockCheckbox({
   productId,
@@ -24,9 +31,7 @@ export function RestockCheckbox({
   label,
   kind,
 }: RestockCheckboxProps) {
-  const action =
-    kind === "delivered" ? markRestockDeliveredAction : markRestockUnavailableAction;
-  const [state, formAction] = useActionState(action, initialState);
+  const [state, formAction] = useActionState(ACTIONS[kind], initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
   return (

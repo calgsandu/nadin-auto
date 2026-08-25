@@ -139,7 +139,12 @@ export async function getOperationsData(section: OperationsSection = "receptii")
       ? await prisma.restockTask.findMany({
           where: {
             warehouseId: restockWarehouse.id,
-            status: { in: ["PENDING", "UNAVAILABLE"] },
+            OR: [
+              { status: { in: ["PENDING", "UNAVAILABLE"] } },
+              // Aduse azi: confirmarea că poziția a plecat din listă pentru că
+              // s-a rezolvat, nu pentru că a dispărut.
+              { status: "DELIVERED", resolvedAt: { gte: startOfToday() } },
+            ],
           },
           include: { product: { include: productLabelInclude } },
           orderBy: [{ requestedAt: "asc" }, { createdAt: "asc" }],
@@ -154,6 +159,7 @@ export async function getOperationsData(section: OperationsSection = "receptii")
     salesArchive,
     restockPending: summarizeRestockTasks(restockByStatus.pending),
     restockUnavailable: summarizeRestockTasks(restockByStatus.unavailable),
+    restockDeliveredToday: summarizeRestockTasks(restockByStatus.delivered),
     suppliers,
     customers: customersWithBalance,
     returns,
@@ -384,3 +390,9 @@ export async function getSalesDayData(dayParam?: string) {
 }
 
 export type SalesDayData = Awaited<ReturnType<typeof getSalesDayData>>;
+
+function startOfToday() {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  return start;
+}

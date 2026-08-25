@@ -1,5 +1,5 @@
 import { Prisma } from "@/generated/prisma/client";
-import type { AuditAction, ReviewStatus } from "@/generated/prisma/enums";
+import type { AuditAction } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { pendingSaleCustomerName } from "@/lib/pending-operations/display";
 import { parsePendingOperationPayload } from "@/lib/pending-operations/payload";
@@ -35,7 +35,7 @@ export async function getAuditData(params: AuditSearchParams = {}) {
 
   const entries = await prisma.$queryRaw<AuditListRow[]>`
     SELECT id, "userName", "userEmail", action::text AS action, entity, "entityId",
-           summary, "createdAt", "reviewStatus"::text AS "reviewStatus", "reviewNote",
+           summary, "createdAt",
            (details -> 'deleted') IS NOT NULL AS "hasDeletedSnapshot",
            details ->> 'restoredDocumentId' AS "restoredDocumentId",
            details IS NOT NULL AS "hasDetails"
@@ -56,8 +56,6 @@ export type AuditListRow = {
   entityId: string | null;
   summary: string;
   createdAt: Date;
-  reviewStatus: ReviewStatus;
-  reviewNote: string | null;
   hasDeletedSnapshot: boolean;
   restoredDocumentId: string | null;
   hasDetails: boolean;

@@ -20,6 +20,9 @@ export function splitRestockTasksByStatus<T extends { status: RestockStatus }>(
   return {
     pending: tasks.filter((task) => task.status === "PENDING"),
     unavailable: tasks.filter((task) => task.status === "UNAVAILABLE"),
+    // `DELIVERED` se scria și nu se afișa nicăieri: o poziție adusă dispărea din
+    // ecran fără nicio confirmare că a fost chiar adusă, nu ștearsă.
+    delivered: tasks.filter((task) => task.status === "DELIVERED"),
   };
 }
 

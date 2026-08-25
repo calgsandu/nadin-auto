@@ -128,8 +128,18 @@ function OrdersTable({
                   <TableCell>
                     {order.supplierName ?? <span className="text-[#98948b]">de stabilit</span>}
                     {order.offerValidUntil ? (
-                      <p className="mt-0.5 text-xs text-[#6f6b63]">
-                        Ofertă până la {formatDate(order.offerValidUntil)}
+                      // Oferta expirată nu era semnalată nicăieri: comanda se
+                      // confirma la un preț care nu mai era valabil.
+                      <p
+                        className={`mt-0.5 text-xs ${
+                          isExpiredOffer(order.status, order.offerValidUntil)
+                            ? "font-semibold text-[#b91c1c]"
+                            : "text-[#6f6b63]"
+                        }`}
+                      >
+                        {isExpiredOffer(order.status, order.offerValidUntil)
+                          ? `Ofertă expirată la ${formatDate(order.offerValidUntil)}`
+                          : `Ofertă până la ${formatDate(order.offerValidUntil)}`}
                       </p>
                     ) : null}
                   </TableCell>
@@ -290,4 +300,9 @@ function formatMoney(value: number) {
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 0 }).format(value);
+}
+
+/** Doar ofertele încă neconfirmate pot fi „expirate"; după comandă prețul e bătut. */
+function isExpiredOffer(status: ExternalOrderStatus, validUntil: Date) {
+  return status === "OFERTAT" && validUntil.getTime() < Date.now();
 }

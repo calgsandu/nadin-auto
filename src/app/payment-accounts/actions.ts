@@ -451,7 +451,7 @@ export async function submitPaymentAccountToEFacturaAction(
     if (!account.fulfilledAt) {
       throw new Error("Factura poate fi trimisă numai după predarea mărfii.");
     }
-    if (account.eFacturaStatus === "SUBMITTED") {
+    if (account.eFacturaStatus === "SUBMITTED" || account.eFacturaStatus === "PROCESSED") {
       throw new Error("Factura a fost deja trimisă către SIA e-Factura.");
     }
 
@@ -500,18 +500,23 @@ export async function submitPaymentAccountToEFacturaAction(
       throw new Error(message);
     }
 
-    const success = response.status === 1 || response.status === 2;
+    // Statutul 1 înseamnă DOAR „acceptat spre execuție"; procesarea vine cu 2.
+    // Amândouă erau scrise la fel, iar interfața anunța „necesită semnare"
+    // pentru o factură care nici măcar nu fusese procesată încă.
+    const accepted = response.status === 1;
+    const processed = response.status === 2;
+    const success = accepted || processed;
     const message = response.errorMessage ?? (
-      response.status === 1
-        ? "Cererea a fost acceptată pentru executare."
-        : response.status === 2
-          ? "Factura a fost procesată cu succes."
+      accepted
+        ? "Cererea a fost acceptată spre executare. Procesarea urmează."
+        : processed
+          ? "Factura a fost procesată. Semnează-o în portalul SIA e-Factura."
           : `SIA e-Factura a returnat statutul ${response.status}.`
     );
     const stored = await prisma.paymentAccount.updateMany({
       where: { id, eFacturaRequestId: requestId },
       data: {
-        eFacturaStatus: success ? "SUBMITTED" : "ERROR",
+        eFacturaStatus: processed ? "PROCESSED" : accepted ? "SUBMITTED" : "ERROR",
         eFacturaRequestId: response.requestId,
         eFacturaResponseCode: response.status,
         eFacturaMessage: message.slice(0, 1000),
@@ -531,13 +536,10 @@ export async function submitPaymentAccountToEFacturaAction(
       action: "UPDATE",
       entity: "PaymentAccount",
       entityId: id,
-      summary: `Cont de plată #${account.number} trimis nesemnat către SIA e-Factura`,
+      summary: `Cont de plată #${account.number} trimis nesemnat către SIA e-Factura (statut ${response.status})`,
     });
     revalidatePath("/crm", "layout");
-    return {
-      ok: true,
-      message: `Contul #${account.number} a fost transmis. Semnează factura în SIA e-Factura.`,
-    };
+    return { ok: true, message: `Contul #${account.number}: ${message}` };
   } catch (error) {
     revalidatePath("/crm", "layout");
     return toActionError(error);

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canCreateSales, canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
+import type { RestockTaskStatus } from "@/generated/prisma/enums";
 import { logAuditRequired } from "@/lib/audit";
 import {
   calculateNextQuantity,
@@ -622,10 +623,30 @@ export async function markRestockUnavailableAction(
   );
 }
 
+/**
+ * Întoarcerea din „fără stoc" în lista de adus.
+ *
+ * Fără ea, „Nu mai este" era o ușă cu un singur sens: poziția ieșea din lista
+ * de lucru și nu mai exista nicio cale înapoi, nici când marfa reapărea la
+ * furnizor.
+ */
+export async function markRestockPendingAction(
+  _state: OperationActionState,
+  formData: FormData,
+): Promise<OperationActionState> {
+  return markRestockTasks(
+    formData,
+    "PENDING",
+    "Poziția a fost readusă în lista de adus.",
+    "UNAVAILABLE",
+  );
+}
+
 async function markRestockTasks(
   formData: FormData,
-  status: "DELIVERED" | "UNAVAILABLE",
+  status: RestockTaskStatus,
   successMessage: string,
+  from: RestockTaskStatus = "PENDING",
 ): Promise<OperationActionState> {
   try {
     await requireOperationsWrite();
@@ -640,11 +661,12 @@ async function markRestockTasks(
       where: {
         productId,
         warehouseId,
-        status: "PENDING",
+        status: from,
       },
       data: {
         status,
-        resolvedAt: new Date(),
+        // Întoarcerea în lucru șterge data rezolvării: poziția e din nou deschisă.
+        resolvedAt: status === "PENDING" ? null : new Date(),
       },
     });
 

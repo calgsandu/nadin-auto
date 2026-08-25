@@ -40,6 +40,9 @@ assert.deepEqual(
   {
     pending: [{ id: "task-1", status: "PENDING" }],
     unavailable: [{ id: "task-3", status: "UNAVAILABLE" }],
+    // `DELIVERED` se scria fără să se vadă nicăieri: poziția adusă dispărea de
+    // pe ecran fără confirmare că a fost chiar adusă.
+    delivered: [{ id: "task-2", status: "DELIVERED" }],
   },
 );
 

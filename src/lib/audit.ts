@@ -65,6 +65,14 @@ function auditData(user: AuditActor | null, entry: AuditEntry) {
     entityId: entry.entityId ?? null,
     summary: entry.summary,
     details: entry.details,
+    /**
+     * Aprobarea NU trăiește aici. `AuditLog.reviewStatus` a fost începutul unui
+     * al doilea flux de aprobare, care n-a produs niciodată o intrare PENDING
+     * sau FLAGGED — fluxul real e `PendingOperation` + /crm/aprobari.
+     *
+     * Coloanele rămân în bază (o migrare distructivă n-ar câștiga nimic), dar
+     * jurnalul se scrie mereu ca aprobat: e o urmă, nu o coadă de lucru.
+     */
     reviewStatus: "APPROVED" as const,
   };
 }

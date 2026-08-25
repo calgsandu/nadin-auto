@@ -75,6 +75,7 @@ export type PaymentAccountStatus = (typeof PaymentAccountStatus)[keyof typeof Pa
 export const EFacturaSubmissionStatus = {
   NOT_SENT: 'NOT_SENT',
   SUBMITTED: 'SUBMITTED',
+  PROCESSED: 'PROCESSED',
   ERROR: 'ERROR'
 } as const
 
