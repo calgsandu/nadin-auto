@@ -52,6 +52,7 @@ export async function validatePaymentFulfillmentRequest(
       partnerId: account.partnerId,
       cancelledAt: account.cancelledAt,
       fulfilledAt: account.fulfilledAt,
+      paidAt: account.paidAt,
       totalGross: Number(account.totalGross),
       notes: account.notes,
       lines: account.lines.map((line) => ({
@@ -119,6 +120,7 @@ export async function executePaymentAccountFulfillment(
       partnerId: account.partnerId,
       cancelledAt: account.cancelledAt,
       fulfilledAt: account.fulfilledAt,
+      paidAt: account.paidAt,
       totalGross: Number(account.totalGross),
       notes: account.notes,
       lines: account.lines.map((line) => ({

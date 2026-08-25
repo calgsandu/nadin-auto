@@ -37,6 +37,10 @@ enum SalePaymentMethod {
   CARD
   /// Marfă predată fără încasare — intră în datoria clientului.
   CREDIT
+  /// Plată prin bancă (contul de plată / factura pe firmă). Marfa pleacă, banii
+  /// se înregistrează separat ca PartnerPayment — deci intră în datorie exact ca
+  /// CREDIT și se sting când încasarea e scrisă. Nu ajunge în casa de marcat.
+  TRANSFER
 }
 
 enum RestockTaskStatus {

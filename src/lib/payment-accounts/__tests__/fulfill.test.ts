@@ -10,6 +10,7 @@ const sale = buildPaymentAccountSaleData(
     partnerId: "partner-1",
     cancelledAt: null,
     fulfilledAt: null,
+    paidAt: null,
     totalGross: 630,
     notes: "Ridicare din magazin",
     lines: [
@@ -25,9 +26,21 @@ assert.deepEqual(sale, {
   warehouseId: "warehouse-1",
   partnerId: "partner-1",
   notes: "Cont de plată #7. Ridicare din magazin",
+  // Neachitat = marfa a plecat fără bani: intră în datoria clientului.
+  paymentMethod: "CREDIT",
+  cashRegistered: false,
   totalLei: 630,
   lines: [{ productId: "product-1", quantity: 2, unitPriceEuro: 315 }],
 });
+
+// Achitat înainte de predare: banii au venit prin bancă și sunt scriși separat
+// ca `PartnerPayment`, deci vânzarea e TRANSFER, nu CREDIT — și nici „Nespecificat".
+const prepaid = buildPaymentAccountSaleData(
+  { ...saleInput(), paidAt: new Date("2026-07-13T09:00:00.000Z") },
+  documentDate,
+);
+assert.equal(prepaid.paymentMethod, "TRANSFER");
+assert.equal(prepaid.cashRegistered, false);
 
 assert.throws(
   () => buildPaymentAccountSaleData({ ...saleInput(), cancelledAt: new Date() }, documentDate),
@@ -46,6 +59,7 @@ function saleInput() {
     partnerId: "partner-1",
     cancelledAt: null,
     fulfilledAt: null,
+    paidAt: null,
     totalGross: 630,
     notes: null,
     lines: [{ productId: "product-1", quantity: 2, unitPriceGross: 315 }],

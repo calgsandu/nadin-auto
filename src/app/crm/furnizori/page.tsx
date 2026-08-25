@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { PartnerFormDialog, type PartnerFormValue } from "@/app/partners/partner-form-dialog";
 import { PartnerDeleteButton } from "@/app/partners/partner-delete-button";
 import { PartnerPaymentDialog } from "@/app/partners/payment-dialog";
+import { PartnerLedgerButton } from "@/app/partners/partner-ledger-button";
 import { getPartnersData, type PartnerRow } from "@/lib/partners/queries";
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
@@ -107,6 +108,11 @@ function PartnersWorkspace({
                   {canModify ? (
                     <TableCell align="right">
                       <div className="flex justify-end gap-2">
+                        <PartnerLedgerButton
+                          balanceLei={partner.balanceLei}
+                          partnerId={partner.id}
+                          partnerName={partner.name}
+                        />
                         <PartnerPaymentDialog
                           partnerId={partner.id}
                           partnerName={partner.name}

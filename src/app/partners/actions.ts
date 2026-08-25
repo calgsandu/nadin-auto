@@ -168,6 +168,68 @@ export async function registerPartnerPaymentAction(
   }
 }
 
+/**
+ * Ștergerea unei încasări tastate greșit.
+ *
+ * `PartnerPayment` era create-only: o sumă greșită rămânea pe veci în soldul
+ * clientului, fără nicio cale de îndreptare. Ștergerea trece prin audit, cu
+ * suma și data în detalii, ca urma să nu se piardă odată cu rândul.
+ *
+ * Rambursările scrise automat de anularea unui cont de plată NU se șterg de
+ * aici: ele își au perechea în contul anulat, iar dispariția lor ar lăsa
+ * încasarea contului atârnată.
+ */
+export async function deletePartnerPaymentAction(
+  _state: PartnerActionState,
+  formData: FormData,
+): Promise<PartnerActionState> {
+  try {
+    const user = await requireCurrentAppUser();
+    if (!canWriteCatalog(user.role)) {
+      throw new Error("Nu ai drepturi pentru încasări.");
+    }
+
+    const id = readString(formData, "paymentId");
+    if (!id) throw new Error("Încasare lipsă.");
+
+    const payment = await prisma.partnerPayment.findUnique({
+      where: { id },
+      select: {
+        amount: true,
+        paidAt: true,
+        notes: true,
+        idempotencyKey: true,
+        partner: { select: { id: true, name: true } },
+      },
+    });
+    if (!payment) throw new Error("Încasarea nu există.");
+    if (payment.idempotencyKey?.startsWith("payment-account")) {
+      throw new Error(
+        "Mișcarea vine dintr-un cont de plată. Corectează contul, nu încasarea.",
+      );
+    }
+
+    await prisma.partnerPayment.delete({ where: { id } });
+    await logAudit(prisma, user, {
+      action: "DELETE",
+      entity: "PartnerPayment",
+      entityId: id,
+      summary: `Încasare de ${Number(payment.amount)} lei ștearsă de la ${payment.partner.name}`,
+      details: {
+        partnerId: payment.partner.id,
+        amount: Number(payment.amount),
+        paidAt: payment.paidAt.toISOString(),
+        notes: payment.notes,
+      },
+    });
+
+    revalidatePath("/crm", "layout");
+    return { ok: true, message: "Încasarea a fost ștearsă." };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
 function readString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";

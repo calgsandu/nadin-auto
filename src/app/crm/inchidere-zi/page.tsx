@@ -116,6 +116,12 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
                 warn
               />
               <MethodRow
+                label="Transfer bancar (bani la încasare)"
+                count={data.methods.transfer.count}
+                lei={data.methods.transfer.lei}
+                warn
+              />
+              <MethodRow
                 label="Nespecificat"
                 count={data.methods.unspecified.count}
                 lei={data.methods.unspecified.lei}

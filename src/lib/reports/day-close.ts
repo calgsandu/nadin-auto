@@ -103,6 +103,9 @@ export async function getDayCloseData(dayParam?: string) {
   const cash = method("CASH");
   const card = method("CARD");
   const credit = method("CREDIT");
+  // Fără găleata asta, transferurile intrau în `salesTotal` dar dispăreau din
+  // defalcare — suma coloanelor nu mai dădea totalul.
+  const transfer = method("TRANSFER");
   const unspecified = byMethod.find((row) => row.method === null);
 
   const salesTotal = byMethod.reduce((sum, row) => sum + row.total_lei, 0);
@@ -116,8 +119,9 @@ export async function getDayCloseData(dayParam?: string) {
   );
   const returnsTotal = returns[0]?.total_lei ?? 0;
 
-  // Bani intrați efectiv azi: numerarul din vânzări + încasările pe datorii vechi.
-  // Vânzările pe credit nu intră — marfa a plecat, banii nu au venit.
+  // Bani intrați efectiv azi: numerarul din vânzări + încasările înregistrate
+  // (datorii vechi și conturi de plată achitate). Vânzările pe credit și pe
+  // transfer nu intră aici — marfa a plecat, banii se numără la încasare.
   const cashInHand = (cash?.total_lei ?? 0) + collectedFromPartners - returnsTotal;
 
   return {
@@ -128,6 +132,7 @@ export async function getDayCloseData(dayParam?: string) {
       cash: { count: cash?.cnt ?? 0, lei: cash?.total_lei ?? 0 },
       card: { count: card?.cnt ?? 0, lei: card?.total_lei ?? 0 },
       credit: { count: credit?.cnt ?? 0, lei: credit?.total_lei ?? 0 },
+      transfer: { count: transfer?.cnt ?? 0, lei: transfer?.total_lei ?? 0 },
       unspecified: { count: unspecified?.cnt ?? 0, lei: unspecified?.total_lei ?? 0 },
     },
     cashRegister: {

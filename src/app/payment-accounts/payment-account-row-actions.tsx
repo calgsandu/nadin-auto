@@ -1,7 +1,7 @@
 "use client";
 
 import { FileCode2, FileText, Send } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ActionFeedback } from "@/app/components/action-feedback";
 import {
@@ -9,8 +9,18 @@ import {
   fulfillPaymentAccountAction,
   markPaymentAccountPaidAction,
   submitPaymentAccountToEFacturaAction,
+  updatePaymentAccountAction,
   type PaymentAccountActionState,
 } from "@/app/payment-accounts/actions";
+import {
+  DrawerField,
+  DrawerFooter,
+  DrawerMessage,
+  OperationDrawer,
+  drawerFormClassName,
+  drawerInputClassName,
+  useDrawerAction,
+} from "@/app/components/operation-drawer";
 import type { EFacturaSubmissionStatus } from "@/generated/prisma/enums";
 
 const initialState: PaymentAccountActionState = { ok: false, message: "" };
@@ -28,6 +38,8 @@ export function PaymentAccountRowActions({
   canSubmitEFactura,
   eFacturaStatus,
   eFacturaMessage,
+  dueDate,
+  notes,
 }: {
   id: string;
   number: number;
@@ -37,6 +49,9 @@ export function PaymentAccountRowActions({
   canSubmitEFactura: boolean;
   eFacturaStatus: EFacturaSubmissionStatus;
   eFacturaMessage: string | null;
+  /** YYYY-MM-DD, pentru corectare. */
+  dueDate: string;
+  notes: string;
 }) {
   return (
     <div className="flex max-w-md flex-wrap justify-end gap-1.5">
@@ -63,6 +78,9 @@ export function PaymentAccountRowActions({
           label={eFacturaStatus === "ERROR" ? "Reîncearcă e-Factura" : "Trimite în e-Factura"}
         />
       ) : null}
+      {!cancelled && !fulfilled ? (
+        <CorrectionForm dueDate={dueDate} id={id} notes={notes} number={number} />
+      ) : null}
       {!cancelled && !paid ? (
         <ActionForm action={markPaymentAccountPaidAction} id={id} label="Marchează achitat" />
       ) : null}
@@ -75,13 +93,19 @@ export function PaymentAccountRowActions({
           primary
         />
       ) : null}
-      {!cancelled && !fulfilled && !paid ? (
+      {!cancelled && !fulfilled ? (
         <ActionForm
           action={cancelPaymentAccountAction}
-          confirmText={`Anulezi contul de plată #${number}?`}
+          confirmText={
+            paid
+              ? `Contul #${number} este achitat. Anularea înregistrează și rambursarea banilor către client. Continui?`
+              : `Anulezi contul de plată #${number}?`
+          }
           danger
+          // Contul achitat se poate anula doar împreună cu restituirea banilor.
+          extraFields={paid ? { refund: "1" } : undefined}
           id={id}
-          label="Anulează"
+          label={paid ? "Anulează și rambursează" : "Anulează"}
         />
       ) : null}
       {fulfilled && eFacturaStatus !== "NOT_SENT" ? (
@@ -104,6 +128,7 @@ function ActionForm({
   primary = false,
   danger = false,
   icon,
+  extraFields,
 }: {
   action: Action;
   id: string;
@@ -112,6 +137,7 @@ function ActionForm({
   primary?: boolean;
   danger?: boolean;
   icon?: React.ReactNode;
+  extraFields?: Record<string, string>;
 }) {
   const [state, formAction] = useActionState(action, initialState);
 
@@ -124,6 +150,9 @@ function ActionForm({
       }}
     >
       <input name="paymentAccountId" type="hidden" value={id} />
+      {Object.entries(extraFields ?? {}).map(([name, value]) => (
+        <input key={name} name={name} type="hidden" value={value} />
+      ))}
       <ActionButton danger={danger} icon={icon} label={label} primary={primary} />
       <ActionFeedback state={state} compact />
     </form>
@@ -151,5 +180,88 @@ function ActionButton({
     <button className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-xs font-semibold disabled:opacity-60 ${colors}`} disabled={status.pending} type="submit">
       {status.pending ? "Se procesează..." : <>{icon}{label}</>}
     </button>
+  );
+}
+
+/**
+ * Corectarea contului emis: scadența, observațiile și — mai ales — datele
+ * clientului, luate din nou de la partener. Un IDNO greșit se repară în fișa
+ * partenerului, apoi se apasă aici; contul e documentul pe care pleacă factura.
+ */
+function CorrectionForm({
+  id,
+  number,
+  dueDate,
+  notes,
+}: {
+  id: string;
+  number: number;
+  dueDate: string;
+  notes: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { state, pending, onSubmit, retry } = useDrawerAction(
+    updatePaymentAccountAction,
+    initialState,
+    () => {
+      setOpen(false);
+      setMounted(false);
+    },
+  );
+
+  if (open && !mounted) setMounted(true);
+
+  return (
+    <>
+      <button
+        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-xs font-semibold text-[#1b1a17]"
+        type="button"
+        onClick={() => setOpen(true)}
+      >
+        Corectează
+      </button>
+      {mounted ? (
+        <OperationDrawer
+          open={open}
+          size="narrow"
+          title={`Corectează contul #${number}`}
+          onClose={() => setOpen(false)}
+        >
+          <form className={drawerFormClassName} onSubmit={onSubmit}>
+            <input name="paymentAccountId" type="hidden" value={id} />
+            <DrawerField
+              label="Datele clientului"
+              hint="Se iau din nou din fișa partenerului la salvare. Corectează întâi acolo IDNO-ul sau adresa."
+            >
+              <p className="text-sm text-[#6f6b63]">
+                Numele, IDNO-ul, adresa, TVA-ul și datele bancare se resincronizează.
+              </p>
+            </DrawerField>
+            <DrawerField label="Scadența">
+              <input
+                className={drawerInputClassName}
+                defaultValue={dueDate}
+                name="dueDate"
+                type="date"
+              />
+            </DrawerField>
+            <DrawerField label="Observații">
+              <textarea
+                className={`${drawerInputClassName} min-h-24 resize-y py-3`}
+                defaultValue={notes}
+                name="notes"
+              />
+            </DrawerField>
+            <DrawerMessage onRetry={retry} state={state} />
+            <DrawerFooter
+              pending={pending}
+              submitLabel="Salvează corectura"
+              onCancel={() => setOpen(false)}
+            />
+          </form>
+        </OperationDrawer>
+      ) : null}
+    </>
   );
 }

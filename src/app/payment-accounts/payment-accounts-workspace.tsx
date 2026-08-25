@@ -64,6 +64,8 @@ export function PaymentAccountsWorkspace({
                     <PaymentAccountRowActions
                       cancelled={Boolean(account.cancelledAt)}
                       canSubmitEFactura={canSubmitEFactura}
+                      dueDate={account.dueDate ? account.dueDate.toISOString().slice(0, 10) : ""}
+                      notes={account.notes ?? ""}
                       eFacturaMessage={account.eFacturaMessage}
                       eFacturaStatus={account.eFacturaStatus}
                       fulfilled={Boolean(account.fulfilledAt)}

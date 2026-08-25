@@ -113,7 +113,8 @@ function readRequiredBoolean(value: unknown) {
 }
 
 function readRequiredPaymentMethod(value: unknown): SalePaymentMethodValue {
-  if (value === "CASH" || value === "CARD" || value === "CREDIT") return value;
+  if (value === "CASH" || value === "CARD" || value === "CREDIT" || value === "TRANSFER")
+    return value;
   throw new Error("Alege metoda de plată: Cash, Card sau Pe datorie.");
 }
 

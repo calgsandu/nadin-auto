@@ -857,6 +857,7 @@ export function StockSaleDialog({
                     <option value="cash">Cash</option>
                     <option value="card">Card</option>
                     <option value="credit">Pe datorie</option>
+                    <option value="transfer">Transfer bancar</option>
                   </select>
                 </Field>
                 <Field label="Serie / nr. factură">

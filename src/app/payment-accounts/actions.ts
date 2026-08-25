@@ -175,17 +175,48 @@ export async function markPaymentAccountPaidAction(
     const id = readId(formData);
     const account = await prisma.paymentAccount.findUnique({
       where: { id },
-      select: { number: true, cancelledAt: true, fulfilledAt: true, paidAt: true },
+      select: {
+        number: true,
+        cancelledAt: true,
+        fulfilledAt: true,
+        paidAt: true,
+        partnerId: true,
+        totalGross: true,
+      },
     });
     if (!account) throw new Error("Contul de plată nu există.");
     assertCanMarkPaymentAccountPaid(account);
 
     const paidAt = new Date();
-    const updated = await prisma.paymentAccount.updateMany({
-      where: { id, cancelledAt: null, paidAt: null },
-      data: { paidAt },
+    await prisma.$transaction(async (tx) => {
+      const updated = await tx.paymentAccount.updateMany({
+        where: { id, cancelledAt: null, paidAt: null },
+        data: { paidAt },
+      });
+      if (updated.count !== 1) {
+        throw new Error("Starea contului s-a schimbat între timp. Reîncarcă pagina.");
+      }
+
+      /**
+       * Încasarea se scrie în ACELAȘI registru ca restul banilor.
+       *
+       * Înainte se punea doar `paidAt` pe cont, deci banii pe proforme nu
+       * apărau niciodată în „bani intrați în casă" și nu stingeau datoria
+       * clientului: două registre de încasări care nu se împăcau.
+       *
+       * Cheia de idempotență e derivată din cont, deci două apăsări (sau două
+       * file deschise) nu pot scrie încasarea de două ori.
+       */
+      await tx.partnerPayment.create({
+        data: {
+          partnerId: account.partnerId,
+          amount: account.totalGross,
+          paidAt,
+          notes: `Cont de plată #${account.number}`,
+          idempotencyKey: paymentAccountPaymentKey(id),
+        },
+      });
     });
-    if (updated.count !== 1) throw new Error("Starea contului s-a schimbat între timp. Reîncarcă pagina.");
 
     await logAudit(prisma, user, {
       action: "UPDATE",
@@ -200,7 +231,16 @@ export async function markPaymentAccountPaidAction(
   }
 }
 
-export async function cancelPaymentAccountAction(
+/**
+ * Corectarea unui cont deja emis: datele clientului se iau DIN NOU de la
+ * partener, plus scadența și observațiile.
+ *
+ * Până acum contul n-avea nicio acțiune de editare, deci un IDNO greșit rămânea
+ * greșit — iar contul e documentul pe care pleacă factura. Nu se ating liniile
+ * și nici totalurile: un cont nepredat și neachitat se anulează și se reemite,
+ * iar unul achitat n-are voie să-și schimbe suma sub încasarea deja scrisă.
+ */
+export async function updatePaymentAccountAction(
   _state: PaymentAccountActionState,
   formData: FormData,
 ): Promise<PaymentAccountActionState> {
@@ -209,26 +249,147 @@ export async function cancelPaymentAccountAction(
     const id = readId(formData);
     const account = await prisma.paymentAccount.findUnique({
       where: { id },
-      select: { number: true, cancelledAt: true, fulfilledAt: true, paidAt: true },
+      select: {
+        number: true,
+        issueDate: true,
+        cancelledAt: true,
+        fulfilledAt: true,
+        partnerId: true,
+      },
     });
     if (!account) throw new Error("Contul de plată nu există.");
-    assertCanCancelPaymentAccount(account);
+    if (account.cancelledAt) throw new Error("Contul de plată este anulat.");
+    if (account.fulfilledAt) {
+      throw new Error("Contul nu mai poate fi corectat după ce marfa a fost predată.");
+    }
 
-    const cancelledAt = new Date();
-    const updated = await prisma.paymentAccount.updateMany({
-      where: { id, cancelledAt: null, fulfilledAt: null, paidAt: null },
-      data: { cancelledAt, status: "CANCELLED" },
+    const partner = await prisma.partner.findUnique({
+      where: { id: account.partnerId },
+      select: {
+        name: true,
+        idno: true,
+        address: true,
+        vatCode: true,
+        phone: true,
+        email: true,
+        iban: true,
+        bankName: true,
+        bankCode: true,
+      },
     });
-    if (updated.count !== 1) throw new Error("Starea contului s-a schimbat între timp. Reîncarcă pagina.");
+    if (!partner) throw new Error("Clientul contului nu mai există.");
+    if (!partner.idno || !partner.address) {
+      throw new Error("Completează IDNO-ul și adresa clientului în secțiunea Parteneri.");
+    }
+
+    const rawDueDate = readOptionalString(formData, "dueDate");
+    const dueDate = rawDueDate ? parsePaymentAccountDate(rawDueDate, "Data scadenței") : null;
+    if (dueDate && dueDate < account.issueDate) {
+      throw new Error("Data scadenței nu poate fi înaintea datei emiterii.");
+    }
+
+    await prisma.paymentAccount.update({
+      where: { id },
+      data: {
+        dueDate,
+        notes: readOptionalString(formData, "notes") || null,
+        customerName: partner.name,
+        customerAddress: partner.address,
+        customerIdno: partner.idno,
+        customerVatCode: partner.vatCode,
+        customerPhone: partner.phone,
+        customerEmail: partner.email,
+        customerIban: partner.iban,
+        customerBankName: partner.bankName,
+        customerBankCode: partner.bankCode,
+      },
+    });
 
     await logAudit(prisma, user, {
       action: "UPDATE",
       entity: "PaymentAccount",
       entityId: id,
-      summary: `Cont de plată #${account.number} anulat`,
+      summary: `Cont de plată #${account.number} corectat (date client resincronizate)`,
     });
     revalidatePath("/crm", "layout");
-    return { ok: true, message: `Contul #${account.number} a fost anulat.` };
+    return { ok: true, message: `Contul #${account.number} a fost corectat.` };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
+export async function cancelPaymentAccountAction(
+  _state: PaymentAccountActionState,
+  formData: FormData,
+): Promise<PaymentAccountActionState> {
+  try {
+    const user = await requirePaymentAccountWrite();
+    const id = readId(formData);
+    // Operatorul confirmă în interfață că banii se dau înapoi.
+    const refunded = formData.get("refund") === "1";
+    const account = await prisma.paymentAccount.findUnique({
+      where: { id },
+      select: {
+        number: true,
+        cancelledAt: true,
+        fulfilledAt: true,
+        paidAt: true,
+        partnerId: true,
+        totalGross: true,
+      },
+    });
+    if (!account) throw new Error("Contul de plată nu există.");
+    assertCanCancelPaymentAccount(account, refunded);
+
+    const cancelledAt = new Date();
+    const refunding = Boolean(account.paidAt) && refunded;
+    await prisma.$transaction(async (tx) => {
+      const updated = await tx.paymentAccount.updateMany({
+        // Starea achitată e permisă doar când chiar rambursăm.
+        where: {
+          id,
+          cancelledAt: null,
+          fulfilledAt: null,
+          ...(refunding ? { paidAt: { not: null } } : { paidAt: null }),
+        },
+        data: { cancelledAt, status: "CANCELLED" },
+      });
+      if (updated.count !== 1) {
+        throw new Error("Starea contului s-a schimbat între timp. Reîncarcă pagina.");
+      }
+
+      if (!refunding) return;
+      /**
+       * Rambursarea e o încasare negativă: `PartnerPayment.amount` e bani
+       * PRIMIȚI de la partener, deci banii dați înapoi sunt aceeași mișcare cu
+       * semn schimbat. Așa se stinge singură și în sold, și în „bani intrați".
+       */
+      await tx.partnerPayment.create({
+        data: {
+          partnerId: account.partnerId,
+          amount: account.totalGross.negated(),
+          paidAt: cancelledAt,
+          notes: `Rambursare cont de plată #${account.number}`,
+          idempotencyKey: paymentAccountRefundKey(id),
+        },
+      });
+    });
+
+    await logAudit(prisma, user, {
+      action: "UPDATE",
+      entity: "PaymentAccount",
+      entityId: id,
+      summary: refunding
+        ? `Cont de plată #${account.number} anulat cu rambursare de ${Number(account.totalGross)} lei`
+        : `Cont de plată #${account.number} anulat`,
+    });
+    revalidatePath("/crm", "layout");
+    return {
+      ok: true,
+      message: refunding
+        ? `Contul #${account.number} a fost anulat, iar rambursarea a fost înregistrată.`
+        : `Contul #${account.number} a fost anulat.`,
+    };
   } catch (error) {
     return toActionError(error);
   }
@@ -395,6 +556,31 @@ async function requirePaymentAccountFiscalWrite() {
     throw new Error("Numai administratorul sau directorul poate transmite către e-Factura.");
   }
   return user;
+}
+
+/**
+ * Cheile de idempotență ale banilor legați de un cont de plată. Derivate din
+ * id-ul contului, deci fiecare cont poate avea cel mult o încasare și cel mult
+ * o rambursare — oricâte apăsări ar primi butonul.
+ */
+function paymentAccountPaymentKey(accountId: string) {
+  return `payment-account:${accountId}`;
+}
+
+function paymentAccountRefundKey(accountId: string) {
+  return `payment-account-refund:${accountId}`;
+}
+
+function readOptionalString(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/** Aceeași citire ca la emitere (miezul zilei, ca fusul să nu mute data). */
+function parsePaymentAccountDate(value: string, label: string) {
+  const date = new Date(`${value}T12:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) throw new Error(`${label} nu este validă.`);
+  return date;
 }
 
 function readId(formData: FormData) {

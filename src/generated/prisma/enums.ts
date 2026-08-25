@@ -48,7 +48,8 @@ export type StockDocumentType = (typeof StockDocumentType)[keyof typeof StockDoc
 export const SalePaymentMethod = {
   CASH: 'CASH',
   CARD: 'CARD',
-  CREDIT: 'CREDIT'
+  CREDIT: 'CREDIT',
+  TRANSFER: 'TRANSFER'
 } as const
 
 export type SalePaymentMethod = (typeof SalePaymentMethod)[keyof typeof SalePaymentMethod]
