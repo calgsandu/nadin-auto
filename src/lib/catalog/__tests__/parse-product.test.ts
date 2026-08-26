@@ -108,3 +108,29 @@ assert.deepEqual(
 );
 
 console.log("parse-product tests passed");
+
+// Secțiunea „CARENAJE RUSSIA": marca stă în rândul propriu, fără antet de secțiune.
+assert.deepEqual(
+  parseVehicleApplications("VAZ  NIVA  2121-21213", []).map((application) => ({
+    brandName: application.brandName,
+    modelName: application.modelName,
+  })),
+  [{ brandName: "VAZ", modelName: "NIVA 2121-21213" }],
+);
+
+assert.deepEqual(
+  parseVehicleApplications("MOSKVICI  412-2140", []).map((application) => ({
+    brandName: application.brandName,
+    modelName: application.modelName,
+  })),
+  [{ brandName: "MOSKVICI", modelName: "412-2140" }],
+);
+
+// Antetul secțiunii precedente nu trebuie să se scurgă peste rândurile rusești.
+assert.deepEqual(
+  parseVehicleApplications(
+    "VAZ  2101-2103-2106",
+    parseHeaderVehicles("DACIA LOGAN   04-12"),
+  ).map((application) => application.brandName),
+  ["VAZ"],
+);

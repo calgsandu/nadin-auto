@@ -17,6 +17,7 @@ const KNOWN_BRANDS = new Set([
   "MB",
   "MERCEDES",
   "MITSUBISHI",
+  "MOSKVICI",
   "NISSAN",
   "OPEL",
   "PEUGEOT",
@@ -27,6 +28,7 @@ const KNOWN_BRANDS = new Set([
   "SUBARU",
   "SUZUKI",
   "TOYOTA",
+  "VAZ",
   "VOLVO",
   "VW",
 ]);
@@ -224,8 +226,31 @@ export function parseProductDescription(value: unknown): ParsedProductDescriptio
   };
 }
 
+/// Codurile de model rusești (VAZ 2101-2103, NIVA 2121-21213, MOSKVICI 412-2140)
+/// arată exact ca un interval de ani. Un an scris cu 4 cifre trebuie să fie
+/// plauzibil, iar unul cu 3 cifre nu există — altfel „2121-21213" ar fi citit ca
+/// ani, iar din model ar rămâne doar ce nu s-a potrivit.
+function isPlausibleYear(value: string | undefined) {
+  if (!value) {
+    return true;
+  }
+
+  if (value.length === 3) {
+    return false;
+  }
+
+  if (value.length === 4) {
+    const numeric = Number(value);
+    return numeric >= 1940 && numeric <= new Date().getFullYear() + 2;
+  }
+
+  return true;
+}
+
 function findLastYearMatch(value: string) {
-  const matches = [...value.matchAll(/\/?\s*(\d{2,4})(?:\s*-\s*(\d{2,4})|\s*(\+))\s*\/?/g)];
+  const matches = [
+    ...value.matchAll(/\/?\s*(\d{2,4})(?:\s*-\s*(\d{2,4})|\s*(\+))\s*\/?/g),
+  ].filter((match) => isPlausibleYear(match[1]) && isPlausibleYear(match[2]));
   const match = matches.at(-1);
 
   if (!match || match.index === undefined) {

@@ -3,6 +3,7 @@ import {
   normalizeCode,
   normalizeText,
   searchTerms,
+  parseYearTerm,
 } from "@/lib/catalog/product-match";
 
 // Codul se caută fără spații/cratime: „P149031" trebuie să prindă „P14903 1".
@@ -21,5 +22,17 @@ assert.equal(normalizeText("Jgheab"), "jgheab");
 assert.deepEqual(searchTerms("  sprinter   prag  "), ["sprinter", "prag"]);
 assert.deepEqual(searchTerms("FAȚĂ stânga"), ["fata", "stanga"]);
 assert.deepEqual(searchTerms("   "), []);
+
+// Anul de fabricație: în etichetă e prescurtat („/98-06/"), deci se caută pe
+// coloanele numerice, nu ca text.
+assert.equal(parseYearTerm("2005"), 2005);
+assert.equal(parseYearTerm("1998"), 1998);
+// Ce nu e an rămâne termen obișnuit de text.
+assert.equal(parseYearTerm("e46"), null);
+assert.equal(parseYearTerm("907"), null);
+assert.equal(parseYearTerm("12345"), null);
+// Numerele de patru cifre din afara plajei sunt coduri, nu ani.
+assert.equal(parseYearTerm("1200"), null);
+assert.equal(parseYearTerm("2999"), null);
 
 console.log("product match tests passed");
