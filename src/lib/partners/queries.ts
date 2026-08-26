@@ -1,10 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { getPartnerBalances } from "@/lib/partners/debt";
 
-/** All partners — suppliers and customers alike; the table shows the kind. */
+/**
+ * Furnizorii. Clienții au secțiunea lor („Clienți"), cu cumpărături și discount;
+ * un partener BOTH apare în amândouă, pentru că chiar e și una și alta.
+ */
 export async function getPartnersData() {
   const [partners, balances] = await Promise.all([
     prisma.partner.findMany({
+      where: { kind: { in: ["SUPPLIER", "BOTH"] } },
       orderBy: { name: "asc" },
       include: { _count: { select: { documents: true, paymentAccounts: true } } },
     }),

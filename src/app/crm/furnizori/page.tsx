@@ -23,7 +23,7 @@ export default async function PartnersPage() {
   return (
     <>
       <CrmHeader section="furnizori" role={appUser.role}>
-        {canModify ? <PartnerFormDialog triggerLabel="Adaugă partener" /> : null}
+        {canModify ? <PartnerFormDialog defaultKind="SUPPLIER" triggerLabel="Adaugă furnizor" /> : null}
       </CrmHeader>
       <Suspense fallback={<WorkspaceSkeleton rows={8} />}>
         <Loader dataPromise={dataPromise} canModify={canModify} />
@@ -142,7 +142,7 @@ function PartnersWorkspace({
         </div>
         {partners.length === 0 ? (
           <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
-            Nu există parteneri încă.
+            Nu există furnizori încă.
           </div>
         ) : null}
       </div>
@@ -165,6 +165,8 @@ function toPartnerFormValue(partner: PartnerRow): PartnerFormValue {
     bankName: partner.bankName ?? "",
     bankCode: partner.bankCode ?? "",
     notes: partner.notes ?? "",
+    discountPercent:
+      partner.discountPercent === null ? "" : String(partner.discountPercent),
   };
 }
 

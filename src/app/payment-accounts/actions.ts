@@ -95,7 +95,7 @@ export async function createPaymentAccountAction(
       }
       if (!resolvedPartner || resolvedPartner.kind === "SUPPLIER") throw new Error("Clientul ales nu este valid.");
       if (!resolvedPartner.idno || !resolvedPartner.address) {
-        throw new Error("Completează IDNO-ul și adresa clientului în secțiunea Parteneri.");
+        throw new Error("Completează IDNO-ul și adresa clientului în secțiunea Clienți.");
       }
       if (products.length !== input.lines.length) {
         throw new Error("Unul dintre produsele selectate nu mai există.");
@@ -279,7 +279,7 @@ export async function updatePaymentAccountAction(
     });
     if (!partner) throw new Error("Clientul contului nu mai există.");
     if (!partner.idno || !partner.address) {
-      throw new Error("Completează IDNO-ul și adresa clientului în secțiunea Parteneri.");
+      throw new Error("Completează IDNO-ul și adresa clientului în secțiunea Clienți.");
     }
 
     const rawDueDate = readOptionalString(formData, "dueDate");

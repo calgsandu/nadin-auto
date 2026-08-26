@@ -90,3 +90,8 @@ export function crmInventoryHref(values: {
 export function crmAuditHref(values: { act?: string; doc?: string }) {
   return crmHref("istoric", values);
 }
+
+/** Fișa unui client se deschide ca panou pe aceeași pagină, prin `?client=`. */
+export function crmCustomersHref(customerId?: string) {
+  return crmHref("clienti", { client: customerId });
+}

@@ -396,6 +396,9 @@ model Partner {
   bankCode  String?
   /// Observații interne; se văd în lista de parteneri, nu pleacă în documente.
   notes     String?
+  /// Discount implicit al clientului, în procente. Precompletează discountul
+  /// vânzării la alegerea lui; operatorul îl poate schimba pe document.
+  discountPercent Decimal? @db.Decimal(5, 2)
   documents StockDocument[]
   paymentAccounts PaymentAccount[]
   externalOrders ExternalOrder[]

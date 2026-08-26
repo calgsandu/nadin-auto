@@ -28,6 +28,8 @@ export type PartnerFormValue = {
   bankName: string;
   bankCode: string;
   notes: string;
+  /** Procente, ca text de formular. "" = fără discount. */
+  discountPercent: string;
 };
 
 type PartnerFormDialogProps = {
@@ -40,7 +42,13 @@ type PartnerFormDialogProps = {
   /** Dat = mod controlat: deschiderea o decide dialogul din care s-a plecat. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onCreated?: (partner: { id: string; name: string }) => void;
+  onCreated?: (partner: {
+    id: string;
+    name: string;
+    discountPercent: number | null;
+    idno: string | null;
+    address: string | null;
+  }) => void;
   /** Preumple numele cu ce apucase operatorul să tasteze. */
   initialName?: string;
 };
@@ -204,6 +212,16 @@ export function PartnerFormDialog({
                     name="address"
                     defaultValue={partner?.address ?? ""}
                     placeholder="mun. Chișinău, str. ..."
+                  />
+                </Field>
+
+                <Field label="Discount client (%)">
+                  <input
+                    className={inputClassName}
+                    name="discountPercent"
+                    defaultValue={partner?.discountPercent ?? ""}
+                    inputMode="decimal"
+                    placeholder="0"
                   />
                 </Field>
 

@@ -69,10 +69,10 @@ assert.match(dialog, /if \(saved\.created\) onCreated\?\.\(saved\.created\);/, "
  * care nu mai întoarce `created` lasă selectul gol fără să pice nimic altceva.
  */
 const partners = read("src/app/partners/actions.ts");
-assert.match(partners, /created\?: \{ id: string; name: string \};/, "PartnerActionState poartă partenerul creat");
+assert.match(partners, /created\?: \{[\s\S]*?id: string;[\s\S]*?name: string;/, "PartnerActionState poartă partenerul creat");
 assert.match(
   partners,
-  /created: \{ id: created\.id, name: created\.name \}/,
+  /created: \{[\s\S]*?id: created\.id,[\s\S]*?name: created\.name,/,
   "createPartnerAction trebuie să întoarcă partenerul creat",
 );
 
@@ -137,10 +137,15 @@ assert.match(
   "editarea documentului trebuie să primească furnizorii",
 );
 
-// Clientul rapid de la vânzare creează un partener doar cu numele; fișa
-// completă e la un buton distanță, cu numele deja tastat în ea.
+// „Client nou" deschide direct fișa de partener: varianta veche scria doar
+// numele, iar clientul rămânea fără IDNO/adresă și bloca mai târziu contul de plată.
 const sale = read("src/app/operations/stock-document-dialog.tsx");
-assert.match(sale, /Fișă completă/, "vânzarea trebuie să ofere și formularul complet de client");
-assert.match(sale, /initialName=\{customerFormName\}/, "numele tastat trece în fișă");
+assert.doesNotMatch(sale, /newCustomerName/, "vânzarea nu mai creează clienți doar cu numele");
+assert.match(sale, /onClick=\{\(\) => setCustomerForm\(true\)\}/, "butonul Client nou deschide fișa de partener");
+assert.match(sale, /selectCustomer\(partner\.id, partner\.discountPercent\)/, "clientul creat se alege cu tot cu discount");
+
+const paymentAccount = read("src/app/payment-accounts/payment-account-dialog.tsx");
+assert.doesNotMatch(paymentAccount, /newCustomerName/, "contul de plată nu mai are input liber de client");
+assert.match(paymentAccount, /<PartnerFormDialog/, "butonul Client nou din contul de plată deschide fișa de partener");
 
 console.log("inline create chain test passed");

@@ -119,7 +119,7 @@ export async function getOperationsData(section: OperationsSection = "receptii")
         ? prisma.partner.findMany({
             where: { kind: { in: ["CUSTOMER", "BOTH"] } },
             orderBy: { name: "asc" },
-            select: { id: true, name: true },
+            select: { id: true, name: true, discountPercent: true },
           })
         : Promise.resolve([]),
     ]);
@@ -129,6 +129,9 @@ export async function getOperationsData(section: OperationsSection = "receptii")
   const customersWithBalance = customers.map((customer) => ({
     ...customer,
     balanceLei: balances.get(customer.id) ?? 0,
+    // Decimal-ul Prisma nu trece pragul server→client; discountul pleacă număr.
+    discountPercent:
+      customer.discountPercent === null ? null : Number(customer.discountPercent),
   }));
 
   const restockWarehouse = warehouses.find(

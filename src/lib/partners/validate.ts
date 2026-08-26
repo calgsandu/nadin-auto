@@ -14,6 +14,8 @@ export type PartnerInput = {
   bankName: string | null;
   bankCode: string | null;
   notes: string | null;
+  /** Discount implicit al clientului, în procente. Null = fără discount. */
+  discountPercent: number | null;
 };
 
 export type PartnerParseResult =
@@ -56,6 +58,15 @@ export function parsePartnerForm(formData: FormData): PartnerParseResult {
   const bankCode = readString(formData, "bankCode").replace(/\s+/g, "").toUpperCase();
   const notes = readString(formData, "notes");
 
+  const discountRaw = readString(formData, "discountPercent");
+  const discountPercent = discountRaw ? Number(discountRaw.replace(",", ".")) : null;
+  if (
+    discountPercent !== null &&
+    (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100)
+  ) {
+    return { ok: false, message: "Discountul trebuie să fie între 0 și 100." };
+  }
+
   return {
     ok: true,
     data: {
@@ -70,6 +81,7 @@ export function parsePartnerForm(formData: FormData): PartnerParseResult {
       bankName: bankName || null,
       bankCode: bankCode || null,
       notes: notes || null,
+      discountPercent: discountPercent || null,
     },
   };
 }

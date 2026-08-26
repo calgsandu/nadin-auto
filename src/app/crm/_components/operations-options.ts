@@ -20,5 +20,6 @@ export function toCustomerOptions(
     id: customer.id,
     name: customer.name,
     balanceLei: customer.balanceLei,
+    discountPercent: customer.discountPercent,
   }));
 }

@@ -11,6 +11,8 @@ import {
 } from "@/app/components/operation-drawer";
 import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
+import { PartnerFormDialog } from "@/app/partners/partner-form-dialog";
+import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
 import {
   createPaymentAccountAction,
   type PaymentAccountActionState,
@@ -57,23 +59,27 @@ export function PaymentAccountDialog({
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
-  const [newClient, setNewClient] = useState(false);
+  // „Client nou" deschide fișa de partener: contul de plată cere IDNO și adresă,
+  // iar varianta veche (nume + două câmpuri libere) lăsa clientul pe jumătate.
+  const [customerForm, setCustomerForm] = useState(false);
+  const [customerId, setCustomerId] = useState("");
+  const { options: customerOptions, add: addCustomer } = useOptimisticOptions(customers);
   const [lines, setLines] = useState<EditableLine[]>([emptyLine(1)]);
   const nextLineId = useRef(2);
 
   function resetForm() {
-    setNewClient(false);
+    setCustomerId("");
     setLines([emptyLine(1)]);
     nextLineId.current = 2;
   }
   const draft = useDrawerDraft({
     kind: "payment-account",
-    lines: { lines, newClient },
+    lines: { lines, customerId },
     setLines: (restored) => {
       nextLineId.current =
         restored.lines.reduce((max, line) => Math.max(max, line.id), 0) + 1;
       setLines(restored.lines);
-      setNewClient(restored.newClient);
+      setCustomerId(restored.customerId);
     },
     reset: resetForm,
   });
@@ -179,49 +185,37 @@ export function PaymentAccountDialog({
                   <Field label="Client">
                     <div className="grid gap-2">
                       <div className="flex gap-2">
-                        {newClient ? (
-                          <input
-                            autoFocus
-                            className={inputClassName}
-                            name="newCustomerName"
-                            placeholder="nume client nou"
-                            required
-                          />
-                        ) : (
-                          <select className={inputClassName} defaultValue="" name="partnerId" required>
-                            <option disabled value="">Alege clientul</option>
-                            {customers.map((customer) => (
-                              <option key={customer.id} value={customer.id}>
-                                {customer.name}{!customer.idno || !customer.address ? " (date incomplete)" : ""}
-                              </option>
-                            ))}
-                          </select>
-                        )}
+                        <select
+                          className={inputClassName}
+                          name="partnerId"
+                          required
+                          value={customerId}
+                          onChange={(event) => setCustomerId(event.currentTarget.value)}
+                        >
+                          <option disabled value="">Alege clientul</option>
+                          {customerOptions.map((customer) => (
+                            <option key={customer.id} value={customer.id}>
+                              {customer.name}{!customer.idno || !customer.address ? " (date incomplete)" : ""}
+                            </option>
+                          ))}
+                        </select>
                         <button
                           className="button-secondary shrink-0 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                           type="button"
-                          onClick={() => setNewClient((current) => !current)}
+                          onClick={() => setCustomerForm(true)}
                         >
-                          {newClient ? "Alege din listă" : "Client nou"}
+                          Client nou
                         </button>
                       </div>
-                      {newClient ? (
-                        <div className="grid gap-2 sm:grid-cols-2">
-                          <input
-                            className={inputClassName}
-                            name="newCustomerIdno"
-                            inputMode="numeric"
-                            placeholder="IDNO / Cod fiscal"
-                            required
-                          />
-                          <input
-                            className={inputClassName}
-                            name="newCustomerAddress"
-                            placeholder="Adresa juridică"
-                            required
-                          />
-                        </div>
-                      ) : null}
+                      <PartnerFormDialog
+                        defaultKind="CUSTOMER"
+                        open={customerForm}
+                        onOpenChange={setCustomerForm}
+                        onCreated={(partner) => {
+                          addCustomer(partner);
+                          setCustomerId(partner.id);
+                        }}
+                      />
                     </div>
                   </Field>
                 </div>

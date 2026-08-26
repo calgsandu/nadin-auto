@@ -360,6 +360,7 @@ export const PartnerScalarFieldEnum = {
   bankName: 'bankName',
   bankCode: 'bankCode',
   notes: 'notes',
+  discountPercent: 'discountPercent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -20,8 +20,18 @@ export type PartnerModel = runtime.Types.Result.DefaultSelection<Prisma.$Partner
 
 export type AggregatePartner = {
   _count: PartnerCountAggregateOutputType | null
+  _avg: PartnerAvgAggregateOutputType | null
+  _sum: PartnerSumAggregateOutputType | null
   _min: PartnerMinAggregateOutputType | null
   _max: PartnerMaxAggregateOutputType | null
+}
+
+export type PartnerAvgAggregateOutputType = {
+  discountPercent: runtime.Decimal | null
+}
+
+export type PartnerSumAggregateOutputType = {
+  discountPercent: runtime.Decimal | null
 }
 
 export type PartnerMinAggregateOutputType = {
@@ -37,6 +47,7 @@ export type PartnerMinAggregateOutputType = {
   bankName: string | null
   bankCode: string | null
   notes: string | null
+  discountPercent: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +65,7 @@ export type PartnerMaxAggregateOutputType = {
   bankName: string | null
   bankCode: string | null
   notes: string | null
+  discountPercent: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -71,11 +83,20 @@ export type PartnerCountAggregateOutputType = {
   bankName: number
   bankCode: number
   notes: number
+  discountPercent: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type PartnerAvgAggregateInputType = {
+  discountPercent?: true
+}
+
+export type PartnerSumAggregateInputType = {
+  discountPercent?: true
+}
 
 export type PartnerMinAggregateInputType = {
   id?: true
@@ -90,6 +111,7 @@ export type PartnerMinAggregateInputType = {
   bankName?: true
   bankCode?: true
   notes?: true
+  discountPercent?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -107,6 +129,7 @@ export type PartnerMaxAggregateInputType = {
   bankName?: true
   bankCode?: true
   notes?: true
+  discountPercent?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -124,6 +147,7 @@ export type PartnerCountAggregateInputType = {
   bankName?: true
   bankCode?: true
   notes?: true
+  discountPercent?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -167,6 +191,18 @@ export type PartnerAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: PartnerAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: PartnerSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: PartnerMinAggregateInputType
@@ -197,6 +233,8 @@ export type PartnerGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: PartnerCountAggregateInputType | true
+  _avg?: PartnerAvgAggregateInputType
+  _sum?: PartnerSumAggregateInputType
   _min?: PartnerMinAggregateInputType
   _max?: PartnerMaxAggregateInputType
 }
@@ -214,9 +252,12 @@ export type PartnerGroupByOutputType = {
   bankName: string | null
   bankCode: string | null
   notes: string | null
+  discountPercent: runtime.Decimal | null
   createdAt: Date
   updatedAt: Date
   _count: PartnerCountAggregateOutputType | null
+  _avg: PartnerAvgAggregateOutputType | null
+  _sum: PartnerSumAggregateOutputType | null
   _min: PartnerMinAggregateOutputType | null
   _max: PartnerMaxAggregateOutputType | null
 }
@@ -252,6 +293,7 @@ export type PartnerWhereInput = {
   bankName?: Prisma.StringNullableFilter<"Partner"> | string | null
   bankCode?: Prisma.StringNullableFilter<"Partner"> | string | null
   notes?: Prisma.StringNullableFilter<"Partner"> | string | null
+  discountPercent?: Prisma.DecimalNullableFilter<"Partner"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   documents?: Prisma.StockDocumentListRelationFilter
@@ -274,6 +316,7 @@ export type PartnerOrderByWithRelationInput = {
   bankName?: Prisma.SortOrderInput | Prisma.SortOrder
   bankCode?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   documents?: Prisma.StockDocumentOrderByRelationAggregateInput
@@ -299,6 +342,7 @@ export type PartnerWhereUniqueInput = Prisma.AtLeast<{
   bankName?: Prisma.StringNullableFilter<"Partner"> | string | null
   bankCode?: Prisma.StringNullableFilter<"Partner"> | string | null
   notes?: Prisma.StringNullableFilter<"Partner"> | string | null
+  discountPercent?: Prisma.DecimalNullableFilter<"Partner"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Partner"> | Date | string
   documents?: Prisma.StockDocumentListRelationFilter
@@ -321,11 +365,14 @@ export type PartnerOrderByWithAggregationInput = {
   bankName?: Prisma.SortOrderInput | Prisma.SortOrder
   bankCode?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PartnerCountOrderByAggregateInput
+  _avg?: Prisma.PartnerAvgOrderByAggregateInput
   _max?: Prisma.PartnerMaxOrderByAggregateInput
   _min?: Prisma.PartnerMinOrderByAggregateInput
+  _sum?: Prisma.PartnerSumOrderByAggregateInput
 }
 
 export type PartnerScalarWhereWithAggregatesInput = {
@@ -344,6 +391,7 @@ export type PartnerScalarWhereWithAggregatesInput = {
   bankName?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
   bankCode?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Partner"> | string | null
+  discountPercent?: Prisma.DecimalNullableWithAggregatesFilter<"Partner"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Partner"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Partner"> | Date | string
 }
@@ -361,6 +409,7 @@ export type PartnerCreateInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
@@ -383,6 +432,7 @@ export type PartnerUncheckedCreateInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
@@ -405,6 +455,7 @@ export type PartnerUpdateInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
@@ -427,6 +478,7 @@ export type PartnerUncheckedUpdateInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
@@ -449,6 +501,7 @@ export type PartnerCreateManyInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -466,6 +519,7 @@ export type PartnerUpdateManyMutationInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -483,6 +537,7 @@ export type PartnerUncheckedUpdateManyInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -500,8 +555,13 @@ export type PartnerCountOrderByAggregateInput = {
   bankName?: Prisma.SortOrder
   bankCode?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type PartnerAvgOrderByAggregateInput = {
+  discountPercent?: Prisma.SortOrder
 }
 
 export type PartnerMaxOrderByAggregateInput = {
@@ -517,6 +577,7 @@ export type PartnerMaxOrderByAggregateInput = {
   bankName?: Prisma.SortOrder
   bankCode?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -534,8 +595,13 @@ export type PartnerMinOrderByAggregateInput = {
   bankName?: Prisma.SortOrder
   bankCode?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  discountPercent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type PartnerSumOrderByAggregateInput = {
+  discountPercent?: Prisma.SortOrder
 }
 
 export type PartnerNullableScalarRelationFilter = {
@@ -641,6 +707,7 @@ export type PartnerCreateWithoutExternalOrdersInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
@@ -662,6 +729,7 @@ export type PartnerUncheckedCreateWithoutExternalOrdersInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
@@ -699,6 +767,7 @@ export type PartnerUpdateWithoutExternalOrdersInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
@@ -720,6 +789,7 @@ export type PartnerUncheckedUpdateWithoutExternalOrdersInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
@@ -741,6 +811,7 @@ export type PartnerCreateWithoutDocumentsInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
@@ -762,6 +833,7 @@ export type PartnerUncheckedCreateWithoutDocumentsInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
@@ -799,6 +871,7 @@ export type PartnerUpdateWithoutDocumentsInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
@@ -820,6 +893,7 @@ export type PartnerUncheckedUpdateWithoutDocumentsInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
@@ -841,6 +915,7 @@ export type PartnerCreateWithoutPaymentsInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
@@ -862,6 +937,7 @@ export type PartnerUncheckedCreateWithoutPaymentsInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
@@ -899,6 +975,7 @@ export type PartnerUpdateWithoutPaymentsInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
@@ -920,6 +997,7 @@ export type PartnerUncheckedUpdateWithoutPaymentsInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
@@ -941,6 +1019,7 @@ export type PartnerCreateWithoutPaymentAccountsInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
@@ -962,6 +1041,7 @@ export type PartnerUncheckedCreateWithoutPaymentAccountsInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
@@ -999,6 +1079,7 @@ export type PartnerUpdateWithoutPaymentAccountsInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
@@ -1020,6 +1101,7 @@ export type PartnerUncheckedUpdateWithoutPaymentAccountsInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
@@ -1041,6 +1123,7 @@ export type PartnerCreateWithoutExternalLinesInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
@@ -1062,6 +1145,7 @@ export type PartnerUncheckedCreateWithoutExternalLinesInput = {
   bankName?: string | null
   bankCode?: string | null
   notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
@@ -1099,6 +1183,7 @@ export type PartnerUpdateWithoutExternalLinesInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
@@ -1120,6 +1205,7 @@ export type PartnerUncheckedUpdateWithoutExternalLinesInput = {
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
@@ -1208,6 +1294,7 @@ export type PartnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   bankName?: boolean
   bankCode?: boolean
   notes?: boolean
+  discountPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   documents?: boolean | Prisma.Partner$documentsArgs<ExtArgs>
@@ -1231,6 +1318,7 @@ export type PartnerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   bankName?: boolean
   bankCode?: boolean
   notes?: boolean
+  discountPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["partner"]>
@@ -1248,6 +1336,7 @@ export type PartnerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   bankName?: boolean
   bankCode?: boolean
   notes?: boolean
+  discountPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["partner"]>
@@ -1265,11 +1354,12 @@ export type PartnerSelectScalar = {
   bankName?: boolean
   bankCode?: boolean
   notes?: boolean
+  discountPercent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PartnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "kind" | "phone" | "email" | "address" | "idno" | "vatCode" | "iban" | "bankName" | "bankCode" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["partner"]>
+export type PartnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "kind" | "phone" | "email" | "address" | "idno" | "vatCode" | "iban" | "bankName" | "bankCode" | "notes" | "discountPercent" | "createdAt" | "updatedAt", ExtArgs["result"]["partner"]>
 export type PartnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   documents?: boolean | Prisma.Partner$documentsArgs<ExtArgs>
   paymentAccounts?: boolean | Prisma.Partner$paymentAccountsArgs<ExtArgs>
@@ -1306,6 +1396,11 @@ export type $PartnerPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      * Observații interne; se văd în lista de parteneri, nu pleacă în documente.
      */
     notes: string | null
+    /**
+     * Discount implicit al clientului, în procente. Precompletează discountul
+     * vânzării la alegerea lui; operatorul îl poate schimba pe document.
+     */
+    discountPercent: runtime.Decimal | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["partner"]>
@@ -1748,6 +1843,7 @@ export interface PartnerFieldRefs {
   readonly bankName: Prisma.FieldRef<"Partner", 'String'>
   readonly bankCode: Prisma.FieldRef<"Partner", 'String'>
   readonly notes: Prisma.FieldRef<"Partner", 'String'>
+  readonly discountPercent: Prisma.FieldRef<"Partner", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"Partner", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Partner", 'DateTime'>
 }

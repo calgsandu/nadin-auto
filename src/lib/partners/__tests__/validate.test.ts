@@ -57,8 +57,17 @@ if (company.ok) {
     iban: "MD17MO2224ASV48168667100",
     bankName: "OTP Bank S.A.",
     bankCode: "MOBBMD22",
+    discountPercent: null,
   });
 }
+
+// Discountul clientului: acceptat între 0 și 100, cu virgulă zecimală.
+const discounted = parsePartnerForm(form({ name: "X", discountPercent: " 7,5 " }));
+assert.equal(discounted.ok && discounted.data.discountPercent, 7.5);
+
+const badDiscount = parsePartnerForm(form({ name: "X", discountPercent: "150" }));
+assert.equal(badDiscount.ok, false);
+if (!badDiscount.ok) assert.match(badDiscount.message, /discount/i);
 
 const badEmail = parsePartnerForm(form({ name: "X", email: "nu-este-email" }));
 assert.equal(badEmail.ok, false);

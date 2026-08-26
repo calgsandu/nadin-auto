@@ -39,6 +39,8 @@ export type SupplierOption = {
   name: string;
   /** Doar clienți: datoria curentă („Долг"), pozitivă = ne datorează. */
   balanceLei?: number;
+  /** Doar clienți: discountul lui implicit, în procente. */
+  discountPercent?: number | null;
 };
 
 type StockDocumentDialogProps = {
@@ -611,12 +613,10 @@ export function StockSaleDialog({
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
-  const [newClient, setNewClient] = useState(false);
-  // „Client nou" scrie doar numele, iar partenerul apare mai târziu cu „(date
-  // incomplete)" la contul de plată. De aici se deschide fișa întreagă.
+  // „Client nou" deschide direct fișa de partener: varianta veche scria doar
+  // numele, iar clientul rămânea fără IDNO/adresă și bloca mai târziu contul de
+  // plată cu „(date incomplete)".
   const [customerForm, setCustomerForm] = useState(false);
-  const [customerFormName, setCustomerFormName] = useState("");
-  const newCustomerRef = useRef<HTMLInputElement>(null);
   // Clientul creat din fișa completă intră în listă fără să aștepte pagina.
   const { options: customerOptions, add: addCustomer } = useOptimisticOptions(customers);
   const [discount, setDiscount] = useState("0");
@@ -624,7 +624,6 @@ export function StockSaleDialog({
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<SaleLineState[]>([emptySaleLine(1)]);
   function resetForm() {
-    setNewClient(false);
     setDiscount("0");
     setCustomerId("");
     nextLineId.current = 2;
@@ -634,13 +633,12 @@ export function StockSaleDialog({
   // necontrolate): intră în ciornă cu tot cu linii, altfel s-ar pierde.
   const draft = useDrawerDraft({
     kind: "sale",
-    lines: { lines, discount, customerId, newClient },
+    lines: { lines, discount, customerId },
     setLines: (restored) => {
       nextLineId.current = nextIdAfter(restored.lines);
       setLines(restored.lines);
       setDiscount(restored.discount);
       setCustomerId(restored.customerId);
-      setNewClient(restored.newClient);
     },
     reset: resetForm,
   });
@@ -708,6 +706,16 @@ export function StockSaleDialog({
     );
   }
 
+  /** Clientul ales își aduce discountul din fișă; operatorul îl poate schimba. */
+  function selectCustomer(id: string, discountPercent?: number | null) {
+    setCustomerId(id);
+    const preset =
+      discountPercent === undefined
+        ? customerOptions.find((customer) => customer.id === id)?.discountPercent
+        : discountPercent;
+    changeDiscount(preset ? String(preset) : "0");
+  }
+
   function moveLine(id: number, direction: -1 | 1) {
     setLines((current) => {
       const index = current.findIndex((line) => line.id === id);
@@ -770,61 +778,33 @@ export function StockSaleDialog({
                 </Field>
                 <Field label="Client (pentru factură)">
                   <div className="flex gap-2">
-                    {newClient ? (
-                      <input
-                        autoFocus
-                        className={inputClassName}
-                        name="newCustomerName"
-                        placeholder="nume client nou"
-                        ref={newCustomerRef}
-                        required
-                      />
-                    ) : (
-                      <select
-                        className={inputClassName}
-                        name="partnerId"
-                        value={customerId}
-                        onChange={(event) => setCustomerId(event.currentTarget.value)}
-                      >
-                        <option value="">Consumator final</option>
-                        {customerOptions.map((customer) => (
-                          <option key={customer.id} value={customer.id}>{customer.name}</option>
-                        ))}
-                      </select>
-                    )}
+                    <select
+                      className={inputClassName}
+                      name="partnerId"
+                      value={customerId}
+                      onChange={(event) => selectCustomer(event.currentTarget.value)}
+                    >
+                      <option value="">Consumator final</option>
+                      {customerOptions.map((customer) => (
+                        <option key={customer.id} value={customer.id}>{customer.name}</option>
+                      ))}
+                    </select>
                     <button
                       className={`${secondaryButtonClassName} shrink-0`}
                       type="button"
-                      onClick={() => setNewClient((current) => !current)}
+                      onClick={() => setCustomerForm(true)}
                     >
-                      {newClient ? "Alege din listă" : "Client nou"}
+                      Client nou
                     </button>
-                    {newClient ? (
-                      <button
-                        className={`${secondaryButtonClassName} shrink-0`}
-                        type="button"
-                        onClick={() => {
-                          // Numele tastat deja trece în fișă, ca să nu-l scrie de două ori.
-                          setCustomerFormName(newCustomerRef.current?.value ?? "");
-                          setCustomerForm(true);
-                        }}
-                      >
-                        Fișă completă
-                      </button>
-                    ) : null}
                   </div>
 
                   <PartnerFormDialog
                     defaultKind="CUSTOMER"
-                    initialName={customerFormName}
                     open={customerForm}
                     onOpenChange={setCustomerForm}
                     onCreated={(partner) => {
                       addCustomer(partner);
-                      setCustomerId(partner.id);
-                      // Clientul are acum fișă: inputul rapid n-ar face decât
-                      // să creeze un al doilea partener cu același nume.
-                      setNewClient(false);
+                      selectCustomer(partner.id, partner.discountPercent);
                     }}
                   />
                   {selectedCustomerDebt > 0 ? (

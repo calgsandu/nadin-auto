@@ -16,7 +16,13 @@ export type PartnerActionState = {
    * plecat (recepție, comandă externă, editare document) să-l poată alege
    * fără să aștepte `revalidatePath`.
    */
-  created?: { id: string; name: string };
+  created?: {
+    id: string;
+    name: string;
+    discountPercent: number | null;
+    idno: string | null;
+    address: string | null;
+  };
 };
 
 const INITIAL_ERROR: PartnerActionState = {
@@ -50,7 +56,13 @@ export async function createPartnerAction(
     return {
       ok: true,
       message: "Partenerul a fost adăugat.",
-      created: { id: created.id, name: created.name },
+      created: {
+        id: created.id,
+        name: created.name,
+        discountPercent: created.discountPercent === null ? null : Number(created.discountPercent),
+        idno: created.idno,
+        address: created.address,
+      },
     };
   } catch (error) {
     return toActionError(error);
