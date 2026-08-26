@@ -36,7 +36,7 @@ import type {
   SupplierOption,
   WarehouseOption,
 } from "@/app/operations/stock-document-dialog";
-import { DEFAULT_QUANTITY } from "@/lib/operations/default-quantity";
+import { quantityAfterSelect } from "@/lib/operations/default-quantity";
 
 const initial: DocumentActionState = { ok: false, message: "" };
 
@@ -188,7 +188,7 @@ function EditPanel({
             id: index + 1,
             quantity: normalizeQuantity(line.quantity, isInventory),
           }))
-        : [{ id: 1, productId: "", label: "", quantity: DEFAULT_QUANTITY, price: "" }],
+        : [{ id: 1, productId: "", label: "", quantity: "", price: "" }],
     [lines, isInventory],
   );
   const [editableLines, setEditableLines] = useState<EditableLine[]>(savedLines);
@@ -224,7 +224,7 @@ function EditPanel({
     const id = nextLineId;
     setNextLineId(id + 1);
     setEditableLines((current) => [
-      { id, productId: "", label: "", quantity: DEFAULT_QUANTITY, price: "" },
+      { id, productId: "", label: "", quantity: "", price: "" },
       ...current,
     ]);
     focusFirstLineSearch();
@@ -368,9 +368,15 @@ function EditPanel({
                           .filter((item) => item.id !== line.id)
                           .map((item) => item.productId)}
                         onSelect={(product) =>
-                          patchLine(line.id, { productId: product.id, label: product.label })
+                          patchLine(line.id, {
+                            productId: product.id,
+                            label: product.label,
+                            quantity: quantityAfterSelect(product.id),
+                          })
                         }
-                        onClear={() => patchLine(line.id, { productId: "", label: "" })}
+                        onClear={() =>
+                          patchLine(line.id, { productId: "", label: "", quantity: "" })
+                        }
                       />
                     </>
                   )}

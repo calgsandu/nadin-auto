@@ -27,7 +27,7 @@ import { PartnerFormDialog } from "@/app/partners/partner-form-dialog";
 import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import { PRICE_CATEGORIES, applyDiscount } from "@/lib/operations/sale-pricing";
-import { DEFAULT_QUANTITY } from "@/lib/operations/default-quantity";
+import { DEFAULT_QUANTITY, quantityAfterSelect } from "@/lib/operations/default-quantity";
 
 export type WarehouseOption = {
   id: string;
@@ -70,7 +70,7 @@ const emptyReceiptLine = (id: number): ReceiptLine => ({
   id,
   productId: "",
   label: "",
-  qty: DEFAULT_QUANTITY,
+  qty: "",
   price: "",
   oldCost: "",
 });
@@ -147,7 +147,16 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
   function selectReceiptProduct(id: number, productId: string, cost: string, label: string) {
     setLines((current) =>
       current.map((line) =>
-        line.id === id ? { ...line, productId, label, price: cost, oldCost: cost } : line,
+        line.id === id
+          ? {
+              ...line,
+              productId,
+              label,
+              qty: quantityAfterSelect(productId),
+              price: cost,
+              oldCost: cost,
+            }
+          : line,
       ),
     );
   }
@@ -360,13 +369,13 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const nextLineId = useRef(2);
-  const [lines, setLines] = useState<{ id: number; productId: string; label: string }[]>([
-    { id: 1, productId: "", label: "" },
-  ]);
+  const [lines, setLines] = useState<
+    { id: number; productId: string; label: string; qty: string }[]
+  >([{ id: 1, productId: "", label: "", qty: "" }]);
   function resetLines() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines([{ id, productId: "", label: "" }]);
+    setLines([{ id, productId: "", label: "", qty: "" }]);
   }
   const draft = useDrawerDraft({
     kind: "transfer",
@@ -394,7 +403,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   function addLine() {
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [{ id, productId: "", label: "" }, ...current]);
+    setLines((current) => [{ id, productId: "", label: "", qty: "" }, ...current]);
     focusFirstLineSearch();
   }
 
@@ -404,8 +413,16 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
 
   function setTransferProduct(id: number, productId: string, label: string) {
     setLines((current) =>
-      current.map((line) => (line.id === id ? { ...line, productId, label } : line)),
+      current.map((line) =>
+        line.id === id
+          ? { ...line, productId, label, qty: quantityAfterSelect(productId) }
+          : line,
+      ),
     );
+  }
+
+  function setTransferQty(id: number, qty: string) {
+    setLines((current) => current.map((line) => (line.id === id ? { ...line, qty } : line)));
   }
 
   function openDrawer() {
@@ -517,12 +534,13 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                       <Field label="Cantitate">
                         <input
                           className={inputClassName}
-                          defaultValue={DEFAULT_QUANTITY}
                           inputMode="numeric"
                           min={1}
                           name="quantity"
                           required
                           type="number"
+                          value={line.qty}
+                          onChange={(event) => setTransferQty(line.id, event.currentTarget.value)}
                         />
                       </Field>
                       <button
@@ -590,7 +608,9 @@ function emptySaleLine(id: number, external = false): SaleLineState {
     external,
     productId: "",
     label: "",
-    qty: DEFAULT_QUANTITY,
+    // Linia externă n-are căutare de produs care să pună cantitatea, deci
+    // pleacă direct cu 1; cea de catalog o primește la alegerea produsului.
+    qty: external ? DEFAULT_QUANTITY : "",
     price: "",
     name: "",
     code: "",
@@ -685,6 +705,7 @@ export function StockSaleDialog({
               ...line,
               productId: product.id,
               label: product.label,
+              qty: quantityAfterSelect(product.id),
               listPrice: product.salePriceLei,
               unitCost: product.defaultCostLei,
               price: applyDiscount(product.salePriceLei, discount) || product.salePriceLei,
@@ -729,7 +750,9 @@ export function StockSaleDialog({
 
   function clearProduct(id: number) {
     setLines((current) =>
-      current.map((line) => (line.id === id ? { ...line, productId: "", label: "" } : line)),
+      current.map((line) =>
+        line.id === id ? { ...line, productId: "", label: "", qty: "" } : line,
+      ),
     );
   }
 

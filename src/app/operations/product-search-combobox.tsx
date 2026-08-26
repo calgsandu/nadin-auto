@@ -190,6 +190,13 @@ export function ProductSearchCombobox({
       event.stopPropagation();
       selectProduct(product);
       if (inputRef.current) focusNextField(inputRef.current);
+      // Cantitatea abia acum primește „1", din onSelect. `focusNextField` a
+      // selectat câmpul încă gol, deci fără reselectare cifra ar rămâne pe loc
+      // și prima tastă ar lipi-o (1 + 5 = „15") în loc s-o înlocuiască.
+      requestAnimationFrame(() => {
+        const active = document.activeElement;
+        if (active instanceof HTMLInputElement && active.type !== "date") active.select();
+      });
     }
   }
 

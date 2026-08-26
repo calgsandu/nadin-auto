@@ -18,6 +18,7 @@ import {
   type PaymentAccountActionState,
 } from "@/app/payment-accounts/actions";
 import { formatDateInputValue } from "@/lib/operations/date-input";
+import { quantityAfterSelect } from "@/lib/operations/default-quantity";
 import { calculatePaymentTotals } from "@/lib/payment-accounts/totals";
 
 type CustomerOption = {
@@ -253,10 +254,13 @@ export function PaymentAccountDialog({
                                 updateLine(line.id, {
                                   productId: product.id,
                                   label: product.label,
+                                  quantity: quantityAfterSelect(product.id),
                                   price: product.salePriceLei,
                                 })
                               }
-                              onClear={() => updateLine(line.id, { productId: "", label: "" })}
+                              onClear={() =>
+                                updateLine(line.id, { productId: "", label: "", quantity: "" })
+                              }
                             />
                           </div>
                           <Field label="Cantitate">

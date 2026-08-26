@@ -30,7 +30,7 @@ import {
 } from "@/app/operations/drawer-line-tools";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import type { WarehouseOption } from "@/app/operations/stock-document-dialog";
-import { DEFAULT_QUANTITY } from "@/lib/operations/default-quantity";
+import { quantityAfterSelect } from "@/lib/operations/default-quantity";
 
 const initialState: OperationActionState = { ok: false, message: "" };
 
@@ -47,7 +47,7 @@ const emptyLine = (id: number): InventoryLine => ({
   id,
   productId: "",
   label: "",
-  counted: DEFAULT_QUANTITY,
+  counted: "",
   sticker: false,
   copies: "",
 });
@@ -180,9 +180,15 @@ export function InventoryDialog({
                         .filter((item) => item.id !== line.id)
                         .map((item) => item.productId)}
                       onSelect={(product) =>
-                        patchLine(line.id, { productId: product.id, label: product.label })
+                        patchLine(line.id, {
+                          productId: product.id,
+                          label: product.label,
+                          counted: quantityAfterSelect(product.id),
+                        })
                       }
-                      onClear={() => patchLine(line.id, { productId: "", label: "" })}
+                      onClear={() =>
+                        patchLine(line.id, { productId: "", label: "", counted: "" })
+                      }
                     />
                   </div>
                   <DrawerField label="Numărat (buc)">
