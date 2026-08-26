@@ -5,13 +5,13 @@ export type WorkspaceSectionId =
   | "vanzari"
   | "la-comanda"
   | "conturi-plata"
-  | "clienti"
   | "retururi"
   | "de-adus"
   | "fara-stoc"
   | "inventar"
   | "depozite"
   | "furnizori"
+  | "clienti"
   | "personal"
   | "branduri"
   | "modele"
@@ -88,11 +88,6 @@ export const workspaceSections: WorkspaceSection[] = [
     description: "Emite proforme, urmărește achitarea și predarea mărfii.",
   },
   {
-    id: "clienti",
-    title: "Clienți",
-    description: "Ce a cumpărat fiecare client, cât a plătit, ce datorează și ce discount are.",
-  },
-  {
     id: "retururi",
     title: "Retururi",
     description: "Produse returnate din vânzările înregistrate.",
@@ -121,6 +116,11 @@ export const workspaceSections: WorkspaceSection[] = [
     id: "furnizori",
     title: "Furnizori",
     description: "Furnizorii de la care se aprovizionează marfa. Clienții au secțiunea lor.",
+  },
+  {
+    id: "clienti",
+    title: "Clienți",
+    description: "Ce a cumpărat fiecare client, cât a plătit, ce datorează și ce discount are.",
   },
   {
     id: "personal",
@@ -227,12 +227,6 @@ export const navigationEntries: NavigationEntry[] = [
     icon: "FileText",
   },
   {
-    section: "clienti",
-    label: "Clienți",
-    description: "Cumpărături, datorii, discount",
-    icon: "Users",
-  },
-  {
     section: "retururi",
     label: "Retururi",
     description: "Produse returnate",
@@ -267,6 +261,12 @@ export const navigationEntries: NavigationEntry[] = [
     label: "Furnizori",
     description: "Furnizori de aprovizionare",
     icon: "Handshake",
+  },
+  {
+    section: "clienti",
+    label: "Clienți",
+    description: "Cumpărături, datorii, discount",
+    icon: "Users",
   },
   {
     section: "personal",
@@ -380,7 +380,7 @@ export const navigationGroups: NavGroup[] = [
     label: "Operațiuni",
     description: "Mișcări de stoc",
     icon: "ArrowRightLeft",
-    sections: ["receptii", "transferuri", "vanzari", "la-comanda", "conturi-plata", "clienti", "retururi", "de-adus", "fara-stoc", "inventar", "documente", "aprobari", "istoric"],
+    sections: ["receptii", "transferuri", "vanzari", "la-comanda", "conturi-plata", "retururi", "de-adus", "fara-stoc", "inventar", "documente", "aprobari", "istoric"],
   },
   {
     id: "nomenclatoare",
@@ -391,10 +391,10 @@ export const navigationGroups: NavGroup[] = [
   },
   {
     id: "furnizori",
-    label: "Furnizori",
-    description: "Furnizori de aprovizionare",
+    label: "Parteneri",
+    description: "Furnizori și clienți",
     icon: "Handshake",
-    sections: ["furnizori"],
+    sections: ["furnizori", "clienti"],
   },
   {
     id: "personal",
