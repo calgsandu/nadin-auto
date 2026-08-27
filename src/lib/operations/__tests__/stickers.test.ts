@@ -24,4 +24,24 @@ assert.equal(matchesLineFilter("prag", { productId: "p1", label: "PRAG ușă" })
 assert.equal(matchesLineFilter("bara", { productId: "p1", label: "Prag ușă" }), false);
 assert.equal(matchesLineFilter("bara", { productId: "", label: "" }), true);
 
+// Diacriticele nu mai contează în niciun sens: „Panou usa" găsea zero rânduri.
+assert.equal(matchesLineFilter("Panou usa", { productId: "p1", label: "Panou ușă spate" }), true);
+assert.equal(matchesLineFilter("panou ușă", { productId: "p1", label: "Panou usa spate" }), true);
+
+// Ordinea cuvintelor e liberă; fiecare termen trebuie să apară undeva.
+assert.equal(matchesLineFilter("usa panou", { productId: "p1", label: "Panou ușă spate" }), true);
+assert.equal(matchesLineFilter("panou bara", { productId: "p1", label: "Panou ușă spate" }), false);
+
+// Anul din interval, nu doar capetele scrise în etichetă.
+const bmw = { productId: "p1", label: "P129 · BMW E46 1998–2006 · Arcă · Arca aripă" };
+assert.equal(matchesLineFilter("2005", bmw), true);
+assert.equal(matchesLineFilter("1998", bmw), true);
+assert.equal(matchesLineFilter("2010", bmw), false);
+assert.equal(matchesLineFilter("bmw 2005", bmw), true);
+
+// „–prezent" = fără capăt de sus.
+const vito = { productId: "p2", label: "MERCEDES-BENZ VITO 2003–prezent · Prag" };
+assert.equal(matchesLineFilter("2024", vito), true);
+assert.equal(matchesLineFilter("1999", vito), false);
+
 console.log("sticker tests passed");
