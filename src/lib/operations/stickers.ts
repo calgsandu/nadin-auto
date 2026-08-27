@@ -40,14 +40,19 @@ export function matchesLineFilter(filter: string, line: { productId: string; lab
 }
 
 /**
- * Eticheta poartă anii ca interval („bmw e46 1998–2006", „... 2003–prezent"),
- * deci un an din mijloc nu se găsea ca text.
+ * Eticheta poartă anii ca interval, în cele trei forme pe care le scrie
+ * `formatYears`: „1998–2006", „2003–prezent" și „din 1998" (fitment fără an de
+ * sfârșit). Un an din mijlocul intervalului nu se găsea ca text.
  */
 function labelCoversYear(label: string, year: number) {
-  for (const match of label.matchAll(/(\d{4})–(\d{4}|prezent)/g)) {
-    const start = Number(match[1]);
-    const end = match[2] === "prezent" ? Number.POSITIVE_INFINITY : Number(match[2]);
-    if (year >= start && year <= end) return true;
+  for (const match of label.matchAll(/(?:din (\d{4}))|(\d{4})–(\d{4}|prezent)/g)) {
+    const [, openStart, rangeStart, rangeEnd] = match;
+    if (openStart) {
+      if (year >= Number(openStart)) return true;
+      continue;
+    }
+    const end = rangeEnd === "prezent" ? Number.POSITIVE_INFINITY : Number(rangeEnd);
+    if (year >= Number(rangeStart) && year <= end) return true;
   }
   return false;
 }

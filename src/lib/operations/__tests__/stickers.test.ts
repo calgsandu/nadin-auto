@@ -44,4 +44,10 @@ const vito = { productId: "p2", label: "MERCEDES-BENZ VITO 2003–prezent · Pra
 assert.equal(matchesLineFilter("2024", vito), true);
 assert.equal(matchesLineFilter("1999", vito), false);
 
+// A treia formă scrisă de `formatYears`: fitment fără an de sfârșit.
+const sprinter = { productId: "p3", label: "MB SPRINTER din 2018 · Aripă" };
+assert.equal(matchesLineFilter("2020", sprinter), true);
+assert.equal(matchesLineFilter("2018", sprinter), true);
+assert.equal(matchesLineFilter("2017", sprinter), false);
+
 console.log("sticker tests passed");
