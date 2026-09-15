@@ -91,6 +91,29 @@ export default async function VitrinaLayout({
               © {new Date().getFullYear()} {COMPANY.legalName}
             </p>
             <p>{COMPANY.address}</p>
+            {/* Creditul studioului. Sta doar in layout-ul catalogului, deci nu apare
+                in CRM sau pe fluxul de autentificare. */}
+            <a
+              href="https://tasta.dev"
+              className="group inline-flex items-center gap-1.5 transition-colors hover:text-[#1b1a17]"
+            >
+              <span>Aplicație de</span>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 100 100"
+                aria-hidden="true"
+                className="transition-transform duration-150 group-hover:translate-y-[2px]"
+              >
+                <mask id="tasta-keycap" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+                  <rect x="2" y="2" width="96" height="96" rx="18" fill="#fff" />
+                  <rect x="20" y="20" width="60" height="60" rx="10" stroke="#000" strokeWidth="5" fill="none" />
+                  <path d="M36 34 H64 V42 H54 V66 H46 V42 H36 Z" fill="#000" />
+                </mask>
+                <rect x="2" y="2" width="96" height="96" rx="18" fill="currentColor" mask="url(#tasta-keycap)" />
+              </svg>
+              <span className="border-b border-current pb-px font-semibold">Tasta</span>
+            </a>
           </div>
         </div>
       </footer>
