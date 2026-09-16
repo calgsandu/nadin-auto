@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth/server";
-import { prisma } from "@/lib/prisma";
 
 /**
  * Serviciul de autentificare are propriul rol („admin"/„user"), separat de
@@ -61,20 +60,6 @@ export async function setAuthPassword(userId: string, newPassword: string) {
     await auth.admin.setUserPassword({ userId, newPassword }),
     "Parola nu a putut fi resetată.",
   );
-}
-
-/**
- * ATENȚIE: citește neon_auth prin conexiunea aplicației. Dacă DATABASE_URL e pe
- * alt branch Neon decât cel pe care scrie serviciul de autentificare, datele de
- * aici sunt o copie veche, înghețată la momentul forkului.
- */
-export async function getAuthProviderIds(userId: string) {
-  const accounts = await prisma.$queryRaw<Array<{ providerId: string }>>`
-    SELECT "providerId"
-    FROM neon_auth.account
-    WHERE "userId"::text = ${userId}
-  `;
-  return accounts.map((account) => account.providerId);
 }
 
 export async function banAuthIdentity(userId: string) {

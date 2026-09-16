@@ -22,7 +22,6 @@ import {
 import {
   banAuthIdentity,
   createAuthIdentity,
-  getAuthProviderIds,
   removeAuthIdentity,
   revokeAuthSessions,
   setAuthRole,
@@ -31,7 +30,6 @@ import {
 } from "@/lib/staff/auth-admin";
 import {
   parseCreateStaffInput,
-  needsPasswordMigration,
   parsePassword,
   parseTwoFactorActivationTarget,
   parseTwoFactorResetConfirmation,
@@ -138,51 +136,26 @@ export async function resetStaffPasswordAction(
     const target = await prisma.appUser.findUnique({ where: { id: userId } });
     if (!target) throw new Error("Utilizatorul nu există.");
 
-    const providers = await getAuthProviderIds(target.authUserId);
-    const migrateToPassword = needsPasswordMigration(providers);
-    if (migrateToPassword && !target.username) {
-      throw new Error("Contul trebuie să aibă un username înainte de migrare.");
-    }
     await prisma.$transaction(async (tx) => {
       await clearEnrollmentGrant(tx, target.id);
       await clearTrustedDevices(tx, target.id);
       await clearSecondFactorSessions(tx, target.id);
     });
-    if (migrateToPassword) {
-      const oldAuthUserId = target.authUserId;
-      const email = technicalEmailForUsername(target.username!);
-      const newAuthUserId = await createAuthIdentity({
-        email,
-        password,
-        name: target.name ?? target.username!,
-        authRole: toAuthRole(target.role),
-      });
-      try {
-        await prisma.appUser.update({
-          where: { id: target.id },
-          data: { authUserId: newAuthUserId, email },
-        });
-      } catch (error) {
-        await removeAuthIdentity(newAuthUserId).catch(() => undefined);
-        throw error;
-      }
-      await revokeAuthSessions(oldAuthUserId).catch(() => undefined);
-    } else {
-      await setAuthPassword(target.authUserId, password);
-      await revokeAuthSessions(target.authUserId);
-    }
+    // Endpointul admin de setare a parolei creează singur contul „credential”
+    // dacă utilizatorul avea doar login social, deci nu mai există un caz de
+    // „migrare” care să ceară o identitate nouă.
+    await setAuthPassword(target.authUserId, password);
+    await revokeAuthSessions(target.authUserId);
     await logAudit(prisma, admin, {
       action: "UPDATE",
       entity: "AppUser",
       entityId: target.id,
-      summary: `${migrateToPassword ? "Cont migrat la username/parolă" : "Parolă resetată"} pentru ${target.username ?? target.name ?? target.id}`,
-      details: { username: target.username, migratedFromSocial: migrateToPassword },
+      summary: `Parolă resetată pentru ${target.username ?? target.name ?? target.id}`,
+      details: { username: target.username },
     });
     return {
       ok: true,
-      message: migrateToPassword
-        ? "Contul a fost migrat la autentificare cu username și parolă. Autentifică-te din nou."
-        : "Parola a fost resetată.",
+      message: "Parola a fost resetată.",
       revealedPassword: password,
     };
   } catch (error) {

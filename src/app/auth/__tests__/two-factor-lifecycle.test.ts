@@ -28,9 +28,7 @@ test("administrator password reset revokes local trust before changing Neon iden
   assert.match(body, /clearTrustedDevices/);
   assert.match(body, /clearSecondFactorSessions/);
   assert.match(body, /clearEnrollmentGrant\(tx, target\.id\)/);
-  assert.ok(body.indexOf("clearSecondFactorSessions") < body.indexOf("createAuthIdentity"));
   assert.ok(body.indexOf("clearSecondFactorSessions") < body.indexOf("setAuthPassword"));
-  assert.ok(body.indexOf("clearEnrollmentGrant") < body.indexOf("createAuthIdentity"));
   assert.ok(body.indexOf("clearEnrollmentGrant") < body.indexOf("setAuthPassword"));
   assert.doesNotMatch(body, /resetTwoFactorCredential/);
 });

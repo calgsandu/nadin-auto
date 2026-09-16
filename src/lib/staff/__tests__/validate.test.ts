@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import {
-  needsPasswordMigration,
   parseCreateStaffInput,
   parsePassword,
   toAuthRole,
@@ -42,8 +41,6 @@ assert.deepEqual(
   { name: "Ion Popescu", username: "ion_2", role: "DIRECTOR", password: "parola123" },
 );
 
-assert.equal(needsPasswordMigration(["google"]), true);
-assert.equal(needsPasswordMigration(["google", "credential"]), false);
 assert.equal(toAuthRole("ADMIN"), "admin");
 assert.equal(toAuthRole("DIRECTOR"), "user");
 assert.equal(toAuthRole("ANGAJAT"), "user");
