@@ -9,6 +9,7 @@ import {
   type OperationActionState,
 } from "@/app/operations/actions";
 import {
+  DrawerChoice,
   DrawerField,
   DrawerSubmit,
   OperationDrawer,
@@ -803,17 +804,9 @@ export function StockSaleDialog({
         >
           <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
               <input name="idempotencyKey" type="hidden" value={draft.token} />
-              <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
-                <Field label="Data vânzării">
-                  <input className={inputClassName} defaultValue={today} name="documentDate" type="date" />
-                </Field>
-                <Field label="Vândut din locația">
-                  <select className={inputClassName} defaultValue={defaultWarehouse} name="warehouseId" required>
-                    {warehouses.map((warehouse) => (
-                      <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
-                    ))}
-                  </select>
-                </Field>
+              {/* Ordinea muncii la tejghea: cine cumpără, apoi piesele, la final cum
+                  plătește — întrebările despre casă și plată stau lângă total. */}
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))_minmax(0,0.6fr)]">
                 <Field label="Client (pentru factură)">
                   <div className="flex gap-2">
                     <select
@@ -851,34 +844,15 @@ export function StockSaleDialog({
                     </span>
                   ) : null}
                 </Field>
-                <Field label="Bătut în casa de marcat?">
-                  <select
-                    className={inputClassName}
-                    defaultValue=""
-                    name="cashRegistered"
-                    required
-                  >
-                    <option value="" disabled>Alege Da sau Nu</option>
-                    <option value="yes">Da</option>
-                    <option value="no">Nu</option>
+                <Field label="Vândut din locația">
+                  <select className={inputClassName} defaultValue={defaultWarehouse} name="warehouseId" required>
+                    {warehouses.map((warehouse) => (
+                      <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+                    ))}
                   </select>
                 </Field>
-                <Field label="Metoda de plată">
-                  <select
-                    className={inputClassName}
-                    defaultValue=""
-                    name="paymentMethod"
-                    required
-                  >
-                    <option value="" disabled>Alege metoda de plată</option>
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                    <option value="credit">Pe datorie</option>
-                    <option value="transfer">Transfer bancar</option>
-                  </select>
-                </Field>
-                <Field label="Serie / nr. factură">
-                  <input className={inputClassName} name="externalNumber" placeholder="ex. AA 0123456" />
+                <Field label="Data vânzării">
+                  <input className={inputClassName} defaultValue={today} name="documentDate" type="date" />
                 </Field>
                 <Field label="Categorie de preț">
                   <select
@@ -1088,24 +1062,53 @@ export function StockSaleDialog({
                 </div>
               </section>
 
-              <div className="ml-auto w-full max-w-xs rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
-                <div className="flex justify-between py-1">
-                  <span className="text-[#52525b]">TVA plătit (÷6)</span>
-                  <span className="font-mono font-semibold">{money(tvaTotal)} lei</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-[#52525b]">Fără TVA</span>
-                  <span className="font-mono font-semibold">{money(faraTva)} lei</span>
-                </div>
-                <div className="mt-1 flex justify-between border-t border-[#f0f0f2] pt-2 text-base">
-                  <span className="font-semibold text-[#18181b]">Total (cu TVA)</span>
-                  <span className="font-mono font-bold text-[#18181b]">{money(valoare)} lei</span>
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_20rem]">
+                <section className="grid content-start gap-3 rounded-xl border border-[#e4e4e7] bg-white p-3 md:grid-cols-2">
+                  <h3 className="text-sm font-semibold text-[#18181b] md:col-span-2">Încasare</h3>
+                  <DrawerChoice
+                    hint="Alege metoda de plată"
+                    label="Metoda de plată"
+                    name="paymentMethod"
+                    options={[
+                      { value: "cash", label: "Cash" },
+                      { value: "card", label: "Card" },
+                      { value: "credit", label: "Pe datorie" },
+                      { value: "transfer", label: "Transfer bancar" },
+                    ]}
+                    required
+                  />
+                  <DrawerChoice
+                    hint="Alege Da sau Nu"
+                    label="Bătut în casa de marcat?"
+                    name="cashRegistered"
+                    options={[
+                      { value: "yes", label: "Da" },
+                      { value: "no", label: "Nu" },
+                    ]}
+                    required
+                  />
+                  <Field label="Serie / nr. factură">
+                    <input className={inputClassName} name="externalNumber" placeholder="ex. AA 0123456" />
+                  </Field>
+                  <Field label="Notițe">
+                    <textarea className={`${inputClassName} min-h-9 resize-y py-2`} name="notes" placeholder="client, comandă, explicații" rows={1} />
+                  </Field>
+                </section>
+                <div className="self-start rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
+                  <div className="flex justify-between py-1">
+                    <span className="text-[#52525b]">TVA plătit (÷6)</span>
+                    <span className="font-mono font-semibold">{money(tvaTotal)} lei</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-[#52525b]">Fără TVA</span>
+                    <span className="font-mono font-semibold">{money(faraTva)} lei</span>
+                  </div>
+                  <div className="mt-1 flex justify-between border-t border-[#f0f0f2] pt-2 text-base">
+                    <span className="font-semibold text-[#18181b]">Total (cu TVA)</span>
+                    <span className="font-mono font-bold text-[#18181b]">{money(valoare)} lei</span>
+                  </div>
                 </div>
               </div>
-
-              <Field label="Notițe">
-                <textarea className={`${inputClassName} min-h-16 resize-y py-2`} name="notes" placeholder="client, comandă, explicații" />
-              </Field>
               <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
                 <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>Anulează</button>
                 <SubmitButton label="Salvează vânzarea" pending={pending} />

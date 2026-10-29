@@ -227,6 +227,52 @@ export function DraftBanner({ draft }: { draft?: DrawerDraftBanner }) {
   );
 }
 
+/**
+ * O alegere dintr-un rând de butoane (Da/Nu, Cash/Card…): un click, fără listă
+ * derulantă. Niciun buton nu e bifat din start — cu `required`, formularul nu
+ * pleacă până nu alege omul explicit. Radioul acoperă butonul (transparent),
+ * deci și mesajul de validare al browserului apare lângă buton.
+ */
+export function DrawerChoice({
+  label,
+  hint,
+  name,
+  options,
+  required = false,
+}: {
+  label: string;
+  /** Se vede doar cât timp nu e nimic ales. */
+  hint?: string;
+  name: string;
+  options: { value: string; label: string }[];
+  required?: boolean;
+}) {
+  return (
+    <fieldset className="group min-w-0">
+      <legend className="mb-1 text-sm font-medium text-[#3f3f46]">{label}</legend>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((option) => (
+          <label key={option.value} className="relative">
+            <input
+              className="peer absolute inset-0 size-full cursor-pointer opacity-0"
+              name={name}
+              required={required}
+              type="radio"
+              value={option.value}
+            />
+            <span className="flex h-9 items-center rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#3f3f46] transition-colors peer-hover:border-[#d4d4d8] peer-checked:border-[#2563eb] peer-checked:bg-[#eff6ff] peer-checked:text-[#1d4ed8] peer-focus-visible:ring-2 peer-focus-visible:ring-[#2563eb]/40">
+              {option.label}
+            </span>
+          </label>
+        ))}
+      </div>
+      {hint ? (
+        <span className="mt-1 block text-xs text-[#71717a] group-has-[:checked]:hidden">{hint}</span>
+      ) : null}
+    </fieldset>
+  );
+}
+
 export function DrawerField({
   label,
   children,

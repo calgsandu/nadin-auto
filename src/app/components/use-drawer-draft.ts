@@ -155,6 +155,12 @@ function applyFields(form: HTMLFormElement, fields: Record<string, string[]>) {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >(`[name="${name}"]`);
     nodes.forEach((node, index) => {
+      // Butoanele radio (casă, metoda de plată) au o valoare fixă fiecare;
+      // FormData ține doar valoarea celui bifat, deci se bifează după valoare.
+      if (node instanceof HTMLInputElement && (node.type === "radio" || node.type === "checkbox")) {
+        node.checked = values.includes(node.value);
+        return;
+      }
       const value = values[index];
       if (value === undefined) return;
       if (node instanceof HTMLInputElement && node.type === "hidden") return;

@@ -146,12 +146,13 @@ export function PartnerFormDialog({
                 </button>
               </div>
 
-              <form onSubmit={onSubmit} className="grid gap-4 px-5 py-4 lg:grid-cols-2">
+              <form onSubmit={onSubmit} className="grid gap-3 px-5 py-4 sm:grid-cols-2 lg:grid-cols-4">
                 {partner ? (
                   <input name="partnerId" type="hidden" value={partner.id} />
                 ) : null}
 
-                <Field label="Nume">
+                <h3 className="text-sm font-semibold text-[#18181b] lg:col-span-4">Date de contact</h3>
+                <Field className="lg:col-span-2" label="Nume">
                   <input
                     className={inputClassName}
                     name="name"
@@ -160,7 +161,6 @@ export function PartnerFormDialog({
                     required
                   />
                 </Field>
-
                 <Field label="Tip partener">
                   <select
                     className={inputClassName}
@@ -174,47 +174,6 @@ export function PartnerFormDialog({
                     ))}
                   </select>
                 </Field>
-
-                <Field label="Telefon">
-                  <input
-                    className={inputClassName}
-                    name="phone"
-                    defaultValue={partner?.phone ?? ""}
-                    inputMode="tel"
-                    placeholder="ex. 0760 123 456"
-                  />
-                </Field>
-
-                <Field label="E-mail">
-                  <input
-                    className={inputClassName}
-                    name="email"
-                    defaultValue={partner?.email ?? ""}
-                    inputMode="email"
-                    placeholder="ex. contabilitate@firma.md"
-                    type="email"
-                  />
-                </Field>
-
-                <Field label="IDNO / Cod fiscal">
-                  <input
-                    className={inputClassName}
-                    name="idno"
-                    defaultValue={partner?.idno ?? ""}
-                    inputMode="numeric"
-                    placeholder="ex. 1006600052073"
-                  />
-                </Field>
-
-                <Field className="lg:col-span-2" label="Adresa juridică">
-                  <input
-                    className={inputClassName}
-                    name="address"
-                    defaultValue={partner?.address ?? ""}
-                    placeholder="mun. Chișinău, str. ..."
-                  />
-                </Field>
-
                 <Field label="Discount client (%)">
                   <input
                     className={inputClassName}
@@ -224,7 +183,37 @@ export function PartnerFormDialog({
                     placeholder="0"
                   />
                 </Field>
-
+                <Field className="sm:col-span-1 lg:col-span-2" label="Telefon">
+                  <input
+                    className={inputClassName}
+                    name="phone"
+                    defaultValue={partner?.phone ?? ""}
+                    inputMode="tel"
+                    placeholder="ex. 0760 123 456"
+                  />
+                </Field>
+                <Field className="sm:col-span-1 lg:col-span-2" label="E-mail">
+                  <input
+                    className={inputClassName}
+                    name="email"
+                    defaultValue={partner?.email ?? ""}
+                    inputMode="email"
+                    placeholder="ex. contabilitate@firma.md"
+                    type="email"
+                  />
+                </Field>
+                {/* Datele de facturare sunt cerute de proforme și e-Factura;
+                    la o persoană fizică pot rămâne goale. */}
+                <h3 className="text-sm font-semibold text-[#18181b] lg:col-span-4 pt-1">Date pentru factură</h3>
+                <Field label="IDNO / Cod fiscal">
+                  <input
+                    className={inputClassName}
+                    name="idno"
+                    defaultValue={partner?.idno ?? ""}
+                    inputMode="numeric"
+                    placeholder="ex. 1006600052073"
+                  />
+                </Field>
                 <Field label="Cod TVA">
                   <input
                     className={inputClassName}
@@ -234,17 +223,15 @@ export function PartnerFormDialog({
                     placeholder="opțional"
                   />
                 </Field>
-
-                <Field label="Cod bancar / BIC">
+                <Field className="sm:col-span-2" label="Adresa juridică">
                   <input
                     className={inputClassName}
-                    name="bankCode"
-                    defaultValue={partner?.bankCode ?? ""}
-                    placeholder="ex. MOBBMD22"
+                    name="address"
+                    defaultValue={partner?.address ?? ""}
+                    placeholder="mun. Chișinău, str. ..."
                   />
                 </Field>
-
-                <Field label="IBAN">
+                <Field className="sm:col-span-2" label="IBAN">
                   <input
                     className={`${inputClassName} font-mono`}
                     name="iban"
@@ -252,7 +239,6 @@ export function PartnerFormDialog({
                     placeholder="MD..."
                   />
                 </Field>
-
                 <Field label="Banca">
                   <input
                     className={inputClassName}
@@ -261,8 +247,15 @@ export function PartnerFormDialog({
                     placeholder="Denumirea băncii"
                   />
                 </Field>
-
-                <Field className="lg:col-span-2" label="Note">
+                <Field label="Cod bancar / BIC">
+                  <input
+                    className={inputClassName}
+                    name="bankCode"
+                    defaultValue={partner?.bankCode ?? ""}
+                    placeholder="ex. MOBBMD22"
+                  />
+                </Field>
+                <Field className="sm:col-span-2 lg:col-span-4" label="Note">
                   <textarea
                     className={`${inputClassName} min-h-16 resize-y py-2`}
                     name="notes"
@@ -270,8 +263,7 @@ export function PartnerFormDialog({
                     placeholder="Observații, condiții de livrare etc."
                   />
                 </Field>
-
-                <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5 lg:col-span-2">
+                <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-4 sm:col-span-2 lg:col-span-4">
                   <button
                     className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                     type="button"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 import {
   createProductAction,
   updateProductAction,
@@ -245,7 +246,18 @@ export function ProductFormDialog({
                 <input name="productId" type="hidden" value={product.id} />
               ) : null}
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Ce scrie omul la fiecare produs: denumirea, codul și tipul. */}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <Field className="lg:col-span-2" label="Descriere">
+                  <textarea
+                    className={`${inputClassName} min-h-9 resize-y py-2`}
+                    rows={1}
+                    name="description"
+                    defaultValue={product?.description ?? initialDescription ?? ""}
+                    placeholder="ex. Prag 4/5uși L"
+                    required
+                  />
+                </Field>
                 <Field label="Cod">
                   <input
                     className={inputClassName}
@@ -285,47 +297,49 @@ export function ProductFormDialog({
                 </Field>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Descriere">
-                  <textarea
-                    className={`${inputClassName} min-h-16 resize-y py-2`}
-                    name="description"
-                    defaultValue={product?.description ?? initialDescription ?? ""}
-                    placeholder="ex. Prag 4/5uși L"
-                    required
-                  />
-                </Field>
-                <Field label="Descriere în rusă">
-                  <textarea
-                    className={`${inputClassName} min-h-16 resize-y py-2`}
-                    name="descriptionRu"
-                    defaultValue={product?.descriptionRu ?? ""}
-                    placeholder="ex. Левый порог для 4/5 дверей"
-                  />
-                </Field>
-              </div>
-
-              {/*
-                Câmpul se numea „Notițe" și suna a notă internă, dar se publică
-                pe site-ul public, în fișa piesei. Eticheta o spune acum.
-              */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Mențiune publică (apare pe site)">
-                  <textarea
-                    className={`${inputClassName} min-h-14 resize-y py-2`}
-                    name="notes"
-                    defaultValue={product?.notes ?? ""}
-                    placeholder="ex. Livrare în 2 zile. Nu scrie aici note interne."
-                  />
-                </Field>
-                <Field label="Mențiune publică în rusă">
-                  <textarea
-                    className={`${inputClassName} min-h-14 resize-y py-2`}
-                    name="notesRu"
-                    defaultValue={product?.notesRu ?? ""}
-                  />
-                </Field>
-              </div>
+              {/* Textele pentru site (rusă, mențiuni publice) se completează rar: stau
+                  strânse și se deschid singure când produsul are deja ceva scris. */}
+              <details
+                className="group rounded-lg border border-[#e4e4e7] bg-white"
+                open={Boolean(product?.descriptionRu || product?.notes || product?.notesRu) || undefined}
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-semibold text-[#18181b] [&::-webkit-details-marker]:hidden">
+                  <span>
+                    Texte pentru site
+                    <span className="ml-2 font-normal text-[#52525b]">descriere în rusă, mențiuni publice</span>
+                  </span>
+                  <ChevronDown className="size-4 text-[#71717a] transition-transform group-open:rotate-180" aria-hidden="true" />
+                </summary>
+                <div className="grid gap-3 border-t border-[#f0f0f2] p-3 sm:grid-cols-2">
+                    <Field label="Descriere în rusă">
+                      <textarea
+                        className={`${inputClassName} min-h-16 resize-y py-2`}
+                        name="descriptionRu"
+                        defaultValue={product?.descriptionRu ?? ""}
+                        placeholder="ex. Левый порог для 4/5 дверей"
+                      />
+                    </Field>
+                  {/*
+                    Câmpul se numea „Notițe" și suna a notă internă, dar se publică
+                    pe site-ul public, în fișa piesei. Eticheta o spune acum.
+                  */}
+                    <Field label="Mențiune publică (apare pe site)">
+                      <textarea
+                        className={`${inputClassName} min-h-14 resize-y py-2`}
+                        name="notes"
+                        defaultValue={product?.notes ?? ""}
+                        placeholder="ex. Livrare în 2 zile. Nu scrie aici note interne."
+                      />
+                    </Field>
+                    <Field label="Mențiune publică în rusă">
+                      <textarea
+                        className={`${inputClassName} min-h-14 resize-y py-2`}
+                        name="notesRu"
+                        defaultValue={product?.notesRu ?? ""}
+                      />
+                    </Field>
+                </div>
+              </details>
 
               <section className="rounded-lg border border-[#e4e4e7] bg-white p-3">
                 <div>
@@ -375,7 +389,7 @@ export function ProductFormDialog({
                     Total: <span className="font-mono">{calculateTotal(warehouseQuantities)}</span> buc.
                   </p>
                 </div>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
                   {warehouses.map((warehouse) => (
                     <div key={warehouse.id} className="grid gap-1.5">
                       <input name="warehouseId" type="hidden" value={warehouse.id} readOnly />
