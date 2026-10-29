@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { RoleForm } from "@/app/staff/role-form";
+import { RowMenu } from "@/app/components/row-menu";
 import {
   CreateStaffDialog,
   IssueTwoFactorActivationDialog,
@@ -114,33 +115,35 @@ function StaffWorkspace({
                     </span>
                   </TableCell>
                   <TableCell align="right">
-                    <div className="flex flex-wrap justify-end gap-2">
+                    <div className="flex flex-wrap items-center justify-end gap-1.5">
                       <RoleForm userId={user.id} currentRole={user.role} />
-                      <ResetPasswordDialog
-                        userId={user.id}
-                        username={user.username ?? user.name ?? user.id}
-                      />
-                      {user.id !== currentUserId &&
-                      user.twoFactorStatus === "ACTIVE" &&
-                      user.username ? (
-                        <ResetTwoFactorDialog userId={user.id} username={user.username} />
-                      ) : null}
-                      {user.id !== currentUserId &&
-                      user.active &&
-                      user.twoFactorStatus !== "ACTIVE" &&
-                      user.username ? (
-                        <IssueTwoFactorActivationDialog
+                      <RowMenu label={user.username ?? user.name ?? "utilizator"}>
+                        <ResetPasswordDialog
                           userId={user.id}
-                          username={user.username}
+                          username={user.username ?? user.name ?? user.id}
                         />
-                      ) : null}
-                      {user.id !== currentUserId ? (
-                        <StaffActiveButton
-                          userId={user.id}
-                          active={user.active}
-                          label={user.username ?? user.name ?? user.id}
-                        />
-                      ) : null}
+                        {user.id !== currentUserId &&
+                        user.twoFactorStatus === "ACTIVE" &&
+                        user.username ? (
+                          <ResetTwoFactorDialog userId={user.id} username={user.username} />
+                        ) : null}
+                        {user.id !== currentUserId &&
+                        user.active &&
+                        user.twoFactorStatus !== "ACTIVE" &&
+                        user.username ? (
+                          <IssueTwoFactorActivationDialog
+                            userId={user.id}
+                            username={user.username}
+                          />
+                        ) : null}
+                        {user.id !== currentUserId ? (
+                          <StaffActiveButton
+                            userId={user.id}
+                            active={user.active}
+                            label={user.username ?? user.name ?? user.id}
+                          />
+                        ) : null}
+                      </RowMenu>
                     </div>
                   </TableCell>
                 </tr>

@@ -6,6 +6,7 @@ import { getCatalogAdminData, type CatalogAdminData } from "@/lib/admin/queries"
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
+import { RowMenu } from "@/app/components/row-menu";
 import { AdminSection, RowActions, TableCell, WorkspaceSkeleton, adminRowCls } from "../_components/ui";
 import { formatNumber } from "../_components/format";
 
@@ -54,7 +55,9 @@ async function Loader({
             <TableCell align="right">
               <RowActions>
                 <WarehouseDialog warehouse={{ id: w.id, name: w.name, isDefault: w.isDefault, active: w.active }} triggerKind="row" triggerLabel="Editează" />
-                <AdminDeleteButton action={deleteWarehouseAction} id={w.id} confirmLabel={`depozitul „${w.name}”`} />
+                <RowMenu label={`depozitul „${w.name}”`}>
+                  <AdminDeleteButton action={deleteWarehouseAction} id={w.id} confirmLabel={`depozitul „${w.name}”`} />
+                </RowMenu>
               </RowActions>
             </TableCell>
           ) : null}

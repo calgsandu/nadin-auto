@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { PartnerFormDialog, type PartnerFormValue } from "@/app/partners/partner-form-dialog";
 import { PartnerDeleteButton } from "@/app/partners/partner-delete-button";
+import { RowMenu } from "@/app/components/row-menu";
 import { PartnerPaymentDialog } from "@/app/partners/payment-dialog";
 import {
   getCustomerDetail,
@@ -146,21 +147,23 @@ async function Loader({
                   </TableCell>
                   {canModify ? (
                     <TableCell align="right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1.5">
                         <PartnerPaymentDialog
                           partnerId={customer.id}
                           partnerName={customer.name}
                           balanceLei={customer.debtLei}
                         />
-                        <PartnerFormDialog
-                          partner={toPartnerFormValue(customer)}
-                          triggerKind="row"
-                          triggerLabel="Editează"
-                        />
-                        <PartnerDeleteButton
-                          partnerId={customer.id}
-                          partnerName={customer.name}
-                        />
+                        <RowMenu label={customer.name}>
+                          <PartnerFormDialog
+                            partner={toPartnerFormValue(customer)}
+                            triggerKind="row"
+                            triggerLabel="Editează"
+                          />
+                          <PartnerDeleteButton
+                            partnerId={customer.id}
+                            partnerName={customer.name}
+                          />
+                        </RowMenu>
                       </div>
                     </TableCell>
                   ) : null}

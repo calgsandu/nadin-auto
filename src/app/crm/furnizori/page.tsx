@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { PartnerFormDialog, type PartnerFormValue } from "@/app/partners/partner-form-dialog";
 import { PartnerDeleteButton } from "@/app/partners/partner-delete-button";
+import { RowMenu } from "@/app/components/row-menu";
 import { PartnerPaymentDialog } from "@/app/partners/payment-dialog";
 import { PartnerLedgerButton } from "@/app/partners/partner-ledger-button";
 import { getPartnersData, type PartnerRow } from "@/lib/partners/queries";
@@ -112,26 +113,28 @@ function PartnersWorkspace({
                   </TableCell>
                   {canModify ? (
                     <TableCell align="right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1.5">
                         <PartnerLedgerButton
                           balanceLei={partner.balanceLei}
                           partnerId={partner.id}
                           partnerName={partner.name}
                         />
-                        <PartnerPaymentDialog
-                          partnerId={partner.id}
-                          partnerName={partner.name}
-                          balanceLei={partner.balanceLei}
-                        />
-                        <PartnerFormDialog
-                          partner={toPartnerFormValue(partner)}
-                          triggerKind="row"
-                          triggerLabel="Editează"
-                        />
-                        <PartnerDeleteButton
-                          partnerId={partner.id}
-                          partnerName={partner.name}
-                        />
+                        <RowMenu label={partner.name}>
+                          <PartnerPaymentDialog
+                            partnerId={partner.id}
+                            partnerName={partner.name}
+                            balanceLei={partner.balanceLei}
+                          />
+                          <PartnerFormDialog
+                            partner={toPartnerFormValue(partner)}
+                            triggerKind="row"
+                            triggerLabel="Editează"
+                          />
+                          <PartnerDeleteButton
+                            partnerId={partner.id}
+                            partnerName={partner.name}
+                          />
+                        </RowMenu>
                       </div>
                     </TableCell>
                   ) : null}

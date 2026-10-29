@@ -7,6 +7,7 @@ import { getCatalogAdminData, type CatalogAdminData } from "@/lib/admin/queries"
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
+import { RowMenu } from "@/app/components/row-menu";
 import { AdminSection, RowActions, TableCell, WorkspaceSkeleton, adminRowCls } from "../_components/ui";
 import { formatNumber } from "../_components/format";
 
@@ -69,7 +70,9 @@ async function Loader({
             <TableCell align="right">
               <RowActions>
                 <ModelDialog brands={brands} model={{ id: m.id, name: m.name, brandId: m.brandId }} triggerKind="row" triggerLabel="Editează" />
-                <AdminDeleteButton action={deleteModelAction} id={m.id} confirmLabel={`modelul „${m.brand.name} ${m.name}”`} />
+                <RowMenu label={`modelul „${m.brand.name} ${m.name}”`}>
+                  <AdminDeleteButton action={deleteModelAction} id={m.id} confirmLabel={`modelul „${m.brand.name} ${m.name}”`} />
+                </RowMenu>
               </RowActions>
             </TableCell>
           ) : null}

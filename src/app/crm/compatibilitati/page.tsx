@@ -8,6 +8,7 @@ import { getCatalogAdminData, type CatalogAdminData } from "@/lib/admin/queries"
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
+import { RowMenu } from "@/app/components/row-menu";
 import { AdminSection, RowActions, TableCell, WorkspaceSkeleton, adminRowCls } from "../_components/ui";
 import { formatNumber } from "../_components/format";
 
@@ -86,7 +87,9 @@ async function Loader({
                   triggerKind="row"
                   triggerLabel="Editează"
                 />
-                <AdminDeleteButton action={deleteFitmentAction} id={f.id} confirmLabel={`compatibilitatea „${f.label}”`} />
+                <RowMenu label={`compatibilitatea „${f.label}”`}>
+                  <AdminDeleteButton action={deleteFitmentAction} id={f.id} confirmLabel={`compatibilitatea „${f.label}”`} />
+                </RowMenu>
               </RowActions>
             </TableCell>
           ) : null}
