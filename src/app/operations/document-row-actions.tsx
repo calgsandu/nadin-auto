@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ActionFeedback } from "@/app/components/action-feedback";
@@ -152,9 +152,9 @@ function EditDrawer(props: EditProps) {
           setMounted(true);
           setOpen(true);
         }}
-        className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
       >
-        Editează
+        <Pencil className="size-4 text-[#71717a]" aria-hidden="true" /> Editează
       </button>
       {mounted ? (
         <EditPanel {...props} open={open} setOpen={setOpen} onSaved={() => setMounted(false)} />
@@ -476,8 +476,8 @@ function DeleteForm({ id, title }: { id: string; title: string }) {
 function DeleteButton() {
   const status = useFormStatus();
   return (
-    <button type="submit" disabled={status.pending} className="button-secondary rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:opacity-60">
-      {status.pending ? "..." : "Șterge"}
+    <button type="submit" disabled={status.pending} className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:opacity-60">
+      <Trash2 className="size-4" aria-hidden="true" /> {status.pending ? "Se șterge..." : "Șterge"}
     </button>
   );
 }

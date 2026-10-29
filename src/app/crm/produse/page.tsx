@@ -4,6 +4,7 @@ import { Printer } from "lucide-react";
 import { LocalBadge } from "@/app/components/local-badge";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
 import { ProductDeleteButton } from "@/app/catalog/product-delete-button";
+import { RowMenu } from "@/app/components/row-menu";
 import { ProductFormDialog, type ProductFormValue } from "@/app/catalog/product-form-dialog";
 import { LabelPicker } from "@/app/catalog/label-picker";
 import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
@@ -115,9 +116,9 @@ function ProductWorkspace({
         </div>
 
         <LabelPicker>
-          <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+          <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
             <div className="overflow-x-auto">
-              <table className="crm-table w-full min-w-[1100px] border-collapse text-left text-sm">
+              <table className="crm-table w-full min-w-[1000px] border-collapse text-left text-sm">
                 <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
                   <tr>
                     {canModify ? <TableHead>{""}</TableHead> : null}
@@ -127,7 +128,11 @@ function ProductWorkspace({
                     <TableHead align="right">Stoc</TableHead>
                     <TableHead align="right">Preț vânzare</TableHead>
                     {canModify ? <TableHead align="right" secondary>Cost aducere</TableHead> : null}
-                    {canModify ? <TableHead align="right">Acțiuni</TableHead> : null}
+                    {canModify ? (
+                      <TableHead align="right">
+                        <span className="sr-only">Acțiuni</span>
+                      </TableHead>
+                    ) : null}
                   </tr>
                 </thead>
                 <tbody>
@@ -192,7 +197,7 @@ function ProductRow({
   );
 
   return (
-    <tr className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]">
+    <tr className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]">
       {canModify ? (
         <TableCell>
           <input
@@ -228,7 +233,18 @@ function ProductRow({
         <p className="mt-0.5 text-xs text-[#52525b]">{product.type.name}</p>
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
-        {formatNumber(product.stock)}
+        {/* Același prag ca filtrul „stoc mic": minStock, implicit 3. */}
+        <span
+          className={`inline-block min-w-7 rounded-md px-1.5 text-center ${
+            (product.stock ?? 0) <= 0
+              ? "bg-[#fef2f2] text-[#b91c1c]"
+              : (product.stock ?? 0) <= (product.minStock ?? 3)
+                ? "bg-[#fffbeb] text-[#92400e]"
+                : "text-[#18181b]"
+          }`}
+        >
+          {formatNumber(product.stock)}
+        </span>
         {/* Doar depozitele cu marfă: „110A: 0, Depozit: 0, …" lățea coloana și strivea denumirea. */}
         <p className="mt-0.5 font-normal text-xs text-[#52525b]">
           {catalog.warehouses
@@ -257,16 +273,6 @@ function ProductRow({
       {canModify ? (
         <TableCell align="right">
           <div className="flex justify-end gap-1.5">
-            <a
-              href={`/print/labels?ids=${product.id}`}
-              target="_blank"
-              rel="noreferrer"
-              title="Sticker produs (70×50.8mm)"
-              aria-label="Sticker produs"
-              className="button-secondary grid size-8 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
-            >
-              <Printer className="size-4" aria-hidden="true" />
-            </a>
             <ProductFormDialog
               brands={catalog.brands}
               models={catalog.models}
@@ -276,7 +282,18 @@ function ProductRow({
               types={catalog.types}
               warehouses={catalog.warehouses}
             />
-            <ProductDeleteButton productId={product.id} label={product.description} />
+            <RowMenu label={product.description}>
+              <a
+                href={`/print/labels?ids=${product.id}`}
+                target="_blank"
+                rel="noreferrer"
+                title="Sticker produs (70×50.8mm)"
+                className="text-[#18181b]"
+              >
+                <Printer className="size-4 text-[#71717a]" aria-hidden="true" /> Sticker
+              </a>
+              <ProductDeleteButton productId={product.id} label={product.description} />
+            </RowMenu>
           </div>
         </TableCell>
       ) : null}

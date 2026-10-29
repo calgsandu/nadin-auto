@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Trash2 } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { deleteProductAction, type CatalogActionState } from "@/app/catalog/actions";
 import { ActionFeedback } from "@/app/components/action-feedback";
@@ -31,9 +32,9 @@ function DeleteButton() {
     <button
       type="submit"
       disabled={status.pending}
-      className="button-secondary rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:opacity-60"
+      className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:opacity-60"
     >
-      {status.pending ? "..." : "Șterge"}
+      <Trash2 className="size-4" aria-hidden="true" /> {status.pending ? "Se șterge..." : "Șterge"}
     </button>
   );
 }

@@ -108,7 +108,7 @@ function OrdersTable({
           <tbody>
             {orders.length > 0 ? (
               orders.map((order) => (
-                <tr key={order.id} className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]">
+                <tr key={order.id} className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]">
                   <TableCell className="font-mono text-xs font-semibold">#{order.number}</TableCell>
                   <TableCell>
                     <p className="font-medium text-[#18181b]">{order.customerName}</p>

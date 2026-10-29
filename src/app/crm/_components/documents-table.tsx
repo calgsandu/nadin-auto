@@ -8,6 +8,7 @@ import { CashRegisterBadge, CashRegisterControl } from "@/app/operations/cash-re
 import { SalePaymentMethodBadge, SalePaymentMethodControl } from "@/app/operations/sale-payment-method-control";
 import { DocumentDetailsButton, type DocumentDetailsValue } from "@/app/operations/document-details";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
+import { RowMenu } from "@/app/components/row-menu";
 import { lineDescription } from "@/lib/operations/line-display";
 import type { SupplierOption, WarehouseOption } from "@/app/operations/stock-document-dialog";
 import { TableCell, TableHead, VehicleSubline } from "./ui";
@@ -264,7 +265,7 @@ export function RecentDocumentsTable({
   // coloane de liniuțe care furau lățimea coloanei de produse.
   const hasSales = documents.some((document) => document.type === "SALE");
   return (
-    <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+    <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
           <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
@@ -277,14 +278,16 @@ export function RecentDocumentsTable({
               <TableHead align="right">Total</TableHead>
               {hasSales ? <TableHead secondary>Casă</TableHead> : null}
               {hasSales ? <TableHead secondary>Plată</TableHead> : null}
-              <TableHead align="right">Acțiuni</TableHead>
+              <TableHead align="right">
+                <span className="sr-only">Acțiuni</span>
+              </TableHead>
             </tr>
           </thead>
           <tbody>
             {documents.length > 0 ? documents.map((document) => {
               const docTotal = documentTotalLei(document);
               return (
-              <tr key={document.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
+              <tr key={document.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
                 <TableCell className="whitespace-nowrap">
                   <span className="block font-semibold">{formatDocumentType(document.type)} #{document.number}</span>
                   <span className="block text-xs text-[#52525b]">{formatDate(document.documentDate)}</span>
@@ -336,20 +339,22 @@ export function RecentDocumentsTable({
                   <div className="flex justify-end gap-1.5">
                     <DocumentDetailsButton details={toDocumentDetails(document, canModify)} />
                     {canModify ? (
-                      <DocumentRowActions
-                        id={document.id}
-                        title={`${formatDocumentType(document.type)} #${document.number}`}
-                        documentDate={document.documentDate.toISOString().slice(0, 10)}
-                        documentType={document.type}
-                        notes={document.notes ?? ""}
-                        partnerId={document.partner?.id ?? ""}
-                        partnerName={document.partner?.name ?? ""}
-                        suppliers={suppliers}
-                        warehouses={warehouses}
-                        warehouseId={document.warehouseId}
-                        lines={toDocLines(document)}
-                        isTransfer={Boolean(document.transferGroupId)}
-                      />
+                      <RowMenu label={`${formatDocumentType(document.type)} #${document.number}`}>
+                        <DocumentRowActions
+                          id={document.id}
+                          title={`${formatDocumentType(document.type)} #${document.number}`}
+                          documentDate={document.documentDate.toISOString().slice(0, 10)}
+                          documentType={document.type}
+                          notes={document.notes ?? ""}
+                          partnerId={document.partner?.id ?? ""}
+                          partnerName={document.partner?.name ?? ""}
+                          suppliers={suppliers}
+                          warehouses={warehouses}
+                          warehouseId={document.warehouseId}
+                          lines={toDocLines(document)}
+                          isTransfer={Boolean(document.transferGroupId)}
+                        />
+                      </RowMenu>
                     ) : null}
                   </div>
                 </TableCell>

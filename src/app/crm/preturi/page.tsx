@@ -99,7 +99,7 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
             </thead>
             <tbody>
               {data.changes.map((change) => (
-                <tr key={change.id} className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]">
+                <tr key={change.id} className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]">
                   <TableCell secondary className="whitespace-nowrap text-xs tabular-nums text-[#52525b]">
                     {dateTimeFormat.format(change.createdAt)}
                   </TableCell>

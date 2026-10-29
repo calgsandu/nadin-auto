@@ -71,7 +71,7 @@ function PartnersWorkspace({
               {partners.map((partner) => (
                 <tr
                   key={partner.id}
-                  className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]"
+                  className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]"
                 >
                   <TableCell className="font-semibold text-[#18181b]">
                     {partner.name}

@@ -228,7 +228,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
             <tbody>
               {data.sales.length > 0 ? (
                 data.sales.map((sale) => (
-                  <tr key={sale.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
+                  <tr key={sale.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
                     <TableCell className="tabular-nums">{sale.time}</TableCell>
                     <TableCell className="font-semibold">Vânzare #{sale.number}</TableCell>
                     <TableCell secondary className="text-[#52525b]">

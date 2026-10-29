@@ -99,7 +99,7 @@ function ReturnsWorkspace({
             <tbody>
               {operations.returns.length > 0 ? (
                 operations.returns.map((document) => (
-                  <tr key={document.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
+                  <tr key={document.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
                     <TableCell>{formatDate(document.documentDate)}</TableCell>
                     <TableCell className="font-semibold">
                       Retur #{document.number}

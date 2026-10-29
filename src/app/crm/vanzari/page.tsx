@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import {
   getOperationsData,
@@ -25,10 +26,11 @@ export const maxDuration = 60;
 export default async function SalesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ day?: string }>;
+  searchParams: Promise<{ day?: string; filtru?: string }>;
 }) {
   const appUser = await requireCrmSection("vanzari");
-  const { day } = await searchParams;
+  const { day, filtru } = await searchParams;
+  const filter = saleFilters.some((item) => item.id === filtru) ? (filtru as SaleFilterId) : "toate";
   const canModify = canWriteCatalog(appUser.role);
   const canSell = canCreateSales(appUser.role);
   const operationsPromise = getOperationsData("vanzari");
@@ -37,8 +39,9 @@ export default async function SalesPage({
   return (
     <>
       <CrmHeader section="vanzari" role={appUser.role} />
-      <Suspense key={day ?? "azi"} fallback={<WorkspaceSkeleton cards={3} rows={5} />}>
+      <Suspense key={`${day ?? "azi"}:${filter}`} fallback={<WorkspaceSkeleton cards={3} rows={5} />}>
         <Loader
+          filter={filter}
           operationsPromise={operationsPromise}
           salesDayPromise={salesDayPromise}
           canModify={canModify}
@@ -50,11 +53,13 @@ export default async function SalesPage({
 }
 
 async function Loader({
+  filter,
   operationsPromise,
   salesDayPromise,
   canModify,
   canSell,
 }: {
+  filter: SaleFilterId;
   operationsPromise: Promise<OperationsData>;
   salesDayPromise: Promise<SalesDayData>;
   canModify: boolean;
@@ -63,6 +68,7 @@ async function Loader({
   const [operations, salesDay] = await Promise.all([operationsPromise, salesDayPromise]);
   return (
     <SalesWorkspace
+      filter={filter}
       canModify={canModify}
       canSell={canSell}
       operations={operations}
@@ -82,12 +88,25 @@ const salesMonthLabelFormat = new Intl.DateTimeFormat("ro-MD", {
   year: "numeric",
 });
 
+/**
+ * Filtrele rapide de deasupra tabelului: ce rămâne de rezolvat până la
+ * închiderea zilei (nebătute la casă, vândute pe datorie).
+ */
+const saleFilters = [
+  { id: "toate", label: "Toate", match: () => true },
+  { id: "nebatute", label: "Nebătute la casă", match: (sale: { cashRegistered: boolean | null }) => sale.cashRegistered !== true },
+  { id: "datorie", label: "Pe datorie", match: (sale: { paymentMethod: string | null }) => sale.paymentMethod === "CREDIT" },
+] as const;
+type SaleFilterId = (typeof saleFilters)[number]["id"];
+
 function SalesWorkspace({
+  filter,
   canModify,
   canSell,
   operations,
   salesDay,
 }: {
+  filter: SaleFilterId;
   canModify: boolean;
   canSell: boolean;
   operations: OperationsData;
@@ -106,6 +125,7 @@ function SalesWorkspace({
     dayKey ===
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   const monthName = salesMonthLabelFormat.format(selectedDate);
+  const activeFilter = saleFilters.find((item) => item.id === filter) ?? saleFilters[0];
 
   return (
     <section className="motion-page grid gap-3 p-4">
@@ -139,13 +159,43 @@ function SalesWorkspace({
       </div>
 
       <div className="grid gap-2">
-        <h2 className="text-sm font-semibold capitalize text-[#18181b]">
-          {salesDayLabelFormat.format(selectedDate)}
-        </h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="mr-2 text-sm font-semibold text-[#18181b] first-letter:uppercase">
+            {salesDayLabelFormat.format(selectedDate)}
+          </h2>
+          {saleFilters.map((item) => {
+            const count = sales.filter((sale) => item.match(sale)).length;
+            const active = item.id === filter;
+            const query = new URLSearchParams();
+            if (dayKey && !isToday) query.set("day", dayKey);
+            if (item.id !== "toate") query.set("filtru", item.id);
+            const search = query.toString();
+            return (
+              <Link
+                key={item.id}
+                aria-current={active ? "true" : undefined}
+                href={search ? `/crm/vanzari?${search}` : "/crm/vanzari"}
+                className={`rounded-full border px-3 py-1 text-[13px] font-medium ${
+                  active
+                    ? "border-[#18181b] bg-[#18181b] text-white"
+                    : "border-[#e4e4e7] bg-white text-[#3f3f46] hover:bg-[#f4f4f5]"
+                }`}
+              >
+                {item.label} · {formatNumber(count)}
+              </Link>
+            );
+          })}
+        </div>
         <RecentDocumentsTable
-          documents={sales}
+          documents={sales.filter((sale) => activeFilter.match(sale))}
           canModify={canModify}
-          emptyText={isToday ? "Nicio vânzare înregistrată azi." : "Nicio vânzare în ziua aleasă."}
+          emptyText={
+            filter !== "toate"
+              ? "Nicio vânzare pentru filtrul ales."
+              : isToday
+                ? "Nicio vânzare înregistrată azi."
+                : "Nicio vânzare în ziua aleasă."
+          }
         />
       </div>
     </section>

@@ -79,7 +79,7 @@ function RestockWorkspace({
             <tbody>
               {operations.restockPending.length > 0 ? (
                 operations.restockPending.map((line) => (
-                  <tr key={line.productId} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
+                  <tr key={line.productId} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
                     <TableCell className="font-mono text-xs font-semibold">
                       {formatText(line.product.externalCode)}
                     </TableCell>

@@ -250,7 +250,7 @@ function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
               rows.map((row) => (
                 <tr
                   key={row.partnerId ?? "tejghea"}
-                  className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]"
+                  className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]"
                 >
                   <TableCell className="font-medium text-[#18181b]">{row.name}</TableCell>
                   <TableCell align="right" secondary className="tabular-nums">

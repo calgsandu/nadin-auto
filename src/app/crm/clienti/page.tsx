@@ -103,7 +103,7 @@ async function Loader({
               {data.customers.map((customer) => (
                 <tr
                   key={customer.id}
-                  className={`motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5] ${
+                  className={`motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa] ${
                     customer.id === openId ? "bg-[#f4f4f5]" : ""
                   }`}
                 >

@@ -5,7 +5,7 @@ import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-lab
 import { productLineSubtitle, type ProductLineInfo } from "@/lib/catalog/product-line-label";
 
 export const adminRowCls =
-  "motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]";
+  "motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]";
 
 /**
  * Coloanele secundare dispar sub `lg`. Tabelele CRM-ului aveau `min-w-[1100px]`,
@@ -27,7 +27,7 @@ export function TableHead({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-3 py-2 text-xs font-semibold text-[#52525b] ${
+      className={`whitespace-nowrap px-3 py-2 text-xs font-medium text-[#52525b] ${
         align === "right" ? "text-right" : "text-left"
       } ${secondary ? secondaryCls : ""} ${className}`}
     >

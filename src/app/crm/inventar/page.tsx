@@ -120,7 +120,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
             <tbody>
               {data.stocks.length > 0 ? (
                 data.stocks.map((row) => (
-                  <tr key={row.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
+                  <tr key={row.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
                     <TableCell className="font-mono text-xs font-semibold">
                       {formatText(row.product.externalCode)}
                     </TableCell>
@@ -249,7 +249,7 @@ function InventoryOperationsTable({
                 const minus = operation.lines.reduce((sum, line) => sum + Math.min(line.quantity, 0), 0);
                 const docLines = toDocLines(operation);
                 return (
-                  <tr key={operation.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
+                  <tr key={operation.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
                     <TableCell>{formatDate(operation.documentDate)}</TableCell>
                     <TableCell className="font-semibold">Inventar #{operation.number}</TableCell>
                     <TableCell align="right" secondary className="tabular-nums">{formatNumber(operation.lines.length)}</TableCell>

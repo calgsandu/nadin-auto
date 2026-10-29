@@ -89,7 +89,7 @@ function VatWorkspace({ data }: { data: VatReportData }) {
             </thead>
             <tbody>
               {data.months.map((month) => (
-                <tr key={month.key} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
+                <tr key={month.key} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
                   <TableCell className="font-semibold capitalize">{month.label}</TableCell>
                   <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
                     {formatNumber(month.salesCount)}

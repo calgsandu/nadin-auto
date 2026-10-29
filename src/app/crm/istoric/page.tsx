@@ -130,7 +130,7 @@ function AuditRowView({ entry }: { entry: AuditRow }) {
     !entry.restoredDocumentId;
 
   return (
-    <tr className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]">
+    <tr className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]">
       <TableCell className="whitespace-nowrap font-mono text-xs">
         {dateTimeFormat.format(entry.createdAt)}
       </TableCell>

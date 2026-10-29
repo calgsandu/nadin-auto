@@ -5,6 +5,7 @@ import { CashRegisterBadge, CashRegisterControl } from "@/app/operations/cash-re
 import { SalePaymentMethodBadge, SalePaymentMethodControl } from "@/app/operations/sale-payment-method-control";
 import { DocumentDetailsButton } from "@/app/operations/document-details";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
+import { RowMenu } from "@/app/components/row-menu";
 import { getDocumentsData, type DocumentsSearchParams } from "@/lib/documents/queries";
 import { crmDocumentsHref, crmSectionHref } from "@/lib/crm/urls";
 import { canWriteCatalog } from "@/lib/roles";
@@ -120,12 +121,11 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
         </span>
       </form>
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
-          <table className="crm-table w-full border-collapse text-left text-sm" style={{ minWidth: "900px" }}>
+          <table className="crm-table w-full border-collapse text-left text-sm" style={{ minWidth: "820px" }}>
             <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
-                <TableHead>Data</TableHead>
                 <TableHead>Document</TableHead>
                 <TableHead>Depozit</TableHead>
                 <TableHead>Partener</TableHead>
@@ -133,15 +133,18 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                 <TableHead align="right">Total</TableHead>
                 <TableHead>Casă</TableHead>
                 <TableHead>Plată</TableHead>
-                <TableHead align="right">Export intern</TableHead>
-                <TableHead align="right">Acțiuni</TableHead>
+                <TableHead align="right">
+                  <span className="sr-only">Acțiuni</span>
+                </TableHead>
               </tr>
             </thead>
             <tbody>
               {documents.map((d) => (
                 <tr key={d.id} className={adminRowCls}>
-                  <TableCell>{formatDate(d.documentDate)}</TableCell>
-                  <TableCell className="font-semibold">{formatDocType(d.type)} #{d.number}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    <span className="block font-semibold">{formatDocType(d.type)} #{d.number}</span>
+                    <span className="block text-xs text-[#52525b]">{formatDate(d.documentDate)}</span>
+                  </TableCell>
                   <TableCell>{d.warehouse.name}</TableCell>
                   <TableCell>{d.partner?.name ?? "—"}</TableCell>
                   <TableCell align="right" className="font-mono">{formatNumber(d._count.lines)}</TableCell>
@@ -167,42 +170,35 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                     ) : "—"}
                   </TableCell>
                   <TableCell align="right">
+                    {/* „Detalii" rămâne la vedere; exporturile, editarea și ștergerea stau în „⋯". */}
                     <div className="flex justify-end gap-1.5">
-                      <a
-                        href={`/api/export/document/${d.id}/pdf`}
-                        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-                      >
-                        <FileText className="size-3.5" aria-hidden="true" /> PDF intern
-                      </a>
-                      {d.type !== "ADJUSTMENT" ? (
-                        <a
-                          href={`/api/export/invoice/${d.id}`}
-                          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-                        >
-                          <Download className="size-3.5" aria-hidden="true" /> Excel intern
-                        </a>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                  <TableCell align="right">
-                    <div className="flex justify-end gap-2">
                       <DocumentDetailsButton details={toDocumentDetails(d, canModify)} />
-                      {canModify ? (
-                        <DocumentRowActions
-                          id={d.id}
-                          title={`${formatDocType(d.type)} #${d.number}`}
-                          documentDate={d.documentDate.toISOString().slice(0, 10)}
-                          documentType={d.type}
-                          notes={d.notes ?? ""}
-                          partnerId={d.partner?.id ?? ""}
-                          partnerName={d.partner?.name ?? ""}
-                          suppliers={suppliers}
-                          warehouses={warehouses}
-                          warehouseId={d.warehouseId}
-                          lines={toDocLines(d)}
-                          isTransfer={Boolean(d.transferGroupId)}
-                        />
-                      ) : null}
+                      <RowMenu label={`${formatDocType(d.type)} #${d.number}`}>
+                        <a href={`/api/export/document/${d.id}/pdf`} className="text-[#18181b]">
+                          <FileText className="size-4 text-[#71717a]" aria-hidden="true" /> PDF intern
+                        </a>
+                        {d.type !== "ADJUSTMENT" ? (
+                          <a href={`/api/export/invoice/${d.id}`} className="text-[#18181b]">
+                            <Download className="size-4 text-[#71717a]" aria-hidden="true" /> Excel intern
+                          </a>
+                        ) : null}
+                        {canModify ? (
+                          <DocumentRowActions
+                            id={d.id}
+                            title={`${formatDocType(d.type)} #${d.number}`}
+                            documentDate={d.documentDate.toISOString().slice(0, 10)}
+                            documentType={d.type}
+                            notes={d.notes ?? ""}
+                            partnerId={d.partner?.id ?? ""}
+                            partnerName={d.partner?.name ?? ""}
+                            suppliers={suppliers}
+                            warehouses={warehouses}
+                            warehouseId={d.warehouseId}
+                            lines={toDocLines(d)}
+                            isTransfer={Boolean(d.transferGroupId)}
+                          />
+                        ) : null}
+                      </RowMenu>
                     </div>
                   </TableCell>
                 </tr>
