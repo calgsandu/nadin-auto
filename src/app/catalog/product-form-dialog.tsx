@@ -327,9 +327,9 @@ export function ProductFormDialog({
                 </Field>
               </div>
 
-              <section className="rounded-xl border border-[#e8e7e3] bg-white p-4">
+              <section className="rounded-lg border border-[#e8e7e3] bg-white p-3">
                 <div>
-                  <h3 className="font-semibold text-[#1b1a17]">Compatibilități</h3>
+                  <h3 className="text-sm font-semibold text-[#1b1a17]">Compatibilități</h3>
                   <p className="mt-1 text-xs text-[#6f6b63]">
                     Prima linie e mașina principală. Adaugă câte linii are piesa (Sprinter ↔ Crafter).
                   </p>
@@ -363,10 +363,10 @@ export function ProductFormDialog({
                 Piesă fabricată local (manufactura proprie)
               </label>
 
-              <section className="rounded-xl border border-[#e8e7e3] bg-white p-4">
+              <section className="rounded-lg border border-[#e8e7e3] bg-white p-3">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-[#1b1a17]">Stoc pe depozite</h3>
+                    <h3 className="text-sm font-semibold text-[#1b1a17]">Stoc pe depozite</h3>
                     <p className="mt-1 text-xs text-[#6f6b63]">
                       Completează cantitatea reală din fiecare depozit. Totalul se calculează automat.
                     </p>
@@ -611,7 +611,7 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
 }
 
 const inputClassName =
-  "field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";
+  "field-control h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";
 
 function getWarehouseQuantities(
   product: ProductFormValue | undefined,

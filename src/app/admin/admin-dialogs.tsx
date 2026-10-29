@@ -29,7 +29,7 @@ type Action = (state: AdminActionState, fd: FormData) => Promise<AdminActionStat
 
 const initial: AdminActionState = { ok: false, message: "" };
 const inputClassName =
-  "h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30 placeholder:text-[#98948b]";
+  "h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17] outline-none transition focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30 placeholder:text-[#98948b]";
 
 function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary" | "row"; onClick: () => void }) {
   return (

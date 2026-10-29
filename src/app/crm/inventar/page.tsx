@@ -9,7 +9,7 @@ import { crmInventoryHref } from "@/lib/crm/urls";
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { DailyMetric, PagerLink, TableCell, TableHead, VehicleSubline, WorkspaceSkeleton } from "../_components/ui";
+import { PagerLink, TableCell, TableHead, VehicleSubline, WorkspaceSkeleton } from "../_components/ui";
 import { toDocLines, toDocumentDetails } from "../_components/documents-table";
 import { formatDate, formatMoney, formatNumber, formatText, signedNumber } from "../_components/format";
 
@@ -54,35 +54,37 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
 
   return (
     <section className="motion-page grid gap-3 p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        {data.warehouses.map((warehouse) => {
-          const active = warehouse.id === data.selected?.id;
-          return (
-            <Link
-              key={warehouse.id}
-              href={crmInventoryHref({ wh: warehouse.id, ...data.filters })}
-              className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
-                active
-                  ? "border-[#1b1a17] bg-[#1b1a17] text-white"
-                  : "border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
-              }`}
-            >
-              {warehouse.name}
-            </Link>
-          );
-        })}
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <DailyMetric label="Poziții în depozit" value={formatNumber(data.stocks.length)} />
-        <DailyMetric label="Bucăți în depozit" value={formatNumber(totalQuantity)} />
-      </div>
-
-      {canModify ? (
-        <div className="flex justify-end">
-          <InventoryDialog warehouses={warehouseOptions} defaultWarehouseId={data.selected?.id} />
+      {/* Depozitul, sumarul lui și acțiunea pe un singur rând — înainte erau trei
+          rânduri (pastile, două carduri mari, butonul singur în dreapta). */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {data.warehouses.map((warehouse) => {
+            const active = warehouse.id === data.selected?.id;
+            return (
+              <Link
+                key={warehouse.id}
+                href={crmInventoryHref({ wh: warehouse.id, ...data.filters })}
+                className={`rounded-full border px-3 py-1 text-sm font-semibold transition-colors ${
+                  active
+                    ? "border-[#1b1a17] bg-[#1b1a17] text-white"
+                    : "border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
+                }`}
+              >
+                {warehouse.name}
+              </Link>
+            );
+          })}
         </div>
-      ) : null}
+        <p className="text-sm text-[#6f6b63]">
+          <span className="font-semibold tabular-nums text-[#1b1a17]">{formatNumber(data.stocks.length)}</span> poziții ·{" "}
+          <span className="font-semibold tabular-nums text-[#1b1a17]">{formatNumber(totalQuantity)}</span> bucăți
+        </p>
+        {canModify ? (
+          <div className="ml-auto">
+            <InventoryDialog warehouses={warehouseOptions} defaultWarehouseId={data.selected?.id} />
+          </div>
+        ) : null}
+      </div>
 
       <InventoryOperationsTable data={data} canModify={canModify} />
 
@@ -164,7 +166,7 @@ function InventoryOperationsTable({
     name: warehouse.name,
   }));
   const filterInputCls =
-    "h-10 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
+    "h-9 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
   const exportQuery = new URLSearchParams({
@@ -191,13 +193,13 @@ function InventoryOperationsTable({
         </label>
         <button
           type="submit"
-          className="button-primary h-10 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
+          className="button-primary h-9 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
         >
           Filtrează
         </button>
         <Link
           href={crmInventoryHref({ wh: selected?.id })}
-          className="h-10 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
+          className="h-9 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
         >
           Resetează
         </Link>
@@ -205,13 +207,13 @@ function InventoryOperationsTable({
           <div className="flex gap-2">
             <a
               href={`/api/export/inventory?${exportQuery}`}
-              className="button-secondary inline-flex h-10 items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
             >
               <Download className="size-4" aria-hidden="true" /> Toate (Excel)
             </a>
             <a
               href={`/api/export/inventory?${exportQuery}&format=pdf`}
-              className="button-secondary inline-flex h-10 items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
             >
               <FileText className="size-4" aria-hidden="true" /> Toate (PDF)
             </a>

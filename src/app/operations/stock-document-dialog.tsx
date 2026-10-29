@@ -245,7 +245,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                   </button>
                 </div>
 
-                <div className="grid gap-3 p-3">
+                <div className="grid gap-1.5 p-2">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
                     const lineTva = lineVal / 6;
@@ -253,10 +253,10 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                     return (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2.5 rounded-md border border-[#efeeeb] bg-[#ffffff] p-2.5 md:grid-cols-[minmax(0,1fr)_5rem_9rem_12rem_5.5rem] md:items-start"
+                      className="motion-line-item grid gap-2 rounded-md border border-[#efeeeb] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_12.5rem_7.5rem] md:items-start"
                     >
                       <div>
-                        <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">
+                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">
                           Produs {index + 1}
                         </p>
                         <ProductSearchCombobox
@@ -270,6 +270,16 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                           }
                           onClear={() => selectReceiptProduct(line.id, "", "", "")}
                         />
+                        {/* Sub produs, pe un rând (vezi vânzarea): în coloana costului se rupea. */}
+                        {line.oldCost && line.price && line.price !== line.oldCost ? (
+                          <span className="mt-0.5 block font-mono text-[11px] font-semibold text-[#b45309]">
+                            cost curent {money(Number(line.oldCost))} → se actualizează
+                          </span>
+                        ) : line.oldCost ? (
+                          <span className="mt-0.5 block font-mono text-[11px] text-[#6f6b63]">
+                            cost curent {money(Number(line.oldCost))}
+                          </span>
+                        ) : null}
                       </div>
                       <Field label="Cantitate">
                         <input
@@ -295,20 +305,11 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                           value={line.price}
                           onChange={(e) => setLineField(line.id, "price", e.currentTarget.value)}
                         />
-                        {line.oldCost && line.price && line.price !== line.oldCost ? (
-                          <span className="font-mono text-[11px] font-semibold text-[#b45309]">
-                            cost curent {money(Number(line.oldCost))} → se actualizează
-                          </span>
-                        ) : line.oldCost ? (
-                          <span className="font-mono text-[11px] text-[#6f6b63]">
-                            cost curent {money(Number(line.oldCost))}
-                          </span>
-                        ) : null}
                       </Field>
                       <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-10 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
+                        <div className="flex h-9 flex-col justify-center whitespace-nowrap rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-2 font-mono text-xs leading-tight text-[#1b1a17]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
+                          <span className="text-[11px] text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
                         </div>
                       </Field>
                       <LineControls
@@ -509,14 +510,14 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                   </button>
                 </div>
 
-                <div className="grid gap-3 p-3">
+                <div className="grid gap-1.5 p-2">
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2.5 rounded-md border border-[#efeeeb] bg-[#ffffff] p-2.5 md:grid-cols-[minmax(0,1fr)_10rem_2.75rem] md:items-start"
+                      className="motion-line-item grid gap-2 rounded-md border border-[#efeeeb] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_10rem_2.25rem] md:items-start"
                     >
                       <div>
-                        <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">
+                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">
                           Produs {index + 1}
                         </p>
                         <ProductSearchCombobox
@@ -908,7 +909,7 @@ export function StockSaleDialog({
                     </button>
                   </div>
                 </div>
-                <div className="grid gap-3 p-3">
+                <div className="grid gap-1.5 p-2">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
                     const lineTva = lineVal / 6;
@@ -916,9 +917,9 @@ export function StockSaleDialog({
                     if (line.external) {
                       const marja = ((Number(line.price) || 0) - (Number(line.cost) || 0)) * (Number(line.qty) || 0);
                       return (
-                        <div key={line.id} className="motion-line-item grid gap-2.5 rounded-md border border-[#dbebfe] bg-[#ffffff] p-2.5 md:grid-cols-[minmax(0,1fr)_7rem_10rem_5rem_7rem_8rem_5.5rem] md:items-start">
+                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-md border border-[#dbebfe] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_10rem_5rem_7rem_8rem_7.5rem] md:items-start">
                           <div>
-                            <p className="mb-1.5 text-xs font-semibold text-[#175cd3]">
+                            <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#175cd3]">
                               Piesă externă {index + 1} — de la furnizor, nu intră în catalog/stoc
                             </p>
                             <input name="productId" type="hidden" value="" />
@@ -1004,9 +1005,9 @@ export function StockSaleDialog({
                       );
                     }
                     return (
-                    <div key={line.id} className="motion-line-item grid gap-2.5 rounded-md border border-[#efeeeb] bg-[#ffffff] p-2.5 md:grid-cols-[minmax(0,1fr)_5rem_9rem_12rem_5.5rem] md:items-start">
+                    <div key={line.id} className="motion-line-item grid gap-2 rounded-md border border-[#efeeeb] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_12.5rem_7.5rem] md:items-start">
                       <div>
-                        <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
+                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">Produs {index + 1}</p>
                         <input name="externalName" type="hidden" value="" />
                         <input name="externalCode" type="hidden" value="" />
                         <input name="externalSupplierId" type="hidden" value="" />
@@ -1018,6 +1019,17 @@ export function StockSaleDialog({
                           onClear={() => clearProduct(line.id)}
                           onSelect={(p) => selectProduct(line.id, p)}
                         />
+                        {/* Sub produs, pe un rând: în coloana îngustă a prețului se rupea pe
+                            două rânduri și dubla înălțimea fiecărei poziții. */}
+                        {line.listPrice ? (
+                          <span className="mt-0.5 block font-mono text-[11px] text-[#6f6b63]">
+                            listă {money(Number(line.listPrice))}
+                            {line.unitCost ? `, cost ${money(Number(line.unitCost))}` : ""}
+                            {line.unitCost && Number(line.price) > 0
+                              ? `, marjă ${Math.round(((Number(line.price) - Number(line.unitCost)) / Number(line.price)) * 100)}%`
+                              : ""}
+                          </span>
+                        ) : null}
                       </div>
                       <Field label="Cantitate">
                         <input
@@ -1043,20 +1055,11 @@ export function StockSaleDialog({
                           value={line.price}
                           onChange={(e) => setLineField(line.id, "price", e.currentTarget.value)}
                         />
-                        {line.listPrice ? (
-                          <span className="font-mono text-[11px] text-[#6f6b63]">
-                            listă {money(Number(line.listPrice))}
-                            {line.unitCost ? `, cost ${money(Number(line.unitCost))}` : ""}
-                            {line.unitCost && Number(line.price) > 0
-                              ? `, marjă ${Math.round(((Number(line.price) - Number(line.unitCost)) / Number(line.price)) * 100)}%`
-                              : ""}
-                          </span>
-                        ) : null}
                       </Field>
                       <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-10 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
+                        <div className="flex h-9 flex-col justify-center whitespace-nowrap rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-2 font-mono text-xs leading-tight text-[#1b1a17]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
+                          <span className="text-[11px] text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
                         </div>
                       </Field>
                       <LineControls
@@ -1117,32 +1120,31 @@ function LineControls({
   onRemove: () => void;
 }) {
   const iconButton =
-    "grid size-8 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4] disabled:cursor-not-allowed disabled:opacity-35";
+    "grid size-9 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4] disabled:cursor-not-allowed disabled:opacity-35";
+  // Pe un rând, nu stivuite: două săgeți una sub alta dublau înălțimea fiecărei poziții.
   return (
-    <div className="mt-6 flex items-start gap-1">
-      <div className="grid gap-1">
-        <button
-          aria-label={`Mută poziția ${index + 1} mai sus`}
-          className={iconButton}
-          disabled={index === 0}
-          type="button"
-          onClick={() => onMove(-1)}
-        >
-          <ArrowUp className="size-3.5" aria-hidden="true" />
-        </button>
-        <button
-          aria-label={`Mută poziția ${index + 1} mai jos`}
-          className={iconButton}
-          disabled={index === total - 1}
-          type="button"
-          onClick={() => onMove(1)}
-        >
-          <ArrowDown className="size-3.5" aria-hidden="true" />
-        </button>
-      </div>
+    <div className="line-offset mt-6 flex items-start gap-1">
+      <button
+        aria-label={`Mută poziția ${index + 1} mai sus`}
+        className={iconButton}
+        disabled={index === 0}
+        type="button"
+        onClick={() => onMove(-1)}
+      >
+        <ArrowUp className="size-3.5" aria-hidden="true" />
+      </button>
+      <button
+        aria-label={`Mută poziția ${index + 1} mai jos`}
+        className={iconButton}
+        disabled={index === total - 1}
+        type="button"
+        onClick={() => onMove(1)}
+      >
+        <ArrowDown className="size-3.5" aria-hidden="true" />
+      </button>
       <button
         aria-label={`Șterge poziția ${index + 1}`}
-        className={dangerButtonClassName.replace("mt-6 ", "")}
+        className={dangerButtonClassName.replace("line-offset mt-6 ", "")}
         disabled={total === 1}
         type="button"
         onClick={onRemove}

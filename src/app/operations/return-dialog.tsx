@@ -137,13 +137,13 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                         Completează cantitatea returnată pentru fiecare produs (0 = nu se returnează).
                       </p>
                     </div>
-                    <div className="grid gap-3 p-3">
+                    <div className="grid gap-1.5 p-2">
                       {sale.lines.map((line) => {
                         const qty = Number(quantities[line.productId]) || 0;
                         return (
                           <div
                             key={line.productId}
-                            className="grid gap-3 rounded-md border border-[#efeeeb] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_8rem_8rem_10rem] md:items-center"
+                            className="grid gap-2 rounded-md border border-[#efeeeb] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_8rem_8rem_10rem] md:items-center"
                           >
                             <input type="hidden" name="productId" value={line.productId} />
                             <div>

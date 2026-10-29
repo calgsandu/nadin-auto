@@ -320,4 +320,4 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
 }
 
 const inputClassName =
-  "field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";
+  "field-control h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";

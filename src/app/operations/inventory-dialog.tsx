@@ -166,11 +166,11 @@ export function InventoryDialog({
               {lines.map((line, index) => (
                 <div
                   key={line.id}
-                  className={`${drawerLineClassName} md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.75rem]`}
+                  className={`${drawerLineClassName} md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.25rem]`}
                   style={matchesLineFilter(filter, line) ? undefined : { display: "none" }}
                 >
                   <div>
-                    <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
+                    <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">Produs {index + 1}</p>
                     <ProductSearchCombobox
                       showHint={false}
                       initialProduct={

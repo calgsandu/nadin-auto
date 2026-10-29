@@ -107,7 +107,7 @@ function DetailsPanel({
           </div>
 
           <div className="grid gap-4 px-5 py-4">
-            <dl className="grid gap-x-6 gap-y-2 rounded-xl border border-[#e8e7e3] bg-white p-4 text-sm sm:grid-cols-2">
+            <dl className="grid gap-x-6 gap-y-1.5 rounded-lg border border-[#e8e7e3] bg-white p-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
               <MetaItem label="Data documentului" value={details.date} />
               <MetaItem label="Depozit" value={details.warehouse} />
               <MetaItem

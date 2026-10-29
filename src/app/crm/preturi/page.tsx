@@ -58,7 +58,7 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
         <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
           Caută produs
           <input
-            className="h-10 w-64 max-w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]"
+            className="h-9 w-64 max-w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]"
             type="search"
             name="q"
             defaultValue={data.filters.q}
@@ -67,14 +67,14 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
         </label>
         <button
           type="submit"
-          className="button-primary h-10 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
+          className="button-primary h-9 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
         >
           Caută
         </button>
         {data.filters.q ? (
           <Link
             href="/crm/preturi"
-            className="h-10 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
+            className="h-9 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
           >
             Resetează
           </Link>

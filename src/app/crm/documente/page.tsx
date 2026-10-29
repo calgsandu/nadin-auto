@@ -63,7 +63,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
   // dezactivat, deși furnizorii existau: prop-ul pur și simplu nu era dat.
   const suppliers = partners.filter((p) => p.kind === "SUPPLIER" || p.kind === "BOTH");
   const filterInputCls =
-    "h-10 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
+    "h-9 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
 
@@ -105,13 +105,13 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
         </label>
         <button
           type="submit"
-          className="button-primary h-10 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
+          className="button-primary h-9 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
         >
           Filtrează
         </button>
         <Link
           href={crmSectionHref("documente")}
-          className="h-10 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
+          className="h-9 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
         >
           Resetează
         </Link>

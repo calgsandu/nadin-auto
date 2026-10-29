@@ -320,15 +320,15 @@ function EditPanel({
                 key={line.id}
                 className={`${drawerLineClassName} ${
                   isExternal
-                    ? "border-[#dbebfe] md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.75rem]"
+                    ? "line-keep-labels border-[#dbebfe] md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.25rem]"
                     : isInventory
-                      ? "md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.75rem]"
-                      : "md:grid-cols-[minmax(0,1fr)_7rem_8rem_11rem_2.75rem]"
+                      ? "md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.25rem]"
+                      : "md:grid-cols-[minmax(0,1fr)_7rem_8rem_11rem_2.25rem]"
                 }`}
                 style={matchesLineFilter(filter, line) ? undefined : { display: "none" }}
               >
                 <div>
-                  <p className={`mb-1.5 text-xs font-semibold ${isExternal ? "text-[#175cd3]" : "text-[#6f6b63]"}`}>
+                  <p className={`line-label mb-1 text-xs font-semibold leading-5 ${isExternal ? "text-[#175cd3]" : "text-[#6f6b63]"}`}>
                     {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : `Produs ${index + 1}`}
                   </p>
                   {isExternal ? (

@@ -218,7 +218,7 @@ export function DrawerField({
 }) {
   return (
     <label className="grid gap-1 text-sm font-medium text-[#33312c]">
-      {label}
+      <span className="line-label">{label}</span>
       {children}
       {hint ? <span className="text-xs font-normal text-[#6f6b63]">{hint}</span> : null}
     </label>
@@ -245,7 +245,7 @@ export function DrawerSection({
         </div>
         {action}
       </div>
-      <div className="grid gap-2 p-2.5">{children}</div>
+      <div className="grid gap-1.5 p-2">{children}</div>
     </section>
   );
 }
@@ -467,12 +467,12 @@ export const drawerPanelClassName =
   "motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-[#fafaf9] shadow-xl md:max-w-[90vw]";
 export const drawerFormClassName = "grid gap-4 px-5 py-4";
 export const drawerInputClassName =
-  "field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b]";
+  "field-control h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm outline-none placeholder:text-[#98948b]";
 export const drawerSecondaryButton =
   "button-secondary flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#fafaf9]";
 export const drawerDangerButton =
-  "button-danger mt-6 grid size-10 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";
+  "button-danger line-offset mt-6 grid size-9 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";
 /** Marchează un rând de produs, ca navigarea cu Enter să știe unde se află. */
 const DRAWER_LINE_MARKER = "motion-line-item";
 export const drawerLineClassName =
-  `${DRAWER_LINE_MARKER} grid gap-2.5 rounded-md border border-[#efeeeb] bg-white p-2.5 md:items-start`;
+  `${DRAWER_LINE_MARKER} grid gap-2 rounded-md border border-[#efeeeb] bg-white px-2.5 py-2 md:items-start`;

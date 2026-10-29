@@ -48,7 +48,7 @@ const emptyLine = (id: number): EditableLine => ({
 
 const initialState: PaymentAccountActionState = { ok: false, message: "" };
 const inputClassName =
-  "field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none placeholder:text-[#98948b] focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/25";
+  "field-control h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17] outline-none placeholder:text-[#98948b] focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/25";
 
 export function PaymentAccountDialog({
   customers,
@@ -235,16 +235,16 @@ export function PaymentAccountDialog({
                       <Plus className="size-4" aria-hidden="true" /> Adaugă produs
                     </button>
                   </div>
-                  <div className="grid gap-3 p-3">
+                  <div className="grid gap-1.5 p-2">
                     {lines.map((line, index) => {
                       const calculated = totals.lines[index];
                       return (
                         <div
                           key={line.id}
-                          className="motion-line-item grid gap-3 rounded-md border border-[#efeeeb] p-3 md:grid-cols-[minmax(0,1fr)_6rem_9rem_12rem_2.75rem] md:items-start"
+                          className="motion-line-item grid gap-2 rounded-md border border-[#efeeeb] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_6rem_9rem_10rem_2.25rem] md:items-start"
                         >
                           <div>
-                            <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
+                            <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">Produs {index + 1}</p>
                             <ProductSearchCombobox
                               showHint={false}
                               initialProduct={
@@ -287,14 +287,14 @@ export function PaymentAccountDialog({
                             />
                           </Field>
                           <Field label="Linie">
-                            <div className="flex h-10 flex-col justify-center rounded-md bg-[#f6f6f4] px-3 font-mono text-xs">
+                            <div className="flex h-9 flex-col justify-center rounded-md bg-[#f6f6f4] px-2.5 font-mono text-xs leading-tight">
                               <span className="font-semibold">{money(calculated.gross)} lei</span>
                               <span className="text-[#6f6b63]">TVA {money(calculated.vat)}, net {money(calculated.net)}</span>
                             </div>
                           </Field>
                           <button
                             aria-label={`Șterge produsul ${index + 1}`}
-                            className="button-danger mt-6 grid size-10 place-items-center rounded-md border border-[#fca5a5] text-[#b91c1c] disabled:opacity-35"
+                            className="button-danger line-offset mt-6 grid size-9 place-items-center rounded-md border border-[#fca5a5] text-[#b91c1c] disabled:opacity-35"
                             disabled={lines.length === 1}
                             type="button"
                             onClick={() => setLines((current) => current.filter((item) => item.id !== line.id))}

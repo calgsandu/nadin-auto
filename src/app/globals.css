@@ -336,3 +336,28 @@ a {
   background-size: 0.75rem;
   cursor: pointer;
 }
+
+/*
+ * Rândurile de produse din dialogurile de operațiuni (vânzare, recepție,
+ * inventar…) arată ca un tabel: etichetele câmpurilor („Cantitate", „Preț")
+ * se văd doar pe primul rând, ca antet de coloană. Pe celelalte rânduri rămân
+ * pentru cititoarele de ecran, dar nu mai repetă un rând de text pe fiecare
+ * produs. Elementele împinse în jos ca să se alinieze cu inputul de sub
+ * etichetă (`line-offset`) urcă la loc. Pe telefon câmpurile sunt stivuite,
+ * deci etichetele rămân peste tot. Piesele externe au alte coloane decât
+ * produsele, deci își păstrează etichetele (`line-keep-labels`).
+ */
+@media (min-width: 768px) {
+  .motion-line-item ~ .motion-line-item:not(.line-keep-labels) .line-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .motion-line-item ~ .motion-line-item:not(.line-keep-labels) .line-offset {
+    margin-top: 0;
+  }
+}
