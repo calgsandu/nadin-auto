@@ -50,7 +50,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
     data.methods.cash.lei - data.cashRegister.registered.lei;
 
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SalesDayNav dayKey={data.dayKey} basePath="/crm/inchidere-zi" />
         <div className="flex flex-wrap gap-2">
@@ -77,7 +77,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
         {dayLabelFormat.format(selectedDate)}
       </h2>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         <DailyMetric
           label="Vânzări"
           value={`${formatMoney(data.salesTotal)} lei`}
@@ -186,8 +186,8 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
 
       {data.partnerPayments.length > 0 ? (
         <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-          <div className="border-b border-[#e8e7e3] px-4 py-3">
-            <h2 className="font-semibold text-[#1b1a17]">
+          <div className="border-b border-[#e8e7e3] px-4 py-2.5">
+            <h2 className="text-sm font-semibold text-[#1b1a17]">
               Încasări pe datorii vechi ·{" "}
               <span className="tabular-nums">{formatMoney(data.collectedFromPartners)} lei</span>
             </h2>
@@ -209,8 +209,8 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
       ) : null}
 
       <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="border-b border-[#e8e7e3] px-4 py-3">
-          <h2 className="font-semibold text-[#1b1a17]">Vânzările zilei</h2>
+        <div className="border-b border-[#e8e7e3] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#1b1a17]">Vânzările zilei</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[720px] border-collapse text-left text-sm">

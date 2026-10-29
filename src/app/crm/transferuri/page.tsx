@@ -3,8 +3,8 @@ import { getOperationsData, type OperationsData } from "@/lib/operations/queries
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { WorkspaceSkeleton } from "../_components/ui";
-import { StockWorkspace } from "../_components/stock-workspace";
+import { ButtonSkeleton, WorkspaceSkeleton } from "../_components/ui";
+import { StockAddButton, StockWorkspace } from "../_components/stock-workspace";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -16,7 +16,13 @@ export default async function TransfersPage() {
 
   return (
     <>
-      <CrmHeader section="transferuri" role={appUser.role} />
+      <CrmHeader section="transferuri" role={appUser.role}>
+        {canModify ? (
+          <Suspense fallback={<ButtonSkeleton />}>
+            <StockAddButton activeSectionId="transferuri" operationsPromise={operationsPromise} />
+          </Suspense>
+        ) : null}
+      </CrmHeader>
       <Suspense fallback={<WorkspaceSkeleton rows={5} />}>
         <Loader operationsPromise={operationsPromise} canModify={canModify} />
       </Suspense>

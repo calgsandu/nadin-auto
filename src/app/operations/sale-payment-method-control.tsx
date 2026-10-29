@@ -10,31 +10,33 @@ import {
   type SalePaymentMethodStatus,
 } from "@/lib/operations/sale-payment-method";
 
-const initialState = { ok: false, message: "" };
+const initialState = { ok: false, message: "", version: 0 };
+
+function salePaymentMethodTone(value: SalePaymentMethodStatus) {
+  return value === "CASH"
+    ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
+    : value === "CARD"
+      ? "border-[#93c5fd] bg-[#eff6ff] text-[#1d4ed8]"
+      : value === "CREDIT"
+        ? "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
+        : value === "TRANSFER"
+          ? "border-[#fcd34d] bg-[#fffbeb] text-[#92400e]"
+          : "border-[#d6d3d1] bg-[#fafaf9] text-[#57534a]";
+}
 
 export function SalePaymentMethodBadge({
   value,
 }: {
   value: SalePaymentMethodStatus;
 }) {
-  const tone =
-    value === "CASH"
-      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
-      : value === "CARD"
-        ? "border-[#93c5fd] bg-[#eff6ff] text-[#1d4ed8]"
-        : value === "CREDIT"
-          ? "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
-          : value === "TRANSFER"
-            ? "border-[#fcd34d] bg-[#fffbeb] text-[#92400e]"
-            : "border-[#d6d3d1] bg-[#fafaf9] text-[#57534a]";
-
   return (
-    <span className={`inline-flex whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-semibold ${tone}`}>
+    <span className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-semibold ${salePaymentMethodTone(value)}`}>
       {salePaymentMethodLabel(value)}
     </span>
   );
 }
 
+/** Metoda de plată editabilă din tabel — o listă colorată, salvată la alegere. */
 export function SalePaymentMethodControl({
   documentId,
   value,
@@ -43,42 +45,39 @@ export function SalePaymentMethodControl({
   value: SalePaymentMethodStatus;
 }) {
   const [state, action] = useActionState(
-    updateSalePaymentMethodAction,
+    async (previous: typeof initialState, formData: FormData) => ({
+      ...(await updateSalePaymentMethodAction(previous, formData)),
+      version: previous.version + 1,
+    }),
     initialState,
   );
 
   return (
-    <form action={action} className="grid min-w-44 gap-1.5">
+    <form action={action}>
       <input name="id" type="hidden" value={documentId} />
-      <div className="flex items-center justify-end gap-1.5">
-        <select
-          aria-label="Metoda de plată"
-          className="h-8 rounded-md border border-[#e8e7e3] bg-white px-2 text-xs text-[#1b1a17]"
-          defaultValue={salePaymentMethodFormValue(value)}
-          name="paymentMethod"
-        >
-          <option value="cash">Cash</option>
-          <option value="card">Card</option>
-          <option value="credit">Pe datorie</option>
-          <option value="transfer">Transfer bancar</option>
-          <option value="unspecified">Nespecificat</option>
-        </select>
-        <SaveButton />
-      </div>
+      {/* Remontată după fiecare răspuns: la eșec lista revine la valoarea salvată. */}
+      <SalePaymentMethodSelect key={state.version} value={value} />
       <ActionFeedback state={state} />
     </form>
   );
 }
 
-function SaveButton() {
+function SalePaymentMethodSelect({ value }: { value: SalePaymentMethodStatus }) {
   const { pending } = useFormStatus();
   return (
-    <button
-      className="button-secondary h-8 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4] disabled:opacity-60"
+    <select
+      aria-label="Metoda de plată"
+      className={`inline-select h-7 rounded-full border pl-2.5 pr-7 text-xs font-semibold disabled:opacity-60 ${salePaymentMethodTone(value)}`}
+      defaultValue={salePaymentMethodFormValue(value)}
       disabled={pending}
-      type="submit"
+      name="paymentMethod"
+      onChange={(event) => event.currentTarget.form?.requestSubmit()}
     >
-      {pending ? "..." : "Salvează"}
-    </button>
+      <option value="cash">Cash</option>
+      <option value="card">Card</option>
+      <option value="credit">Pe datorie</option>
+      <option value="transfer">Transfer bancar</option>
+      <option value="unspecified">Nespecificat</option>
+    </select>
   );
 }

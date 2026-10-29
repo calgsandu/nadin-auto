@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useContext, type ReactNode } from "react";
 import {
-  ArrowRightLeft,
   BarChart3,
+  Boxes,
   Handshake,
   Layers,
   LogOut,
   PackageSearch,
-  Users,
+  ShieldCheck,
+  ShoppingCart,
   type LucideIcon,
 } from "lucide-react";
 import { logoutAction } from "@/app/auth/actions";
@@ -19,7 +20,7 @@ import { TrustedDeviceControl } from "@/app/account/trusted-device-control";
 import { SidebarCollapseButton } from "../sidebar-collapse";
 import { crmSectionHref, sectionFromPathname } from "@/lib/crm/urls";
 import { groupForSection, navigationGroups, sectionLabel } from "@/lib/operations/workspace";
-import { canManageStaff, canViewSection } from "@/lib/roles";
+import { canViewSection } from "@/lib/roles";
 import type { AppRole } from "@/generated/prisma/enums";
 
 /**
@@ -42,12 +43,13 @@ export function CrmChrome({
 }
 
 const menuIcons: Record<string, LucideIcon> = {
-  ArrowRightLeft,
   BarChart3,
+  Boxes,
   Handshake,
   Layers,
   PackageSearch,
-  Users,
+  ShieldCheck,
+  ShoppingCart,
 };
 
 /** Nav-ul principal; secțiunea activă vine din URL, nu dintr-un prop. */
@@ -63,7 +65,6 @@ export function Sidebar({
   const pendingApprovals = useContext(PendingApprovalsContext);
   const activeSectionId = sectionFromPathname(usePathname());
   const visibleGroups = navigationGroups
-    .filter((group) => !group.adminOnly || canManageStaff(role))
     .map((group) => ({
       ...group,
       sections: group.sections.filter((section) => canViewSection(role, section)),
@@ -72,8 +73,8 @@ export function Sidebar({
   const userLabel = userName || userEmail || "Utilizator";
 
   return (
-    <nav className="flex flex-col gap-2 px-3 py-2 lg:min-h-screen lg:gap-0 lg:px-3 lg:py-4">
-      <div className="flex items-center justify-between gap-3 px-1 pb-1 lg:block lg:border-b lg:border-[#efeeeb] lg:px-2 lg:pb-4">
+    <nav className="flex flex-col gap-2 px-3 py-2 lg:min-h-screen lg:gap-0 lg:px-2.5 lg:py-3">
+      <div className="flex items-center justify-between gap-3 px-1 pb-1 lg:block lg:border-b lg:border-[#efeeeb] lg:px-2 lg:pb-3">
         <div className="flex min-w-0 items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -95,7 +96,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <div className="mobile-nav-scroll -mx-3 flex gap-1 overflow-x-auto px-3 pb-1 lg:mx-0 lg:grid lg:gap-0.5 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-3">
+      <div className="mobile-nav-scroll -mx-3 flex gap-1 overflow-x-auto px-3 pb-1 lg:mx-0 lg:grid lg:gap-0.5 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-2.5">
         {visibleGroups.map((group) => {
           const Icon = menuIcons[group.icon];
           const active = group.sections.includes(activeSectionId);
@@ -103,7 +104,7 @@ export function Sidebar({
           return (
             <Link
               key={group.id}
-              className={`motion-nav-link flex min-w-max items-center gap-2.5 rounded-lg px-3 py-2 text-sm lg:min-w-0 ${
+              className={`motion-nav-link flex min-w-max items-center gap-2.5 rounded-lg px-3 py-2 text-sm lg:min-w-0 lg:px-2.5 lg:py-1.5 ${
                 active
                   ? "bg-[#f1efe9] font-semibold text-[#1b1a17]"
                   : "font-medium text-[#6f6b63] hover:bg-[#f6f6f4] hover:text-[#1b1a17]"
@@ -162,7 +163,11 @@ function LogoutButton({ compact = false }: { compact?: boolean }) {
   );
 }
 
-/** Sub-tab-urile grupului curent. */
+/**
+ * Sub-tab-urile grupului curent. Stau în bara de titlu (vezi `CrmHeader`), nu
+ * într-o bară proprie: tab-ul activ spune deja unde ești, iar bara în plus
+ * costa ~50px de ecran pe fiecare pagină.
+ */
 export function SectionTabs({ role }: { role: AppRole }) {
   const pendingApprovals = useContext(PendingApprovalsContext);
   const activeSectionId = sectionFromPathname(usePathname());
@@ -171,15 +176,16 @@ export function SectionTabs({ role }: { role: AppRole }) {
   if (sections.length <= 1) return null;
 
   return (
-    <div className="border-b border-[#e8e7e3] bg-white px-4 lg:px-6">
-      <div className="mobile-nav-scroll flex gap-1 overflow-x-auto py-2">
+    <nav aria-label="Secțiuni" className="mobile-nav-scroll -mx-1 min-w-0 overflow-x-auto px-1">
+      <div className="flex gap-1">
         {sections.map((section) => {
           const active = section === activeSectionId;
           return (
             <Link
               key={section}
               href={crmSectionHref(section)}
-              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+              aria-current={active ? "page" : undefined}
+              className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
                 active
                   ? "bg-[#1b1a17] text-white"
                   : "text-[#6f6b63] hover:bg-[#f1f0ed] hover:text-[#1b1a17]"
@@ -199,6 +205,6 @@ export function SectionTabs({ role }: { role: AppRole }) {
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }

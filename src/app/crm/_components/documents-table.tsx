@@ -202,8 +202,11 @@ export function toDocumentDetails(
   };
 }
 
-/** Export „Registrul vânzărilor" (PDF/Excel) pe un interval de date. */
-
+/**
+ * Export „Registrul vânzărilor" (PDF/Excel) pe un interval de date. Se folosește
+ * rar, deci stă strâns într-un buton; panoul cu intervalul se deschide la click
+ * (`<details>`, fără JavaScript) în loc să ocupe jumătate din bara vânzărilor.
+ */
 export function SalesRegisterExport() {
   const now = new Date();
   const firstOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
@@ -214,22 +217,32 @@ export function SalesRegisterExport() {
     "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]";
 
   return (
-    <form
-      action="/api/export/sales-register"
-      method="get"
-      target="_blank"
-      className="flex flex-wrap items-center gap-2 rounded-lg border border-[#e8e7e3] bg-white px-3 py-2"
-    >
-      <span className="text-xs font-semibold text-[#6f6b63]">Registru vânzări</span>
-      <input className={inputCls} type="date" name="from" defaultValue={firstOfMonth} aria-label="De la" />
-      <input className={inputCls} type="date" name="to" defaultValue={today} aria-label="Până la" />
-      <button className={buttonCls} type="submit" name="format" value="pdf">
-        <FileText className="size-3.5" aria-hidden="true" /> PDF
-      </button>
-      <button className={buttonCls} type="submit" name="format" value="xlsx">
-        <Download className="size-3.5" aria-hidden="true" /> Excel
-      </button>
-    </form>
+    <details className="group relative">
+      <summary className="button-secondary inline-flex h-9 cursor-pointer list-none items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4] [&::-webkit-details-marker]:hidden">
+        <FileText className="size-4" aria-hidden="true" />
+        Registru vânzări
+      </summary>
+      <form
+        action="/api/export/sales-register"
+        method="get"
+        target="_blank"
+        className="motion-popover absolute right-0 z-30 mt-1.5 grid w-max gap-2 rounded-lg border border-[#e8e7e3] bg-white p-3 shadow-lg"
+      >
+        <div className="flex items-center gap-2">
+          <input className={inputCls} type="date" name="from" defaultValue={firstOfMonth} aria-label="De la" />
+          <span className="text-xs text-[#6f6b63]">–</span>
+          <input className={inputCls} type="date" name="to" defaultValue={today} aria-label="Până la" />
+        </div>
+        <div className="flex justify-end gap-2">
+          <button className={buttonCls} type="submit" name="format" value="pdf">
+            <FileText className="size-3.5" aria-hidden="true" /> PDF
+          </button>
+          <button className={buttonCls} type="submit" name="format" value="xlsx">
+            <Download className="size-3.5" aria-hidden="true" /> Excel
+          </button>
+        </div>
+      </form>
+    </details>
   );
 }
 
@@ -247,21 +260,23 @@ export function RecentDocumentsTable({
   warehouses?: WarehouseOption[];
   emptyText?: string;
 }) {
+  // Casă/Plată au sens doar pe vânzări; pe recepții și transferuri erau două
+  // coloane de liniuțe care furau lățimea coloanei de produse.
+  const hasSales = documents.some((document) => document.type === "SALE");
   return (
     <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
           <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
             <tr>
-              <TableHead>Data</TableHead>
+              {/* Data, cantitatea și TVA stau ca subtitluri (sub document, sub total):
+                  ca coloane separate împingeau Acțiunile în afara ecranului pe laptop. */}
               <TableHead>Document</TableHead>
               <TableHead secondary>Depozit</TableHead>
-              <TableHead>Produs</TableHead>
-              <TableHead align="right" secondary>Cantitate</TableHead>
+              <TableHead className="min-w-[16rem]">Produs</TableHead>
               <TableHead align="right">Total</TableHead>
-              {COMPANY.vatPayer ? <TableHead align="right" secondary>TVA (÷6)</TableHead> : null}
-              <TableHead secondary>Casă</TableHead>
-              <TableHead secondary>Plată</TableHead>
+              {hasSales ? <TableHead secondary>Casă</TableHead> : null}
+              {hasSales ? <TableHead secondary>Plată</TableHead> : null}
               <TableHead align="right">Acțiuni</TableHead>
             </tr>
           </thead>
@@ -270,8 +285,10 @@ export function RecentDocumentsTable({
               const docTotal = documentTotalLei(document);
               return (
               <tr key={document.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
-                <TableCell>{formatDate(document.documentDate)}</TableCell>
-                <TableCell className="font-semibold">{formatDocumentType(document.type)} #{document.number}</TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <span className="block font-semibold">{formatDocumentType(document.type)} #{document.number}</span>
+                  <span className="block text-xs text-[#6f6b63]">{formatDate(document.documentDate)}</span>
+                </TableCell>
                 <TableCell secondary>{document.warehouse.name}</TableCell>
                 <TableCell>
                   {document.type === "SALE" ? (
@@ -290,41 +307,33 @@ export function RecentDocumentsTable({
                     </div>
                   )}
                 </TableCell>
-                <TableCell align="right" secondary className="font-mono">
-                  {formatNumber(document.lines.reduce((sum, line) => sum + line.quantity, 0))}
+                <TableCell align="right" className="whitespace-nowrap">
+                  <span className="block font-mono font-semibold">{formatMoney(docTotal)} lei</span>
+                  <span className="block text-xs text-[#6f6b63]">
+                    {formatNumber(document.lines.reduce((sum, line) => sum + line.quantity, 0))} buc.
+                    {COMPANY.vatPayer ? ` · TVA ${formatMoney(docTotal / 6)}` : null}
+                  </span>
                 </TableCell>
-                <TableCell align="right" className="font-mono font-semibold">{formatMoney(docTotal)} lei</TableCell>
-                {COMPANY.vatPayer ? (
-                  <TableCell align="right" secondary className="font-mono text-[#6f6b63]">{formatMoney(docTotal / 6)} lei</TableCell>
-                ) : null}
-                <TableCell secondary>
+                {hasSales ? <TableCell secondary>
                   {document.type === "SALE" ? (
-                    <div className="grid gap-2">
+                    canModify ? (
+                      <CashRegisterControl documentId={document.id} value={document.cashRegistered} />
+                    ) : (
                       <CashRegisterBadge value={document.cashRegistered} />
-                      {canModify ? (
-                        <CashRegisterControl
-                          documentId={document.id}
-                          value={document.cashRegistered}
-                        />
-                      ) : null}
-                    </div>
+                    )
                   ) : "—"}
-                </TableCell>
-                <TableCell secondary>
+                </TableCell> : null}
+                {hasSales ? <TableCell secondary>
                   {document.type === "SALE" ? (
-                    <div className="grid gap-2">
+                    canModify ? (
+                      <SalePaymentMethodControl documentId={document.id} value={document.paymentMethod} />
+                    ) : (
                       <SalePaymentMethodBadge value={document.paymentMethod} />
-                      {canModify ? (
-                        <SalePaymentMethodControl
-                          documentId={document.id}
-                          value={document.paymentMethod}
-                        />
-                      ) : null}
-                    </div>
+                    )
                   ) : "—"}
-                </TableCell>
+                </TableCell> : null}
                 <TableCell align="right">
-                  <div className="flex justify-end gap-2">
+                  <div className="flex justify-end gap-1.5">
                     <DocumentDetailsButton details={toDocumentDetails(document, canModify)} />
                     {canModify ? (
                       <DocumentRowActions

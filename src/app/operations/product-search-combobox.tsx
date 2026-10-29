@@ -236,7 +236,7 @@ export function ProductSearchCombobox({
           aria-autocomplete="list"
           aria-controls={`${id}-results`}
           aria-expanded={open}
-          className="field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-9 text-sm outline-none placeholder:text-[#98948b]"
+          className="field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-9 text-sm outline-none placeholder:text-[#98948b]"
           // Ascuns sub fișă: navigarea cu Enter trebuie să sară peste el.
           data-enter-skip={showCard ? "" : undefined}
           placeholder="Caută cod, brand, model sau descriere"
@@ -393,7 +393,7 @@ function ProductCard({ label, onEdit }: { label: string; onEdit: () => void }) {
 
   return (
     <div
-      className="min-h-11 cursor-text rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm leading-5"
+      className="min-h-10 cursor-text rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm leading-5"
       role="button"
       tabIndex={0}
       title="Dublu-click ca să schimbi produsul"

@@ -59,7 +59,7 @@ export function ExternalOrderDialog({
         className={
           triggerKind === "row"
             ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
-            : "button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
+            : "button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c]"
         }
         type="button"
         onClick={() => {
@@ -83,9 +83,9 @@ export function ExternalOrderDialog({
               onClick={() => setOpen(false)}
             />
             <aside className={drawerPanelClassName}>
-              <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
                 <div>
-                  <h2 className="text-2xl font-semibold text-[#1b1a17]">
+                  <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">
                     {order ? "Editează comanda" : "Comandă nouă"}
                   </h2>
                   <p className="mt-1 text-sm text-[#6f6b63]">
@@ -101,10 +101,10 @@ export function ExternalOrderDialog({
                 </button>
               </div>
 
-              <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6">
+              <form onSubmit={onSubmit} className="grid gap-4 px-5 py-4">
                 {order ? <input name="orderId" type="hidden" value={order.id} /> : null}
 
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Client">
                     <input
                       className={inputClassName}
@@ -135,7 +135,7 @@ export function ExternalOrderDialog({
                   />
                 </Field>
 
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Cod piesă (opțional)">
                     <input
                       className={`${inputClassName} font-mono`}
@@ -167,7 +167,7 @@ export function ExternalOrderDialog({
                   />
                 </Field>
 
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Preț achiziție / buc (lei)">
                     <input
                       className={inputClassName}
@@ -199,7 +199,7 @@ export function ExternalOrderDialog({
 
                 <Field label="Note">
                   <textarea
-                    className={`${inputClassName} min-h-24 resize-y py-3`}
+                    className={`${inputClassName} min-h-16 resize-y py-2`}
                     name="notes"
                     defaultValue={order?.notes ?? ""}
                     placeholder="Termen de livrare, condiții, observații..."
@@ -209,7 +209,7 @@ export function ExternalOrderDialog({
 
                 <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                   <button
-                    className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                    className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                     type="button"
                     onClick={() => setOpen(false)}
                   >
@@ -228,7 +228,7 @@ export function ExternalOrderDialog({
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
+    <label className="grid gap-1 text-sm font-medium text-[#33312c]">
       {label}
       {children}
     </label>
@@ -238,7 +238,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
   return (
     <button
-      className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -248,4 +248,4 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
 }
 
 const inputClassName =
-  "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";
+  "field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";

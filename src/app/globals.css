@@ -29,6 +29,27 @@
   --font-mono: var(--font-app-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
+/*
+ * Densitatea CRM-ului pe laptop. Aproape tot CRM-ul e dimensionat în rem
+ * (Tailwind), deci rădăcina mai mică strânge proporțional textul, câmpurile,
+ * spațierile și sidebar-ul — efectul pe care operatorii îl obțineau cu
+ * Ctrl − pe un 1366/1440. Telefonul rămâne pe 16px: acolo contează țintele
+ * de atingere. `text-xs` crește puțin ca subtitlurile să rămână citibile.
+ */
+@media (min-width: 1024px) {
+  :root:has(.crm-main) {
+    font-size: 14px;
+    --text-xs: 0.8125rem;
+    --text-xs--line-height: 1.35;
+  }
+}
+
+@media (min-width: 1600px) {
+  :root:has(.crm-main) {
+    font-size: 15px;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -304,4 +325,14 @@ a {
     flex-direction: column;
     gap: 0.5rem;
   }
+}
+
+/* Listă compactă în rând de tabel (casă, plată): arată ca eticheta, cu săgeată. */
+.inline-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 0.75rem;
+  cursor: pointer;
 }

@@ -351,10 +351,11 @@ export const navigationEntries: NavigationEntry[] = [
 
 type NavGroupIcon =
   | "PackageSearch"
-  | "ArrowRightLeft"
+  | "ShoppingCart"
+  | "Boxes"
   | "Layers"
   | "Handshake"
-  | "Users"
+  | "ShieldCheck"
   | "BarChart3";
 
 export type NavGroup = {
@@ -363,10 +364,17 @@ export type NavGroup = {
   description: string;
   icon: NavGroupIcon;
   sections: WorkspaceSectionId[];
-  adminOnly?: boolean;
 };
 
-/** Collapsed sidebar: a handful of groups, each fanning out to sub-tabs. */
+/**
+ * Sidebar-ul: câteva grupuri, fiecare cu sub-tab-urile lui. „Operațiuni" ținea
+ * 12 tab-uri — pe un laptop nu încăpeau pe un rând, iar ultimele (Aprobări,
+ * Istoric) ieșeau din ecran. Acum vânzarea și stocul sunt grupuri separate,
+ * iar controlul (aprobări, istoric, personal) are grupul lui.
+ *
+ * Vizibilitatea pe rol vine din `canViewSection`: un grup fără nicio secțiune
+ * vizibilă dispare singur (ANGAJAT vede doar Produse și Vânzări).
+ */
 export const navigationGroups: NavGroup[] = [
   {
     id: "catalog",
@@ -376,11 +384,32 @@ export const navigationGroups: NavGroup[] = [
     sections: ["produse"],
   },
   {
-    id: "operatiuni",
-    label: "Operațiuni",
+    id: "vanzari",
+    label: "Vânzări",
+    description: "Vânzări, proforme, comenzi, retururi",
+    icon: "ShoppingCart",
+    sections: ["vanzari", "conturi-plata", "la-comanda", "retururi"],
+  },
+  {
+    id: "stoc",
+    label: "Stoc",
     description: "Mișcări de stoc",
-    icon: "ArrowRightLeft",
-    sections: ["receptii", "transferuri", "vanzari", "la-comanda", "conturi-plata", "retururi", "de-adus", "fara-stoc", "inventar", "documente", "aprobari", "istoric"],
+    icon: "Boxes",
+    sections: ["receptii", "transferuri", "inventar", "de-adus", "fara-stoc", "documente"],
+  },
+  {
+    id: "furnizori",
+    label: "Parteneri",
+    description: "Furnizori și clienți",
+    icon: "Handshake",
+    sections: ["clienti", "furnizori"],
+  },
+  {
+    id: "rapoarte",
+    label: "Rapoarte",
+    description: "Situații & vânzări",
+    icon: "BarChart3",
+    sections: ["rapoarte", "statistici", "inchidere-zi", "tva", "preturi"],
   },
   {
     id: "nomenclatoare",
@@ -390,26 +419,11 @@ export const navigationGroups: NavGroup[] = [
     sections: ["branduri", "modele", "tipuri", "compatibilitati", "depozite"],
   },
   {
-    id: "furnizori",
-    label: "Parteneri",
-    description: "Furnizori și clienți",
-    icon: "Handshake",
-    sections: ["furnizori", "clienti"],
-  },
-  {
-    id: "personal",
-    label: "Personal",
-    description: "Utilizatori și roluri",
-    icon: "Users",
-    sections: ["personal"],
-    adminOnly: true,
-  },
-  {
-    id: "rapoarte",
-    label: "Rapoarte",
-    description: "Situații & vânzări",
-    icon: "BarChart3",
-    sections: ["rapoarte", "statistici", "inchidere-zi", "tva", "preturi"],
+    id: "control",
+    label: "Administrare",
+    description: "Aprobări, istoric, personal",
+    icon: "ShieldCheck",
+    sections: ["aprobari", "istoric", "personal"],
   },
 ];
 

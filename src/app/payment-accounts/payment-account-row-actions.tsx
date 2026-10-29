@@ -266,7 +266,7 @@ function CorrectionForm({
             </DrawerField>
             <DrawerField label="Observații">
               <textarea
-                className={`${drawerInputClassName} min-h-24 resize-y py-3`}
+                className={`${drawerInputClassName} min-h-16 resize-y py-2`}
                 defaultValue={notes}
                 name="notes"
               />

@@ -6,6 +6,23 @@ import {
 import { RecentDocumentsTable } from "./documents-table";
 import { toSupplierOptions, toWarehouseOptions } from "./operations-options";
 
+/** Butonul „Adaugă recepție/transfer" din bara de sus a secțiunii. */
+export async function StockAddButton({
+  activeSectionId,
+  operationsPromise,
+}: {
+  activeSectionId: "receptii" | "transferuri";
+  operationsPromise: Promise<OperationsData>;
+}) {
+  const operations = await operationsPromise;
+  const warehouses = toWarehouseOptions(operations.warehouses);
+  return activeSectionId === "receptii" ? (
+    <StockDocumentDialog suppliers={toSupplierOptions(operations.suppliers)} warehouses={warehouses} />
+  ) : (
+    <StockTransferDialog warehouses={warehouses} />
+  );
+}
+
 export function StockWorkspace({
   activeSectionId,
   canModify,
@@ -21,16 +38,7 @@ export function StockWorkspace({
   const documents = isReceipts ? operations.receipts : operations.transfers;
 
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
-      {canModify ? (
-        <div className="flex justify-end">
-          {isReceipts ? (
-            <StockDocumentDialog suppliers={suppliers} warehouses={warehouses} />
-          ) : (
-            <StockTransferDialog warehouses={warehouses} />
-          )}
-        </div>
-      ) : null}
+    <section className="motion-page grid gap-3 p-4">
       <RecentDocumentsTable
         documents={documents}
         canModify={canModify}
@@ -41,4 +49,3 @@ export function StockWorkspace({
     </section>
   );
 }
-

@@ -46,7 +46,7 @@ function RestockWorkspace({
   operations: OperationsData;
 }) {
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <div className="motion-card flex flex-col gap-3 rounded-xl border border-[#e8e7e3] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-semibold text-[#1b1a17]">Reaprovizionare Pavilion 110A</h2>

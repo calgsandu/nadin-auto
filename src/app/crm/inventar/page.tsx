@@ -53,7 +53,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
   const warehouseOptions = data.warehouses.map((w) => ({ id: w.id, name: w.name }));
 
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <div className="flex flex-wrap items-center gap-2">
         {data.warehouses.map((warehouse) => {
           const active = warehouse.id === data.selected?.id;
@@ -223,8 +223,8 @@ function InventoryOperationsTable({
       </form>
 
       <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="border-b border-[#e8e7e3] px-4 py-3">
-          <h2 className="font-semibold text-[#1b1a17]">Inventare efectuate</h2>
+        <div className="border-b border-[#e8e7e3] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#1b1a17]">Inventare efectuate</h2>
         </div>
         <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[860px] border-collapse text-left text-sm">

@@ -49,7 +49,7 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
   const end = Math.min(data.page * data.pageSize, data.total);
 
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <form
         action="/crm/preturi"
         method="get"

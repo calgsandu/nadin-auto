@@ -18,16 +18,18 @@ export function TableHead({
   align = "left",
   secondary = false,
   children,
+  className = "",
 }: {
   align?: "left" | "right";
   secondary?: boolean;
   children: ReactNode;
+  className?: string;
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-4 py-2.5 text-[13px] font-semibold text-[#6f6b63] ${
+      className={`whitespace-nowrap px-3 py-2 text-xs font-semibold text-[#6f6b63] ${
         align === "right" ? "text-right" : "text-left"
-      } ${secondary ? secondaryCls : ""}`}
+      } ${secondary ? secondaryCls : ""} ${className}`}
     >
       {children}
     </th>
@@ -47,7 +49,7 @@ export function TableCell({
 }) {
   return (
     <td
-      className={`px-4 py-3 ${align === "right" ? "text-right" : "text-left"} ${
+      className={`px-3 py-2 ${align === "right" ? "text-right" : "text-left"} ${
         secondary ? secondaryCls : ""
       } ${className}`}
     >
@@ -80,9 +82,9 @@ export function DailyMetric({
   hint?: string;
 }) {
   return (
-    <div className="motion-card rounded-xl border border-[#e8e7e3] bg-white px-4 py-3.5">
-      <p className="text-sm font-medium text-[#6f6b63]">{label}</p>
-      <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums text-[#1b1a17]">
+    <div className="motion-card rounded-lg border border-[#e8e7e3] bg-white px-3.5 py-2.5">
+      <p className="text-xs font-medium text-[#6f6b63]">{label}</p>
+      <p className="mt-0.5 text-lg font-semibold tracking-tight tabular-nums text-[#1b1a17]">
         {value}
       </p>
       {hint ? <p className="mt-0.5 text-xs text-[#98948b]">{hint}</p> : null}
@@ -124,7 +126,7 @@ export function ExportLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
     >
       <Download className="size-4" aria-hidden="true" />
       {label}
@@ -147,7 +149,7 @@ export function AdminSection({
   minWidth?: string;
 }) {
   return (
-    <section className="motion-page p-4 lg:p-5">
+    <section className="motion-page p-4">
       <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
         <div className="overflow-x-auto">
           <table
@@ -181,15 +183,15 @@ export function AdminSection({
 
 export function ButtonSkeleton() {
   return (
-    <div aria-hidden="true" className="skeleton-pulse h-10 w-32 rounded-md bg-[#efeeeb]" />
+    <div aria-hidden="true" className="skeleton-pulse h-9 w-32 rounded-md bg-[#efeeeb]" />
   );
 }
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-xl border border-[#e8e7e3] bg-white p-4">
-      <div className="skeleton-pulse h-4 w-24 rounded bg-[#efeeeb]" />
-      <div className="skeleton-pulse mt-3 h-8 w-16 rounded bg-[#f0efec]" />
+    <div className="rounded-lg border border-[#e8e7e3] bg-white px-3.5 py-2.5">
+      <div className="skeleton-pulse h-3.5 w-24 rounded bg-[#efeeeb]" />
+      <div className="skeleton-pulse mt-2 h-6 w-16 rounded bg-[#f0efec]" />
     </div>
   );
 }
@@ -208,10 +210,10 @@ export function WorkspaceSkeleton({
     <section
       aria-label="Se încarcă datele"
       aria-live="polite"
-      className="grid gap-4 p-4 lg:p-5"
+      className="grid gap-3 p-4"
     >
       {cards > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
           {Array.from({ length: cards }, (_, index) => (
             <SkeletonCard key={index} />
           ))}
@@ -221,16 +223,16 @@ export function WorkspaceSkeleton({
       {filters > 0 ? (
         <div className="grid gap-3 rounded-lg border border-[#e8e7e3] bg-[#fafaf9] p-4 sm:grid-cols-2 lg:grid-cols-5">
           {Array.from({ length: filters }, (_, index) => (
-            <div key={index} className="skeleton-pulse h-11 rounded-md bg-[#efeeeb]" />
+            <div key={index} className="skeleton-pulse h-10 rounded-md bg-[#efeeeb]" />
           ))}
         </div>
       ) : null}
 
       <div className="overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="h-10 border-b border-[#e8e7e3] bg-[#fafaf9]" />
-        <div className="grid gap-3 p-4">
+        <div className="h-9 border-b border-[#e8e7e3] bg-[#fafaf9]" />
+        <div className="grid gap-2 p-3">
           {Array.from({ length: rows }, (_, index) => (
-            <div key={index} className="skeleton-pulse h-11 rounded-md bg-[#f0efec]" />
+            <div key={index} className="skeleton-pulse h-9 rounded-md bg-[#f0efec]" />
           ))}
         </div>
       </div>

@@ -28,8 +28,8 @@ function fmt(value: number) {
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="border-b border-[#e8e7e3] px-4 py-3">
-        <h2 className="font-semibold text-[#1b1a17]">{title}</h2>
+      <div className="border-b border-[#e8e7e3] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#1b1a17]">{title}</h2>
       </div>
       <div className="px-2 py-3 sm:px-3">{children}</div>
     </div>
@@ -61,7 +61,7 @@ export function DailyChart({
 
   return (
     <ChartCard title="Venit pe zile (ultimele 14 cu vânzări)">
-      <ResponsiveContainer width="100%" height={260}>
+      <ResponsiveContainer width="100%" height={220}>
         <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid stroke={GRID} vertical={false} />
           <XAxis dataKey="name" tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} />
@@ -69,7 +69,7 @@ export function DailyChart({
             tick={{ fontSize: 11, fill: AXIS }}
             tickLine={false}
             axisLine={false}
-            width={44}
+            width={56}
             tickFormatter={(v: number) => money.format(v)}
           />
           <Tooltip formatter={(v) => fmt(Number(v))} contentStyle={tooltipStyle} />
@@ -108,7 +108,7 @@ export function MonthlyChart({
 
   return (
     <ChartCard title="Venit pe luni (ultimele 12)">
-      <ResponsiveContainer width="100%" height={240}>
+      <ResponsiveContainer width="100%" height={220}>
         <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid stroke={GRID} vertical={false} />
           <XAxis dataKey="name" tick={{ fontSize: 10, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} />
@@ -116,7 +116,7 @@ export function MonthlyChart({
             tick={{ fontSize: 11, fill: AXIS }}
             tickLine={false}
             axisLine={false}
-            width={48}
+            width={60}
             tickFormatter={(v: number) => money.format(v)}
           />
           <Tooltip formatter={(v) => fmt(Number(v))} contentStyle={tooltipStyle} />

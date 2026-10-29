@@ -91,9 +91,9 @@ function DetailsPanel({
           onClick={onClose}
         />
         <aside className={drawerPanelClassName}>
-          <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
             <div>
-              <h2 className="mt-2 text-xl font-semibold text-[#1b1a17]">
+              <h2 className="mt-1 text-lg font-semibold tracking-tight text-[#1b1a17]">
                 {details.typeLabel} #{details.number}
               </h2>
             </div>
@@ -106,7 +106,7 @@ function DetailsPanel({
             </button>
           </div>
 
-          <div className="grid gap-4 px-6 py-6">
+          <div className="grid gap-4 px-5 py-4">
             <dl className="grid gap-x-6 gap-y-2 rounded-xl border border-[#e8e7e3] bg-white p-4 text-sm sm:grid-cols-2">
               <MetaItem label="Data documentului" value={details.date} />
               <MetaItem label="Depozit" value={details.warehouse} />
@@ -142,7 +142,7 @@ function DetailsPanel({
             </dl>
 
             <div className="overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-              <div className="border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-2.5 text-sm font-semibold text-[#1b1a17]">
+              <div className="border-b border-[#e8e7e3] bg-[#f6f6f4] px-3.5 py-2 text-sm font-semibold text-[#1b1a17]">
                 Produse ({details.lines.length})
               </div>
               <div className="overflow-x-auto">

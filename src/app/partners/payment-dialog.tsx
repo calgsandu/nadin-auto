@@ -94,7 +94,7 @@ export function PartnerPaymentDialog({
             </div>
             <DrawerField label="Notițe">
               <textarea
-                className={`${drawerInputClassName} min-h-24 resize-y py-3`}
+                className={`${drawerInputClassName} min-h-16 resize-y py-2`}
                 name="notes"
                 placeholder="numerar, transfer, cine a predat banii"
               />

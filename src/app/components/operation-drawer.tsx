@@ -149,11 +149,11 @@ export function OperationDrawer({
           }}
           className={drawerPanelClassName}
         >
-          <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
             <div>
-              <h2 className="text-2xl font-semibold text-[#1b1a17]">{title}</h2>
+              <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">{title}</h2>
               {draft?.savedAt ? (
-                <p className="mt-1 text-sm text-[#6f6b63]">
+                <p className="text-xs text-[#6f6b63]">
                   Ciornă salvată {draftTime(draft.savedAt)}
                 </p>
               ) : null}
@@ -162,7 +162,7 @@ export function OperationDrawer({
               {submitLabel ? (
                 // requestSubmit() = aceeași validare + același onSubmit ca butonul din josul formularului.
                 <button
-                  className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="button-primary rounded-md bg-[#1b1a17] px-4 py-2 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={pending}
                   type="button"
                   onClick={() => panelRef.current?.querySelector("form")?.requestSubmit()}
@@ -194,7 +194,7 @@ export function draftTime(savedAt: number) {
 export function DraftBanner({ draft }: { draft?: DrawerDraftBanner }) {
   if (!draft?.restoredAt) return null;
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#fde68a] bg-[#fffbeb] px-6 py-2.5 text-sm text-[#92400e]">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#fde68a] bg-[#fffbeb] px-5 py-2 text-sm text-[#92400e]">
       <span>Ciornă recuperată de la {draftTime(draft.restoredAt)}</span>
       <button
         className="font-semibold underline underline-offset-2 hover:no-underline"
@@ -217,7 +217,7 @@ export function DrawerField({
   hint?: string;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
+    <label className="grid gap-1 text-sm font-medium text-[#33312c]">
       {label}
       {children}
       {hint ? <span className="text-xs font-normal text-[#6f6b63]">{hint}</span> : null}
@@ -238,14 +238,14 @@ export function DrawerSection({
 }) {
   return (
     <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
+      <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-3 py-2">
         <div>
           <h3 className="font-semibold text-[#1b1a17]">{title}</h3>
           {description ? <p className="text-xs text-[#6f6b63]">{description}</p> : null}
         </div>
         {action}
       </div>
-      <div className="grid gap-3 p-3">{children}</div>
+      <div className="grid gap-2 p-2.5">{children}</div>
     </section>
   );
 }
@@ -364,7 +364,7 @@ export function DrawerFooter({
   pending?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
+    <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-4">
       <span className="mr-auto text-xs text-[#6f6b63]">
         Enter trece la câmpul următor. Salvarea doar din buton.
       </span>
@@ -382,7 +382,7 @@ export function DrawerSubmit({ label, pending }: { label: string; pending?: bool
   const busy = pending ?? status.pending;
   return (
     <button
-      className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={busy}
       type="submit"
     >
@@ -465,14 +465,14 @@ export function handleEnterNavigation(
  */
 export const drawerPanelClassName =
   "motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-[#fafaf9] shadow-xl md:max-w-[90vw]";
-export const drawerFormClassName = "grid gap-6 px-6 py-6";
+export const drawerFormClassName = "grid gap-4 px-5 py-4";
 export const drawerInputClassName =
-  "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b]";
+  "field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b]";
 export const drawerSecondaryButton =
   "button-secondary flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#fafaf9]";
 export const drawerDangerButton =
-  "button-danger mt-6 grid size-11 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";
+  "button-danger mt-6 grid size-10 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";
 /** Marchează un rând de produs, ca navigarea cu Enter să știe unde se află. */
 const DRAWER_LINE_MARKER = "motion-line-item";
 export const drawerLineClassName =
-  `${DRAWER_LINE_MARKER} grid gap-3 rounded-md border border-[#efeeeb] bg-white p-3 md:items-start`;
+  `${DRAWER_LINE_MARKER} grid gap-2.5 rounded-md border border-[#efeeeb] bg-white p-2.5 md:items-start`;

@@ -28,7 +28,7 @@ export function LabelStickerCell({
 }) {
   return (
     <DrawerField label="Etichete">
-      <div className="flex h-11 items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3">
+      <div className="flex h-10 items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3">
         <input
           aria-label={`Etichetă pentru produsul ${index + 1}`}
           checked={Boolean(line.sticker)}

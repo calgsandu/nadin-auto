@@ -59,7 +59,7 @@ function StatsWorkspace({
   canModify: boolean;
 }) {
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <div className={`grid gap-3 sm:grid-cols-2 ${canModify ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
         <DailyMetric
           label="Venit (30 zile)"
@@ -89,12 +89,12 @@ function StatsWorkspace({
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-3 xl:grid-cols-2">
         <DailyChart rows={data.daily} canModify={canModify} />
         <MonthlyChart rows={data.monthly} canModify={canModify} />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-3 2xl:grid-cols-2">
         <PeriodStatsTable title="Pe săptămâni (ultimele 8)" rows={data.weekly} canModify={canModify} />
         <PeriodStatsTable title="Pe luni (ultimele 12)" rows={data.monthly} canModify={canModify} />
       </div>
@@ -106,8 +106,8 @@ function StatsWorkspace({
       {partnerProfit ? <PartnerProfitTable rows={partnerProfit} /> : null}
 
       <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="border-b border-[#e8e7e3] px-4 py-3">
-          <h2 className="font-semibold text-[#1b1a17]">Top produse vândute (30 zile)</h2>
+        <div className="border-b border-[#e8e7e3] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#1b1a17]">Top produse vândute (30 zile)</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[560px] border-collapse text-left text-sm">
@@ -166,8 +166,8 @@ function PeriodStatsTable({
 
   return (
     <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="border-b border-[#e8e7e3] px-4 py-3">
-        <h2 className="font-semibold text-[#1b1a17]">{title}</h2>
+      <div className="border-b border-[#e8e7e3] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#1b1a17]">{title}</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[620px] border-collapse text-left text-sm">
@@ -228,8 +228,8 @@ function PeriodStatsTable({
 function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
   return (
     <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="border-b border-[#e8e7e3] px-4 py-3">
-        <h2 className="font-semibold text-[#1b1a17]">Profit pe client (12 luni)</h2>
+      <div className="border-b border-[#e8e7e3] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#1b1a17]">Profit pe client (12 luni)</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[820px] border-collapse text-left text-sm">

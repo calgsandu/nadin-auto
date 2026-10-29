@@ -108,7 +108,7 @@ function SalesWorkspace({
   const monthName = salesMonthLabelFormat.format(selectedDate);
 
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SalesDayNav dayKey={dayKey} />
         <div className="flex flex-wrap items-center gap-2">
@@ -123,7 +123,7 @@ function SalesWorkspace({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         <DailyMetric
           label={isToday ? "Vânzări azi" : "Vânzări în ziua aleasă"}
           value={formatNumber(sales.length)}
@@ -137,8 +137,8 @@ function SalesWorkspace({
         />
       </div>
 
-      <div className="grid gap-3">
-        <h2 className="font-semibold capitalize text-[#1b1a17]">
+      <div className="grid gap-2">
+        <h2 className="text-sm font-semibold capitalize text-[#1b1a17]">
           {salesDayLabelFormat.format(selectedDate)}
         </h2>
         <RecentDocumentsTable

@@ -27,7 +27,7 @@ export function CreateStaffDialog() {
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
+        className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c]"
         type="button"
         onClick={() => setOpen(true)}
       >
@@ -261,9 +261,9 @@ function StaffDrawer({ title, onClose, children }: { title: string; onClose: () 
       <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
         <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={onClose} />
         <aside className={drawerPanelClassName}>
-          <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
             <div>
-              <h2 className="text-2xl font-semibold text-[#1b1a17]">{title}</h2>
+              <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">{title}</h2>
             </div>
             <RowButton onClick={onClose}>Închide</RowButton>
           </div>
@@ -316,7 +316,7 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
           {copied ? "Copiat" : "Copiază"}
         </button>
       </div>
-      <button className="button-primary justify-self-end rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white" type="button" onClick={onClose}>
+      <button className="button-primary justify-self-end rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
         Am salvat parola
       </button>
     </div>
@@ -361,7 +361,7 @@ function RevealedActivationCode({
         <p className="mt-2 text-xs text-[#6f6b63]">Expiră la {expiryLabel}.</p>
       </div>
       <button
-        className="button-primary justify-self-end rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white"
+        className="button-primary justify-self-end rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white"
         type="button"
         onClick={onClose}
       >
@@ -382,7 +382,7 @@ function DrawerActions({ onClose, submitLabel }: { onClose: () => void; submitLa
 
 function PendingSubmit({ label }: { label: string }) {
   const { pending } = useFormStatus();
-  return <button className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se salvează..." : label}</button>;
+  return <button className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se salvează..." : label}</button>;
 }
 
 function ActiveSubmit({ active }: { active: boolean }) {
@@ -395,7 +395,7 @@ function RowButton({ onClick, children }: { onClick: () => void; children: React
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
-  return <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">{label}{children}</label>;
+  return <label className="grid gap-1 text-sm font-medium text-[#33312c]">{label}{children}</label>;
 }
 
 function generatePassword() {
@@ -405,4 +405,4 @@ function generatePassword() {
   return Array.from(bytes, (value) => alphabet[value % alphabet.length]).join("");
 }
 
-const inputClassName = "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b]";
+const inputClassName = "field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b]";

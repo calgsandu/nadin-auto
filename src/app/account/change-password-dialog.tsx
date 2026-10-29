@@ -41,24 +41,24 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
         <aside className={drawerPanelClassName}>
           <div className="flex items-start justify-between border-b border-[#e8e7e3] px-6 py-5">
             <div>
-              <h2 className="mt-2 text-2xl font-semibold">Schimbă parola</h2>
+              <h2 className="mt-1 text-lg font-semibold">Schimbă parola</h2>
             </div>
             <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-xs font-semibold" type="button" onClick={onClose}>Închide</button>
           </div>
           {state.ok ? (
-            <div className="grid gap-4 px-6 py-6">
+            <div className="grid gap-4 px-5 py-4">
               <div className="rounded-md border border-[#86efac] bg-[#f0fdf4] px-3 py-3 text-sm text-[#166534]">{state.message}</div>
-              <button className="button-primary justify-self-end rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white" type="button" onClick={onClose}>Închide</button>
+              <button className="button-primary justify-self-end rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>Închide</button>
             </div>
           ) : (
-            <form action={formAction} className="grid gap-4 px-6 py-6">
+            <form action={formAction} className="grid gap-4 px-5 py-4">
               <div className="grid gap-4 md:grid-cols-3">
                 <PasswordInput name="currentPassword" label="Parola actuală" autoComplete="current-password" />
                 <PasswordInput name="newPassword" label="Parola nouă" autoComplete="new-password" />
                 <PasswordInput name="confirmPassword" label="Confirmă parola nouă" autoComplete="new-password" />
               </div>
               <div className="flex justify-end gap-3 border-t border-[#e8e7e3] pt-5">
-                <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold" type="button" onClick={onClose}>Anulează</button>
+                <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold" type="button" onClick={onClose}>Anulează</button>
                 <PasswordSubmit />
               </div>
             </form>
@@ -70,10 +70,10 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
 }
 
 function PasswordInput({ name, label, autoComplete }: { name: string; label: string; autoComplete: string }) {
-  return <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">{label}<input className="field-control h-11 rounded-md border border-[#e8e7e3] bg-white px-3 outline-none" name={name} type="password" autoComplete={autoComplete} required minLength={8} /></label>;
+  return <label className="grid gap-1 text-sm font-medium text-[#33312c]">{label}<input className="field-control h-10 rounded-md border border-[#e8e7e3] bg-white px-3 outline-none" name={name} type="password" autoComplete={autoComplete} required minLength={8} /></label>;
 }
 
 function PasswordSubmit() {
   const { pending } = useFormStatus();
-  return <button className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se schimbă..." : "Schimbă parola"}</button>;
+  return <button className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se schimbă..." : "Schimbă parola"}</button>;
 }

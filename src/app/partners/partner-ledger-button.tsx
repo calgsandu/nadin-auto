@@ -81,7 +81,7 @@ export function PartnerLedgerButton({
           title={`Fișa lui ${partnerName}`}
           onClose={() => setOpen(false)}
         >
-          <div className="grid gap-4 px-6 py-6">
+          <div className="grid gap-4 px-5 py-4">
             <div className="flex items-baseline justify-between gap-4 rounded-md border border-[#e8e7e3] bg-white px-4 py-3">
               <span className="text-sm font-medium text-[#33312c]">Sold curent</span>
               <span

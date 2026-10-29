@@ -101,7 +101,7 @@ export function PartnerFormDialog({
           className={
             triggerKind === "row"
               ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
-              : "button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
+              : "button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c]"
           }
           type="button"
           onClick={() => setOpen(true)}
@@ -131,9 +131,9 @@ export function PartnerFormDialog({
                 setOpen(false);
               }}
             >
-              <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
                 <div>
-                  <h2 className="text-2xl font-semibold text-[#1b1a17]">
+                  <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">
                     {partner ? "Editează partener" : "Adaugă partener"}
                   </h2>
                 </div>
@@ -146,7 +146,7 @@ export function PartnerFormDialog({
                 </button>
               </div>
 
-              <form onSubmit={onSubmit} className="grid gap-5 px-6 py-6 lg:grid-cols-2">
+              <form onSubmit={onSubmit} className="grid gap-4 px-5 py-4 lg:grid-cols-2">
                 {partner ? (
                   <input name="partnerId" type="hidden" value={partner.id} />
                 ) : null}
@@ -264,7 +264,7 @@ export function PartnerFormDialog({
 
                 <Field className="lg:col-span-2" label="Note">
                   <textarea
-                    className={`${inputClassName} min-h-24 resize-y py-3`}
+                    className={`${inputClassName} min-h-16 resize-y py-2`}
                     name="notes"
                     defaultValue={partner?.notes ?? ""}
                     placeholder="Observații, condiții de livrare etc."
@@ -273,7 +273,7 @@ export function PartnerFormDialog({
 
                 <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5 lg:col-span-2">
                   <button
-                    className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                    className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
                     type="button"
                     onClick={() => setOpen(false)}
                   >
@@ -300,7 +300,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`grid content-start gap-1.5 text-sm font-medium text-[#33312c] ${className}`}>
+    <label className={`grid content-start gap-1 text-sm font-medium text-[#33312c] ${className}`}>
       {label}
       {children}
     </label>
@@ -310,7 +310,7 @@ function Field({
 function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
   return (
     <button
-      className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -320,4 +320,4 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
 }
 
 const inputClassName =
-  "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";
+  "field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";

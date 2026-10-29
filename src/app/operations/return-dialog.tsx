@@ -193,7 +193,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
 
                 <Field label="Notițe">
                   <textarea
-                    className={`${inputClassName} min-h-24 resize-y py-3`}
+                    className={`${inputClassName} min-h-16 resize-y py-2`}
                     name="notes"
                     placeholder="motivul returului"
                     value={notes}

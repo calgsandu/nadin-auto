@@ -3,6 +3,7 @@ import { existsSync, readdirSync } from "node:fs";
 import {
   getSection,
   navigationEntries,
+  navigationGroups,
   resolveSection,
   workspaceSections,
 } from "@/lib/operations/workspace";
@@ -81,6 +82,21 @@ assert.ok(
   navigationEntries.every((entry) => entry.icon),
   "Fiecare intrare din sidebar trebuie să aibă icon.",
 );
+
+// Fiecare secțiune stă în exact un grup din sidebar, altfel tab-ul ei nu apare.
+assert.deepEqual(
+  navigationGroups.flatMap((group) => group.sections).sort(),
+  [...expectedSections].sort(),
+  "Fiecare secțiune trebuie să apară o singură dată în grupurile din sidebar.",
+);
+
+// Sub-tab-urile unui grup trebuie să încapă pe rândul de sus pe un laptop.
+for (const group of navigationGroups) {
+  assert.ok(
+    group.sections.length <= 6,
+    `Grupul ${group.label} are ${group.sections.length} tab-uri; maxim 6 încap pe un laptop.`,
+  );
+}
 
 // Fiecare secțiune trebuie să aibă ruta ei sub /crm — altfel nav-ul duce în 404.
 const routes = readdirSync("src/app/crm", { withFileTypes: true })

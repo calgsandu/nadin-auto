@@ -10,23 +10,29 @@ import {
   type CashRegisterStatus,
 } from "@/lib/operations/cash-register";
 
-const initialState = { ok: false, message: "" };
+const initialState = { ok: false, message: "", version: 0 };
+
+function cashRegisterTone(value: CashRegisterStatus) {
+  return value === true
+    ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
+    : value === false
+      ? "border-[#fdba74] bg-[#fff7ed] text-[#9a3412]"
+      : "border-[#d6d3d1] bg-[#fafaf9] text-[#57534a]";
+}
 
 export function CashRegisterBadge({ value }: { value: CashRegisterStatus }) {
-  const tone =
-    value === true
-      ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
-      : value === false
-        ? "border-[#fdba74] bg-[#fff7ed] text-[#9a3412]"
-        : "border-[#d6d3d1] bg-[#fafaf9] text-[#57534a]";
-
   return (
-    <span className={`inline-flex whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-semibold ${tone}`}>
+    <span className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-semibold ${cashRegisterTone(value)}`}>
       {cashRegisterLabel(value)}
     </span>
   );
 }
 
+/**
+ * Statutul de casă editabil direct din tabel: o singură listă colorată ca
+ * eticheta, salvată la alegere. Înainte erau trei controale stivuite (etichetă,
+ * listă, „Salvează") care dublau înălțimea fiecărui rând.
+ */
 export function CashRegisterControl({
   documentId,
   value,
@@ -34,38 +40,38 @@ export function CashRegisterControl({
   documentId: string;
   value: CashRegisterStatus;
 }) {
-  const [state, action] = useActionState(updateCashRegisteredAction, initialState);
+  const [state, action] = useActionState(
+    async (previous: typeof initialState, formData: FormData) => ({
+      ...(await updateCashRegisteredAction(previous, formData)),
+      version: previous.version + 1,
+    }),
+    initialState,
+  );
 
   return (
-    <form action={action} className="grid min-w-44 gap-1.5">
+    <form action={action}>
       <input name="id" type="hidden" value={documentId} />
-      <div className="flex items-center justify-end gap-1.5">
-        <select
-          aria-label="Statut casă"
-          className="h-8 rounded-md border border-[#e8e7e3] bg-white px-2 text-xs text-[#1b1a17]"
-          defaultValue={cashRegisterFormValue(value)}
-          name="cashRegistered"
-        >
-          <option value="yes">Bătut în casă</option>
-          <option value="no">Nebătut în casă</option>
-          <option value="unspecified">Nespecificat</option>
-        </select>
-        <SaveButton />
-      </div>
+      {/* Remontată după fiecare răspuns: la eșec lista revine la valoarea salvată. */}
+      <CashRegisterSelect key={state.version} value={value} />
       <ActionFeedback state={state} />
     </form>
   );
 }
 
-function SaveButton() {
+function CashRegisterSelect({ value }: { value: CashRegisterStatus }) {
   const { pending } = useFormStatus();
   return (
-    <button
-      className="button-secondary h-8 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4] disabled:opacity-60"
+    <select
+      aria-label="Statut casă"
+      className={`inline-select h-7 rounded-full border pl-2.5 pr-7 text-xs font-semibold disabled:opacity-60 ${cashRegisterTone(value)}`}
+      defaultValue={cashRegisterFormValue(value)}
       disabled={pending}
-      type="submit"
+      name="cashRegistered"
+      onChange={(event) => event.currentTarget.form?.requestSubmit()}
     >
-      {pending ? "..." : "Salvează"}
-    </button>
+      <option value="yes">Bătut în casă</option>
+      <option value="no">Nebătut în casă</option>
+      <option value="unspecified">Nespecificat</option>
+    </select>
   );
 }

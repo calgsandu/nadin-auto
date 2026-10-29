@@ -48,7 +48,7 @@ const emptyLine = (id: number): EditableLine => ({
 
 const initialState: PaymentAccountActionState = { ok: false, message: "" };
 const inputClassName =
-  "field-control h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none placeholder:text-[#98948b] focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/25";
+  "field-control h-10 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none placeholder:text-[#98948b] focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/25";
 
 export function PaymentAccountDialog({
   customers,
@@ -129,7 +129,7 @@ export function PaymentAccountDialog({
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#33312c]"
+        className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c]"
         type="button"
         onClick={() => {
           setMounted(true);
@@ -152,9 +152,9 @@ export function PaymentAccountDialog({
               onClick={() => setOpen(false)}
             />
             <aside className={drawerPanelClassName}>
-              <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-6 py-5">
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
                 <div>
-                  <h2 className="text-2xl font-semibold text-[#1b1a17]">Cont de plată nou</h2>
+                  <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">Cont de plată nou</h2>
                   <p className="mt-1 text-sm text-[#6f6b63]">Nu modifică stocul până la predarea mărfii.</p>
                 </div>
                 <button
@@ -167,7 +167,7 @@ export function PaymentAccountDialog({
               </div>
               <DraftBanner draft={draft.banner} />
 
-              <form ref={attachForm} onSubmit={onSubmit} className="grid gap-6 px-6 py-6">
+              <form ref={attachForm} onSubmit={onSubmit} className="grid gap-4 px-5 py-4">
                 <input name="idempotencyKey" type="hidden" value={draft.token} />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                   <Field label="Data emiterii">
@@ -287,14 +287,14 @@ export function PaymentAccountDialog({
                             />
                           </Field>
                           <Field label="Linie">
-                            <div className="flex h-11 flex-col justify-center rounded-md bg-[#f6f6f4] px-3 font-mono text-xs">
+                            <div className="flex h-10 flex-col justify-center rounded-md bg-[#f6f6f4] px-3 font-mono text-xs">
                               <span className="font-semibold">{money(calculated.gross)} lei</span>
                               <span className="text-[#6f6b63]">TVA {money(calculated.vat)}, net {money(calculated.net)}</span>
                             </div>
                           </Field>
                           <button
                             aria-label={`Șterge produsul ${index + 1}`}
-                            className="button-danger mt-6 grid size-11 place-items-center rounded-md border border-[#fca5a5] text-[#b91c1c] disabled:opacity-35"
+                            className="button-danger mt-6 grid size-10 place-items-center rounded-md border border-[#fca5a5] text-[#b91c1c] disabled:opacity-35"
                             disabled={lines.length === 1}
                             type="button"
                             onClick={() => setLines((current) => current.filter((item) => item.id !== line.id))}
@@ -310,7 +310,7 @@ export function PaymentAccountDialog({
                 <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_20rem]">
                   <Field label="Mențiuni">
                     <textarea
-                      className={`${inputClassName} min-h-24 resize-y py-3`}
+                      className={`${inputClassName} min-h-16 resize-y py-2`}
                       name="notes"
                       placeholder="Termen de achitare, condiții de ridicare etc."
                     />
@@ -326,7 +326,7 @@ export function PaymentAccountDialog({
 
 
                 <div className="flex justify-end gap-3 border-t border-[#e8e7e3] pt-5">
-                  <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-4 py-2.5 text-sm font-semibold" type="button" onClick={() => setOpen(false)}>
+                  <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold" type="button" onClick={() => setOpen(false)}>
                     Anulează
                   </button>
                   <SubmitButton pending={pending} />
@@ -350,7 +350,7 @@ function Summary({ label, value }: { label: string; value: number }) {
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
-    <button className="button-primary rounded-md bg-[#1b1a17] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">
+    <button className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">
       {pending ? "Se emite..." : "Emite contul"}
     </button>
   );

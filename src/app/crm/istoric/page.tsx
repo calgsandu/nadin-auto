@@ -56,7 +56,7 @@ function AuditWorkspace({ data }: { data: AuditData }) {
   ];
 
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <div className="flex flex-wrap items-center gap-2">
         {filters.map((filter) => {
           const active = data.filters.act === filter.key;

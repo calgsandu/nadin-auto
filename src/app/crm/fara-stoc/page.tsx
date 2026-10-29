@@ -43,7 +43,7 @@ function UnavailableRestockWorkspace({
   operations: OperationsData;
 }) {
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <DailyMetric label="Poziții fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
         <DailyMetric
@@ -54,8 +54,8 @@ function UnavailableRestockWorkspace({
         />
       </div>
       <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="border-b border-[#e8e7e3] px-4 py-3">
-          <h2 className="font-semibold text-[#1b1a17]">Marcate fără stoc</h2>
+        <div className="border-b border-[#e8e7e3] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#1b1a17]">Marcate fără stoc</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[980px] border-collapse text-left text-sm">

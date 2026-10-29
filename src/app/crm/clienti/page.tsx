@@ -67,7 +67,7 @@ async function Loader({
   const open = openId ? data.customers.find((one) => one.id === openId) ?? null : null;
 
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <div className="grid gap-3 sm:grid-cols-3">
         <DailyMetric label="Clienți" value={formatNumber(data.customers.length)} />
         <DailyMetric

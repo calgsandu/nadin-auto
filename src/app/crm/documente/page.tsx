@@ -68,7 +68,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
   const end = Math.min(page * pageSize, total);
 
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <form
         action="/crm/documente"
         method="get"
@@ -150,28 +150,20 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                   </TableCell>
                   <TableCell>
                     {d.type === "SALE" ? (
-                      <div className="grid gap-2">
+                      canModify ? (
+                        <CashRegisterControl documentId={d.id} value={d.cashRegistered} />
+                      ) : (
                         <CashRegisterBadge value={d.cashRegistered} />
-                        {canModify ? (
-                          <CashRegisterControl
-                            documentId={d.id}
-                            value={d.cashRegistered}
-                          />
-                        ) : null}
-                      </div>
+                      )
                     ) : "—"}
                   </TableCell>
                   <TableCell>
                     {d.type === "SALE" ? (
-                      <div className="grid gap-2">
+                      canModify ? (
+                        <SalePaymentMethodControl documentId={d.id} value={d.paymentMethod} />
+                      ) : (
                         <SalePaymentMethodBadge value={d.paymentMethod} />
-                        {canModify ? (
-                          <SalePaymentMethodControl
-                            documentId={d.id}
-                            value={d.paymentMethod}
-                          />
-                        ) : null}
-                      </div>
+                      )
                     ) : "—"}
                   </TableCell>
                   <TableCell align="right">

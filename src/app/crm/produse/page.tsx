@@ -101,8 +101,8 @@ function ProductWorkspace({
   return (
     <>
       <CatalogFilters brands={catalog.brands} models={catalog.models} types={catalog.types} />
-      <section className="motion-page p-3 lg:p-5">
-        <div className="mb-3 flex items-center justify-between gap-4">
+      <section className="motion-page p-3 lg:p-4">
+        <div className="mb-2 flex items-center justify-between gap-4">
           <p className="text-sm text-[#6f6b63]">
             {start}-{end} din {formatNumber(catalog.productCount)} produse
           </p>
@@ -123,7 +123,7 @@ function ProductWorkspace({
                     {canModify ? <TableHead>{""}</TableHead> : null}
                     <TableHead>Cod</TableHead>
                     <TableHead secondary>Compatibilitate</TableHead>
-                    <TableHead>Produs</TableHead>
+                    <TableHead className="min-w-[14rem]">Produs</TableHead>
                     <TableHead align="right">Stoc</TableHead>
                     <TableHead align="right">Preț vânzare</TableHead>
                     {canModify ? <TableHead align="right" secondary>Cost aducere</TableHead> : null}
@@ -211,7 +211,7 @@ function ProductRow({
       ) : null}
       <TableCell className="font-mono text-xs font-semibold">{formatText(product.externalCode)}</TableCell>
       <TableCell secondary>
-        <div className="space-y-2">
+        <div className="space-y-1">
           {compatibilities.map((compatibility, index) => (
             <div key={`${compatibility.title}:${compatibility.years}:${index}`}>
               <p className="font-semibold text-[#1b1a17]">{compatibility.title}</p>
@@ -225,17 +225,24 @@ function ProductRow({
           {product.description}
           {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
         </p>
-        <p className="mt-1 text-xs text-[#6f6b63]">{product.type.name}</p>
+        <p className="mt-0.5 text-xs text-[#6f6b63]">{product.type.name}</p>
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
         {formatNumber(product.stock)}
-        <p className="mt-1 whitespace-nowrap font-normal text-xs text-[#6f6b63]">
+        {/* Doar depozitele cu marfă: „110A: 0, Depozit: 0, …" lățea coloana și strivea denumirea. */}
+        <p className="mt-0.5 font-normal text-xs text-[#6f6b63]">
           {catalog.warehouses
             .map((warehouse) => {
-              const row = product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id);
-              return `${warehouse.name.replace("Pavilion ", "")}: ${row?.quantity ?? 0}`;
+              const quantity =
+                product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id)?.quantity ?? 0;
+              return quantity > 0 ? `${warehouse.name.replace("Pavilion ", "")}: ${quantity}` : null;
             })
-            .join(", ")}
+            .filter(Boolean)
+            .map((entry) => (
+              <span key={entry} className="block whitespace-nowrap">
+                {entry}
+              </span>
+            ))}
         </p>
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
@@ -244,19 +251,19 @@ function ProductRow({
       {canModify ? (
         <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">
           <p>{formatMoney(product.costLei)} lei</p>
-          <p className="mt-1 text-xs">{formatMoney(product.priceEuro)} EUR</p>
+          <p className="mt-0.5 text-xs">{formatMoney(product.priceEuro)} EUR</p>
         </TableCell>
       ) : null}
       {canModify ? (
         <TableCell align="right">
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-1.5">
             <a
               href={`/print/labels?ids=${product.id}`}
               target="_blank"
               rel="noreferrer"
               title="Sticker produs (70×50.8mm)"
               aria-label="Sticker produs"
-              className="button-secondary grid size-9 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
+              className="button-secondary grid size-8 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
             >
               <Printer className="size-4" aria-hidden="true" />
             </a>

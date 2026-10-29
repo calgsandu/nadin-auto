@@ -23,7 +23,7 @@ type ApprovalItem = ApprovalsData["pending"][number];
 
 export function ApprovalWorkspace({ data }: { data: ApprovalsData }) {
   return (
-    <section className="motion-page grid gap-5 p-4 lg:p-6">
+    <section className="motion-page grid gap-4 p-4">
       <div className="grid gap-3 sm:grid-cols-3">
         <Metric label="În așteptare" value={data.pending.length} tone="blue" />
         <Metric label="Respinse recent" value={data.rejected.length} tone="red" />
@@ -76,9 +76,9 @@ function Metric({
     green: "bg-[#ecfdf3] text-[#027a48]",
   };
   return (
-    <div className={`rounded-xl px-4 py-4 ${colors[tone]}`}>
-      <p className="text-sm font-medium opacity-70">{label}</p>
-      <p className="mt-2 text-3xl font-bold tabular-nums">{value}</p>
+    <div className={`rounded-lg px-3.5 py-2.5 ${colors[tone]}`}>
+      <p className="text-xs font-medium opacity-70">{label}</p>
+      <p className="mt-0.5 text-xl font-bold tabular-nums">{value}</p>
     </div>
   );
 }

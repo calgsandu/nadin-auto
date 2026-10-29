@@ -192,7 +192,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
         >
           <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
               <input name="idempotencyKey" type="hidden" value={draft.token} />
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <Field label="Data documentului">
                   <input
                     className={inputClassName}
@@ -253,7 +253,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                     return (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-3 rounded-md border border-[#efeeeb] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_5rem_9rem_12rem_5.5rem] md:items-start"
+                      className="motion-line-item grid gap-2.5 rounded-md border border-[#efeeeb] bg-[#ffffff] p-2.5 md:grid-cols-[minmax(0,1fr)_5rem_9rem_12rem_5.5rem] md:items-start"
                     >
                       <div>
                         <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">
@@ -306,7 +306,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                         ) : null}
                       </Field>
                       <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-11 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
+                        <div className="flex h-10 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
                           <span className="text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
                         </div>
@@ -340,7 +340,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
 
               <Field label="Notițe">
                 <textarea
-                  className={`${inputClassName} min-h-24 resize-y py-3`}
+                  className={`${inputClassName} min-h-16 resize-y py-2`}
                   name="notes"
                   placeholder="factură, transport, explicații"
                 />
@@ -451,7 +451,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
         >
           <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
               <input name="idempotencyKey" type="hidden" value={draft.token} />
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                 <Field label="Data transferului">
                   <input
                     className={inputClassName}
@@ -513,7 +513,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-3 rounded-md border border-[#efeeeb] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_10rem_2.75rem] md:items-start"
+                      className="motion-line-item grid gap-2.5 rounded-md border border-[#efeeeb] bg-[#ffffff] p-2.5 md:grid-cols-[minmax(0,1fr)_10rem_2.75rem] md:items-start"
                     >
                       <div>
                         <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">
@@ -559,7 +559,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
 
               <Field label="Notițe">
                 <textarea
-                  className={`${inputClassName} min-h-24 resize-y py-3`}
+                  className={`${inputClassName} min-h-16 resize-y py-2`}
                   name="notes"
                   placeholder="motiv, solicitare, responsabil"
                 />
@@ -788,7 +788,7 @@ export function StockSaleDialog({
         >
           <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
               <input name="idempotencyKey" type="hidden" value={draft.token} />
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
                 <Field label="Data vânzării">
                   <input className={inputClassName} defaultValue={today} name="documentDate" type="date" />
                 </Field>
@@ -916,7 +916,7 @@ export function StockSaleDialog({
                     if (line.external) {
                       const marja = ((Number(line.price) || 0) - (Number(line.cost) || 0)) * (Number(line.qty) || 0);
                       return (
-                        <div key={line.id} className="motion-line-item grid gap-3 rounded-md border border-[#dbebfe] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_7rem_10rem_5rem_7rem_8rem_5.5rem] md:items-start">
+                        <div key={line.id} className="motion-line-item grid gap-2.5 rounded-md border border-[#dbebfe] bg-[#ffffff] p-2.5 md:grid-cols-[minmax(0,1fr)_7rem_10rem_5rem_7rem_8rem_5.5rem] md:items-start">
                           <div>
                             <p className="mb-1.5 text-xs font-semibold text-[#175cd3]">
                               Piesă externă {index + 1} — de la furnizor, nu intră în catalog/stoc
@@ -1004,7 +1004,7 @@ export function StockSaleDialog({
                       );
                     }
                     return (
-                    <div key={line.id} className="motion-line-item grid gap-3 rounded-md border border-[#efeeeb] bg-[#ffffff] p-3 md:grid-cols-[minmax(0,1fr)_5rem_9rem_12rem_5.5rem] md:items-start">
+                    <div key={line.id} className="motion-line-item grid gap-2.5 rounded-md border border-[#efeeeb] bg-[#ffffff] p-2.5 md:grid-cols-[minmax(0,1fr)_5rem_9rem_12rem_5.5rem] md:items-start">
                       <div>
                         <p className="mb-1.5 text-xs font-semibold text-[#6f6b63]">Produs {index + 1}</p>
                         <input name="externalName" type="hidden" value="" />
@@ -1054,7 +1054,7 @@ export function StockSaleDialog({
                         ) : null}
                       </Field>
                       <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-11 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
+                        <div className="flex h-10 flex-col justify-center rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-3 font-mono text-xs leading-tight text-[#1b1a17]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
                           <span className="text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
                         </div>
@@ -1087,7 +1087,7 @@ export function StockSaleDialog({
               </div>
 
               <Field label="Notițe">
-                <textarea className={`${inputClassName} min-h-24 resize-y py-3`} name="notes" placeholder="client, comandă, explicații" />
+                <textarea className={`${inputClassName} min-h-16 resize-y py-2`} name="notes" placeholder="client, comandă, explicații" />
               </Field>
               <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
                 <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>Anulează</button>

@@ -14,7 +14,7 @@ export function PaymentAccountsWorkspace({
   canSubmitEFactura: boolean;
 }) {
   return (
-    <section className="motion-page grid gap-4 p-4 lg:p-5">
+    <section className="motion-page grid gap-3 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e8e7e3] bg-white px-4 py-3">
         <div>
           <p className="font-semibold text-[#1b1a17]">Înainte de vânzare</p>
