@@ -24,6 +24,7 @@ import {
 } from "@/app/components/operation-drawer";
 import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
+import type { ProductSearchResult } from "@/lib/catalog/product-search";
 import { SupplierPicker } from "@/app/partners/supplier-picker";
 import { PartnerFormDialog } from "@/app/partners/partner-form-dialog";
 import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
@@ -645,10 +646,6 @@ export function StockSaleDialog({
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
-  useOpenFromUrl(openFromUrl, () => {
-    setMounted(true);
-    setOpen(true);
-  });
   // „Client nou" deschide direct fișa de partener: varianta veche scria doar
   // numele, iar clientul rămânea fără IDNO/adresă și bloca mai târziu contul de
   // plată cu „(date incomplete)".
@@ -710,26 +707,48 @@ export function StockSaleDialog({
     setLines((current) => current.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
   }
 
+  function productFields(product: { id: string; label: string; salePriceLei: string; defaultCostLei: string }) {
+    return {
+      productId: product.id,
+      label: product.label,
+      qty: quantityAfterSelect(product.id),
+      listPrice: product.salePriceLei,
+      unitCost: product.defaultCostLei,
+      price: applyDiscount(product.salePriceLei, discount) || product.salePriceLei,
+    };
+  }
+
   function selectProduct(
     id: number,
     product: { id: string; label: string; salePriceLei: string; defaultCostLei: string },
   ) {
     setLines((current) =>
-      current.map((line) =>
-        line.id === id
-          ? {
-              ...line,
-              productId: product.id,
-              label: product.label,
-              qty: quantityAfterSelect(product.id),
-              listPrice: product.salePriceLei,
-              unitCost: product.defaultCostLei,
-              price: applyDiscount(product.salePriceLei, discount) || product.salePriceLei,
-            }
-          : line,
-      ),
+      current.map((line) => (line.id === id ? { ...line, ...productFields(product) } : line)),
     );
   }
+
+  async function addProductFromId(productId: string) {
+    const response = await fetch(`/api/products/search?id=${encodeURIComponent(productId)}`);
+    if (!response.ok) return;
+    const data = (await response.json()) as { products: ProductSearchResult[] };
+    const product = data.products[0];
+    if (!product) return;
+    // Rând nou, deja completat: căutarea de produs își ia fișa la montare.
+    // Rândurile goale (cel cu care se deschide dialogul) dispar.
+    const id = nextLineId.current;
+    nextLineId.current += 1;
+    setLines((current) => [
+      { ...emptySaleLine(id), ...productFields(product) },
+      ...current.filter((line) => line.external || line.productId),
+    ]);
+  }
+  useOpenFromUrl(openFromUrl, (params) => {
+    setMounted(true);
+    setOpen(true);
+    // „Vinde" din fișa rapidă: produsul intră direct pe primul rând.
+    const productId = params.get("produs");
+    if (productId) void addProductFromId(productId);
+  });
 
   /** Discountul rescrie prețurile liniilor de catalog pornind de la prețul de listă. */
   function changeDiscount(value: string) {

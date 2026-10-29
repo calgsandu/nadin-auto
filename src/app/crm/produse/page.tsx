@@ -251,12 +251,14 @@ function ProductRow({
             .map((warehouse) => {
               const quantity =
                 product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id)?.quantity ?? 0;
-              return quantity > 0 ? `${warehouse.name.replace("Pavilion ", "")}: ${quantity}` : null;
+              return quantity > 0
+                ? { id: warehouse.id, label: `${warehouse.name.replace("Pavilion ", "")}: ${quantity}` }
+                : null;
             })
-            .filter(Boolean)
+            .filter((entry) => entry !== null)
             .map((entry) => (
-              <span key={entry} className="block whitespace-nowrap">
-                {entry}
+              <span key={entry.id} className="block whitespace-nowrap">
+                {entry.label}
               </span>
             ))}
         </p>

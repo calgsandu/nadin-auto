@@ -57,11 +57,12 @@ export const drawerBoundaryProps = {
 } as const;
 
 /**
- * Butoanele mari din pagina Azi duc la `/crm/vanzari?nou=1` (și la fel pentru
+ * Butoanele din pagina Azi duc la `/crm/vanzari?nou=1` (și la fel pentru
  * recepție/inventar): dialogul se deschide singur o dată, iar `nou` dispare din
- * adresă, ca un refresh sau „Înapoi" să nu-l redeschidă.
+ * adresă, ca un refresh sau „Înapoi" să nu-l redeschidă. Restul parametrilor
+ * (ex. `produs` la „Vinde") ajung la dialog.
  */
-export function useOpenFromUrl(enabled: boolean | undefined, open: () => void) {
+export function useOpenFromUrl(enabled: boolean | undefined, open: (params: URLSearchParams) => void) {
   const openRef = useRef(open);
   useEffect(() => {
     openRef.current = open;
@@ -70,9 +71,11 @@ export function useOpenFromUrl(enabled: boolean | undefined, open: () => void) {
     if (!enabled) return;
     const url = new URL(window.location.href);
     if (url.searchParams.get("nou") !== "1") return;
+    const params = new URLSearchParams(url.searchParams);
     url.searchParams.delete("nou");
+    url.searchParams.delete("produs");
     window.history.replaceState(window.history.state, "", url);
-    openRef.current();
+    openRef.current(params);
   }, [enabled]);
 }
 

@@ -1,216 +1,372 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import {
-  ChevronRight,
-  ClipboardCheck,
-  FileText,
-  PackagePlus,
-  PackageSearch,
-  Search,
-  ShoppingCart,
-  Truck,
-  Undo2,
-  type LucideIcon,
-} from "lucide-react";
+import { ChevronRight, ClipboardCheck, PackagePlus, ShoppingCart } from "lucide-react";
+import { getBrowseOptions, type BrowseOption } from "@/lib/catalog/browse";
+import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
+import { getCatalogData } from "@/lib/catalog/queries";
 import { getTodayData, type TodayData } from "@/lib/crm/today";
-import { lineDescription } from "@/lib/operations/line-display";
-import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
 import { canCreateSales, canViewSection, canWriteCatalog } from "@/lib/roles";
 import type { AppRole } from "@/generated/prisma/enums";
 import { requireCrmSection } from "../_components/guard";
-import { documentTotalLei } from "../_components/documents-table";
 import { formatMoney, formatNumber } from "../_components/format";
-import { WorkspaceSkeleton } from "../_components/ui";
+import { ProductFinder } from "./product-finder";
+import { ProductPreview, type ProductPreviewValue } from "./product-preview";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const dayFormat = new Intl.DateTimeFormat("ro-MD", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  timeZone: "Europe/Chisinau",
-});
-const timeFormat = new Intl.DateTimeFormat("ro-MD", {
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "Europe/Chisinau",
-});
+type CatalogData = Awaited<ReturnType<typeof getCatalogData>>;
+
+type Params = {
+  q?: string;
+  marca?: string;
+  model?: string;
+  tip?: string;
+  an?: string;
+  stoc?: string;
+  pagina?: string;
+};
+
+/** Câte butoane de marcă/tip se văd înainte de „Toate". */
+const VISIBLE_CHIPS = 14;
 
 /**
- * Pagina de start. Răspunde la „ce fac acum?": caută o piesă, pornește una
- * din operațiunile de zi cu zi, vezi ce așteaptă rezolvare și ce s-a vândut.
+ * Pagina de start e ghișeul de produse: la birou, cu clientul în față, omul
+ * caută piesa după cod sau mașină ori o răsfoiește pe marcă → model → tip, și
+ * vede imediat prețul și unde e pe stoc. Operațiunile stau sus, mici.
  */
-export default async function TodayPage() {
+export default async function TodayPage({ searchParams }: { searchParams: Promise<Params> }) {
   const appUser = await requireCrmSection("azi");
-  const dataPromise = getTodayData(appUser.role);
-  const firstName = (appUser.name ?? "").trim().split(/\s+/)[0];
+  const params = await searchParams;
+  const hasFilters = Boolean(params.q?.trim() || params.marca || params.model || params.tip || params.an);
+
+  const [browse, catalog, today] = await Promise.all([
+    getBrowseOptions(params.marca),
+    hasFilters
+      ? getCatalogData(
+          {
+            q: params.q,
+            brand: params.marca,
+            model: params.model,
+            type: params.tip,
+            year: params.an,
+            page: params.pagina,
+          },
+          { onlyInStock: params.stoc === "1" },
+        )
+      : Promise.resolve(null),
+    getTodayData(appUser.role),
+  ]);
+
+  const href = (changes: Partial<Params>) => {
+    const next = new URLSearchParams();
+    for (const [key, value] of Object.entries({ ...params, pagina: undefined, ...changes })) {
+      if (value) next.set(key, value);
+    }
+    const search = next.toString();
+    return search ? `/crm/azi?${search}` : "/crm/azi";
+  };
 
   return (
-    <section className="motion-page mx-auto grid w-full max-w-6xl grid-cols-1 gap-5 p-4 lg:p-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-[#18181b]">
-          {firstName ? `Bună ziua, ${firstName}` : "Bună ziua"}
-        </h1>
-        <p className="mt-0.5 text-sm text-[#52525b] first-letter:uppercase">{dayFormat.format(new Date())}</p>
+    <section className="motion-page mx-auto grid w-full max-w-7xl grid-cols-1 gap-4 p-4 lg:p-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-xl font-semibold tracking-tight text-[#18181b]">Caută o piesă</h1>
+        <QuickActions role={appUser.role} />
       </div>
 
-      {/* Căutarea duce în Produse, cu aceleași reguli (cod, mașină, an). */}
-      <form action="/crm/produse" method="get" role="search">
-        <label className="flex h-12 items-center gap-3 rounded-xl border border-[#d4d4d8] bg-white px-4 shadow-sm focus-within:border-[#2563eb] focus-within:ring-4 focus-within:ring-[#2563eb]/10">
-          <Search className="size-5 shrink-0 text-[#71717a]" aria-hidden="true" />
-          <span className="sr-only">Caută o piesă</span>
-          <input
-            className="h-full min-w-0 flex-1 bg-transparent text-base text-[#18181b] outline-none placeholder:text-[#71717a]"
-            name="q"
-            placeholder="Ce piesă cauți? Scrie codul sau mașina — ex. „golf 5 stop”"
+      <TodoStrip data={today} role={appUser.role} />
+
+      <ProductFinder />
+
+      <div className="grid gap-3 rounded-xl border border-[#e4e4e7] bg-white p-3">
+        <ChipRow
+          label="Marca"
+          options={browse.brands}
+          selected={params.marca}
+          hrefFor={(id) => href({ marca: id === params.marca ? undefined : id, model: undefined })}
+        />
+        {params.marca && browse.models.length > 0 ? (
+          <ChipRow
+            label="Model"
+            options={browse.models}
+            selected={params.model}
+            hrefFor={(id) => href({ model: id === params.model ? undefined : id })}
           />
-          <span className="hidden text-xs font-medium text-[#71717a] sm:inline">Enter</span>
-        </label>
-      </form>
+        ) : null}
+        <ChipRow
+          label="Tip piesă"
+          options={browse.types}
+          selected={params.tip}
+          hrefFor={(id) => href({ tip: id === params.tip ? undefined : id })}
+        />
+      </div>
 
-      <QuickActions role={appUser.role} />
-
-      <Suspense fallback={<WorkspaceSkeleton rows={4} />}>
-        <TodayLists dataPromise={dataPromise} role={appUser.role} />
-      </Suspense>
+      {catalog ? (
+        <Results
+          catalog={catalog}
+          canModify={canWriteCatalog(appUser.role)}
+          canSell={canCreateSales(appUser.role)}
+          href={href}
+        />
+      ) : (
+        <p className="rounded-xl border border-dashed border-[#d4d4d8] px-4 py-10 text-center text-sm text-[#52525b]">
+          Scrie în căutare sau alege o marcă, un model ori un tip de piesă ca să vezi produsele.
+        </p>
+      )}
     </section>
   );
 }
 
-type Action = { href: string; label: string; hint: string; icon: LucideIcon };
-
 function QuickActions({ role }: { role: AppRole }) {
-  const actions: Action[] = [];
-  if (canCreateSales(role)) {
-    actions.push({ href: "/crm/vanzari?nou=1", label: "Vânzare nouă", hint: "Cauți piesa și o vinzi", icon: ShoppingCart });
-  }
-  if (canWriteCatalog(role)) {
-    actions.push(
-      { href: "/crm/receptii?nou=1", label: "Primesc marfă", hint: "Recepție de la furnizor", icon: PackagePlus },
-      { href: "/crm/inventar?nou=1", label: "Număr stocul", hint: "Inventar pe depozit", icon: ClipboardCheck },
-      { href: "/crm/retururi", label: "Retur client", hint: "Din vânzările recente", icon: Undo2 },
-    );
-  } else {
-    if (canViewSection(role, "conturi-plata")) {
-      actions.push({ href: "/crm/conturi-plata", label: "Proformă", hint: "Cont de plată pentru firmă", icon: FileText });
-    }
-    if (canViewSection(role, "la-comanda")) {
-      actions.push({ href: "/crm/la-comanda", label: "Comandă la furnizor", hint: "Piesă care nu e în stoc", icon: Truck });
-    }
-    actions.push({ href: "/crm/produse", label: "Produse", hint: "Catalogul și stocul", icon: PackageSearch });
-  }
-
+  const secondary =
+    "button-secondary inline-flex h-9 items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]";
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      {actions.map((action, index) => {
-        const Icon = action.icon;
-        const primary = index === 0;
-        return (
-          <Link
-            key={action.href}
-            href={action.href}
-            className={`motion-card flex min-h-28 flex-col gap-1 rounded-xl p-4 ${
-              primary
-                ? "bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-                : "border border-[#e4e4e7] bg-white text-[#18181b]"
-            }`}
-          >
-            <span
-              className={`mb-2 grid size-9 place-items-center rounded-lg ${
-                primary ? "bg-white/15" : "bg-[#eff6ff] text-[#2563eb]"
-              }`}
-            >
-              <Icon className="size-[1.125rem]" aria-hidden="true" />
-            </span>
-            <span className="text-base font-semibold">{action.label}</span>
-            <span className={`text-sm ${primary ? "text-white/85" : "text-[#52525b]"}`}>{action.hint}</span>
+    <div className="ml-auto flex flex-wrap gap-2">
+      {canWriteCatalog(role) ? (
+        <>
+          <Link className={secondary} href="/crm/inventar?nou=1">
+            <ClipboardCheck className="size-4 text-[#71717a]" aria-hidden="true" /> Număr stocul
           </Link>
-        );
-      })}
+          <Link className={secondary} href="/crm/receptii?nou=1">
+            <PackagePlus className="size-4 text-[#71717a]" aria-hidden="true" /> Primesc marfă
+          </Link>
+        </>
+      ) : null}
+      {canCreateSales(role) ? (
+        <Link
+          className="button-primary inline-flex h-9 items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+          href="/crm/vanzari?nou=1"
+        >
+          <ShoppingCart className="size-4" aria-hidden="true" /> Vânzare nouă
+        </Link>
+      ) : null}
     </div>
   );
 }
 
-async function TodayLists({ dataPromise, role }: { dataPromise: Promise<TodayData>; role: AppRole }) {
-  const data = await dataPromise;
-  const { sales } = data.salesDay;
-  const dayLei = sales.reduce((total, sale) => total + documentTotalLei(sale), 0);
-
-  const todo = [
-    { show: canViewSection(role, "de-adus"), href: "/crm/de-adus", label: "Piese de adus în 110A", count: data.restockPending, tone: "bg-[#d97706]" },
-    { show: canViewSection(role, "vanzari"), href: "/crm/vanzari", label: "Vânzări de azi nebătute la casă", count: data.notRegistered, tone: "bg-[#dc2626]" },
-    { show: canViewSection(role, "conturi-plata"), href: "/crm/conturi-plata", label: "Proforme neachitate", count: data.unpaidAccounts, tone: "bg-[#2563eb]" },
-    { show: canViewSection(role, "la-comanda"), href: "/crm/la-comanda", label: "Comenzi la furnizori în lucru", count: data.openOrders, tone: "bg-[#0d9488]" },
-    { show: canViewSection(role, "aprobari"), href: "/crm/aprobari", label: "Operațiuni de aprobat", count: data.pendingApprovals, tone: "bg-[#7c3aed]" },
-  ].filter((item) => item.show);
+/** „De făcut", strâns într-un rând: apare doar ce are ceva în așteptare. */
+function TodoStrip({ data, role }: { data: TodayData; role: AppRole }) {
+  const items = [
+    { show: canViewSection(role, "vanzari"), href: "/crm/vanzari?filtru=nebatute", label: "nebătute la casă azi", count: data.notRegistered },
+    { show: canViewSection(role, "de-adus"), href: "/crm/de-adus", label: "de adus în 110A", count: data.restockPending },
+    { show: canViewSection(role, "conturi-plata"), href: "/crm/conturi-plata", label: "proforme neachitate", count: data.unpaidAccounts },
+    { show: canViewSection(role, "la-comanda"), href: "/crm/la-comanda", label: "comenzi la furnizori în lucru", count: data.openOrders },
+    { show: canViewSection(role, "aprobari"), href: "/crm/aprobari", label: "de aprobat", count: data.pendingApprovals },
+  ].filter((item) => item.show && item.count > 0);
+  if (items.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-      <section className="rounded-xl border border-[#e4e4e7] bg-white px-4 py-3">
-        <h2 className="pb-2 text-base font-semibold text-[#18181b]">De făcut</h2>
-        <ul>
-          {todo.map((item) => (
-            <li key={item.href} className="border-t border-[#f4f4f5]">
-              <Link
-                href={item.href}
-                className={`flex items-center gap-3 py-2.5 text-sm hover:text-[#2563eb] ${
-                  item.count > 0 ? "text-[#18181b]" : "text-[#71717a]"
-                }`}
-              >
-                <span
-                  className={`size-2 shrink-0 rounded-full ${item.count > 0 ? item.tone : "bg-[#d4d4d8]"}`}
-                  aria-hidden="true"
-                />
-                <span className="flex-1">{item.label}</span>
-                <span className="font-semibold tabular-nums">{formatNumber(item.count)}</span>
-                <ChevronRight className="size-4 text-[#a1a1aa]" aria-hidden="true" />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="rounded-xl border border-[#e4e4e7] bg-white px-4 py-3">
-        <div className="flex items-baseline justify-between gap-3 pb-2">
-          <h2 className="text-base font-semibold text-[#18181b]">Vânzările de azi</h2>
-          <p className="text-sm text-[#52525b]">
-            <span className="font-semibold text-[#18181b]">{formatNumber(sales.length)}</span> ·{" "}
-            <span className="font-semibold text-[#18181b]">{formatMoney(dayLei)} lei</span>
-          </p>
-        </div>
-        {sales.length === 0 ? (
-          <p className="border-t border-[#f4f4f5] py-6 text-center text-sm text-[#52525b]">
-            Nicio vânzare încă azi.
-          </p>
-        ) : (
-          <ul>
-            {sales.slice(0, 6).map((sale) => {
-              const [first, ...rest] = sale.lines;
-              return (
-                <li key={sale.id} className="flex items-center gap-3 border-t border-[#f4f4f5] py-2 text-sm">
-                  <span className="w-11 shrink-0 tabular-nums text-[#52525b]">{timeFormat.format(sale.createdAt)}</span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium text-[#18181b]">
-                      {first ? lineDescription(first) : `Vânzare #${sale.number}`}
-                      {rest.length > 0 ? <span className="text-[#52525b]"> +{rest.length}</span> : null}
-                    </span>
-                    <span className="block truncate text-xs text-[#52525b]">
-                      {sale.partner?.name ?? "Consumator final"} · {salePaymentMethodLabel(sale.paymentMethod)}
-                    </span>
-                  </span>
-                  <span className="whitespace-nowrap font-semibold tabular-nums text-[#18181b]">
-                    {formatMoney(documentTotalLei(sale))} lei
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        <Link href="/crm/vanzari" className="mt-1 inline-flex items-center gap-1 border-t border-[#f4f4f5] pt-2 text-sm font-medium text-[#2563eb] hover:underline">
-          Toate vânzările <ChevronRight className="size-4" aria-hidden="true" />
+    <div className="flex flex-wrap items-center gap-2 text-sm">
+      <span className="text-[#52525b]">De făcut:</span>
+      {items.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className="inline-flex items-center gap-1 rounded-full border border-[#fde68a] bg-[#fffbeb] px-2.5 py-0.5 text-[#92400e] hover:border-[#fcd34d]"
+        >
+          <span className="font-semibold tabular-nums">{formatNumber(item.count)}</span> {item.label}
+          <ChevronRight className="size-3.5" aria-hidden="true" />
         </Link>
-      </section>
+      ))}
     </div>
   );
+}
+
+function ChipRow({
+  label,
+  options,
+  selected,
+  hrefFor,
+}: {
+  label: string;
+  options: BrowseOption[];
+  selected?: string;
+  hrefFor: (id: string) => string;
+}) {
+  if (options.length === 0) return null;
+  // Cea aleasă rămâne la vedere chiar dacă ar cădea în „Toate".
+  const visible = options.slice(0, VISIBLE_CHIPS);
+  const chosen = options.find((option) => option.id === selected);
+  if (chosen && !visible.includes(chosen)) visible.push(chosen);
+  const hidden = options.filter((option) => !visible.includes(option));
+
+  const chip = (option: BrowseOption) => {
+    const active = option.id === selected;
+    return (
+      <Link
+        key={option.id}
+        aria-current={active ? "true" : undefined}
+        href={hrefFor(option.id)}
+        className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-sm font-medium ${
+          active
+            ? "border-[#2563eb] bg-[#eff6ff] text-[#1d4ed8]"
+            : "border-[#e4e4e7] bg-white text-[#3f3f46] hover:border-[#d4d4d8] hover:bg-[#fafafa]"
+        }`}
+      >
+        {option.name}
+        <span className={`text-xs tabular-nums ${active ? "text-[#1d4ed8]" : "text-[#71717a]"}`}>{option.count}</span>
+      </Link>
+    );
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="w-20 shrink-0 text-sm font-medium text-[#52525b]">{label}</span>
+      {visible.map(chip)}
+      {hidden.length > 0 ? (
+        <details className="group open:basis-full">
+          <summary className="inline-flex h-8 cursor-pointer list-none items-center rounded-full px-3 text-sm font-medium text-[#2563eb] hover:bg-[#eff6ff] group-open:hidden [&::-webkit-details-marker]:hidden">
+            Toate ({options.length})
+          </summary>
+          <div className="flex flex-wrap gap-1.5 sm:pl-[5.375rem]">{hidden.map(chip)}</div>
+        </details>
+      ) : null}
+    </div>
+  );
+}
+
+function Results({
+  catalog,
+  canModify,
+  canSell,
+  href,
+}: {
+  catalog: CatalogData;
+  canModify: boolean;
+  canSell: boolean;
+  href: (changes: Partial<Params>) => string;
+}) {
+  const { page, pageCount, pageSize } = catalog.pagination;
+  const start = catalog.productCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, catalog.productCount);
+
+  return (
+    <div className="grid gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+        <p className="text-[#52525b]">
+          <span className="font-semibold text-[#18181b]">{formatNumber(catalog.productCount)}</span>{" "}
+          {catalog.productCount === 1 ? "produs" : "produse"}
+          {catalog.productCount > pageSize ? ` · ${start}–${end}` : null}
+        </p>
+        <Link className="font-medium text-[#2563eb] hover:underline" href="/crm/azi">
+          Resetează căutarea
+        </Link>
+      </div>
+
+      {catalog.products.length === 0 ? (
+        <p className="rounded-xl border border-[#e4e4e7] bg-white px-4 py-10 text-center text-sm text-[#52525b]">
+          Nu am găsit produse. Încearcă doar codul, sau mai puține cuvinte.
+        </p>
+      ) : (
+        <ul className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+          {catalog.products.map((product) => {
+            const preview = toPreview(product, catalog);
+            return (
+              <li key={product.id} className="border-t border-[#f0f0f2] first:border-t-0">
+                <ProductPreview product={preview} canModify={canModify} canSell={canSell}>
+                  <ResultRow product={preview} />
+                </ProductPreview>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {pageCount > 1 ? (
+        <div className="flex items-center justify-end gap-2 text-sm">
+          <span className="mr-auto text-[#52525b]">
+            Pagina {page} din {pageCount}
+          </span>
+          {page > 1 ? (
+            <Link className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 font-medium hover:bg-[#f4f4f5]" href={href({ pagina: String(page - 1) })}>
+              Înapoi
+            </Link>
+          ) : null}
+          {page < pageCount ? (
+            <Link className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 font-medium hover:bg-[#f4f4f5]" href={href({ pagina: String(page + 1) })}>
+              Înainte
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ResultRow({ product }: { product: ProductPreviewValue }) {
+  const shown = product.compatibilities.slice(0, 2);
+  const more = product.compatibilities.length - shown.length;
+  const inStock = product.stocks.filter((stock) => stock.quantity > 0);
+
+  return (
+    <div className="grid gap-x-4 gap-y-2 px-4 py-3 hover:bg-[#fafafa] md:grid-cols-[minmax(0,1fr)_minmax(0,16rem)_8rem] md:items-center">
+      <div className="min-w-0">
+        <p className="flex flex-wrap items-baseline gap-x-2">
+          {product.code ? (
+            <span className="font-mono text-sm font-semibold text-[#18181b]">{product.code}</span>
+          ) : null}
+          <span className="text-base font-medium text-[#18181b]">{product.description}</span>
+          <span className="text-sm text-[#71717a]">{product.type}</span>
+        </p>
+        <p className="mt-0.5 truncate text-sm text-[#52525b]">
+          {shown.map((compatibility) => `${compatibility.title} · ${compatibility.years}`).join("  ·  ")}
+          {more > 0 ? <span className="text-[#71717a]"> +{more} mașini</span> : null}
+        </p>
+      </div>
+      {/* Totalul mare, apoi unde e marfa — cel mult trei depozite, restul ca „+N". */}
+      <div className="min-w-0 text-sm">
+        {inStock.length === 0 ? (
+          <span className="rounded-md bg-[#fef2f2] px-2 py-0.5 font-medium text-[#b91c1c]">Lipsă din stoc</span>
+        ) : (
+          <>
+            <span className="rounded-md bg-[#f0fdf4] px-2 py-0.5 font-medium text-[#166534]">
+              În stoc: <span className="font-semibold tabular-nums">{product.total}</span> buc.
+            </span>
+            <span className="mt-0.5 block truncate text-[#52525b]">
+              {inStock
+                .slice(0, 3)
+                .map((stock) => `${stock.name} ${stock.quantity}`)
+                .join(" · ")}
+              {inStock.length > 3 ? ` · +${inStock.length - 3}` : null}
+            </span>
+          </>
+        )}
+      </div>
+      <p className="text-lg font-semibold tabular-nums text-[#18181b] md:text-right">
+        {product.price ?? <span className="text-sm font-normal text-[#71717a]">fără preț</span>}
+      </p>
+    </div>
+  );
+}
+
+function toPreview(product: CatalogData["products"][number], catalog: CatalogData): ProductPreviewValue {
+  const stocks = catalog.warehouses.map((warehouse) => ({
+    id: warehouse.id,
+    name: warehouse.name.replace("Pavilion ", ""),
+    quantity: product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id)?.quantity ?? 0,
+  }));
+  return {
+    id: product.id,
+    code: product.externalCode,
+    alternativeCode: product.alternativeCode,
+    description: product.description,
+    type: product.type.name,
+    // Produsele vechi pot avea doar mașina principală, fără legături suplimentare.
+    compatibilities: buildCompatibilityLines(
+      (product.productFitments.length > 0
+        ? product.productFitments.map(({ fitment }) => fitment)
+        : [product.fitment]
+      ).map((fitment) => ({
+        id: fitment.id,
+        brandName: fitment.carModel.brand.name,
+        modelName: fitment.carModel.name,
+        yearStart: fitment.yearStart,
+        yearEnd: fitment.yearEnd,
+        yearOpenEnded: fitment.yearOpenEnded,
+      })),
+    ),
+    stocks,
+    total: stocks.reduce((sum, stock) => sum + stock.quantity, 0),
+    price: product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : null,
+    notes: product.notes,
+  };
 }

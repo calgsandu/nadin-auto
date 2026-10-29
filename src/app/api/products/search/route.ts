@@ -21,6 +21,16 @@ export async function GET(request: NextRequest) {
   // dintr-un prop plimbat prin cele șase dialoguri care folosesc comboboxul.
   const canCreate = canWriteCatalog(user.role);
 
+  // `?id=` = un singur produs, pentru „Vinde" din fișa rapidă (pagina Azi).
+  const id = request.nextUrl.searchParams.get("id");
+  if (id) {
+    const product = await prisma.product.findUnique({ where: { id }, include: productLabelInclude });
+    return Response.json({
+      canCreate,
+      products: product ? [toProductSearchResult(product, includeCosts)] : [],
+    });
+  }
+
   const query = normalizeProductSearchQuery(
     request.nextUrl.searchParams.get("q") ?? "",
   );
