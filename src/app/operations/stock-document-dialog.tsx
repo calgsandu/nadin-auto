@@ -15,6 +15,7 @@ import {
   focusFirstLineSearch,
   handleEnterNavigation,
   useDrawerAction,
+  useOpenFromUrl,
   drawerFormClassName,
   drawerDangerButton,
   drawerInputClassName,
@@ -46,6 +47,8 @@ export type SupplierOption = {
 type StockDocumentDialogProps = {
   warehouses: WarehouseOption[];
   suppliers: SupplierOption[];
+  /** true = se deschide singur când adresa are `?nou=1` (vezi `useOpenFromUrl`). */
+  openFromUrl?: boolean;
 };
 
 const initialState: OperationActionState = {
@@ -84,10 +87,14 @@ function initialProductOf(line: { productId: string; label: string }) {
   return line.productId ? { id: line.productId, label: line.label } : null;
 }
 
-export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDialogProps) {
+export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: StockDocumentDialogProps) {
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
+  useOpenFromUrl(openFromUrl, () => {
+    setMounted(true);
+    setOpen(true);
+  });
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<ReceiptLine[]>([emptyReceiptLine(1)]);
   // Rând nou cu id nou = căutările de produs se remontează golite.
@@ -227,11 +234,11 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                 </Field>
               </div>
 
-              <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
-                <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
+              <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
+                <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-3">
                   <div>
-                    <h3 className="font-semibold text-[#1b1a17]">Produse recepționate</h3>
-                    <p className="text-xs text-[#6f6b63]">
+                    <h3 className="font-semibold text-[#18181b]">Produse recepționate</h3>
+                    <p className="text-xs text-[#52525b]">
                       Toate pozițiile vor fi salvate într-un singur document.
                     </p>
                   </div>
@@ -253,10 +260,10 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                     return (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2 rounded-md border border-[#efeeeb] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_12.5rem_7.5rem] md:items-start"
+                      className="motion-line-item grid gap-2 rounded-md border border-[#f0f0f2] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_12.5rem_7.5rem] md:items-start"
                     >
                       <div>
-                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">
+                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#52525b]">
                           Produs {index + 1}
                         </p>
                         <ProductSearchCombobox
@@ -276,7 +283,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                             cost curent {money(Number(line.oldCost))} → se actualizează
                           </span>
                         ) : line.oldCost ? (
-                          <span className="mt-0.5 block font-mono text-[11px] text-[#6f6b63]">
+                          <span className="mt-0.5 block font-mono text-[11px] text-[#52525b]">
                             cost curent {money(Number(line.oldCost))}
                           </span>
                         ) : null}
@@ -307,9 +314,9 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                         />
                       </Field>
                       <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-9 flex-col justify-center whitespace-nowrap rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-2 font-mono text-xs leading-tight text-[#1b1a17]">
+                        <div className="flex h-9 flex-col justify-center whitespace-nowrap rounded-md border border-[#f0f0f2] bg-[#f4f4f5] px-2 font-mono text-xs leading-tight text-[#18181b]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[11px] text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
+                          <span className="text-[11px] text-[#52525b]">TVA {money(lineTva)}, net {money(lineNet)}</span>
                         </div>
                       </Field>
                       <LineControls
@@ -324,18 +331,18 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
                 </div>
               </section>
 
-              <div className="ml-auto w-full max-w-xs rounded-xl border border-[#e8e7e3] bg-white p-4 text-sm">
+              <div className="ml-auto w-full max-w-xs rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
                 <div className="flex justify-between py-1">
-                  <span className="text-[#6f6b63]">TVA plătit (÷6)</span>
+                  <span className="text-[#52525b]">TVA plătit (÷6)</span>
                   <span className="font-mono font-semibold">{money(tvaTotal)} lei</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-[#6f6b63]">Fără TVA</span>
+                  <span className="text-[#52525b]">Fără TVA</span>
                   <span className="font-mono font-semibold">{money(faraTva)} lei</span>
                 </div>
-                <div className="mt-1 flex justify-between border-t border-[#efeeeb] pt-2 text-base">
-                  <span className="font-semibold text-[#1b1a17]">Total (cu TVA)</span>
-                  <span className="font-mono font-bold text-[#1b1a17]">{money(valoare)} lei</span>
+                <div className="mt-1 flex justify-between border-t border-[#f0f0f2] pt-2 text-base">
+                  <span className="font-semibold text-[#18181b]">Total (cu TVA)</span>
+                  <span className="font-mono font-bold text-[#18181b]">{money(valoare)} lei</span>
                 </div>
               </div>
 
@@ -348,7 +355,7 @@ export function StockDocumentDialog({ warehouses, suppliers }: StockDocumentDial
               </Field>
 
 
-              <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
+              <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
                 <button
                   className={`${secondaryButtonClassName} px-4 py-2.5`}
                   type="button"
@@ -492,11 +499,11 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                 </Field>
               </div>
 
-              <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
-                <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
+              <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
+                <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-3">
                   <div>
-                    <h3 className="font-semibold text-[#1b1a17]">Produse transferate</h3>
-                    <p className="text-xs text-[#6f6b63]">
+                    <h3 className="font-semibold text-[#18181b]">Produse transferate</h3>
+                    <p className="text-xs text-[#52525b]">
                       Toate pozițiile vor fi mutate în aceeași operațiune.
                     </p>
                   </div>
@@ -514,10 +521,10 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2 rounded-md border border-[#efeeeb] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_10rem_2.25rem] md:items-start"
+                      className="motion-line-item grid gap-2 rounded-md border border-[#f0f0f2] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_10rem_2.25rem] md:items-start"
                     >
                       <div>
-                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">
+                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#52525b]">
                           Produs {index + 1}
                         </p>
                         <ProductSearchCombobox
@@ -567,7 +574,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
               </Field>
 
 
-              <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
+              <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
                 <button
                   className={`${secondaryButtonClassName} px-4 py-2.5`}
                   type="button"
@@ -626,14 +633,21 @@ export function StockSaleDialog({
   warehouses,
   customers = [],
   suppliers = [],
+  openFromUrl,
 }: {
   warehouses: WarehouseOption[];
   customers?: SupplierOption[];
   suppliers?: SupplierOption[];
+  /** true = se deschide singur când adresa are `?nou=1` (vezi `useOpenFromUrl`). */
+  openFromUrl?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
+  useOpenFromUrl(openFromUrl, () => {
+    setMounted(true);
+    setOpen(true);
+  });
   // „Client nou" deschide direct fișa de partener: varianta veche scria doar
   // numele, iar clientul rămânea fără IDNO/adresă și bloca mai târziu contul de
   // plată cu „(date incomplete)".
@@ -894,11 +908,11 @@ export function StockSaleDialog({
                   />
                 </Field>
               </div>
-              <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
-                <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
+              <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
+                <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-3">
                   <div>
-                    <h3 className="font-semibold text-[#1b1a17]">Produse vândute</h3>
-                    <p className="text-xs text-[#6f6b63]">Vânzările din 110A intră automat în lista De adus.</p>
+                    <h3 className="font-semibold text-[#18181b]">Produse vândute</h3>
+                    <p className="text-xs text-[#52525b]">Vânzările din 110A intră automat în lista De adus.</p>
                   </div>
                   <div className="flex gap-2">
                     <button className={secondaryButtonClassName} type="button" onClick={() => addLine(false)}>
@@ -917,9 +931,9 @@ export function StockSaleDialog({
                     if (line.external) {
                       const marja = ((Number(line.price) || 0) - (Number(line.cost) || 0)) * (Number(line.qty) || 0);
                       return (
-                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-md border border-[#dbebfe] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_10rem_5rem_7rem_8rem_7.5rem] md:items-start">
+                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-md border border-[#dbeafe] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_10rem_5rem_7rem_8rem_7.5rem] md:items-start">
                           <div>
-                            <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#175cd3]">
+                            <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#1d4ed8]">
                               Piesă externă {index + 1} — de la furnizor, nu intră în catalog/stoc
                             </p>
                             <input name="productId" type="hidden" value="" />
@@ -990,7 +1004,7 @@ export function StockSaleDialog({
                               onChange={(e) => setLineField(line.id, "price", e.currentTarget.value)}
                             />
                             {line.cost ? (
-                              <span className="font-mono text-[11px] text-[#6f6b63]">
+                              <span className="font-mono text-[11px] text-[#52525b]">
                                 marjă {money(marja)} lei
                               </span>
                             ) : null}
@@ -1005,9 +1019,9 @@ export function StockSaleDialog({
                       );
                     }
                     return (
-                    <div key={line.id} className="motion-line-item grid gap-2 rounded-md border border-[#efeeeb] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_12.5rem_7.5rem] md:items-start">
+                    <div key={line.id} className="motion-line-item grid gap-2 rounded-md border border-[#f0f0f2] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_12.5rem_7.5rem] md:items-start">
                       <div>
-                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">Produs {index + 1}</p>
+                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#52525b]">Produs {index + 1}</p>
                         <input name="externalName" type="hidden" value="" />
                         <input name="externalCode" type="hidden" value="" />
                         <input name="externalSupplierId" type="hidden" value="" />
@@ -1022,7 +1036,7 @@ export function StockSaleDialog({
                         {/* Sub produs, pe un rând: în coloana îngustă a prețului se rupea pe
                             două rânduri și dubla înălțimea fiecărei poziții. */}
                         {line.listPrice ? (
-                          <span className="mt-0.5 block font-mono text-[11px] text-[#6f6b63]">
+                          <span className="mt-0.5 block font-mono text-[11px] text-[#52525b]">
                             listă {money(Number(line.listPrice))}
                             {line.unitCost ? `, cost ${money(Number(line.unitCost))}` : ""}
                             {line.unitCost && Number(line.price) > 0
@@ -1057,9 +1071,9 @@ export function StockSaleDialog({
                         />
                       </Field>
                       <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-9 flex-col justify-center whitespace-nowrap rounded-md border border-[#efeeeb] bg-[#f6f6f4] px-2 font-mono text-xs leading-tight text-[#1b1a17]">
+                        <div className="flex h-9 flex-col justify-center whitespace-nowrap rounded-md border border-[#f0f0f2] bg-[#f4f4f5] px-2 font-mono text-xs leading-tight text-[#18181b]">
                           <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[11px] text-[#6f6b63]">TVA {money(lineTva)}, net {money(lineNet)}</span>
+                          <span className="text-[11px] text-[#52525b]">TVA {money(lineTva)}, net {money(lineNet)}</span>
                         </div>
                       </Field>
                       <LineControls
@@ -1074,25 +1088,25 @@ export function StockSaleDialog({
                 </div>
               </section>
 
-              <div className="ml-auto w-full max-w-xs rounded-xl border border-[#e8e7e3] bg-white p-4 text-sm">
+              <div className="ml-auto w-full max-w-xs rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
                 <div className="flex justify-between py-1">
-                  <span className="text-[#6f6b63]">TVA plătit (÷6)</span>
+                  <span className="text-[#52525b]">TVA plătit (÷6)</span>
                   <span className="font-mono font-semibold">{money(tvaTotal)} lei</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-[#6f6b63]">Fără TVA</span>
+                  <span className="text-[#52525b]">Fără TVA</span>
                   <span className="font-mono font-semibold">{money(faraTva)} lei</span>
                 </div>
-                <div className="mt-1 flex justify-between border-t border-[#efeeeb] pt-2 text-base">
-                  <span className="font-semibold text-[#1b1a17]">Total (cu TVA)</span>
-                  <span className="font-mono font-bold text-[#1b1a17]">{money(valoare)} lei</span>
+                <div className="mt-1 flex justify-between border-t border-[#f0f0f2] pt-2 text-base">
+                  <span className="font-semibold text-[#18181b]">Total (cu TVA)</span>
+                  <span className="font-mono font-bold text-[#18181b]">{money(valoare)} lei</span>
                 </div>
               </div>
 
               <Field label="Notițe">
                 <textarea className={`${inputClassName} min-h-16 resize-y py-2`} name="notes" placeholder="client, comandă, explicații" />
               </Field>
-              <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
+              <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
                 <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>Anulează</button>
                 <SubmitButton label="Salvează vânzarea" pending={pending} />
               </div>
@@ -1120,7 +1134,7 @@ function LineControls({
   onRemove: () => void;
 }) {
   const iconButton =
-    "grid size-9 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4] disabled:cursor-not-allowed disabled:opacity-35";
+    "grid size-9 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5] disabled:cursor-not-allowed disabled:opacity-35";
   // Pe un rând, nu stivuite: două săgeți una sub alta dublau înălțimea fiecărei poziții.
   return (
     <div className="line-offset mt-6 flex items-start gap-1">
@@ -1160,6 +1174,6 @@ const Field = DrawerField;
 const SubmitButton = DrawerSubmit;
 const inputClassName = drawerInputClassName;
 const primaryButtonClassName =
-  "button-primary rounded-md bg-[#1b1a17] px-3 py-2 text-sm font-semibold text-white hover:bg-[#33312c]";
+  "button-primary rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]";
 const secondaryButtonClassName = drawerSecondaryButton;
 const dangerButtonClassName = drawerDangerButton;

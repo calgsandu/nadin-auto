@@ -58,14 +58,14 @@ export function PaymentAccountRowActions({
   return (
     <div className="flex max-w-md flex-wrap justify-end gap-1.5">
       <a
-        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-xs font-semibold"
+        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-xs font-semibold"
         href={`/api/export/payment-account/${id}/pdf`}
       >
         <FileText className="size-3.5" aria-hidden="true" /> PDF
       </a>
       {fulfilled && !cancelled ? (
         <a
-          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-xs font-semibold"
+          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-xs font-semibold"
           href={`/api/export/payment-account/${id}/efactura-xml`}
         >
           <FileCode2 className="size-3.5" aria-hidden="true" /> XML fiscal
@@ -191,10 +191,10 @@ function ActionButton({
 }) {
   const status = useFormStatus();
   const colors = primary
-    ? "border-[#1b1a17] bg-[#1b1a17] text-white"
+    ? "border-[#18181b] bg-[#18181b] text-white"
     : danger
       ? "border-[#fca5a5] bg-white text-[#b91c1c]"
-      : "border-[#e8e7e3] bg-white text-[#1b1a17]";
+      : "border-[#e4e4e7] bg-white text-[#18181b]";
   return (
     <button className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-xs font-semibold disabled:opacity-60 ${colors}`} disabled={status.pending} type="submit">
       {status.pending ? "Se procesează..." : <>{icon}{label}</>}
@@ -234,7 +234,7 @@ function CorrectionForm({
   return (
     <>
       <button
-        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-xs font-semibold text-[#1b1a17]"
+        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-xs font-semibold text-[#18181b]"
         type="button"
         onClick={() => setOpen(true)}
       >
@@ -252,7 +252,7 @@ function CorrectionForm({
               label="Datele clientului"
               hint="Se iau din nou din fișa partenerului la salvare. Corectează întâi acolo IDNO-ul sau adresa."
             >
-              <p className="text-sm text-[#6f6b63]">
+              <p className="text-sm text-[#52525b]">
                 Numele, IDNO-ul, adresa, TVA-ul și datele bancare se resincronizează.
               </p>
             </DrawerField>

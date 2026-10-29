@@ -226,7 +226,7 @@ export async function GET(request: Request) {
   pdf
     .font("regular")
     .fontSize(9)
-    .fillColor("#1b1a17")
+    .fillColor("#18181b")
     .text("Întocmit: ______________________", pdf.page.margins.left, pdf.y);
 
   return pdfResponse(pdf, `registru-vanzari-${stamp}.pdf`);

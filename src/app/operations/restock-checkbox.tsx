@@ -59,10 +59,10 @@ function CheckboxInput({
   const status = useFormStatus();
 
   return (
-    <label className="inline-flex items-center justify-end gap-2 text-xs font-semibold text-[#33312c]">
+    <label className="inline-flex items-center justify-end gap-2 text-xs font-semibold text-[#3f3f46]">
       <input
         aria-label={label}
-        className="size-4 rounded border-[#98948b] accent-[#15803d]"
+        className="size-4 rounded border-[#71717a] accent-[#15803d]"
         disabled={status.pending}
         type="checkbox"
         onChange={(event) => {

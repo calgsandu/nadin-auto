@@ -115,6 +115,7 @@ function SalesWorkspace({
           {canModify ? <SalesRegisterExport /> : null}
           {canSell ? (
             <StockSaleDialog
+              openFromUrl
               warehouses={toWarehouseOptions(operations.warehouses)}
               customers={toCustomerOptions(operations.customers)}
               suppliers={toSupplierOptions(operations.suppliers)}
@@ -138,7 +139,7 @@ function SalesWorkspace({
       </div>
 
       <div className="grid gap-2">
-        <h2 className="text-sm font-semibold capitalize text-[#1b1a17]">
+        <h2 className="text-sm font-semibold capitalize text-[#18181b]">
           {salesDayLabelFormat.format(selectedDate)}
         </h2>
         <RecentDocumentsTable

@@ -130,10 +130,10 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                 </div>
 
                 {sale ? (
-                  <section data-drawer-lines className="overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-                    <div className="border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
-                      <h3 className="font-semibold text-[#1b1a17]">Produse vândute</h3>
-                      <p className="text-xs text-[#6f6b63]">
+                  <section data-drawer-lines className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+                    <div className="border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-3">
+                      <h3 className="font-semibold text-[#18181b]">Produse vândute</h3>
+                      <p className="text-xs text-[#52525b]">
                         Completează cantitatea returnată pentru fiecare produs (0 = nu se returnează).
                       </p>
                     </div>
@@ -143,12 +143,12 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                         return (
                           <div
                             key={line.productId}
-                            className="grid gap-2 rounded-md border border-[#efeeeb] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_8rem_8rem_10rem] md:items-center"
+                            className="grid gap-2 rounded-md border border-[#f0f0f2] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_8rem_8rem_10rem] md:items-center"
                           >
                             <input type="hidden" name="productId" value={line.productId} />
                             <div>
-                              <p className="font-medium text-[#1b1a17]">{line.label}</p>
-                              <p className="mt-0.5 text-xs text-[#6f6b63]">
+                              <p className="font-medium text-[#18181b]">{line.label}</p>
+                              <p className="mt-0.5 text-xs text-[#52525b]">
                                 Vândut: {line.quantity} buc la {money(line.unitPriceLei)} lei/buc
                               </p>
                             </div>
@@ -170,9 +170,9 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                                 }}
                               />
                             </Field>
-                            <div className="text-sm text-[#6f6b63]">
+                            <div className="text-sm text-[#52525b]">
                               <p className="text-xs font-semibold">Valoare retur</p>
-                              <p className="font-mono font-semibold text-[#1b1a17]">
+                              <p className="font-mono font-semibold text-[#18181b]">
                                 {money(qty * line.unitPriceLei)} lei
                               </p>
                             </div>
@@ -180,13 +180,13 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                         );
                       })}
                     </div>
-                    <div className="flex justify-between border-t border-[#efeeeb] bg-[#f6f6f4] px-4 py-3 text-sm">
-                      <span className="font-semibold text-[#1b1a17]">Total retur</span>
-                      <span className="font-mono font-bold text-[#1b1a17]">{money(totalLei)} lei</span>
+                    <div className="flex justify-between border-t border-[#f0f0f2] bg-[#f4f4f5] px-4 py-3 text-sm">
+                      <span className="font-semibold text-[#18181b]">Total retur</span>
+                      <span className="font-mono font-bold text-[#18181b]">{money(totalLei)} lei</span>
                     </div>
                   </section>
                 ) : (
-                  <p className="rounded-md border border-[#efeeeb] bg-white px-4 py-6 text-center text-sm text-[#6f6b63]">
+                  <p className="rounded-md border border-[#f0f0f2] bg-white px-4 py-6 text-center text-sm text-[#52525b]">
                     Alege mai întâi vânzarea — vei vedea produsele vândute în ziua respectivă.
                   </p>
                 )}
@@ -202,7 +202,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                 </Field>
 
 
-                <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
+                <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
                   <button className={secondaryButtonClassName} type="button" onClick={() => setOpen(false)}>
                     Anulează
                   </button>
@@ -220,5 +220,5 @@ const Field = DrawerField;
 const SubmitButton = DrawerSubmit;
 const inputClassName = drawerInputClassName;
 const primaryButtonClassName =
-  "button-primary rounded-md bg-[#1b1a17] px-3 py-2 text-sm font-semibold text-white hover:bg-[#33312c]";
+  "button-primary rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]";
 const secondaryButtonClassName = drawerSecondaryButton;

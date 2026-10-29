@@ -64,7 +64,7 @@ export async function GET(
   if (new URL(request.url).searchParams.get("format") === "pdf") {
     const pdf = createPdf();
     drawDocumentHeader(pdf, COMPANY, title, `din ${date}`);
-    pdf.font("regular").fontSize(9).fillColor("#1b1a17");
+    pdf.font("regular").fontSize(9).fillColor("#18181b");
     pdf.text(`Depozit: ${doc.warehouse.name}`);
     pdf.text(`Notițe: ${doc.notes || "—"}`);
     pdf.moveDown(1);
@@ -85,7 +85,7 @@ export async function GET(
     pdf.font("bold").fontSize(9);
     pdf.text(`Plusuri: ${signed(plus)} buc · Minusuri: ${signed(minus)} buc · Net: ${signed(plus + minus)} buc`);
     pdf.moveDown(2.5);
-    pdf.font("regular").fontSize(9).fillColor("#6f6b63");
+    pdf.font("regular").fontSize(9).fillColor("#52525b");
     pdf.text("A numărat: ______________________          A verificat: ______________________");
 
     return pdfResponse(pdf, `${filename}.pdf`);

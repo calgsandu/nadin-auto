@@ -175,7 +175,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
       {selected.length > 0
         ? createPortal(
             <div className="fixed inset-x-0 bottom-3 z-50 flex justify-center px-3 print:hidden sm:bottom-4 sm:px-4">
-              <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-[#dedcd6] bg-white shadow-[0_18px_60px_rgba(27,26,23,0.20)]">
+              <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-[#d4d4d8] bg-white shadow-[0_18px_60px_rgba(27,26,23,0.20)]">
                 <div
                   className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${
                     expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
@@ -186,10 +186,10 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                     aria-hidden={!expanded}
                     inert={!expanded ? true : undefined}
                   >
-                    <div className="border-b border-[#e8e7e3] bg-[#fafaf9]">
-                      <div className="flex items-center justify-between gap-4 border-b border-[#efeeeb] px-3 py-2 sm:px-4">
+                    <div className="border-b border-[#e4e4e7] bg-[#fafafa]">
+                      <div className="flex items-center justify-between gap-4 border-b border-[#f0f0f2] px-3 py-2 sm:px-4">
                         <div>
-                          <p className="text-sm font-semibold text-[#1b1a17]">
+                          <p className="text-sm font-semibold text-[#18181b]">
                             Cantități pentru print
                           </p>
                           <p className="mt-0.5 text-xs text-[#777269]">
@@ -200,7 +200,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
 
                       <div
                         ref={listRef}
-                        className="max-h-[min(32vh,14rem)] divide-y divide-[#efeeeb] overflow-y-auto overscroll-contain"
+                        className="max-h-[min(32vh,14rem)] divide-y divide-[#f0f0f2] overflow-y-auto overscroll-contain"
                       >
                         {selected.map((item) => (
                           <div
@@ -208,14 +208,14 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                             className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 sm:px-4"
                           >
                             <div className="min-w-0">
-                              <p className="truncate font-mono text-xs font-bold tracking-[0.02em] text-[#1b1a17]">
+                              <p className="truncate font-mono text-xs font-bold tracking-[0.02em] text-[#18181b]">
                                 {item.code || item.id}
                               </p>
                               <p className="mt-0.5 truncate text-xs text-[#777269]">
                                 {item.name || "Produs selectat"}
                               </p>
                               {item.compatibility ? (
-                                <p className="mt-0.5 truncate text-[11px] text-[#98948b]">
+                                <p className="mt-0.5 truncate text-[11px] text-[#71717a]">
                                   {item.compatibility}
                                 </p>
                               ) : null}
@@ -236,7 +236,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                                       event.currentTarget.checked,
                                     )
                                   }
-                                  className="size-3.5 accent-[#1b1a17]"
+                                  className="size-3.5 accent-[#18181b]"
                                 />
                                 <span>
                                   {item.alternativeCode
@@ -251,7 +251,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                                 type="button"
                                 onClick={() => updateCount(item.id, item.count - 1)}
                                 disabled={item.count <= MIN_LABEL_COUNT}
-                                className="grid size-8 place-items-center rounded-full border border-[#dedcd6] bg-white text-[#1b1a17] transition-colors hover:border-[#b9b5ac] hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b1a17] disabled:cursor-not-allowed disabled:opacity-35"
+                                className="grid size-8 place-items-center rounded-full border border-[#d4d4d8] bg-white text-[#18181b] transition-colors hover:border-[#b9b5ac] hover:bg-[#f4f4f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b] disabled:cursor-not-allowed disabled:opacity-35"
                                 aria-label={`Mai puține stickere pentru ${item.code || item.name}`}
                               >
                                 <Minus aria-hidden="true" className="size-3.5" strokeWidth={2.25} />
@@ -265,14 +265,14 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                                 onChange={(event) =>
                                   updateCount(item.id, Number(event.currentTarget.value))
                                 }
-                                className="h-8 w-11 rounded-lg border border-[#dedcd6] bg-white text-center font-mono text-sm font-bold text-[#1b1a17] [appearance:textfield] focus:border-[#1b1a17] focus:outline-none focus:ring-1 focus:ring-[#1b1a17] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                className="h-8 w-11 rounded-lg border border-[#d4d4d8] bg-white text-center font-mono text-sm font-bold text-[#18181b] [appearance:textfield] focus:border-[#18181b] focus:outline-none focus:ring-1 focus:ring-[#18181b] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                                 aria-label={`Număr stickere pentru ${item.code || item.name}`}
                               />
                               <button
                                 type="button"
                                 onClick={() => updateCount(item.id, item.count + 1)}
                                 disabled={item.count >= MAX_LABEL_COUNT}
-                                className="grid size-8 place-items-center rounded-full border border-[#dedcd6] bg-white text-[#1b1a17] transition-colors hover:border-[#b9b5ac] hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b1a17] disabled:cursor-not-allowed disabled:opacity-35"
+                                className="grid size-8 place-items-center rounded-full border border-[#d4d4d8] bg-white text-[#18181b] transition-colors hover:border-[#b9b5ac] hover:bg-[#f4f4f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b] disabled:cursor-not-allowed disabled:opacity-35"
                                 aria-label={`Mai multe stickere pentru ${item.code || item.name}`}
                               >
                                 <Plus aria-hidden="true" className="size-3.5" strokeWidth={2.25} />
@@ -280,7 +280,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                               <button
                                 type="button"
                                 onClick={() => remove(item.id)}
-                                className="ml-1 grid size-7 place-items-center rounded-full text-[#8d887f] transition-colors hover:bg-[#f4e6e4] hover:text-[#a53027] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b1a17]"
+                                className="ml-1 grid size-7 place-items-center rounded-full text-[#8d887f] transition-colors hover:bg-[#f4e6e4] hover:text-[#a53027] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b]"
                                 aria-label={`Scoate ${item.code || item.name} din selecție`}
                               >
                                 <X aria-hidden="true" className="size-4" />
@@ -303,7 +303,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                         ? "Restrânge lista cantităților"
                         : "Arată lista cantităților"
                     }
-                    className="flex min-w-0 items-center gap-2 rounded-full px-2 py-1.5 text-left text-sm font-semibold text-[#1b1a17] transition-colors hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b1a17]"
+                    className="flex min-w-0 items-center gap-2 rounded-full px-2 py-1.5 text-left text-sm font-semibold text-[#18181b] transition-colors hover:bg-[#f4f4f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b]"
                   >
                     <span aria-live="polite">
                       {selected.length} {selected.length === 1 ? "produs selectat" : "produse selectate"}
@@ -319,7 +319,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                     <button
                       type="button"
                       onClick={clear}
-                      className="rounded-full px-3 py-1.5 text-sm text-[#6f6b63] transition-colors hover:bg-[#f3f2ef] hover:text-[#1b1a17] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b1a17]"
+                      className="rounded-full px-3 py-1.5 text-sm text-[#52525b] transition-colors hover:bg-[#f4f4f5] hover:text-[#18181b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b]"
                     >
                       Deselectează
                     </button>
@@ -327,7 +327,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                       href={printHref}
                       rel="noopener"
                       target="_blank"
-                      className="rounded-full bg-[#1b1a17] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#33312c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b1a17] sm:px-5"
+                      className="rounded-full bg-[#18181b] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#3f3f46] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b] sm:px-5"
                     >
                       Printează stickere
                     </a>

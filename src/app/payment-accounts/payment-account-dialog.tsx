@@ -48,7 +48,7 @@ const emptyLine = (id: number): EditableLine => ({
 
 const initialState: PaymentAccountActionState = { ok: false, message: "" };
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17] outline-none placeholder:text-[#98948b] focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/25";
+  "field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm text-[#18181b] outline-none placeholder:text-[#71717a] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/25";
 
 export function PaymentAccountDialog({
   customers,
@@ -129,7 +129,7 @@ export function PaymentAccountDialog({
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c]"
+        className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         type="button"
         onClick={() => {
           setMounted(true);
@@ -152,13 +152,13 @@ export function PaymentAccountDialog({
               onClick={() => setOpen(false)}
             />
             <aside className={drawerPanelClassName}>
-              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
                 <div>
-                  <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">Cont de plată nou</h2>
-                  <p className="mt-1 text-sm text-[#6f6b63]">Nu modifică stocul până la predarea mărfii.</p>
+                  <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">Cont de plată nou</h2>
+                  <p className="mt-1 text-sm text-[#52525b]">Nu modifică stocul până la predarea mărfii.</p>
                 </div>
                 <button
-                  className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold"
+                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold"
                   type="button"
                   onClick={() => setOpen(false)}
                 >
@@ -201,7 +201,7 @@ export function PaymentAccountDialog({
                           ))}
                         </select>
                         <button
-                          className="button-secondary shrink-0 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                          className="button-secondary shrink-0 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                           type="button"
                           onClick={() => setCustomerForm(true)}
                         >
@@ -221,14 +221,14 @@ export function PaymentAccountDialog({
                   </Field>
                 </div>
 
-                <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
-                  <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-4 py-3">
+                <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
+                  <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-3">
                     <div>
-                      <h3 className="font-semibold text-[#1b1a17]">Marfă</h3>
-                      <p className="text-xs text-[#6f6b63]">Prețurile sunt finale, cu TVA inclus.</p>
+                      <h3 className="font-semibold text-[#18181b]">Marfă</h3>
+                      <p className="text-xs text-[#52525b]">Prețurile sunt finale, cu TVA inclus.</p>
                     </div>
                     <button
-                      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold"
+                      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold"
                       type="button"
                       onClick={addLine}
                     >
@@ -241,10 +241,10 @@ export function PaymentAccountDialog({
                       return (
                         <div
                           key={line.id}
-                          className="motion-line-item grid gap-2 rounded-md border border-[#efeeeb] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_6rem_9rem_10rem_2.25rem] md:items-start"
+                          className="motion-line-item grid gap-2 rounded-md border border-[#f0f0f2] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_6rem_9rem_10rem_2.25rem] md:items-start"
                         >
                           <div>
-                            <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">Produs {index + 1}</p>
+                            <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#52525b]">Produs {index + 1}</p>
                             <ProductSearchCombobox
                               showHint={false}
                               initialProduct={
@@ -287,9 +287,9 @@ export function PaymentAccountDialog({
                             />
                           </Field>
                           <Field label="Linie">
-                            <div className="flex h-9 flex-col justify-center rounded-md bg-[#f6f6f4] px-2.5 font-mono text-xs leading-tight">
+                            <div className="flex h-9 flex-col justify-center rounded-md bg-[#f4f4f5] px-2.5 font-mono text-xs leading-tight">
                               <span className="font-semibold">{money(calculated.gross)} lei</span>
-                              <span className="text-[#6f6b63]">TVA {money(calculated.vat)}, net {money(calculated.net)}</span>
+                              <span className="text-[#52525b]">TVA {money(calculated.vat)}, net {money(calculated.net)}</span>
                             </div>
                           </Field>
                           <button
@@ -315,18 +315,18 @@ export function PaymentAccountDialog({
                       placeholder="Termen de achitare, condiții de ridicare etc."
                     />
                   </Field>
-                  <div className="rounded-xl border border-[#e8e7e3] bg-white p-4 text-sm">
+                  <div className="rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
                     <Summary label="Fără TVA" value={totals.net} />
                     <Summary label="TVA" value={totals.vat} />
-                    <div className="mt-2 flex justify-between border-t border-[#e8e7e3] pt-3 text-base font-semibold">
+                    <div className="mt-2 flex justify-between border-t border-[#e4e4e7] pt-3 text-base font-semibold">
                       <span>Total</span><span className="font-mono">{money(totals.gross)} lei</span>
                     </div>
                   </div>
                 </div>
 
 
-                <div className="flex justify-end gap-3 border-t border-[#e8e7e3] pt-5">
-                  <button className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold" type="button" onClick={() => setOpen(false)}>
+                <div className="flex justify-end gap-3 border-t border-[#e4e4e7] pt-5">
+                  <button className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold" type="button" onClick={() => setOpen(false)}>
                     Anulează
                   </button>
                   <SubmitButton pending={pending} />
@@ -341,16 +341,16 @@ export function PaymentAccountDialog({
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="grid gap-1.5 text-xs font-semibold text-[#6f6b63]">{label}{children}</label>;
+  return <label className="grid gap-1.5 text-xs font-semibold text-[#52525b]">{label}{children}</label>;
 }
 
 function Summary({ label, value }: { label: string; value: number }) {
-  return <div className="flex justify-between py-1"><span className="text-[#6f6b63]">{label}</span><span className="font-mono font-semibold">{money(value)} lei</span></div>;
+  return <div className="flex justify-between py-1"><span className="text-[#52525b]">{label}</span><span className="font-mono font-semibold">{money(value)} lei</span></div>;
 }
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
-    <button className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">
+    <button className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">
       {pending ? "Se emite..." : "Emite contul"}
     </button>
   );

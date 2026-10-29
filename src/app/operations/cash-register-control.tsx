@@ -17,7 +17,7 @@ function cashRegisterTone(value: CashRegisterStatus) {
     ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
     : value === false
       ? "border-[#fdba74] bg-[#fff7ed] text-[#9a3412]"
-      : "border-[#d6d3d1] bg-[#fafaf9] text-[#57534a]";
+      : "border-[#d4d4d8] bg-[#fafafa] text-[#52525b]";
 }
 
 export function CashRegisterBadge({ value }: { value: CashRegisterStatus }) {

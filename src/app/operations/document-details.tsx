@@ -62,7 +62,7 @@ export function DocumentDetailsButton({ details }: { details: DocumentDetailsVal
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+        className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
       >
         Detalii
       </button>
@@ -91,23 +91,23 @@ function DetailsPanel({
           onClick={onClose}
         />
         <aside className={drawerPanelClassName}>
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
             <div>
-              <h2 className="mt-1 text-lg font-semibold tracking-tight text-[#1b1a17]">
+              <h2 className="mt-1 text-lg font-semibold tracking-tight text-[#18181b]">
                 {details.typeLabel} #{details.number}
               </h2>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-medium text-[#1b1a17] hover:bg-[#f6f6f4]"
+              className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
             >
               Închide
             </button>
           </div>
 
           <div className="grid gap-4 px-5 py-4">
-            <dl className="grid gap-x-6 gap-y-1.5 rounded-lg border border-[#e8e7e3] bg-white p-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
+            <dl className="grid gap-x-6 gap-y-1.5 rounded-lg border border-[#e4e4e7] bg-white p-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
               <MetaItem label="Data documentului" value={details.date} />
               <MetaItem label="Depozit" value={details.warehouse} />
               <MetaItem
@@ -141,13 +141,13 @@ function DetailsPanel({
               <MetaItem label="Ultima modificare" value={details.updatedAt} />
             </dl>
 
-            <div className="overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-              <div className="border-b border-[#e8e7e3] bg-[#f6f6f4] px-3.5 py-2 text-sm font-semibold text-[#1b1a17]">
+            <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+              <div className="border-b border-[#e4e4e7] bg-[#f4f4f5] px-3.5 py-2 text-sm font-semibold text-[#18181b]">
                 Produse ({details.lines.length})
               </div>
               <div className="overflow-x-auto">
                 <table className="crm-table w-full min-w-[520px] border-collapse text-left text-sm">
-                  <thead className="border-b border-[#e8e7e3] bg-[#fafaf9] text-xs text-[#6f6b63]">
+                  <thead className="border-b border-[#e4e4e7] bg-[#fafafa] text-xs text-[#52525b]">
                     <tr>
                       <th className="px-3 py-2 font-semibold">Cod</th>
                       <th className="px-3 py-2 font-semibold">Produs</th>
@@ -158,12 +158,12 @@ function DetailsPanel({
                   </thead>
                   <tbody>
                     {details.lines.map((line) => (
-                      <tr key={line.id} className="border-t border-[#efeeeb]">
+                      <tr key={line.id} className="border-t border-[#f0f0f2]">
                         <td className="px-3 py-2 font-mono text-xs">{line.code ?? "—"}</td>
                         <td className="px-3 py-2">
                           {line.description}
                           {line.vehicle ? (
-                            <span className="mt-0.5 block text-xs text-[#6f6b63]">
+                            <span className="mt-0.5 block text-xs text-[#52525b]">
                               {line.vehicle}
                             </span>
                           ) : null}
@@ -178,13 +178,13 @@ function DetailsPanel({
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="border-t border-[#e8e7e3] bg-[#fafaf9] text-sm">
+                  <tfoot className="border-t border-[#e4e4e7] bg-[#fafafa] text-sm">
                     {details.showVat ? (
                       <tr>
-                        <td colSpan={4} className="px-3 py-2 text-right text-[#6f6b63]">
+                        <td colSpan={4} className="px-3 py-2 text-right text-[#52525b]">
                           TVA inclus (÷6)
                         </td>
-                        <td className="px-3 py-2 text-right font-mono text-[#6f6b63]">
+                        <td className="px-3 py-2 text-right font-mono text-[#52525b]">
                           {money.format(tva)}
                         </td>
                       </tr>
@@ -206,19 +206,19 @@ function DetailsPanel({
               <div className="flex flex-wrap gap-2">
                 <a
                   href={`/api/export/document/${details.id}/pdf`}
-                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                 >
                   <FileText className="size-4" aria-hidden="true" /> PDF intern
                 </a>
                 <a
                   href={`/api/export/invoice/${details.id}`}
-                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                 >
                   <Download className="size-4" aria-hidden="true" /> Excel intern
                 </a>
                 <Link
                   href={`/crm/istoric?doc=${details.id}`}
-                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                 >
                   <History className="size-4" aria-hidden="true" /> Istoric modificări
                 </Link>
@@ -234,8 +234,8 @@ function DetailsPanel({
 function MetaItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-sm text-[#98948b]">{label}</dt>
-      <dd className="mt-0.5 text-[#1b1a17]">{value}</dd>
+      <dt className="text-sm text-[#71717a]">{label}</dt>
+      <dd className="mt-0.5 text-[#18181b]">{value}</dd>
     </div>
   );
 }

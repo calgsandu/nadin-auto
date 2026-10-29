@@ -17,7 +17,7 @@ export async function StockAddButton({
   const operations = await operationsPromise;
   const warehouses = toWarehouseOptions(operations.warehouses);
   return activeSectionId === "receptii" ? (
-    <StockDocumentDialog suppliers={toSupplierOptions(operations.suppliers)} warehouses={warehouses} />
+    <StockDocumentDialog openFromUrl suppliers={toSupplierOptions(operations.suppliers)} warehouses={warehouses} />
   ) : (
     <StockTransferDialog warehouses={warehouses} />
   );

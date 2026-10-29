@@ -36,10 +36,10 @@ export function ExternalOrdersWorkspace({
         <Metric label="Marjă totală (livrate)" value={`${formatMoney(deliveredMargin)} lei`} />
       </div>
 
-      <div className="motion-card flex flex-col gap-3 rounded-xl border border-[#e8e7e3] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="motion-card flex flex-col gap-3 rounded-xl border border-[#e4e4e7] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-semibold text-[#1b1a17]">Aprovizionare la comandă</h2>
-          <p className="text-sm text-[#6f6b63]">
+          <h2 className="font-semibold text-[#18181b]">Aprovizionare la comandă</h2>
+          <p className="text-sm text-[#52525b]">
             Clientul cere piesa → suni furnizorul → confirmi → aduci → livrezi. Catalogul propriu nu este afectat.
           </p>
         </div>
@@ -85,13 +85,13 @@ function OrdersTable({
   const actionColumns = (showActions ? 1 : 0) + (canDelete ? 1 : 0);
 
   return (
-    <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="border-b border-[#e8e7e3] px-4 py-2.5">
-        <h2 className="text-sm font-semibold text-[#1b1a17]">{title}</h2>
+    <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="border-b border-[#e4e4e7] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#18181b]">{title}</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[1080px] border-collapse text-left text-sm">
-          <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+          <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
             <tr>
               <TableHead>Nr.</TableHead>
               <TableHead>Client</TableHead>
@@ -108,25 +108,25 @@ function OrdersTable({
           <tbody>
             {orders.length > 0 ? (
               orders.map((order) => (
-                <tr key={order.id} className="motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]">
+                <tr key={order.id} className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]">
                   <TableCell className="font-mono text-xs font-semibold">#{order.number}</TableCell>
                   <TableCell>
-                    <p className="font-medium text-[#1b1a17]">{order.customerName}</p>
+                    <p className="font-medium text-[#18181b]">{order.customerName}</p>
                     {order.customerPhone ? (
-                      <p className="mt-0.5 font-mono text-xs text-[#6f6b63]">{order.customerPhone}</p>
+                      <p className="mt-0.5 font-mono text-xs text-[#52525b]">{order.customerPhone}</p>
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    <p className="font-medium text-[#1b1a17]">{order.productName}</p>
+                    <p className="font-medium text-[#18181b]">{order.productName}</p>
                     {order.productCode ? (
-                      <p className="mt-0.5 font-mono text-xs text-[#6f6b63]">{order.productCode}</p>
+                      <p className="mt-0.5 font-mono text-xs text-[#52525b]">{order.productCode}</p>
                     ) : null}
                     {order.notes ? (
-                      <p className="mt-0.5 text-xs text-[#6f6b63]">{order.notes}</p>
+                      <p className="mt-0.5 text-xs text-[#52525b]">{order.notes}</p>
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    {order.supplierName ?? <span className="text-[#98948b]">de stabilit</span>}
+                    {order.supplierName ?? <span className="text-[#71717a]">de stabilit</span>}
                     {order.offerValidUntil ? (
                       // Oferta expirată nu era semnalată nicăieri: comanda se
                       // confirma la un preț care nu mai era valabil.
@@ -134,7 +134,7 @@ function OrdersTable({
                         className={`mt-0.5 text-xs ${
                           isExpiredOffer(order.status, order.offerValidUntil)
                             ? "font-semibold text-[#b91c1c]"
-                            : "text-[#6f6b63]"
+                            : "text-[#52525b]"
                         }`}
                       >
                         {isExpiredOffer(order.status, order.offerValidUntil)
@@ -180,7 +180,7 @@ function OrdersTable({
               ))
             ) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={actionColumns > 0 ? 10 : 9}>
+                <td className="px-3 py-10 text-center text-[#52525b]" colSpan={actionColumns > 0 ? 10 : 9}>
                   {emptyLabel}
                 </td>
               </tr>
@@ -193,9 +193,9 @@ function OrdersTable({
 }
 
 const STATUS_STYLES: Record<ExternalOrderStatus, string> = {
-  CERERE: "bg-[#f1f0ed] text-[#6f6b63]",
+  CERERE: "bg-[#f4f4f5] text-[#52525b]",
   OFERTAT: "bg-[#fef3c7] text-[#92400e]",
-  CONFIRMAT: "bg-[#dbebfe] text-[#175cd3]",
+  CONFIRMAT: "bg-[#dbeafe] text-[#1d4ed8]",
   RECEPTIONAT: "bg-[#ede9fe] text-[#6d28d9]",
   LIVRAT: "bg-[#dcfce7] text-[#166534]",
   ANULAT: "bg-[#fee2e2] text-[#b91c1c]",
@@ -211,7 +211,7 @@ function StatusBadge({ status }: { status: ExternalOrderStatus }) {
 
 function MarginCell({ order }: { order: ExternalOrderRow }) {
   const margin = orderMargin(order);
-  if (margin == null) return <span className="font-normal text-[#98948b]">—</span>;
+  if (margin == null) return <span className="font-normal text-[#71717a]">—</span>;
   return (
     <span className={margin < 0 ? "text-[#b91c1c]" : "text-[#166534]"}>
       {formatMoney(margin)} lei
@@ -245,9 +245,9 @@ function toFormValue(order: ExternalOrderRow): ExternalOrderFormValue {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="motion-card rounded-xl border border-[#e8e7e3] bg-white px-4 py-3.5">
-      <p className="text-sm font-medium text-[#6f6b63]">{label}</p>
-      <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums text-[#1b1a17]">{value}</p>
+    <div className="motion-card rounded-xl border border-[#e4e4e7] bg-white px-4 py-3.5">
+      <p className="text-sm font-medium text-[#52525b]">{label}</p>
+      <p className="mt-1.5 text-xl font-semibold tracking-tight tabular-nums text-[#18181b]">{value}</p>
     </div>
   );
 }
@@ -261,7 +261,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-4 py-2.5 text-[13px] font-semibold text-[#6f6b63] ${
+      className={`whitespace-nowrap px-4 py-2.5 text-[13px] font-semibold text-[#52525b] ${
         align === "right" ? "text-right" : "text-left"
       }`}
     >

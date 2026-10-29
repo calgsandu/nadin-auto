@@ -72,7 +72,7 @@ export async function GET(request: Request) {
   if (searchParams.get("format") === "pdf") {
     const pdf = createPdf();
     drawDocumentHeader(pdf, COMPANY, title, `Perioada: ${period}`);
-    pdf.font("regular").fontSize(9).fillColor("#1b1a17");
+    pdf.font("regular").fontSize(9).fillColor("#18181b");
     pdf.text(`Inventare: ${documents.length} · Poziții ajustate: ${rows.length}`);
     pdf.moveDown(1);
 

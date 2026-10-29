@@ -84,10 +84,10 @@ async function Loader({
         <CustomerCard canModify={canModify} customer={open} detail={detail} />
       ) : null}
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[820px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Client</TableHead>
                 <TableHead secondary>Contact</TableHead>
@@ -103,11 +103,11 @@ async function Loader({
               {data.customers.map((customer) => (
                 <tr
                   key={customer.id}
-                  className={`motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4] ${
-                    customer.id === openId ? "bg-[#f6f6f4]" : ""
+                  className={`motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5] ${
+                    customer.id === openId ? "bg-[#f4f4f5]" : ""
                   }`}
                 >
-                  <TableCell className="font-semibold text-[#1b1a17]">
+                  <TableCell className="font-semibold text-[#18181b]">
                     <Link
                       className="hover:underline"
                       href={crmCustomersHref(customer.id === openId ? undefined : customer.id)}
@@ -115,33 +115,33 @@ async function Loader({
                     >
                       {customer.name}
                     </Link>
-                    <span className="mt-0.5 block text-xs font-normal text-[#6f6b63]">
+                    <span className="mt-0.5 block text-xs font-normal text-[#52525b]">
                       {formatNumber(customer.purchases)} vânzări
                     </span>
                   </TableCell>
-                  <TableCell secondary className="text-[#6f6b63]">
+                  <TableCell secondary className="text-[#52525b]">
                     <span className="block">{formatText(customer.phone)}</span>
                     {customer.email ? <span className="mt-0.5 block">{customer.email}</span> : null}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
                     {customer.discountPercent ? `${customer.discountPercent}%` : "-"}
                   </TableCell>
-                  <TableCell align="right" className="tabular-nums font-semibold text-[#1b1a17]">
+                  <TableCell align="right" className="tabular-nums font-semibold text-[#18181b]">
                     {formatMoney(customer.boughtLei)}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
                     {formatMoney(customer.paidLei)}
                   </TableCell>
                   <TableCell align="right">
                     <span
                       className={`tabular-nums font-semibold ${
-                        customer.debtLei > 0 ? "text-[#b91c1c]" : "text-[#6f6b63]"
+                        customer.debtLei > 0 ? "text-[#b91c1c]" : "text-[#52525b]"
                       }`}
                     >
                       {customer.debtLei !== 0 ? formatMoney(customer.debtLei) : "-"}
                     </span>
                   </TableCell>
-                  <TableCell secondary className="text-[#6f6b63]">
+                  <TableCell secondary className="text-[#52525b]">
                     {customer.lastPurchaseAt ? formatDate(customer.lastPurchaseAt) : "-"}
                   </TableCell>
                   {canModify ? (
@@ -170,7 +170,7 @@ async function Loader({
           </table>
         </div>
         {data.customers.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
+          <div className="px-4 py-12 text-center text-sm text-[#52525b]">
             Niciun client încă. Clienții adăugați la o vânzare apar aici.
           </div>
         ) : null}
@@ -190,11 +190,11 @@ function CustomerCard({
   detail: CustomerDetail;
 }) {
   return (
-    <div className="motion-card rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#e8e7e3] px-4 py-3">
+    <div className="motion-card rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#e4e4e7] px-4 py-3">
         <div>
-          <h2 className="text-base font-semibold text-[#1b1a17]">{customer.name}</h2>
-          <p className="mt-0.5 text-xs text-[#6f6b63]">
+          <h2 className="text-base font-semibold text-[#18181b]">{customer.name}</h2>
+          <p className="mt-0.5 text-xs text-[#52525b]">
             {formatText(customer.phone)}
             {customer.discountPercent ? ` · discount ${customer.discountPercent}%` : ""}
             {customer.debtLei > 0 ? ` · datorie ${formatMoney(customer.debtLei)} lei` : ""}
@@ -209,7 +209,7 @@ function CustomerCard({
             />
           ) : null}
           <Link
-            className="button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+            className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
             href={crmCustomersHref()}
             scroll={false}
           >
@@ -220,26 +220,26 @@ function CustomerCard({
 
       <div className="grid gap-4 px-4 py-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <h3 className="text-sm font-semibold text-[#1b1a17]">Ce a cumpărat</h3>
+          <h3 className="text-sm font-semibold text-[#18181b]">Ce a cumpărat</h3>
           {detail.sales.length === 0 ? (
-            <p className="mt-2 text-sm text-[#6f6b63]">Nicio vânzare înregistrată.</p>
+            <p className="mt-2 text-sm text-[#52525b]">Nicio vânzare înregistrată.</p>
           ) : (
             <ul className="mt-2 grid gap-3">
               {detail.sales.map((sale) => (
-                <li key={sale.id} className="border-t border-[#efeeeb] pt-3 first:border-0 first:pt-0">
+                <li key={sale.id} className="border-t border-[#f0f0f2] pt-3 first:border-0 first:pt-0">
                   <div className="flex items-baseline justify-between gap-3 text-sm">
-                    <span className="font-semibold text-[#1b1a17]">
+                    <span className="font-semibold text-[#18181b]">
                       Vânzare #{sale.number}
                     </span>
-                    <span className="tabular-nums font-semibold text-[#1b1a17]">
+                    <span className="tabular-nums font-semibold text-[#18181b]">
                       {formatMoney(sale.totalLei)} lei
                     </span>
                   </div>
-                  <p className="text-xs text-[#6f6b63]">
+                  <p className="text-xs text-[#52525b]">
                     {formatDate(sale.documentDate)} · {salePaymentMethodLabel(sale.paymentMethod)}
                     {sale.discountPercent ? ` · -${Number(sale.discountPercent)}%` : ""}
                   </p>
-                  <ul className="mt-1 grid gap-0.5 text-xs text-[#6f6b63]">
+                  <ul className="mt-1 grid gap-0.5 text-xs text-[#52525b]">
                     {sale.lines.map((line) => (
                       <li key={line.id} className="flex justify-between gap-3">
                         <span>
@@ -260,20 +260,20 @@ function CustomerCard({
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-[#1b1a17]">Încasări</h3>
+          <h3 className="text-sm font-semibold text-[#18181b]">Încasări</h3>
           {detail.payments.length === 0 ? (
-            <p className="mt-2 text-sm text-[#6f6b63]">Nicio încasare scrisă.</p>
+            <p className="mt-2 text-sm text-[#52525b]">Nicio încasare scrisă.</p>
           ) : (
             <ul className="mt-2 grid gap-2 text-sm">
               {detail.payments.map((payment) => (
                 <li key={payment.id} className="flex items-baseline justify-between gap-3">
-                  <span className="text-[#6f6b63]">
+                  <span className="text-[#52525b]">
                     {formatDate(payment.paidAt)}
                     {payment.notes ? (
                       <span className="block text-xs">{payment.notes}</span>
                     ) : null}
                   </span>
-                  <span className="tabular-nums font-semibold text-[#1b1a17]">
+                  <span className="tabular-nums font-semibold text-[#18181b]">
                     {formatMoney(payment.amount)}
                   </span>
                 </li>

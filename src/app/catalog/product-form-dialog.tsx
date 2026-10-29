@@ -194,8 +194,8 @@ export function ProductFormDialog({
         <button
           className={
             triggerKind === "row"
-              ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
-              : "button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c]"
+              ? "button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+              : "button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
           }
           type="button"
           onClick={openDialog}
@@ -225,14 +225,14 @@ export function ProductFormDialog({
               setOpen(false);
             }}
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
               <div>
-                <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">
+                <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">
                   {product ? "Editează produs" : "Adaugă produs"}
                 </h2>
               </div>
               <button
-                className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-medium text-[#1b1a17] hover:bg-[#f6f6f4]"
+                className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
                 type="button"
                 onClick={() => setOpen(false)}
               >
@@ -327,10 +327,10 @@ export function ProductFormDialog({
                 </Field>
               </div>
 
-              <section className="rounded-lg border border-[#e8e7e3] bg-white p-3">
+              <section className="rounded-lg border border-[#e4e4e7] bg-white p-3">
                 <div>
-                  <h3 className="text-sm font-semibold text-[#1b1a17]">Compatibilități</h3>
-                  <p className="mt-1 text-xs text-[#6f6b63]">
+                  <h3 className="text-sm font-semibold text-[#18181b]">Compatibilități</h3>
+                  <p className="mt-1 text-xs text-[#52525b]">
                     Prima linie e mașina principală. Adaugă câte linii are piesa (Sprinter ↔ Crafter).
                   </p>
                 </div>
@@ -350,7 +350,7 @@ export function ProductFormDialog({
                 </div>
 
                 <button
-                  className="button-secondary mt-3 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                  className="button-secondary mt-3 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                   type="button"
                   onClick={addFitment}
                 >
@@ -358,20 +358,20 @@ export function ProductFormDialog({
                 </button>
               </section>
 
-              <label className="field-control flex items-center gap-2 self-start rounded-md border border-[#e8e7e3] bg-white px-3 py-3 text-sm text-[#33312c]">
+              <label className="field-control flex items-center gap-2 self-start rounded-md border border-[#e4e4e7] bg-white px-3 py-3 text-sm text-[#3f3f46]">
                 <input name="isLocal" type="checkbox" defaultChecked={product?.isLocal ?? false} />
                 Piesă fabricată local (manufactura proprie)
               </label>
 
-              <section className="rounded-lg border border-[#e8e7e3] bg-white p-3">
+              <section className="rounded-lg border border-[#e4e4e7] bg-white p-3">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h3 className="text-sm font-semibold text-[#1b1a17]">Stoc pe depozite</h3>
-                    <p className="mt-1 text-xs text-[#6f6b63]">
+                    <h3 className="text-sm font-semibold text-[#18181b]">Stoc pe depozite</h3>
+                    <p className="mt-1 text-xs text-[#52525b]">
                       Completează cantitatea reală din fiecare depozit. Totalul se calculează automat.
                     </p>
                   </div>
-                  <p className="text-sm font-semibold text-[#1b1a17]">
+                  <p className="text-sm font-semibold text-[#18181b]">
                     Total: <span className="font-mono">{calculateTotal(warehouseQuantities)}</span> buc.
                   </p>
                 </div>
@@ -440,9 +440,9 @@ export function ProductFormDialog({
                 </Field>
               </div>
 
-              <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
+              <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
                 <button
-                  className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                   type="button"
                   onClick={() => setOpen(false)}
                 >
@@ -483,7 +483,7 @@ function FitmentRow({
   onRemove?: () => void;
 }) {
   return (
-    <div className="grid gap-3 rounded-md border border-[#efeeeb] p-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_8rem_8rem_13rem] lg:items-start">
+    <div className="grid gap-3 rounded-md border border-[#f0f0f2] p-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_8rem_8rem_13rem] lg:items-start">
       <input
         name={primary ? "yearOpenEnded" : "extraYearOpenEnded"}
         type="hidden"
@@ -533,7 +533,7 @@ function FitmentRow({
         />
       </Field>
       <div className="flex items-center gap-3 lg:mt-7">
-        <label className="flex items-center gap-1.5 whitespace-nowrap text-xs text-[#33312c]">
+        <label className="flex items-center gap-1.5 whitespace-nowrap text-xs text-[#3f3f46]">
           <input
             checked={value.yearOpenEnded}
             type="checkbox"
@@ -549,7 +549,7 @@ function FitmentRow({
         {onRemove ? (
           <button
             aria-label="Șterge compatibilitatea"
-            className="button-danger rounded-md border border-[#e8e7e3] bg-white px-2 py-2 text-sm font-semibold text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2]"
+            className="button-danger rounded-md border border-[#e4e4e7] bg-white px-2 py-2 text-sm font-semibold text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2]"
             type="button"
             onClick={onRemove}
           >
@@ -590,7 +590,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`grid content-start gap-1 text-sm font-medium text-[#33312c] ${className}`}>
+    <label className={`grid content-start gap-1 text-sm font-medium text-[#3f3f46] ${className}`}>
       {label}
       {children}
     </label>
@@ -601,7 +601,7 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
 
   return (
     <button
-      className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -611,7 +611,7 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
 }
 
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";
+  "field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm outline-none placeholder:text-[#71717a] disabled:bg-[#f1f1f3]";
 
 function getWarehouseQuantities(
   product: ProductFormValue | undefined,

@@ -38,7 +38,7 @@ async function Loader({ dataPromise }: { dataPromise: Promise<AuditData> }) {
 
 const AUDIT_ACTION_META: Record<string, { label: string; className: string }> = {
   CREATE: { label: "Creare", className: "bg-[#dcfce7] text-[#15803d]" },
-  UPDATE: { label: "Editare", className: "bg-[#dbebfe] text-[#175cd3]" },
+  UPDATE: { label: "Editare", className: "bg-[#dbeafe] text-[#1d4ed8]" },
   DELETE: { label: "Ștergere", className: "bg-[#fee2e2] text-[#b91c1c]" },
 };
 
@@ -70,8 +70,8 @@ function AuditWorkspace({ data }: { data: AuditData }) {
               href={href}
               className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
                 active
-                  ? "border-[#1b1a17] bg-[#1b1a17] text-white"
-                  : "border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
+                  ? "border-[#18181b] bg-[#18181b] text-white"
+                  : "border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
               }`}
             >
               {filter.label}
@@ -81,17 +81,17 @@ function AuditWorkspace({ data }: { data: AuditData }) {
         {data.filters.doc ? (
           <Link
             href={crmSectionHref("istoric")}
-            className="rounded-full border border-[#2e90fa] bg-[#dbebfe] px-3.5 py-1.5 text-sm font-semibold text-[#175cd3] hover:bg-[#bedcfc]"
+            className="rounded-full border border-[#2563eb] bg-[#dbeafe] px-3.5 py-1.5 text-sm font-semibold text-[#1d4ed8] hover:bg-[#bedcfc]"
           >
             Filtru: un singur document ✕
           </Link>
         ) : null}
       </div>
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[820px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Data și ora</TableHead>
                 <TableHead secondary>Utilizator</TableHead>
@@ -105,7 +105,7 @@ function AuditWorkspace({ data }: { data: AuditData }) {
                 data.entries.map((entry) => <AuditRowView key={entry.id} entry={entry} />)
               ) : (
                 <tr>
-                  <td className="px-3 py-12 text-center text-[#6f6b63]" colSpan={5}>
+                  <td className="px-3 py-12 text-center text-[#52525b]" colSpan={5}>
                     Nu există intrări în jurnal pentru filtrele curente.
                   </td>
                 </tr>
@@ -121,7 +121,7 @@ function AuditWorkspace({ data }: { data: AuditData }) {
 function AuditRowView({ entry }: { entry: AuditRow }) {
   const meta = AUDIT_ACTION_META[entry.action] ?? {
     label: entry.action,
-    className: "bg-[#f0efec] text-[#6f6b63]",
+    className: "bg-[#f1f1f3] text-[#52525b]",
   };
   const canRestore =
     entry.action === "DELETE" &&
@@ -130,14 +130,14 @@ function AuditRowView({ entry }: { entry: AuditRow }) {
     !entry.restoredDocumentId;
 
   return (
-    <tr className="motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]">
+    <tr className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]">
       <TableCell className="whitespace-nowrap font-mono text-xs">
         {dateTimeFormat.format(entry.createdAt)}
       </TableCell>
       <TableCell secondary>
         <p className="font-medium">{entry.userName || entry.userEmail || "—"}</p>
         {entry.userName && entry.userEmail ? (
-          <p className="mt-0.5 text-xs text-[#98948b]">{entry.userEmail}</p>
+          <p className="mt-0.5 text-xs text-[#71717a]">{entry.userEmail}</p>
         ) : null}
       </TableCell>
       <TableCell>
@@ -146,7 +146,7 @@ function AuditRowView({ entry }: { entry: AuditRow }) {
         >
           {meta.label}
         </span>
-        <p className="mt-1 text-xs text-[#98948b]">
+        <p className="mt-1 text-xs text-[#71717a]">
           {AUDIT_ENTITY_LABEL[entry.entity] ?? entry.entity}
         </p>
       </TableCell>
@@ -162,7 +162,7 @@ function AuditRowView({ entry }: { entry: AuditRow }) {
           {entry.hasDetails ? (
             <AuditDetails id={entry.id} />
           ) : (
-            <span className="text-xs text-[#98948b]">—</span>
+            <span className="text-xs text-[#71717a]">—</span>
           )}
         </div>
       </TableCell>

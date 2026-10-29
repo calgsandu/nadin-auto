@@ -152,7 +152,7 @@ function EditDrawer(props: EditProps) {
           setMounted(true);
           setOpen(true);
         }}
-        className="button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+        className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
       >
         Editează
       </button>
@@ -320,7 +320,7 @@ function EditPanel({
                 key={line.id}
                 className={`${drawerLineClassName} ${
                   isExternal
-                    ? "line-keep-labels border-[#dbebfe] md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.25rem]"
+                    ? "line-keep-labels border-[#dbeafe] md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.25rem]"
                     : isInventory
                       ? "md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.25rem]"
                       : "md:grid-cols-[minmax(0,1fr)_7rem_8rem_11rem_2.25rem]"
@@ -328,7 +328,7 @@ function EditPanel({
                 style={matchesLineFilter(filter, line) ? undefined : { display: "none" }}
               >
                 <div>
-                  <p className={`line-label mb-1 text-xs font-semibold leading-5 ${isExternal ? "text-[#175cd3]" : "text-[#6f6b63]"}`}>
+                  <p className={`line-label mb-1 text-xs font-semibold leading-5 ${isExternal ? "text-[#1d4ed8]" : "text-[#52525b]"}`}>
                     {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : `Produs ${index + 1}`}
                   </p>
                   {isExternal ? (
@@ -442,7 +442,7 @@ function EditPanel({
             );
           })}
           {editableLines.length === 0 ? (
-            <div className="rounded-md border border-dashed border-[#e8e7e3] px-3 py-6 text-center text-sm text-[#6f6b63]">
+            <div className="rounded-md border border-dashed border-[#e4e4e7] px-3 py-6 text-center text-sm text-[#52525b]">
               Adaugă cel puțin un produs.
             </div>
           ) : null}

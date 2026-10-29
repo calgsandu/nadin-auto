@@ -103,11 +103,11 @@ function ProductWorkspace({
       <CatalogFilters brands={catalog.brands} models={catalog.models} types={catalog.types} />
       <section className="motion-page p-3 lg:p-4">
         <div className="mb-2 flex items-center justify-between gap-4">
-          <p className="text-sm text-[#6f6b63]">
+          <p className="text-sm text-[#52525b]">
             {start}-{end} din {formatNumber(catalog.productCount)} produse
           </p>
           <Link
-            className="text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
+            className="text-sm font-medium text-[#18181b] underline decoration-[#2563eb] underline-offset-4"
             href={crmSectionHref("produse")}
           >
             Resetează filtrele
@@ -115,10 +115,10 @@ function ProductWorkspace({
         </div>
 
         <LabelPicker>
-          <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+          <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
             <div className="overflow-x-auto">
               <table className="crm-table w-full min-w-[1100px] border-collapse text-left text-sm">
-                <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+                <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
                   <tr>
                     {canModify ? <TableHead>{""}</TableHead> : null}
                     <TableHead>Cod</TableHead>
@@ -143,7 +143,7 @@ function ProductWorkspace({
               </table>
             </div>
             {catalog.products.length === 0 ? (
-              <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">
+              <div className="px-4 py-12 text-center text-sm text-[#52525b]">
                 Nu sunt produse pentru filtrele curente.
               </div>
             ) : null}
@@ -152,7 +152,7 @@ function ProductWorkspace({
 
         {catalog.productCount > pageSize ? (
           <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-            <p className="text-[#6f6b63]">
+            <p className="text-[#52525b]">
               Pagina {page} din {pageCount}
             </p>
             <div className="flex gap-2">
@@ -192,7 +192,7 @@ function ProductRow({
   );
 
   return (
-    <tr className="motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]">
+    <tr className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]">
       {canModify ? (
         <TableCell>
           <input
@@ -205,7 +205,7 @@ function ProductRow({
               .map((compatibility) => `${compatibility.title}, ani ${compatibility.years}`)
               .join(" • ")}
             aria-label={`Selectează ${product.description} pentru sticker`}
-            className="size-4 cursor-pointer accent-[#1b1a17]"
+            className="size-4 cursor-pointer accent-[#18181b]"
           />
         </TableCell>
       ) : null}
@@ -214,23 +214,23 @@ function ProductRow({
         <div className="space-y-1">
           {compatibilities.map((compatibility, index) => (
             <div key={`${compatibility.title}:${compatibility.years}:${index}`}>
-              <p className="font-semibold text-[#1b1a17]">{compatibility.title}</p>
-              <p className="mt-0.5 text-xs text-[#6f6b63]">Ani: {compatibility.years}</p>
+              <p className="font-semibold text-[#18181b]">{compatibility.title}</p>
+              <p className="mt-0.5 text-xs text-[#52525b]">Ani: {compatibility.years}</p>
             </div>
           ))}
         </div>
       </TableCell>
       <TableCell>
-        <p className="font-medium text-[#1b1a17]">
+        <p className="font-medium text-[#18181b]">
           {product.description}
           {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
         </p>
-        <p className="mt-0.5 text-xs text-[#6f6b63]">{product.type.name}</p>
+        <p className="mt-0.5 text-xs text-[#52525b]">{product.type.name}</p>
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
         {formatNumber(product.stock)}
         {/* Doar depozitele cu marfă: „110A: 0, Depozit: 0, …" lățea coloana și strivea denumirea. */}
-        <p className="mt-0.5 font-normal text-xs text-[#6f6b63]">
+        <p className="mt-0.5 font-normal text-xs text-[#52525b]">
           {catalog.warehouses
             .map((warehouse) => {
               const quantity =
@@ -249,7 +249,7 @@ function ProductRow({
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
       </TableCell>
       {canModify ? (
-        <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">
+        <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
           <p>{formatMoney(product.costLei)} lei</p>
           <p className="mt-0.5 text-xs">{formatMoney(product.priceEuro)} EUR</p>
         </TableCell>
@@ -263,7 +263,7 @@ function ProductRow({
               rel="noreferrer"
               title="Sticker produs (70×50.8mm)"
               aria-label="Sticker produs"
-              className="button-secondary grid size-8 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
+              className="button-secondary grid size-8 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
             >
               <Printer className="size-4" aria-hidden="true" />
             </a>
@@ -297,12 +297,12 @@ function PaginationLink({
   page: number;
 }) {
   if (disabled) {
-    return <span className="rounded-md border border-[#e3e1dc] bg-[#f0efec] px-3 py-2 text-[#98948b]">{label}</span>;
+    return <span className="rounded-md border border-[#e4e4e7] bg-[#f1f1f3] px-3 py-2 text-[#71717a]">{label}</span>;
   }
 
   return (
     <Link
-      className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 font-medium hover:bg-[#f6f6f4]"
+      className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 font-medium hover:bg-[#f4f4f5]"
       href={crmCatalogPageHref({ ...catalog.params, page })}
     >
       {label}

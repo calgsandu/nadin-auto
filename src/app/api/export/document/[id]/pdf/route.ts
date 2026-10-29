@@ -55,7 +55,7 @@ export async function GET(
   );
 
   // Party details.
-  pdf.font("regular").fontSize(9).fillColor("#1b1a17");
+  pdf.font("regular").fontSize(9).fillColor("#18181b");
   pdf.text(`Depozit: ${doc.warehouse.name}`);
   if (doc.externalNumber) pdf.text(`Serie / nr. factură: ${doc.externalNumber}`);
   if (doc.discountPercent) pdf.text(`Discount aplicat: ${Number(doc.discountPercent)}%`);
@@ -113,7 +113,7 @@ export async function GET(
   // Signature block.
   pdf.moveDown(2.5);
   const y = pdf.y;
-  pdf.font("regular").fontSize(9).fillColor("#1b1a17");
+  pdf.font("regular").fontSize(9).fillColor("#18181b");
   pdf.text("Predat: ______________________", pdf.page.margins.left, y);
   pdf.text("Primit: ______________________", 330, y);
 

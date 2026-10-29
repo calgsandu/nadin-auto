@@ -69,9 +69,9 @@ async function Loader({
     >
       {data.fitments.map((f: FitmentRow) => (
         <tr key={f.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#1b1a17]">
+          <TableCell className="font-semibold text-[#18181b]">
             {f.label}
-            {f.labelRu ? <p className="mt-1 text-xs font-normal text-[#6f6b63]">RU: {f.labelRu}</p> : null}
+            {f.labelRu ? <p className="mt-1 text-xs font-normal text-[#52525b]">RU: {f.labelRu}</p> : null}
           </TableCell>
           <TableCell>{f.carModel.brand.name} {f.carModel.name}</TableCell>
           <TableCell>{formatYearLabel(f.yearStart, f.yearEnd, f.yearOpenEnded)}</TableCell>

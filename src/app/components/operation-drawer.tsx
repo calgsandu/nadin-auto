@@ -57,6 +57,26 @@ export const drawerBoundaryProps = {
 } as const;
 
 /**
+ * Butoanele mari din pagina Azi duc la `/crm/vanzari?nou=1` (și la fel pentru
+ * recepție/inventar): dialogul se deschide singur o dată, iar `nou` dispare din
+ * adresă, ca un refresh sau „Înapoi" să nu-l redeschidă.
+ */
+export function useOpenFromUrl(enabled: boolean | undefined, open: () => void) {
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  });
+  useEffect(() => {
+    if (!enabled) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("nou") !== "1") return;
+    url.searchParams.delete("nou");
+    window.history.replaceState(window.history.state, "", url);
+    openRef.current();
+  }, [enabled]);
+}
+
+/**
  * Panoul lateral folosit de TOATE operațiunile — adăugare și editare deopotrivă.
  * Toate clasele de shell trăiesc aici, ca formularele să nu mai poată devia
  * unul de altul (recepție vs editare vs inventar arătau diferit).
@@ -149,11 +169,11 @@ export function OperationDrawer({
           }}
           className={drawerPanelClassName}
         >
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">{title}</h2>
+              <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">{title}</h2>
               {draft?.savedAt ? (
-                <p className="text-xs text-[#6f6b63]">
+                <p className="text-xs text-[#52525b]">
                   Ciornă salvată {draftTime(draft.savedAt)}
                 </p>
               ) : null}
@@ -162,7 +182,7 @@ export function OperationDrawer({
               {submitLabel ? (
                 // requestSubmit() = aceeași validare + același onSubmit ca butonul din josul formularului.
                 <button
-                  className="button-primary rounded-md bg-[#1b1a17] px-4 py-2 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="button-primary rounded-md bg-[#2563eb] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={pending}
                   type="button"
                   onClick={() => panelRef.current?.querySelector("form")?.requestSubmit()}
@@ -217,10 +237,10 @@ export function DrawerField({
   hint?: string;
 }) {
   return (
-    <label className="grid gap-1 text-sm font-medium text-[#33312c]">
+    <label className="grid gap-1 text-sm font-medium text-[#3f3f46]">
       <span className="line-label">{label}</span>
       {children}
-      {hint ? <span className="text-xs font-normal text-[#6f6b63]">{hint}</span> : null}
+      {hint ? <span className="text-xs font-normal text-[#52525b]">{hint}</span> : null}
     </label>
   );
 }
@@ -237,11 +257,11 @@ export function DrawerSection({
   children: ReactNode;
 }) {
   return (
-    <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#f6f6f4] px-3 py-2">
+    <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-3 py-2">
         <div>
-          <h3 className="font-semibold text-[#1b1a17]">{title}</h3>
-          {description ? <p className="text-xs text-[#6f6b63]">{description}</p> : null}
+          <h3 className="font-semibold text-[#18181b]">{title}</h3>
+          {description ? <p className="text-xs text-[#52525b]">{description}</p> : null}
         </div>
         {action}
       </div>
@@ -364,8 +384,8 @@ export function DrawerFooter({
   pending?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-4">
-      <span className="mr-auto text-xs text-[#6f6b63]">
+    <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-4">
+      <span className="mr-auto text-xs text-[#52525b]">
         Enter trece la câmpul următor. Salvarea doar din buton.
       </span>
       <button className={drawerSecondaryButton} type="button" onClick={onCancel}>
@@ -382,7 +402,7 @@ export function DrawerSubmit({ label, pending }: { label: string; pending?: bool
   const busy = pending ?? status.pending;
   return (
     <button
-      className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={busy}
       type="submit"
     >
@@ -464,15 +484,15 @@ export function handleEnterNavigation(
  * iar pe monitor rămâneau două treimi de ecran nefolosite.
  */
 export const drawerPanelClassName =
-  "motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-[#fafaf9] shadow-xl md:max-w-[90vw]";
+  "motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-[#fafafa] shadow-xl md:max-w-[90vw]";
 export const drawerFormClassName = "grid gap-4 px-5 py-4";
 export const drawerInputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm outline-none placeholder:text-[#98948b]";
+  "field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm outline-none placeholder:text-[#71717a]";
 export const drawerSecondaryButton =
-  "button-secondary flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#fafaf9]";
+  "button-secondary flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#fafafa]";
 export const drawerDangerButton =
-  "button-danger line-offset mt-6 grid size-9 place-items-center rounded-md border border-[#e8e7e3] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";
+  "button-danger line-offset mt-6 grid size-9 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";
 /** Marchează un rând de produs, ca navigarea cu Enter să știe unde se află. */
 const DRAWER_LINE_MARKER = "motion-line-item";
 export const drawerLineClassName =
-  `${DRAWER_LINE_MARKER} grid gap-2 rounded-md border border-[#efeeeb] bg-white px-2.5 py-2 md:items-start`;
+  `${DRAWER_LINE_MARKER} grid gap-2 rounded-md border border-[#f0f0f2] bg-white px-2.5 py-2 md:items-start`;

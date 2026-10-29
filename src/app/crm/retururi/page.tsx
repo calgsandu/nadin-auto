@@ -82,10 +82,10 @@ function ReturnsWorkspace({
           <ReturnDialog sales={returnableSales} />
         </div>
       ) : null}
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[860px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Data</TableHead>
                 <TableHead>Document</TableHead>
@@ -99,12 +99,12 @@ function ReturnsWorkspace({
             <tbody>
               {operations.returns.length > 0 ? (
                 operations.returns.map((document) => (
-                  <tr key={document.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
+                  <tr key={document.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
                     <TableCell>{formatDate(document.documentDate)}</TableCell>
                     <TableCell className="font-semibold">
                       Retur #{document.number}
                       {document.notes ? (
-                        <p className="mt-0.5 text-xs font-normal text-[#6f6b63]">{document.notes}</p>
+                        <p className="mt-0.5 text-xs font-normal text-[#52525b]">{document.notes}</p>
                       ) : null}
                     </TableCell>
                     <TableCell secondary>{document.warehouse.name}</TableCell>
@@ -113,10 +113,10 @@ function ReturnsWorkspace({
                         {document.lines.map((line) => (
                           <span key={line.id}>
                             {line.product?.externalCode ? (
-                              <span className="mr-1.5 font-semibold text-[#1b1a17]">{line.product.externalCode}</span>
+                              <span className="mr-1.5 font-semibold text-[#18181b]">{line.product.externalCode}</span>
                             ) : null}
                             {lineDescription(line)}
-                            <span className="font-mono text-[#6f6b63]"> x{line.quantity}</span>
+                            <span className="font-mono text-[#52525b]"> x{line.quantity}</span>
                             <VehicleSubline product={line.product} />
                           </span>
                         ))}
@@ -146,7 +146,7 @@ function ReturnsWorkspace({
                 ))
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={canModify ? 7 : 6}>
+                  <td className="px-3 py-10 text-center text-[#52525b]" colSpan={canModify ? 7 : 6}>
                     Nu există retururi încă.
                   </td>
                 </tr>

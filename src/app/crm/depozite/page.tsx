@@ -46,7 +46,7 @@ async function Loader({
     >
       {data.warehouses.map((w: WarehouseRow) => (
         <tr key={w.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#1b1a17]">{w.name}</TableCell>
+          <TableCell className="font-semibold text-[#18181b]">{w.name}</TableCell>
           <TableCell>{w.isDefault ? "Da" : "—"}</TableCell>
           <TableCell>{w.active ? "Da" : "Inactiv"}</TableCell>
           <TableCell align="right" className="font-mono">{formatNumber(w._count.stocks)}</TableCell>

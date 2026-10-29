@@ -54,8 +54,8 @@ export function LoginForm() {
   }
 
   return (
-    <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-[#e3e1dc] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.35)] md:grid-cols-2">
-      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#1b1a17] p-10 text-white md:flex">
+    <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.35)] md:grid-cols-2">
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#18181b] p-10 text-white md:flex">
         <div className="relative">
           <h1 className="text-4xl font-semibold leading-tight tracking-tight">
             Nadin Auto
@@ -75,10 +75,10 @@ export function LoginForm() {
         </ul>
       </aside>
 
-      <section className="bg-[#fafaf9] p-8 sm:p-10">
-        <p className="text-base font-bold text-[#1b1a17] md:hidden">Nadin Auto</p>
-        <h2 className="mt-4 text-2xl font-semibold text-[#1b1a17] md:mt-0">Bine ai revenit</h2>
-        <p className="mt-1 text-sm text-[#6f6b63]">
+      <section className="bg-[#fafafa] p-8 sm:p-10">
+        <p className="text-base font-bold text-[#18181b] md:hidden">Nadin Auto</p>
+        <h2 className="mt-4 text-2xl font-semibold text-[#18181b] md:mt-0">Bine ai revenit</h2>
+        <p className="mt-1 text-sm text-[#52525b]">
           Autentifică-te cu datele primite de la administrator.
         </p>
 
@@ -112,27 +112,27 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={isPending}
-            className="mt-1 h-11 rounded-md bg-[#1b1a17] text-sm font-semibold text-white transition-colors hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-1 h-11 rounded-md bg-[#18181b] text-sm font-semibold text-white transition-colors hover:bg-[#3f3f46] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending ? "Se autentifică..." : "Autentificare"}
           </button>
         </form>
 
-        <div className="my-6 flex items-center gap-3 text-xs text-[#98948b]">
-          <span className="h-px flex-1 bg-[#e3e1dc]" />
+        <div className="my-6 flex items-center gap-3 text-xs text-[#71717a]">
+          <span className="h-px flex-1 bg-[#e4e4e7]" />
           cont existent
-          <span className="h-px flex-1 bg-[#e3e1dc]" />
+          <span className="h-px flex-1 bg-[#e4e4e7]" />
         </div>
         <button
           type="button"
           onClick={handleGoogle}
           disabled={googleLoading}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#e8e7e3] bg-white text-sm font-semibold text-[#1b1a17] transition-colors hover:bg-[#f6f6f4] disabled:opacity-60"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white text-sm font-semibold text-[#18181b] transition-colors hover:bg-[#f4f4f5] disabled:opacity-60"
         >
           <GoogleIcon />
           {googleLoading ? "Se conectează..." : "Google — doar conturi existente"}
         </button>
-        <p className="mt-3 text-center text-xs leading-relaxed text-[#98948b]">
+        <p className="mt-3 text-center text-xs leading-relaxed text-[#71717a]">
           Google nu acordă acces conturilor noi; panoul acceptă numai personalul aprobat.
         </p>
       </section>
@@ -142,7 +142,7 @@ export function LoginForm() {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
+    <label className="grid gap-1.5 text-sm font-medium text-[#3f3f46]">
       {label}
       {children}
     </label>
@@ -150,7 +150,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const inputClassName =
-  "h-11 w-full rounded-md border border-[#e8e7e3] bg-white px-3 text-sm text-[#1b1a17] outline-none transition focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30 placeholder:text-[#98948b]";
+  "h-11 w-full rounded-md border border-[#e4e4e7] bg-white px-3 text-sm text-[#18181b] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30 placeholder:text-[#71717a]";
 
 function GoogleIcon() {
   return (

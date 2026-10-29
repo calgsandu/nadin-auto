@@ -14,6 +14,7 @@ import {
   focusFirstLineSearch,
   handleEnterNavigation,
   useDrawerAction,
+  useOpenFromUrl,
   drawerDangerButton,
   drawerFormClassName,
   drawerInputClassName,
@@ -55,13 +56,20 @@ const emptyLine = (id: number): InventoryLine => ({
 export function InventoryDialog({
   warehouses,
   defaultWarehouseId,
+  openFromUrl,
 }: {
   warehouses: WarehouseOption[];
   defaultWarehouseId?: string;
+  /** true = se deschide singur când adresa are `?nou=1` (vezi `useOpenFromUrl`). */
+  openFromUrl?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
+  useOpenFromUrl(openFromUrl, () => {
+    setMounted(true);
+    setOpen(true);
+  });
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<InventoryLine[]>([emptyLine(1)]);
   const [filter, setFilter] = useState("");
@@ -112,7 +120,7 @@ export function InventoryDialog({
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#1b1a17] px-3 py-2 text-sm font-semibold text-white hover:bg-[#33312c]"
+        className="button-primary rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         type="button"
         onClick={() => {
           setMounted(true);
@@ -170,7 +178,7 @@ export function InventoryDialog({
                   style={matchesLineFilter(filter, line) ? undefined : { display: "none" }}
                 >
                   <div>
-                    <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#6f6b63]">Produs {index + 1}</p>
+                    <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#52525b]">Produs {index + 1}</p>
                     <ProductSearchCombobox
                       showHint={false}
                       initialProduct={

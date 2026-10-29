@@ -13,10 +13,10 @@ export function VerifyForm({ credentialId }: { credentialId: string }) {
   return (
     <form action={action} className="grid gap-4">
       <input type="hidden" name="credentialId" value={credentialId} />
-      <label className="grid gap-1.5 text-sm font-medium text-[#33312c]">
+      <label className="grid gap-1.5 text-sm font-medium text-[#3f3f46]">
         Codul din Authenticator
         <input
-          className="h-12 rounded-md border border-[#e8e7e3] bg-white px-3 text-center font-mono text-lg tracking-[0.3em] outline-none focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30"
+          className="h-12 rounded-md border border-[#e4e4e7] bg-white px-3 text-center font-mono text-lg tracking-[0.3em] outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30"
           name="code"
           inputMode="numeric"
           pattern="[0-9]{6}"
@@ -26,11 +26,11 @@ export function VerifyForm({ credentialId }: { credentialId: string }) {
           autoFocus
         />
       </label>
-      <label className="flex items-start gap-3 text-sm text-[#33312c]">
+      <label className="flex items-start gap-3 text-sm text-[#3f3f46]">
         <input className="mt-0.5 size-4" type="checkbox" name="rememberDevice" />
         <span>
           Ține minte acest dispozitiv timp de 30 de zile
-          <span className="mt-0.5 block text-xs text-[#98948b]">Nu activa opțiunea pe un dispozitiv comun.</span>
+          <span className="mt-0.5 block text-xs text-[#71717a]">Nu activa opțiunea pe un dispozitiv comun.</span>
         </span>
       </label>
       {state.message ? (
@@ -41,7 +41,7 @@ export function VerifyForm({ credentialId }: { credentialId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="h-11 rounded-md bg-[#1b1a17] text-sm font-semibold text-white hover:bg-[#33312c] disabled:opacity-60"
+        className="h-11 rounded-md bg-[#18181b] text-sm font-semibold text-white hover:bg-[#3f3f46] disabled:opacity-60"
       >
         {pending ? "Se verifică..." : "Verifică și continuă"}
       </button>

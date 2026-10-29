@@ -29,7 +29,7 @@ type Action = (state: AdminActionState, fd: FormData) => Promise<AdminActionStat
 
 const initial: AdminActionState = { ok: false, message: "" };
 const inputClassName =
-  "h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17] outline-none transition focus:border-[#2e90fa] focus:ring-2 focus:ring-[#2e90fa]/30 placeholder:text-[#98948b]";
+  "h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm text-[#18181b] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30 placeholder:text-[#71717a]";
 
 function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary" | "row"; onClick: () => void }) {
   return (
@@ -38,8 +38,8 @@ function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary
       onClick={onClick}
       className={
         kind === "row"
-          ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
-          : "button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c]"
+          ? "button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+          : "button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
       }
     >
       {label}
@@ -54,7 +54,7 @@ function SubmitButton({ label, pending }: { label: string; pending?: boolean }) 
     <button
       type="submit"
       disabled={busy}
-      className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {busy ? "Se salvează..." : label}
     </button>
@@ -71,7 +71,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`grid content-start gap-1 text-sm font-medium text-[#33312c] ${className}`}>
+    <label className={`grid content-start gap-1 text-sm font-medium text-[#3f3f46] ${className}`}>
       {label}
       {children}
     </label>
@@ -127,25 +127,25 @@ function Drawer({
           setOpen(false);
         }}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">{title}</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">{title}</h2>
           </div>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-medium text-[#1b1a17] hover:bg-[#f6f6f4]"
+            className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
           >
             Închide
           </button>
         </div>
         <form onSubmit={onSubmit} className="grid gap-4 px-5 py-4 lg:grid-cols-2">
           {children}
-          <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5 lg:col-span-2">
+          <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5 lg:col-span-2">
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+              className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
             >
               Anulează
             </button>
@@ -260,10 +260,10 @@ export function WarehouseDialog({
         <Field label="Nume">
           <input className={inputClassName} name="name" defaultValue={warehouse?.name ?? ""} placeholder="ex. Pavilion 110A" required />
         </Field>
-        <label className="flex items-center gap-2 self-start text-sm text-[#33312c] lg:col-span-2">
+        <label className="flex items-center gap-2 self-start text-sm text-[#3f3f46] lg:col-span-2">
           <input type="checkbox" name="isDefault" defaultChecked={warehouse?.isDefault ?? false} /> Depozit implicit
         </label>
-        <label className="flex items-center gap-2 self-start text-sm text-[#33312c] lg:col-span-2">
+        <label className="flex items-center gap-2 self-start text-sm text-[#3f3f46] lg:col-span-2">
           <input type="checkbox" name="active" defaultChecked={warehouse?.active ?? true} /> Activ
         </label>
       </Drawer>
@@ -390,7 +390,7 @@ export function FitmentDialog({
         <Field label="An sfârșit">
           <input className={inputClassName} name="yearEnd" defaultValue={fitment?.yearEnd ?? ""} inputMode="numeric" placeholder="2010" />
         </Field>
-        <label className="flex items-center gap-2 self-start text-sm text-[#33312c] lg:col-span-2">
+        <label className="flex items-center gap-2 self-start text-sm text-[#3f3f46] lg:col-span-2">
           <input type="checkbox" name="yearOpenEnded" defaultChecked={fitment?.yearOpenEnded ?? false} /> În continuare (fără an de sfârșit)
         </label>
       </Drawer>
@@ -450,7 +450,7 @@ export function BrandSelect({
         ))}
       </select>
       <button
-        className="button-secondary justify-self-start rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+        className="button-secondary justify-self-start rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
         type="button"
         onClick={() => setCreating(true)}
       >
@@ -520,7 +520,7 @@ export function ModelSelect({
       {brands.length > 0 ? (
         <>
           <button
-            className="button-secondary justify-self-start rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+            className="button-secondary justify-self-start rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
             type="button"
             onClick={() => setCreating(true)}
           >

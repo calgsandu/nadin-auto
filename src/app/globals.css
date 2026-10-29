@@ -36,6 +36,23 @@
  * Ctrl − pe un 1366/1440. Telefonul rămâne pe 16px: acolo contează țintele
  * de atingere. `text-xs` crește puțin ca subtitlurile să rămână citibile.
  */
+/*
+ * Aspectul CRM-ului (direcția „Clar"): griuri neutre și un singur albastru.
+ * Vitrina publică își păstrează paleta caldă, de aceea totul e legat de
+ * `.crm-main`. Fontul rămâne Manrope, ca în tot proiectul.
+ */
+:root:has(.crm-main) {
+  --background: #fafafa;
+  --foreground: #18181b;
+  --accent: #2563eb;
+  --border: #e4e4e7;
+  --ring: #2563eb;
+}
+
+:root:has(.crm-main) body {
+  background: #fafafa;
+}
+
 @media (min-width: 1024px) {
   :root:has(.crm-main) {
     font-size: 14px;
@@ -174,7 +191,7 @@ a {
 
 .field-control:focus-visible {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgb(46 144 250 / 14%);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 14%);
 }
 
 .button-primary,
@@ -204,13 +221,13 @@ a {
 
 @media (hover: hover) {
   .motion-card:hover {
-    border-color: #dcdad4;
-    box-shadow: 0 10px 28px rgb(27 26 23 / 5%);
+    border-color: #d4d4d8;
+    box-shadow: 0 6px 20px rgb(24 24 27 / 6%);
     transform: translateY(-1px);
   }
 
   .motion-line-item:hover {
-    border-color: #dcdad4;
+    border-color: #d4d4d8;
     background-color: #fff;
   }
 }
@@ -311,6 +328,8 @@ a {
   }
   html[data-crm-collapsed] .crm-nav-label,
   html[data-crm-collapsed] .crm-nav-badge,
+  html[data-crm-collapsed] .crm-nav-heading,
+  html[data-crm-collapsed] .crm-nav-search,
   html[data-crm-collapsed] .crm-account-meta {
     display: none;
   }

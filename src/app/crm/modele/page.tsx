@@ -62,7 +62,7 @@ async function Loader({
     >
       {data.models.map((m: ModelRow) => (
         <tr key={m.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#1b1a17]">{m.name}</TableCell>
+          <TableCell className="font-semibold text-[#18181b]">{m.name}</TableCell>
           <TableCell>{m.brand.name}</TableCell>
           <TableCell align="right" className="font-mono">{formatNumber(m._count.fitments)}</TableCell>
           {canModify ? (

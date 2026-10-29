@@ -14,10 +14,10 @@ import {
 } from "recharts";
 import type { StatsData } from "@/lib/stats/queries";
 
-const BLUE = "#2e90fa";
+const BLUE = "#2563eb";
 const GREEN = "#15803d";
-const GRID = "#efeeeb";
-const AXIS = "#6f6b63";
+const GRID = "#f0f0f2";
+const AXIS = "#52525b";
 
 const money = new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 0 });
 
@@ -27,9 +27,9 @@ function fmt(value: number) {
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="border-b border-[#e8e7e3] px-4 py-2.5">
-        <h2 className="text-sm font-semibold text-[#1b1a17]">{title}</h2>
+    <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="border-b border-[#e4e4e7] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#18181b]">{title}</h2>
       </div>
       <div className="px-2 py-3 sm:px-3">{children}</div>
     </div>
@@ -39,7 +39,7 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
 // ponytail: default recharts tooltip is enough; light restyle only.
 const tooltipStyle = {
   borderRadius: 10,
-  border: "1px solid #e8e7e3",
+  border: "1px solid #e4e4e7",
   fontSize: 12,
 } as const;
 

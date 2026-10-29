@@ -12,7 +12,7 @@ export function BootstrapForm() {
 
   return (
     <form action={action} className="grid gap-4">
-      <div className="rounded-xl border border-[#b2ddff] bg-[#eff8ff] px-4 py-3 text-sm leading-6 text-[#175cd3]">
+      <div className="rounded-xl border border-[#b2ddff] bg-[#eff8ff] px-4 py-3 text-sm leading-6 text-[#1d4ed8]">
         Acesta este primul cont de administrator. Poți configura primul
         Authenticator fără un cod emis de alt administrator.
       </div>
@@ -24,7 +24,7 @@ export function BootstrapForm() {
       <button
         type="submit"
         disabled={pending}
-        className="h-11 rounded-md bg-[#1b1a17] text-sm font-semibold text-white hover:bg-[#33312c] disabled:opacity-60"
+        className="h-11 rounded-md bg-[#18181b] text-sm font-semibold text-white hover:bg-[#3f3f46] disabled:opacity-60"
       >
         {pending ? "Se inițializează..." : "Inițializează 2FA"}
       </button>

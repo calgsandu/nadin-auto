@@ -46,9 +46,9 @@ async function Loader({
     >
       {data.types.map((t: TypeRow) => (
         <tr key={t.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#1b1a17]">
+          <TableCell className="font-semibold text-[#18181b]">
             {t.name}
-            {t.nameRu ? <p className="mt-1 text-xs font-normal text-[#6f6b63]">RU: {t.nameRu}</p> : null}
+            {t.nameRu ? <p className="mt-1 text-xs font-normal text-[#52525b]">RU: {t.nameRu}</p> : null}
           </TableCell>
           <TableCell align="right" className="font-mono">{formatNumber(t._count.products)}</TableCell>
           {canModify ? (

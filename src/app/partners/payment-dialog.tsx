@@ -58,7 +58,7 @@ export function PartnerPaymentDialog({
           setMounted(true);
           setOpen(true);
         }}
-        className="button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+        className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
       >
         Încasează
       </button>

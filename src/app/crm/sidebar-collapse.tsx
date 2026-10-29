@@ -55,12 +55,12 @@ export function SidebarCollapseButton() {
       onClick={toggle}
       aria-expanded={!collapsed}
       title={collapsed ? "Extinde meniul" : "Restrânge meniul"}
-      className="motion-nav-link flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-[#6f6b63] hover:bg-[#f6f6f4] hover:text-[#1b1a17]"
+      className="motion-nav-link flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
     >
       {collapsed ? (
-        <PanelLeftOpen className="size-4 shrink-0 text-[#98948b]" aria-hidden="true" />
+        <PanelLeftOpen className="size-4 shrink-0 text-[#71717a]" aria-hidden="true" />
       ) : (
-        <PanelLeftClose className="size-4 shrink-0 text-[#98948b]" aria-hidden="true" />
+        <PanelLeftClose className="size-4 shrink-0 text-[#71717a]" aria-hidden="true" />
       )}
       <span className="crm-nav-label whitespace-nowrap">
         {collapsed ? "Extinde" : "Restrânge"}

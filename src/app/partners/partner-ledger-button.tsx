@@ -64,7 +64,7 @@ export function PartnerLedgerButton({
   return (
     <>
       <button
-        className="button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+        className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
         type="button"
         onClick={() => {
           // Starea se curăță aici, nu în efect: o redeschidere după o eroare de
@@ -82,8 +82,8 @@ export function PartnerLedgerButton({
           onClose={() => setOpen(false)}
         >
           <div className="grid gap-4 px-5 py-4">
-            <div className="flex items-baseline justify-between gap-4 rounded-md border border-[#e8e7e3] bg-white px-4 py-3">
-              <span className="text-sm font-medium text-[#33312c]">Sold curent</span>
+            <div className="flex items-baseline justify-between gap-4 rounded-md border border-[#e4e4e7] bg-white px-4 py-3">
+              <span className="text-sm font-medium text-[#3f3f46]">Sold curent</span>
               <span
                 className={`font-mono text-lg font-semibold ${
                   balanceLei > 0 ? "text-[#b91c1c]" : "text-[#166534]"
@@ -96,9 +96,9 @@ export function PartnerLedgerButton({
             {failed ? (
               <p className="text-sm text-[#b91c1c]">Fișa nu s-a putut încărca.</p>
             ) : entries === null ? (
-              <p className="text-sm text-[#6f6b63]">Se încarcă...</p>
+              <p className="text-sm text-[#52525b]">Se încarcă...</p>
             ) : entries.length === 0 ? (
-              <p className="text-sm text-[#6f6b63]">
+              <p className="text-sm text-[#52525b]">
                 Nicio mișcare: partenerul n-are vânzări neîncasate și nici încasări.
               </p>
             ) : (
@@ -106,10 +106,10 @@ export function PartnerLedgerButton({
                 {entries.map((entry) => (
                   <li
                     key={`${entry.kind}-${entry.id}`}
-                    className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-md border border-[#efeeeb] bg-white px-3 py-2.5"
+                    className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-md border border-[#f0f0f2] bg-white px-3 py-2.5"
                   >
-                    <span className="text-sm text-[#1b1a17]">{entry.label}</span>
-                    <span className="text-xs text-[#6f6b63]">
+                    <span className="text-sm text-[#18181b]">{entry.label}</span>
+                    <span className="text-xs text-[#52525b]">
                       {day.format(new Date(entry.date))}
                     </span>
                     <span

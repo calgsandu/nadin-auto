@@ -47,10 +47,10 @@ function RestockWorkspace({
 }) {
   return (
     <section className="motion-page grid gap-3 p-4">
-      <div className="motion-card flex flex-col gap-3 rounded-xl border border-[#e8e7e3] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="motion-card flex flex-col gap-3 rounded-xl border border-[#e4e4e7] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-semibold text-[#1b1a17]">Reaprovizionare Pavilion 110A</h2>
-          <p className="text-sm text-[#6f6b63]">
+          <h2 className="font-semibold text-[#18181b]">Reaprovizionare Pavilion 110A</h2>
+          <p className="text-sm text-[#52525b]">
             Produsele vândute din 110A rămân aici până sunt bifate ca aduse.
           </p>
         </div>
@@ -63,10 +63,10 @@ function RestockWorkspace({
         <DailyMetric label="Aduse azi" value={formatNumber(operations.restockDeliveredToday.length)} />
         <DailyMetric label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
       </div>
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[980px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Cod</TableHead>
                 <TableHead>Produs</TableHead>
@@ -79,7 +79,7 @@ function RestockWorkspace({
             <tbody>
               {operations.restockPending.length > 0 ? (
                 operations.restockPending.map((line) => (
-                  <tr key={line.productId} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
+                  <tr key={line.productId} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
                     <TableCell className="font-mono text-xs font-semibold">
                       {formatText(line.product.externalCode)}
                     </TableCell>
@@ -112,7 +112,7 @@ function RestockWorkspace({
                 ))
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={canModify ? 6 : 5}>
+                  <td className="px-3 py-10 text-center text-[#52525b]" colSpan={canModify ? 6 : 5}>
                     Nu sunt produse de adus în Pavilion 110A.
                   </td>
                 </tr>

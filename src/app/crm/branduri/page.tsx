@@ -46,7 +46,7 @@ async function Loader({
     >
       {data.brands.map((b: BrandRow) => (
         <tr key={b.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#1b1a17]">{b.name}</TableCell>
+          <TableCell className="font-semibold text-[#18181b]">{b.name}</TableCell>
           <TableCell align="right" className="font-mono">{formatNumber(b._count.models)}</TableCell>
           {canModify ? (
             <TableCell align="right">

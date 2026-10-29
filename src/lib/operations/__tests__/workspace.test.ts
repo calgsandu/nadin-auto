@@ -13,6 +13,7 @@ assert.equal(resolveSection("sectiune-inexistenta"), "produse");
 assert.equal(resolveSection("depozite"), "depozite");
 
 const expectedSections = [
+  "azi",
   "produse",
   "receptii",
   "transferuri",
@@ -91,7 +92,7 @@ assert.deepEqual(
 );
 
 // Sub-tab-urile unui grup trebuie să încapă pe rândul de sus pe un laptop.
-for (const group of navigationGroups) {
+for (const group of navigationGroups.filter((item) => item.display === "tabs")) {
   assert.ok(
     group.sections.length <= 6,
     `Grupul ${group.label} are ${group.sections.length} tab-uri; maxim 6 încap pe un laptop.`,

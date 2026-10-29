@@ -64,7 +64,7 @@ export function SupplierPicker({
         ))}
       </select>
       <button
-        className="button-secondary justify-self-start rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+        className="button-secondary justify-self-start rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
         type="button"
         onClick={() => setCreating(true)}
       >

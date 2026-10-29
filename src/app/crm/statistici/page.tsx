@@ -105,13 +105,13 @@ function StatsWorkspace({
 
       {partnerProfit ? <PartnerProfitTable rows={partnerProfit} /> : null}
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="border-b border-[#e8e7e3] px-4 py-2.5">
-          <h2 className="text-sm font-semibold text-[#1b1a17]">Top produse vândute (30 zile)</h2>
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+        <div className="border-b border-[#e4e4e7] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#18181b]">Top produse vândute (30 zile)</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[560px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Produs</TableHead>
                 <TableHead align="right">Cantitate</TableHead>
@@ -123,12 +123,12 @@ function StatsWorkspace({
                 data.topProducts.map((product) => {
                   const max = data.topProducts[0]?.quantity || 1;
                   return (
-                    <tr key={product.productId} className="motion-table-row border-t border-[#efeeeb]">
+                    <tr key={product.productId} className="motion-table-row border-t border-[#f0f0f2]">
                       <TableCell>
-                        <p className="font-medium text-[#1b1a17]">{product.label}</p>
-                        <div className="mt-1.5 h-1.5 w-full max-w-64 rounded-full bg-[#f0efec]">
+                        <p className="font-medium text-[#18181b]">{product.label}</p>
+                        <div className="mt-1.5 h-1.5 w-full max-w-64 rounded-full bg-[#f1f1f3]">
                           <div
-                            className="h-1.5 rounded-full bg-[#2e90fa]"
+                            className="h-1.5 rounded-full bg-[#2563eb]"
                             style={{ width: `${Math.max((product.quantity / max) * 100, 4)}%` }}
                           />
                         </div>
@@ -140,7 +140,7 @@ function StatsWorkspace({
                 })
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={3}>
+                  <td className="px-3 py-10 text-center text-[#52525b]" colSpan={3}>
                     Nu există vânzări în ultimele 30 de zile.
                   </td>
                 </tr>
@@ -165,13 +165,13 @@ function PeriodStatsTable({
   const max = Math.max(...rows.map((row) => row.revenueLei), 1);
 
   return (
-    <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="border-b border-[#e8e7e3] px-4 py-2.5">
-        <h2 className="text-sm font-semibold text-[#1b1a17]">{title}</h2>
+    <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="border-b border-[#e4e4e7] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#18181b]">{title}</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[620px] border-collapse text-left text-sm">
-          <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+          <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
             <tr>
               <TableHead>Perioadă</TableHead>
               <TableHead align="right">Vânzări</TableHead>
@@ -184,12 +184,12 @@ function PeriodStatsTable({
           <tbody>
             {rows.length > 0 ? (
               rows.map((row) => (
-                <tr key={row.key} className="motion-table-row border-t border-[#efeeeb]">
+                <tr key={row.key} className="motion-table-row border-t border-[#f0f0f2]">
                   <TableCell className="capitalize">
                     <p className="font-semibold">{row.label}</p>
-                    <div className="mt-1.5 h-1.5 w-full max-w-48 rounded-full bg-[#f0efec]">
+                    <div className="mt-1.5 h-1.5 w-full max-w-48 rounded-full bg-[#f1f1f3]">
                       <div
-                        className="h-1.5 rounded-full bg-[#2e90fa]"
+                        className="h-1.5 rounded-full bg-[#2563eb]"
                         style={{ width: `${Math.max((row.revenueLei / max) * 100, row.revenueLei > 0 ? 4 : 0)}%` }}
                       />
                     </div>
@@ -198,7 +198,7 @@ function PeriodStatsTable({
                   <TableCell align="right" secondary className="tabular-nums">{formatNumber(row.quantity)}</TableCell>
                   <TableCell align="right" className="font-mono font-semibold">{formatMoney(row.revenueLei)} lei</TableCell>
                   {canModify ? (
-                    <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">{formatMoney(row.costLei)} lei</TableCell>
+                    <TableCell align="right" secondary className="tabular-nums text-[#52525b]">{formatMoney(row.costLei)} lei</TableCell>
                   ) : null}
                   {canModify ? (
                     <TableCell
@@ -212,7 +212,7 @@ function PeriodStatsTable({
               ))
             ) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={canModify ? 6 : 4}>
+                <td className="px-3 py-10 text-center text-[#52525b]" colSpan={canModify ? 6 : 4}>
                   Nu există date pentru această perioadă.
                 </td>
               </tr>
@@ -227,13 +227,13 @@ function PeriodStatsTable({
 /** Cine aduce banii: venit, cost și marjă pe client, pe ultimul an. */
 function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
   return (
-    <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-      <div className="border-b border-[#e8e7e3] px-4 py-2.5">
-        <h2 className="text-sm font-semibold text-[#1b1a17]">Profit pe client (12 luni)</h2>
+    <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="border-b border-[#e4e4e7] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#18181b]">Profit pe client (12 luni)</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[820px] border-collapse text-left text-sm">
-          <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+          <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
             <tr>
               <TableHead>Client</TableHead>
               <TableHead align="right" secondary>Vânzări</TableHead>
@@ -250,9 +250,9 @@ function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
               rows.map((row) => (
                 <tr
                   key={row.partnerId ?? "tejghea"}
-                  className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]"
+                  className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]"
                 >
-                  <TableCell className="font-medium text-[#1b1a17]">{row.name}</TableCell>
+                  <TableCell className="font-medium text-[#18181b]">{row.name}</TableCell>
                   <TableCell align="right" secondary className="tabular-nums">
                     {formatNumber(row.salesCount)}
                   </TableCell>
@@ -262,7 +262,7 @@ function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
                   <TableCell align="right" className="font-semibold tabular-nums">
                     {formatMoney(row.revenueLei)} lei
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
                     {formatMoney(row.costLei)} lei
                   </TableCell>
                   <TableCell
@@ -273,17 +273,17 @@ function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
                   >
                     {formatMoney(row.profitLei)} lei
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
                     {row.marginPercent === null ? "—" : `${Math.round(row.marginPercent)}%`}
                   </TableCell>
-                  <TableCell secondary className="text-[#6f6b63]">
+                  <TableCell secondary className="text-[#52525b]">
                     {row.lastSale ? formatDate(row.lastSale) : "—"}
                   </TableCell>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={8}>
+                <td className="px-3 py-10 text-center text-[#52525b]" colSpan={8}>
                   Nu există vânzări în ultimele 12 luni.
                 </td>
               </tr>

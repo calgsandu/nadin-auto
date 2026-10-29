@@ -1,4 +1,5 @@
 export type WorkspaceSectionId =
+  | "azi"
   | "produse"
   | "receptii"
   | "transferuri"
@@ -37,6 +38,7 @@ type NavigationEntry = {
   label: string;
   description: string;
   icon:
+    | "Home"
     | "PackageSearch"
     | "PackagePlus"
     | "ArrowRightLeft"
@@ -56,6 +58,11 @@ type NavigationEntry = {
 };
 
 export const workspaceSections: WorkspaceSection[] = [
+  {
+    id: "azi",
+    title: "Azi",
+    description: "Ce s-a vândut azi și ce mai e de făcut.",
+  },
   {
     id: "produse",
     title: "Produse",
@@ -191,6 +198,12 @@ export const workspaceSections: WorkspaceSection[] = [
 
 export const navigationEntries: NavigationEntry[] = [
   {
+    section: "azi",
+    label: "Azi",
+    description: "Pagina de start",
+    icon: "Home",
+  },
+  {
     section: "produse",
     label: "Produse",
     description: "Listă și adăugare produse",
@@ -216,13 +229,13 @@ export const navigationEntries: NavigationEntry[] = [
   },
   {
     section: "la-comanda",
-    label: "La comandă",
+    label: "Comenzi la furnizori",
     description: "Piese aduse de la furnizori parteneri",
     icon: "PackagePlus",
   },
   {
     section: "conturi-plata",
-    label: "Conturi de plată",
+    label: "Proforme",
     description: "Proforme și achitări",
     icon: "FileText",
   },
@@ -350,7 +363,7 @@ export const navigationEntries: NavigationEntry[] = [
 ];
 
 type NavGroupIcon =
-  | "PackageSearch"
+  | "Home"
   | "ShoppingCart"
   | "Boxes"
   | "Layers"
@@ -364,45 +377,46 @@ export type NavGroup = {
   description: string;
   icon: NavGroupIcon;
   sections: WorkspaceSectionId[];
+  /**
+   * "list": pe desktop sidebar-ul arată fiecare secțiune a grupului, deci
+   * grupul n-are nevoie de sub-tab-uri. "tabs": grupurile folosite rar
+   * (rapoarte, nomenclatoare, administrare) ocupă un singur rând în sidebar
+   * și își arată secțiunile ca sub-tab-uri sus.
+   */
+  display: "list" | "tabs";
 };
 
 /**
- * Sidebar-ul: câteva grupuri, fiecare cu sub-tab-urile lui. „Operațiuni" ținea
- * 12 tab-uri — pe un laptop nu încăpeau pe un rând, iar ultimele (Aprobări,
- * Istoric) ieșeau din ecran. Acum vânzarea și stocul sunt grupuri separate,
- * iar controlul (aprobări, istoric, personal) are grupul lui.
+ * Sidebar-ul. Munca de zi cu zi (vânzări, stoc, parteneri) e la vedere, câte o
+ * secțiune pe rând; ce se folosește rar stă strâns într-un singur rând.
  *
  * Vizibilitatea pe rol vine din `canViewSection`: un grup fără nicio secțiune
- * vizibilă dispare singur (ANGAJAT vede doar Produse și Vânzări).
+ * vizibilă dispare singur (ANGAJAT vede Azi, Vânzări și Produse).
  */
 export const navigationGroups: NavGroup[] = [
   {
-    id: "catalog",
-    label: "Produse",
-    description: "Catalog și stoc",
-    icon: "PackageSearch",
-    sections: ["produse"],
-  },
-  {
-    id: "vanzari",
-    label: "Vânzări",
+    id: "zi",
+    label: "Zi de zi",
     description: "Vânzări, proforme, comenzi, retururi",
     icon: "ShoppingCart",
-    sections: ["vanzari", "conturi-plata", "la-comanda", "retururi"],
+    sections: ["azi", "vanzari", "conturi-plata", "la-comanda", "retururi"],
+    display: "list",
   },
   {
     id: "stoc",
     label: "Stoc",
-    description: "Mișcări de stoc",
+    description: "Produse și mișcări de stoc",
     icon: "Boxes",
-    sections: ["receptii", "transferuri", "inventar", "de-adus", "fara-stoc", "documente"],
+    sections: ["produse", "receptii", "transferuri", "inventar", "de-adus", "fara-stoc", "documente"],
+    display: "list",
   },
   {
     id: "furnizori",
     label: "Parteneri",
-    description: "Furnizori și clienți",
+    description: "Clienți și furnizori",
     icon: "Handshake",
     sections: ["clienti", "furnizori"],
+    display: "list",
   },
   {
     id: "rapoarte",
@@ -410,13 +424,15 @@ export const navigationGroups: NavGroup[] = [
     description: "Situații & vânzări",
     icon: "BarChart3",
     sections: ["rapoarte", "statistici", "inchidere-zi", "tva", "preturi"],
+    display: "tabs",
   },
   {
     id: "nomenclatoare",
     label: "Nomenclatoare",
-    description: "Date de catalog",
+    description: "Branduri, modele, tipuri, depozite",
     icon: "Layers",
     sections: ["branduri", "modele", "tipuri", "compatibilitati", "depozite"],
+    display: "tabs",
   },
   {
     id: "control",
@@ -424,6 +440,7 @@ export const navigationGroups: NavGroup[] = [
     description: "Aprobări, istoric, personal",
     icon: "ShieldCheck",
     sections: ["aprobari", "istoric", "personal"],
+    display: "tabs",
   },
 ];
 

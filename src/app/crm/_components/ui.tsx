@@ -5,7 +5,7 @@ import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-lab
 import { productLineSubtitle, type ProductLineInfo } from "@/lib/catalog/product-line-label";
 
 export const adminRowCls =
-  "motion-table-row border-t border-[#efeeeb] align-top hover:bg-[#f6f6f4]";
+  "motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#f4f4f5]";
 
 /**
  * Coloanele secundare dispar sub `lg`. Tabelele CRM-ului aveau `min-w-[1100px]`,
@@ -27,7 +27,7 @@ export function TableHead({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-3 py-2 text-xs font-semibold text-[#6f6b63] ${
+      className={`whitespace-nowrap px-3 py-2 text-xs font-semibold text-[#52525b] ${
         align === "right" ? "text-right" : "text-left"
       } ${secondary ? secondaryCls : ""} ${className}`}
     >
@@ -68,7 +68,7 @@ export function VehicleSubline({
 }) {
   const label = product ? productLineSubtitle(product) : vehicleLabel(fitment);
   return label ? (
-    <span className="block text-xs font-normal text-[#6f6b63]">{label}</span>
+    <span className="block text-xs font-normal text-[#52525b]">{label}</span>
   ) : null;
 }
 
@@ -82,12 +82,12 @@ export function DailyMetric({
   hint?: string;
 }) {
   return (
-    <div className="motion-card rounded-lg border border-[#e8e7e3] bg-white px-3.5 py-2.5">
-      <p className="text-xs font-medium text-[#6f6b63]">{label}</p>
-      <p className="mt-0.5 text-lg font-semibold tracking-tight tabular-nums text-[#1b1a17]">
+    <div className="motion-card rounded-lg border border-[#e4e4e7] bg-white px-3.5 py-2.5">
+      <p className="text-xs font-medium text-[#52525b]">{label}</p>
+      <p className="mt-0.5 text-lg font-semibold tracking-tight tabular-nums text-[#18181b]">
         {value}
       </p>
-      {hint ? <p className="mt-0.5 text-xs text-[#98948b]">{hint}</p> : null}
+      {hint ? <p className="mt-0.5 text-xs text-[#71717a]">{hint}</p> : null}
     </div>
   );
 }
@@ -107,7 +107,7 @@ export function PagerLink({
 }) {
   if (disabled) {
     return (
-      <span className="rounded-md border border-[#e8e7e3] px-3 py-1.5 font-medium text-[#c6c3bc]">
+      <span className="rounded-md border border-[#e4e4e7] px-3 py-1.5 font-medium text-[#a1a1aa]">
         {label}
       </span>
     );
@@ -115,7 +115,7 @@ export function PagerLink({
   return (
     <Link
       href={href}
-      className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-1.5 font-medium text-[#1b1a17] hover:bg-[#f6f6f4]"
+      className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 font-medium text-[#18181b] hover:bg-[#f4f4f5]"
     >
       {label}
     </Link>
@@ -126,7 +126,7 @@ export function ExportLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
     >
       <Download className="size-4" aria-hidden="true" />
       {label}
@@ -150,13 +150,13 @@ export function AdminSection({
 }) {
   return (
     <section className="motion-page p-4">
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table
             className="crm-table w-full border-collapse text-left text-sm"
             style={{ minWidth }}
           >
-            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 {head.map((h, i) =>
                   h === null ? null : (
@@ -174,7 +174,7 @@ export function AdminSection({
           </table>
         </div>
         {isEmpty ? (
-          <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">{empty}</div>
+          <div className="px-4 py-12 text-center text-sm text-[#52525b]">{empty}</div>
         ) : null}
       </div>
     </section>
@@ -183,15 +183,15 @@ export function AdminSection({
 
 export function ButtonSkeleton() {
   return (
-    <div aria-hidden="true" className="skeleton-pulse h-9 w-32 rounded-md bg-[#efeeeb]" />
+    <div aria-hidden="true" className="skeleton-pulse h-9 w-32 rounded-md bg-[#f0f0f2]" />
   );
 }
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-lg border border-[#e8e7e3] bg-white px-3.5 py-2.5">
-      <div className="skeleton-pulse h-3.5 w-24 rounded bg-[#efeeeb]" />
-      <div className="skeleton-pulse mt-2 h-6 w-16 rounded bg-[#f0efec]" />
+    <div className="rounded-lg border border-[#e4e4e7] bg-white px-3.5 py-2.5">
+      <div className="skeleton-pulse h-3.5 w-24 rounded bg-[#f0f0f2]" />
+      <div className="skeleton-pulse mt-2 h-6 w-16 rounded bg-[#f1f1f3]" />
     </div>
   );
 }
@@ -221,18 +221,18 @@ export function WorkspaceSkeleton({
       ) : null}
 
       {filters > 0 ? (
-        <div className="grid gap-3 rounded-lg border border-[#e8e7e3] bg-[#fafaf9] p-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 rounded-lg border border-[#e4e4e7] bg-[#fafafa] p-4 sm:grid-cols-2 lg:grid-cols-5">
           {Array.from({ length: filters }, (_, index) => (
-            <div key={index} className="skeleton-pulse h-10 rounded-md bg-[#efeeeb]" />
+            <div key={index} className="skeleton-pulse h-10 rounded-md bg-[#f0f0f2]" />
           ))}
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="h-9 border-b border-[#e8e7e3] bg-[#fafaf9]" />
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+        <div className="h-9 border-b border-[#e4e4e7] bg-[#fafafa]" />
         <div className="grid gap-2 p-3">
           {Array.from({ length: rows }, (_, index) => (
-            <div key={index} className="skeleton-pulse h-9 rounded-md bg-[#f0efec]" />
+            <div key={index} className="skeleton-pulse h-9 rounded-md bg-[#f1f1f3]" />
           ))}
         </div>
       </div>

@@ -63,7 +63,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
   // dezactivat, deși furnizorii existau: prop-ul pur și simplu nu era dat.
   const suppliers = partners.filter((p) => p.kind === "SUPPLIER" || p.kind === "BOTH");
   const filterInputCls =
-    "h-9 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
+    "h-9 rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm text-[#18181b]";
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
 
@@ -72,9 +72,9 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
       <form
         action="/crm/documente"
         method="get"
-        className="flex flex-wrap items-end gap-2 rounded-xl border border-[#e8e7e3] bg-white px-3 py-3"
+        className="flex flex-wrap items-end gap-2 rounded-xl border border-[#e4e4e7] bg-white px-3 py-3"
       >
-        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
           Tip
           <select className={filterInputCls} name="dtype" defaultValue={filters.dtype}>
             <option value="">Toate</option>
@@ -84,7 +84,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
             <option value="ADJUSTMENT">Ajustări/Transferuri</option>
           </select>
         </label>
-        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
           Partener
           <select className={filterInputCls} name="partner" defaultValue={filters.partner}>
             <option value="">Toți</option>
@@ -95,35 +95,35 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
             ))}
           </select>
         </label>
-        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
           De la
           <input className={filterInputCls} type="date" name="from" defaultValue={filters.from} />
         </label>
-        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
           Până la
           <input className={filterInputCls} type="date" name="to" defaultValue={filters.to} />
         </label>
         <button
           type="submit"
-          className="button-primary h-9 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
+          className="button-primary h-9 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         >
           Filtrează
         </button>
         <Link
           href={crmSectionHref("documente")}
-          className="h-9 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
+          className="h-9 content-center px-2 text-sm font-medium text-[#18181b] underline decoration-[#2563eb] underline-offset-4"
         >
           Resetează
         </Link>
-        <span className="ml-auto text-sm text-[#6f6b63]">
+        <span className="ml-auto text-sm text-[#52525b]">
           {start}-{end} din {formatNumber(total)} documente
         </span>
       </form>
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full border-collapse text-left text-sm" style={{ minWidth: "900px" }}>
-            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Data</TableHead>
                 <TableHead>Document</TableHead>
@@ -170,14 +170,14 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                     <div className="flex justify-end gap-1.5">
                       <a
                         href={`/api/export/document/${d.id}/pdf`}
-                        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                       >
                         <FileText className="size-3.5" aria-hidden="true" /> PDF intern
                       </a>
                       {d.type !== "ADJUSTMENT" ? (
                         <a
                           href={`/api/export/invoice/${d.id}`}
-                          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                         >
                           <Download className="size-3.5" aria-hidden="true" /> Excel intern
                         </a>
@@ -210,12 +210,12 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
             </tbody>
           </table>
         </div>
-        {documents.length === 0 ? <div className="px-4 py-12 text-center text-sm text-[#6f6b63]">Niciun document pentru filtrele curente.</div> : null}
+        {documents.length === 0 ? <div className="px-4 py-12 text-center text-sm text-[#52525b]">Niciun document pentru filtrele curente.</div> : null}
       </div>
 
       {pageCount > 1 ? (
         <div className="flex items-center justify-between gap-3 text-sm">
-          <p className="text-[#6f6b63]">
+          <p className="text-[#52525b]">
             Pagina {page} din {pageCount}
           </p>
           <div className="flex gap-2">

@@ -66,8 +66,8 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
                 href={crmInventoryHref({ wh: warehouse.id, ...data.filters })}
                 className={`rounded-full border px-3 py-1 text-sm font-semibold transition-colors ${
                   active
-                    ? "border-[#1b1a17] bg-[#1b1a17] text-white"
-                    : "border-[#e8e7e3] bg-white text-[#1b1a17] hover:bg-[#f6f6f4]"
+                    ? "border-[#18181b] bg-[#18181b] text-white"
+                    : "border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
                 }`}
               >
                 {warehouse.name}
@@ -75,41 +75,41 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
             );
           })}
         </div>
-        <p className="text-sm text-[#6f6b63]">
-          <span className="font-semibold tabular-nums text-[#1b1a17]">{formatNumber(data.stocks.length)}</span> poziții ·{" "}
-          <span className="font-semibold tabular-nums text-[#1b1a17]">{formatNumber(totalQuantity)}</span> bucăți
+        <p className="text-sm text-[#52525b]">
+          <span className="font-semibold tabular-nums text-[#18181b]">{formatNumber(data.stocks.length)}</span> poziții ·{" "}
+          <span className="font-semibold tabular-nums text-[#18181b]">{formatNumber(totalQuantity)}</span> bucăți
         </p>
         {canModify ? (
           <div className="ml-auto">
-            <InventoryDialog warehouses={warehouseOptions} defaultWarehouseId={data.selected?.id} />
+            <InventoryDialog openFromUrl warehouses={warehouseOptions} defaultWarehouseId={data.selected?.id} />
           </div>
         ) : null}
       </div>
 
       <InventoryOperationsTable data={data} canModify={canModify} />
 
-      <details className="motion-card group overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
+      <details className="motion-card group overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <summary className="cursor-pointer list-none px-4 py-3 marker:content-none">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="font-semibold text-[#1b1a17]">
+              <h2 className="font-semibold text-[#18181b]">
                 Stoc în sistem — {data.selected?.name ?? "fără depozit"}
               </h2>
-              <p className="mt-1 text-sm text-[#6f6b63]">
+              <p className="mt-1 text-sm text-[#52525b]">
                 {formatNumber(data.stocks.length)} poziții, {formatNumber(totalQuantity)} bucăți
               </p>
             </div>
-            <span className="shrink-0 text-sm font-semibold text-[#6f6b63] group-open:hidden">
+            <span className="shrink-0 text-sm font-semibold text-[#52525b] group-open:hidden">
               Arată
             </span>
-            <span className="hidden shrink-0 text-sm font-semibold text-[#6f6b63] group-open:inline">
+            <span className="hidden shrink-0 text-sm font-semibold text-[#52525b] group-open:inline">
               Ascunde
             </span>
           </div>
         </summary>
-        <div className="overflow-x-auto border-t border-[#e8e7e3]">
+        <div className="overflow-x-auto border-t border-[#e4e4e7]">
           <table className="crm-table w-full min-w-[900px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Cod</TableHead>
                 <TableHead>Produs</TableHead>
@@ -120,7 +120,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
             <tbody>
               {data.stocks.length > 0 ? (
                 data.stocks.map((row) => (
-                  <tr key={row.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
+                  <tr key={row.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
                     <TableCell className="font-mono text-xs font-semibold">
                       {formatText(row.product.externalCode)}
                     </TableCell>
@@ -138,7 +138,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
                 ))
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={4}>
+                  <td className="px-3 py-10 text-center text-[#52525b]" colSpan={4}>
                     Nu există stoc înregistrat în acest depozit.
                   </td>
                 </tr>
@@ -166,7 +166,7 @@ function InventoryOperationsTable({
     name: warehouse.name,
   }));
   const filterInputCls =
-    "h-9 rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm text-[#1b1a17]";
+    "h-9 rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm text-[#18181b]";
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
   const exportQuery = new URLSearchParams({
@@ -180,26 +180,26 @@ function InventoryOperationsTable({
       <form
         action="/crm/inventar"
         method="get"
-        className="flex flex-wrap items-end gap-2 rounded-xl border border-[#e8e7e3] bg-white px-3 py-3"
+        className="flex flex-wrap items-end gap-2 rounded-xl border border-[#e4e4e7] bg-white px-3 py-3"
       >
         <input type="hidden" name="wh" value={selected?.id ?? ""} />
-        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
           De la
           <input className={filterInputCls} type="date" name="from" defaultValue={filters.from} />
         </label>
-        <label className="grid gap-1 text-xs font-semibold text-[#6f6b63]">
+        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
           Până la
           <input className={filterInputCls} type="date" name="to" defaultValue={filters.to} />
         </label>
         <button
           type="submit"
-          className="button-primary h-9 rounded-md bg-[#1b1a17] px-4 text-sm font-semibold text-white hover:bg-[#33312c]"
+          className="button-primary h-9 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         >
           Filtrează
         </button>
         <Link
           href={crmInventoryHref({ wh: selected?.id })}
-          className="h-9 content-center px-2 text-sm font-medium text-[#1b1a17] underline decoration-[#2e90fa] underline-offset-4"
+          className="h-9 content-center px-2 text-sm font-medium text-[#18181b] underline decoration-[#2563eb] underline-offset-4"
         >
           Resetează
         </Link>
@@ -207,30 +207,30 @@ function InventoryOperationsTable({
           <div className="flex gap-2">
             <a
               href={`/api/export/inventory?${exportQuery}`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
             >
               <Download className="size-4" aria-hidden="true" /> Toate (Excel)
             </a>
             <a
               href={`/api/export/inventory?${exportQuery}&format=pdf`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
             >
               <FileText className="size-4" aria-hidden="true" /> Toate (PDF)
             </a>
           </div>
         ) : null}
-        <span className="ml-auto text-sm text-[#6f6b63]">
+        <span className="ml-auto text-sm text-[#52525b]">
           {start}-{end} din {formatNumber(total)} inventare
         </span>
       </form>
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="border-b border-[#e8e7e3] px-4 py-2.5">
-          <h2 className="text-sm font-semibold text-[#1b1a17]">Inventare efectuate</h2>
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+        <div className="border-b border-[#e4e4e7] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#18181b]">Inventare efectuate</h2>
         </div>
         <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[860px] border-collapse text-left text-sm">
-          <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+          <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
             <tr>
               <TableHead>Data</TableHead>
               <TableHead>Document</TableHead>
@@ -249,14 +249,14 @@ function InventoryOperationsTable({
                 const minus = operation.lines.reduce((sum, line) => sum + Math.min(line.quantity, 0), 0);
                 const docLines = toDocLines(operation);
                 return (
-                  <tr key={operation.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
+                  <tr key={operation.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
                     <TableCell>{formatDate(operation.documentDate)}</TableCell>
                     <TableCell className="font-semibold">Inventar #{operation.number}</TableCell>
                     <TableCell align="right" secondary className="tabular-nums">{formatNumber(operation.lines.length)}</TableCell>
                     <TableCell align="right" secondary className="tabular-nums text-[#15803d]">{plus > 0 ? `+${plus}` : "—"}</TableCell>
                     <TableCell align="right" secondary className="tabular-nums text-[#b91c1c]">{minus < 0 ? minus : "—"}</TableCell>
                     <TableCell align="right" className="font-mono font-semibold">{signedNumber(plus + minus)}</TableCell>
-                    <TableCell secondary className="text-[#6f6b63]">
+                    <TableCell secondary className="text-[#52525b]">
                       {operation.notes?.replace(/^Inventar:?\s*/, "") || "—"}
                     </TableCell>
                     <TableCell align="right">
@@ -266,13 +266,13 @@ function InventoryOperationsTable({
                           <>
                             <a
                               href={`/api/export/inventory/${operation.id}`}
-                              className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                              className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                             >
                               <Download className="size-3.5" aria-hidden="true" /> Excel
                             </a>
                             <a
                               href={`/api/export/inventory/${operation.id}?format=pdf`}
-                              className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                              className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                             >
                               <FileText className="size-3.5" aria-hidden="true" /> PDF
                             </a>
@@ -297,7 +297,7 @@ function InventoryOperationsTable({
               })
             ) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={8}>
+                <td className="px-3 py-10 text-center text-[#52525b]" colSpan={8}>
                   Nu există inventare salvate pentru filtrele curente.
                 </td>
               </tr>
@@ -309,7 +309,7 @@ function InventoryOperationsTable({
 
       {pageCount > 1 ? (
         <div className="flex items-center justify-between gap-3 text-sm">
-          <p className="text-[#6f6b63]">
+          <p className="text-[#52525b]">
             Pagina {page} din {pageCount}
           </p>
           <div className="flex gap-2">

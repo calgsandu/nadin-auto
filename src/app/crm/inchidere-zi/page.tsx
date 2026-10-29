@@ -58,7 +58,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
             href={`/api/export/sales-register?${exportQuery}&format=pdf`}
             target="_blank"
             rel="noreferrer"
-            className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+            className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
           >
             <FileText className="size-4" aria-hidden="true" /> PDF
           </a>
@@ -66,14 +66,14 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
             href={`/api/export/sales-register?${exportQuery}&format=xlsx`}
             target="_blank"
             rel="noreferrer"
-            className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+            className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
           >
             <Download className="size-4" aria-hidden="true" /> Excel
           </a>
         </div>
       </div>
 
-      <h2 className="font-semibold capitalize text-[#1b1a17]">
+      <h2 className="font-semibold capitalize text-[#18181b]">
         {dayLabelFormat.format(selectedDate)}
       </h2>
 
@@ -101,8 +101,8 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-          <div className="border-b border-[#efeeeb] px-4 py-3 font-semibold text-[#1b1a17]">
+        <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+          <div className="border-b border-[#f0f0f2] px-4 py-3 font-semibold text-[#18181b]">
             Cum s-a plătit
           </div>
           <table className="w-full border-collapse text-left text-sm">
@@ -127,9 +127,9 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
                 lei={data.methods.unspecified.lei}
                 warn={data.methods.unspecified.count > 0}
               />
-              <tr className="border-t-2 border-[#e8e7e3]">
+              <tr className="border-t-2 border-[#e4e4e7]">
                 <TableCell className="font-semibold">Total vânzări</TableCell>
-                <TableCell align="right" className="tabular-nums text-[#6f6b63]">
+                <TableCell align="right" className="tabular-nums text-[#52525b]">
                   {formatNumber(data.salesCount)}
                 </TableCell>
                 <TableCell align="right" className="font-semibold tabular-nums">
@@ -140,8 +140,8 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
           </table>
         </div>
 
-        <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-          <div className="border-b border-[#efeeeb] px-4 py-3 font-semibold text-[#1b1a17]">
+        <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+          <div className="border-b border-[#f0f0f2] px-4 py-3 font-semibold text-[#18181b]">
             Casa de marcat
           </div>
           <table className="w-full border-collapse text-left text-sm">
@@ -166,8 +166,8 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
             </tbody>
           </table>
           <div
-            className={`border-t border-[#efeeeb] px-4 py-3 text-sm ${
-              Math.abs(unregisteredCash) < 0.01 ? "text-[#6f6b63]" : "text-[#b91c1c]"
+            className={`border-t border-[#f0f0f2] px-4 py-3 text-sm ${
+              Math.abs(unregisteredCash) < 0.01 ? "text-[#52525b]" : "text-[#b91c1c]"
             }`}
           >
             {Math.abs(unregisteredCash) < 0.01 ? (
@@ -185,9 +185,9 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
       </div>
 
       {data.partnerPayments.length > 0 ? (
-        <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-          <div className="border-b border-[#e8e7e3] px-4 py-2.5">
-            <h2 className="text-sm font-semibold text-[#1b1a17]">
+        <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+          <div className="border-b border-[#e4e4e7] px-4 py-2.5">
+            <h2 className="text-sm font-semibold text-[#18181b]">
               Încasări pe datorii vechi ·{" "}
               <span className="tabular-nums">{formatMoney(data.collectedFromPartners)} lei</span>
             </h2>
@@ -195,9 +195,9 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
           <table className="crm-table w-full min-w-[520px] border-collapse text-left text-sm">
             <tbody>
               {data.partnerPayments.map((payment) => (
-                <tr key={payment.id} className="border-t border-[#efeeeb]">
+                <tr key={payment.id} className="border-t border-[#f0f0f2]">
                   <TableCell className="font-medium">{payment.partnerName}</TableCell>
-                  <TableCell secondary className="text-[#6f6b63]">{payment.notes ?? "—"}</TableCell>
+                  <TableCell secondary className="text-[#52525b]">{payment.notes ?? "—"}</TableCell>
                   <TableCell align="right" className="font-semibold tabular-nums">
                     {formatMoney(payment.amountLei)} lei
                   </TableCell>
@@ -208,13 +208,13 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
         </div>
       ) : null}
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e8e7e3] bg-white">
-        <div className="border-b border-[#e8e7e3] px-4 py-2.5">
-          <h2 className="text-sm font-semibold text-[#1b1a17]">Vânzările zilei</h2>
+      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+        <div className="border-b border-[#e4e4e7] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#18181b]">Vânzările zilei</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[720px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e8e7e3] bg-[#fafaf9]">
+            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Ora</TableHead>
                 <TableHead>Document</TableHead>
@@ -228,10 +228,10 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
             <tbody>
               {data.sales.length > 0 ? (
                 data.sales.map((sale) => (
-                  <tr key={sale.id} className="motion-table-row border-t border-[#efeeeb] hover:bg-[#f6f6f4]">
+                  <tr key={sale.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#f4f4f5]">
                     <TableCell className="tabular-nums">{sale.time}</TableCell>
                     <TableCell className="font-semibold">Vânzare #{sale.number}</TableCell>
-                    <TableCell secondary className="text-[#6f6b63]">
+                    <TableCell secondary className="text-[#52525b]">
                       {sale.partnerName ?? "—"}
                     </TableCell>
                     <TableCell>{salePaymentMethodLabel(sale.paymentMethod)}</TableCell>
@@ -246,7 +246,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
                       {formatMoney(sale.totalLei)} lei
                     </TableCell>
                     {COMPANY.vatPayer ? (
-                      <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">
+                      <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
                         {formatMoney(sale.totalLei / 6)} lei
                       </TableCell>
                     ) : null}
@@ -254,7 +254,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
                 ))
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#6f6b63]" colSpan={COMPANY.vatPayer ? 7 : 6}>
+                  <td className="px-3 py-10 text-center text-[#52525b]" colSpan={COMPANY.vatPayer ? 7 : 6}>
                     Nicio vânzare în ziua aleasă.
                   </td>
                 </tr>
@@ -279,9 +279,9 @@ function MethodRow({
   warn?: boolean;
 }) {
   return (
-    <tr className="border-t border-[#efeeeb]">
+    <tr className="border-t border-[#f0f0f2]">
       <TableCell className={warn && count > 0 ? "text-[#b91c1c]" : ""}>{label}</TableCell>
-      <TableCell align="right" className="tabular-nums text-[#6f6b63]">
+      <TableCell align="right" className="tabular-nums text-[#52525b]">
         {formatNumber(count)}
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">

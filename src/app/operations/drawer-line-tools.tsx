@@ -28,7 +28,7 @@ export function LabelStickerCell({
 }) {
   return (
     <DrawerField label="Etichete">
-      <div className="flex h-9 items-center gap-2 rounded-md border border-[#e8e7e3] bg-white px-2.5">
+      <div className="flex h-9 items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-2.5">
         <input
           aria-label={`Etichetă pentru produsul ${index + 1}`}
           checked={Boolean(line.sticker)}
@@ -46,7 +46,7 @@ export function LabelStickerCell({
         />
         <input
           aria-label={`Câte etichete pentru produsul ${index + 1}`}
-          className="field-control h-7 w-14 rounded border border-[#e8e7e3] bg-white px-2 text-sm outline-none disabled:bg-[#f6f6f4] disabled:text-[#98948b]"
+          className="field-control h-7 w-14 rounded border border-[#e4e4e7] bg-white px-2 text-sm outline-none disabled:bg-[#f4f4f5] disabled:text-[#71717a]"
           data-enter-skip
           disabled={!line.sticker}
           inputMode="numeric"
@@ -55,7 +55,7 @@ export function LabelStickerCell({
           value={line.copies ?? ""}
           onChange={(event) => onChange({ copies: event.currentTarget.value })}
         />
-        <span className="text-xs text-[#6f6b63]">buc</span>
+        <span className="text-xs text-[#52525b]">buc</span>
       </div>
     </DrawerField>
   );
@@ -72,12 +72,12 @@ export function AddedLinesFilter({
   return (
     <div className="relative">
       <Search
-        className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[#6f6b63]"
+        className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[#52525b]"
         aria-hidden="true"
       />
       <input
         aria-label="Caută în produsele adăugate"
-        className="field-control h-9 w-56 rounded-md border border-[#e8e7e3] bg-white pl-8 pr-3 text-sm outline-none placeholder:text-[#98948b]"
+        className="field-control h-9 w-56 rounded-md border border-[#e4e4e7] bg-white pl-8 pr-3 text-sm outline-none placeholder:text-[#71717a]"
         data-enter-skip
         placeholder="Caută în cele adăugate"
         type="search"

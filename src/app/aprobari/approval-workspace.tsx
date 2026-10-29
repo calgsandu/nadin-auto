@@ -71,7 +71,7 @@ function Metric({
   tone: "blue" | "red" | "green";
 }) {
   const colors = {
-    blue: "bg-[#eef6ff] text-[#175cd3]",
+    blue: "bg-[#eff6ff] text-[#1d4ed8]",
     red: "bg-[#fff1f1] text-[#b42318]",
     green: "bg-[#ecfdf3] text-[#027a48]",
   };
@@ -99,11 +99,11 @@ function ApprovalList({
   return (
     <section className="grid gap-3">
       <div>
-        <h2 className="text-base font-semibold text-[#1b1a17]">{title}</h2>
-        <p className="mt-1 text-sm text-[#6f6b63]">{description}</p>
+        <h2 className="text-base font-semibold text-[#18181b]">{title}</h2>
+        <p className="mt-1 text-sm text-[#52525b]">{description}</p>
       </div>
       {entries.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#d8d5ce] bg-white px-5 py-12 text-center text-sm text-[#6f6b63]">
+        <div className="rounded-xl border border-dashed border-[#d8d5ce] bg-white px-5 py-12 text-center text-sm text-[#52525b]">
           {empty}
         </div>
       ) : (
@@ -125,17 +125,17 @@ function ApprovalCard({
   mode: "pending" | "rejected" | "approved";
 }) {
   return (
-    <article className="motion-card overflow-hidden rounded-xl border border-[#e3e1dc] bg-white">
-      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[#efeeeb] px-4 py-3.5">
+    <article className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[#f0f0f2] px-4 py-3.5">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge mode={mode} />
-            <span className="rounded-md bg-[#f1f0ed] px-2 py-1 text-[11px] font-semibold text-[#6f6b63]">
+            <span className="rounded-md bg-[#f4f4f5] px-2 py-1 text-[11px] font-semibold text-[#52525b]">
               {entry.kind === "SALE" ? "Vânzare" : "Predare cont"}
             </span>
           </div>
-          <h3 className="mt-2 font-semibold text-[#1b1a17]">{entry.summary}</h3>
-          <p className="mt-1 text-xs text-[#98948b]">
+          <h3 className="mt-2 font-semibold text-[#18181b]">{entry.summary}</h3>
+          <p className="mt-1 text-xs text-[#71717a]">
             {entry.requestedByName || entry.requestedByEmail || "Utilizator"},{" "}
             {dateTimeFormat.format(entry.createdAt)}
           </p>
@@ -180,9 +180,9 @@ function ApprovalCard({
           )}
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-[#efeeeb]">
+        <div className="overflow-x-auto rounded-lg border border-[#f0f0f2]">
           <table className="crm-table w-full min-w-[620px] border-collapse text-left text-sm">
-            <thead className="bg-[#fafaf9] text-xs text-[#6f6b63]">
+            <thead className="bg-[#fafafa] text-xs text-[#52525b]">
               <tr>
                 <th className="px-3 py-2 font-semibold">Produs</th>
                 <th className="px-3 py-2 text-right font-semibold">Cantitate</th>
@@ -192,7 +192,7 @@ function ApprovalCard({
             </thead>
             <tbody>
               {entry.details.lines.map((line) => (
-                <tr key={line.productId} className="border-t border-[#efeeeb]">
+                <tr key={line.productId} className="border-t border-[#f0f0f2]">
                   <td className="px-3 py-2.5 font-medium">{line.productLabel}</td>
                   <td className="px-3 py-2.5 text-right font-mono">
                     {line.quantity}
@@ -225,7 +225,7 @@ function ApprovalCard({
           <div className="flex justify-end">
             <Link
               href={`/crm/istoric?doc=${entry.appliedEntityId}`}
-              className="text-sm font-semibold text-[#175cd3] underline decoration-[#84adff] underline-offset-4"
+              className="text-sm font-semibold text-[#1d4ed8] underline decoration-[#84adff] underline-offset-4"
             >
               Vezi documentul în istoric
             </Link>
@@ -239,8 +239,8 @@ function ApprovalCard({
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-medium text-[#98948b]">{label}</p>
-      <p className="mt-1 font-medium text-[#1b1a17]">{value}</p>
+      <p className="text-xs font-medium text-[#71717a]">{label}</p>
+      <p className="mt-1 font-medium text-[#18181b]">{value}</p>
     </div>
   );
 }
@@ -253,7 +253,7 @@ function StatusBadge({
   const meta = {
     pending: {
       label: "În așteptare",
-      className: "bg-[#eef6ff] text-[#175cd3]",
+      className: "bg-[#eff6ff] text-[#1d4ed8]",
     },
     rejected: {
       label: "Respinsă",

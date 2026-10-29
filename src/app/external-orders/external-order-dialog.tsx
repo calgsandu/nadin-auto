@@ -58,8 +58,8 @@ export function ExternalOrderDialog({
       <button
         className={
           triggerKind === "row"
-            ? "button-secondary rounded-md border border-[#e8e7e3] px-3 py-1.5 text-xs font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
-            : "button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c]"
+            ? "button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+            : "button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         }
         type="button"
         onClick={() => {
@@ -83,17 +83,17 @@ export function ExternalOrderDialog({
               onClick={() => setOpen(false)}
             />
             <aside className={drawerPanelClassName}>
-              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e8e7e3] bg-[#fafaf9] px-5 py-3">
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
                 <div>
-                  <h2 className="text-lg font-semibold tracking-tight text-[#1b1a17]">
+                  <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">
                     {order ? "Editează comanda" : "Comandă nouă"}
                   </h2>
-                  <p className="mt-1 text-sm text-[#6f6b63]">
+                  <p className="mt-1 text-sm text-[#52525b]">
                     Piesa rămâne în catalogul furnizorului — nu se adaugă în stocul propriu.
                   </p>
                 </div>
                 <button
-                  className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3 py-2 text-sm font-medium text-[#1b1a17] hover:bg-[#f6f6f4]"
+                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
                   type="button"
                   onClick={() => setOpen(false)}
                 >
@@ -207,9 +207,9 @@ export function ExternalOrderDialog({
                 </Field>
 
 
-                <div className="flex items-center justify-end gap-3 border-t border-[#e8e7e3] pt-5">
+                <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
                   <button
-                    className="button-secondary rounded-md border border-[#e8e7e3] bg-white px-3.5 py-2 text-sm font-semibold text-[#1b1a17] hover:bg-[#f6f6f4]"
+                    className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                     type="button"
                     onClick={() => setOpen(false)}
                   >
@@ -228,7 +228,7 @@ export function ExternalOrderDialog({
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid gap-1 text-sm font-medium text-[#33312c]">
+    <label className="grid gap-1 text-sm font-medium text-[#3f3f46]">
       {label}
       {children}
     </label>
@@ -238,7 +238,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
   return (
     <button
-      className="button-primary rounded-md bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#33312c] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -248,4 +248,4 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
 }
 
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e8e7e3] bg-white px-2.5 text-sm outline-none placeholder:text-[#98948b] disabled:bg-[#f0efec]";
+  "field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm outline-none placeholder:text-[#71717a] disabled:bg-[#f1f1f3]";
