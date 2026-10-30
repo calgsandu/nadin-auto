@@ -12,6 +12,8 @@ export type CatalogSearchParams = {
   model?: string;
   type?: string;
   year?: string;
+  /** "1" = doar produsele cu stoc. */
+  stoc?: string;
   page?: string;
 };
 
@@ -29,7 +31,7 @@ export async function getCatalogData(
   const query = params.q?.trim() ?? "";
   const matchedIds = query ? await findMatchingProductIds(query) : null;
   const baseWhere = buildProductWhere(params, matchedIds);
-  const where: Prisma.ProductWhereInput = options.onlyInStock
+  const where: Prisma.ProductWhereInput = options.onlyInStock || params.stoc === "1"
     ? { AND: [baseWhere, { stock: { gt: 0 } }] }
     : baseWhere;
   const page = normalizePage(params.page);
@@ -106,6 +108,7 @@ export async function getCatalogData(
       model: params.model,
       type: params.type,
       year: params.year,
+      stoc: params.stoc,
     },
     brands,
     models,

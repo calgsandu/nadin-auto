@@ -89,6 +89,29 @@ function initialProductOf(line: { productId: string; label: string }) {
   return line.productId ? { id: line.productId, label: line.label } : null;
 }
 
+/**
+ * Ultima locație aleasă, ținută în browser: următorul document pleacă din
+ * același loc, fără s-o alegi din nou. O locație dispărută cade pe implicită.
+ */
+function rememberedWarehouse(kind: string, warehouses: WarehouseOption[], fallback: string) {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const saved = window.localStorage.getItem(`nadin:locatie:${kind}`);
+    if (saved && warehouses.some((warehouse) => warehouse.id === saved)) return saved;
+  } catch {
+    // Stocare blocată (fereastră privată): rămâne locația implicită.
+  }
+  return fallback;
+}
+
+function rememberWarehouse(kind: string, warehouseId: string) {
+  try {
+    window.localStorage.setItem(`nadin:locatie:${kind}`, warehouseId);
+  } catch {
+    // Vezi mai sus.
+  }
+}
+
 export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: StockDocumentDialogProps) {
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
@@ -125,7 +148,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
       focusFirstLineSearch();
     },
   );
-  const defaultWarehouse = warehouses[0]?.id ?? "";
+  const [defaultWarehouse] = useState(() => rememberedWarehouse("receipt", warehouses, warehouses[0]?.id ?? ""));
   const today = useMemo(() => formatDateInputValue(new Date()), []);
 
   function addLine() {
@@ -207,6 +230,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                     defaultValue={defaultWarehouse}
                     name="warehouseId"
                     required
+                    onChange={(event) => rememberWarehouse("receipt", event.currentTarget.value)}
                   >
                     {warehouses.map((warehouse) => (
                       <option key={warehouse.id} value={warehouse.id}>
@@ -565,6 +589,8 @@ type SaleLineState = {
   listPrice: string;
   /** Costul de achiziție („Себ.ед."); gol pentru rolurile fără drept la costuri. */
   unitCost: string;
+  /** Stocul produsului pe depozite (din căutare) — pentru avertismentul de stoc. */
+  stocks: { warehouseId: string; quantity: number }[];
 };
 
 function emptySaleLine(id: number, external = false): SaleLineState {
@@ -583,6 +609,7 @@ function emptySaleLine(id: number, external = false): SaleLineState {
     cost: "",
     listPrice: "",
     unitCost: "",
+    stocks: [],
   };
 }
 
@@ -612,12 +639,22 @@ export function StockSaleDialog({
   // e încă una din categorii.
   const [customDiscount, setCustomDiscount] = useState(false);
   const [customerId, setCustomerId] = useState("");
+  const [warehouseId, setWarehouseId] = useState(() =>
+    rememberedWarehouse(
+      "sale",
+      warehouses,
+      warehouses.find((warehouse) => warehouse.name === "Pavilion 110A")?.id ?? warehouses[0]?.id ?? "",
+    ),
+  );
+  // Doar pentru avertismentul „pe datorie fără client"; valoarea pleacă din radio.
+  const [paymentMethod, setPaymentMethod] = useState("");
   const nextLineId = useRef(2);
   const [lines, setLines] = useState<SaleLineState[]>([emptySaleLine(1)]);
   function resetForm() {
     setDiscount("0");
     setCustomDiscount(false);
     setCustomerId("");
+    setPaymentMethod("");
     nextLineId.current = 2;
     setLines([emptySaleLine(1)]);
   }
@@ -625,12 +662,14 @@ export function StockSaleDialog({
   // necontrolate): intră în ciornă cu tot cu linii, altfel s-ar pierde.
   const draft = useDrawerDraft({
     kind: "sale",
-    lines: { lines, discount, customerId },
+    lines: { lines, discount, customerId, warehouseId },
     setLines: (restored) => {
       nextLineId.current = nextIdAfter(restored.lines);
-      setLines(restored.lines);
+      // Ciornele vechi n-aveau stocurile pe rând: lipsa lor doar ascunde avertismentul.
+      setLines(restored.lines.map((line) => ({ ...line, stocks: line.stocks ?? [] })));
       setDiscount(restored.discount);
       setCustomerId(restored.customerId);
+      if (restored.warehouseId) setWarehouseId(restored.warehouseId);
     },
     reset: resetForm,
   });
@@ -641,11 +680,8 @@ export function StockSaleDialog({
     resetForm();
     draft.clear();
   });
-  const defaultWarehouse =
-    warehouses.find((warehouse) => warehouse.name === "Pavilion 110A")?.id ??
-    warehouses[0]?.id ??
-    "";
   const today = useMemo(() => formatDateInputValue(new Date()), []);
+  const warehouseName = warehouses.find((warehouse) => warehouse.id === warehouseId)?.name ?? "locația aleasă";
 
   function addLine(external = false) {
     const id = nextLineId.current;
@@ -666,7 +702,13 @@ export function StockSaleDialog({
     setLines((current) => current.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
   }
 
-  function productFields(product: { id: string; label: string; salePriceLei: string; defaultCostLei: string }) {
+  function productFields(product: {
+    id: string;
+    label: string;
+    salePriceLei: string;
+    defaultCostLei: string;
+    stocks?: { warehouseId: string; quantity: number }[];
+  }) {
     return {
       productId: product.id,
       label: product.label,
@@ -674,12 +716,13 @@ export function StockSaleDialog({
       listPrice: product.salePriceLei,
       unitCost: product.defaultCostLei,
       price: applyDiscount(product.salePriceLei, discount) || product.salePriceLei,
+      stocks: product.stocks ?? [],
     };
   }
 
   function selectProduct(
     id: number,
-    product: { id: string; label: string; salePriceLei: string; defaultCostLei: string },
+    product: Parameters<typeof productFields>[0],
   ) {
     setLines((current) =>
       current.map((line) => (line.id === id ? { ...line, ...productFields(product) } : line)),
@@ -734,7 +777,7 @@ export function StockSaleDialog({
   function clearProduct(id: number) {
     setLines((current) =>
       current.map((line) =>
-        line.id === id ? { ...line, productId: "", label: "", qty: "" } : line,
+        line.id === id ? { ...line, productId: "", label: "", qty: "", stocks: [] } : line,
       ),
     );
   }
@@ -814,7 +857,16 @@ export function StockSaleDialog({
                   ) : null}
                 </Field>
                 <Field label="Din locația">
-                  <select className={inputClassName} defaultValue={defaultWarehouse} name="warehouseId" required>
+                  <select
+                    className={inputClassName}
+                    name="warehouseId"
+                    required
+                    value={warehouseId}
+                    onChange={(event) => {
+                      setWarehouseId(event.currentTarget.value);
+                      rememberWarehouse("sale", event.currentTarget.value);
+                    }}
+                  >
                     {warehouses.map((warehouse) => (
                       <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
                     ))}
@@ -956,6 +1008,12 @@ export function StockSaleDialog({
                       line.unitCost && Number(line.price) > 0
                         ? Math.round(((Number(line.price) - Number(line.unitCost)) / Number(line.price)) * 100)
                         : null;
+                    const belowCost = margin !== null && margin < 0;
+                    // Stocul din locația aleasă, ca să nu vinzi ce nu e pe raft.
+                    const stockHere = line.stocks.find((stock) => stock.warehouseId === warehouseId)?.quantity ?? 0;
+                    const stockElsewhere = line.stocks.reduce((sum, stock) => sum + stock.quantity, 0) - stockHere;
+                    const showStock = Boolean(line.productId) && line.stocks.length > 0;
+                    const notEnough = showStock && (Number(line.qty) || 0) > stockHere;
                     return (
                     <div key={line.id} className="motion-line-item grid gap-2 rounded-lg border border-[#e4e4e7] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
                       <div>
@@ -971,8 +1029,24 @@ export function StockSaleDialog({
                           onClear={() => clearProduct(line.id)}
                           onSelect={(p) => selectProduct(line.id, p)}
                         />
-                        {margin !== null ? (
-                          <span className="mt-0.5 block text-xs text-[#71717a]">marjă {margin}%</span>
+                        {showStock || margin !== null ? (
+                          <span className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-[#71717a]">
+                            {showStock ? (
+                              notEnough ? (
+                                <span className="font-medium text-[#b91c1c]">
+                                  {stockHere > 0 ? `doar ${stockHere} în ${warehouseName}` : `nu e în ${warehouseName}`}
+                                  {stockElsewhere > 0 ? ` · ${stockElsewhere} în alte depozite` : ""}
+                                </span>
+                              ) : (
+                                <span>{stockHere} în stoc aici</span>
+                              )
+                            ) : null}
+                            {margin !== null ? (
+                              <span className={belowCost ? "font-medium text-[#b91c1c]" : undefined}>
+                                {belowCost ? `sub cost (${money(Number(line.unitCost))} lei)` : `marjă ${margin}%`}
+                              </span>
+                            ) : null}
+                          </span>
                         ) : null}
                       </div>
                       <Field label="Cant.">
@@ -989,7 +1063,7 @@ export function StockSaleDialog({
                       </Field>
                       <Field label="Preț">
                         <input
-                          className={inputClassName}
+                          className={`${inputClassName} ${belowCost ? "border-[#f87171]! bg-[#fef2f2]!" : ""}`}
                           inputMode="decimal"
                           min={0}
                           name="unitPriceEuro"
@@ -1013,7 +1087,13 @@ export function StockSaleDialog({
               </section>
 
               <div className="grid gap-4 border-t border-[#e4e4e7] pt-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
-                <div className="grid gap-3 md:grid-cols-2">
+                <div
+                  className="grid gap-3 md:grid-cols-2"
+                  onChange={(event) => {
+                    const target = event.target as HTMLInputElement;
+                    if (target.name === "paymentMethod") setPaymentMethod(target.value);
+                  }}
+                >
                   <DrawerChoice
                     hint="Alege metoda de plată"
                     label="Plată"
@@ -1036,6 +1116,11 @@ export function StockSaleDialog({
                     ]}
                     required
                   />
+                  {paymentMethod === "credit" && !customerId ? (
+                    <p className="rounded-md bg-[#fffbeb] px-3 py-2 text-sm text-[#92400e] md:col-span-2">
+                      Pe datorie cu „Consumator final”: datoria nu se scrie pe nimeni. Alege clientul sus.
+                    </p>
+                  ) : null}
                   <details className="group md:col-span-2">
                     <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#52525b] hover:text-[#18181b] [&::-webkit-details-marker]:hidden">
                       <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Factură / notițe

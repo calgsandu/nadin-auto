@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Printer } from "lucide-react";
+import { CopyCode } from "@/app/components/copy-code";
 import { LocalBadge } from "@/app/components/local-badge";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
 import { ProductDeleteButton } from "@/app/catalog/product-delete-button";
@@ -21,7 +22,7 @@ import {
   TableHead,
   WorkspaceSkeleton,
 } from "../_components/ui";
-import { formatFormValue, formatMoney, formatNumber, formatText } from "../_components/format";
+import { formatFormValue, formatMoney, formatNumber } from "../_components/format";
 import { ProductPreview, type ProductPreviewValue } from "./product-preview";
 
 export const dynamic = "force-dynamic";
@@ -44,7 +45,7 @@ export default async function ProductsPage({
   });
   // Fără `q`: căutarea filtrează pe măsură ce scrii, iar o cheie nouă ar
   // remonta câmpul (pierde focusul) și ar arăta scheletul la fiecare literă.
-  const key = [params.brand, params.model, params.type, params.year, params.page].join(":");
+  const key = [params.brand, params.model, params.type, params.year, params.stoc, params.page].join(":");
 
   return (
     <>
@@ -224,7 +225,11 @@ function ProductRow({
       ) : null}
       <TableCell className="whitespace-nowrap">
         {/* Codul e cheia piesei: după el se caută și se comandă. */}
-        <p className="font-mono text-[15px] font-bold text-[#18181b]">{formatText(product.externalCode)}</p>
+        {product.externalCode ? (
+          <CopyCode code={product.externalCode} className="font-mono text-[15px] font-bold text-[#18181b]" />
+        ) : (
+          <p className="font-mono text-[15px] font-bold text-[#18181b]">—</p>
+        )}
         {product.alternativeCode ? (
           <p className="mt-0.5 font-mono text-xs text-[#71717a]">{product.alternativeCode}</p>
         ) : null}

@@ -177,6 +177,20 @@ export function OperationDrawer({
             event.stopPropagation();
             onClose();
           }}
+          // Câmpurile cu cifre: un click selectează tot (scrii direct peste „1"),
+          // iar rotița mouse-ului nu mai schimbă cantitatea pe furiș la derulare.
+          onFocus={(event) => {
+            const target = event.target;
+            if (target instanceof HTMLInputElement && target.type === "number") {
+              requestAnimationFrame(() => target.select());
+            }
+          }}
+          onWheel={(event) => {
+            const target = event.target;
+            if (target instanceof HTMLInputElement && target.type === "number" && target === document.activeElement) {
+              target.blur();
+            }
+          }}
           className={drawerPanelClassName}
         >
           <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">

@@ -152,6 +152,15 @@ export function CatalogFilters({
         icon={<CalendarDays className="size-4 text-[#71717a]" aria-hidden="true" />}
         className="w-28"
       />
+      <label className={`${pill(searchParams.get("stoc") === "1")} cursor-pointer font-medium`}>
+        <input
+          checked={searchParams.get("stoc") === "1"}
+          className="size-4 accent-[#2563eb]"
+          type="checkbox"
+          onChange={(event) => updateParam("stoc", event.currentTarget.checked ? "1" : "")}
+        />
+        Doar în stoc
+      </label>
       {searchParams.toString() ? (
         <button
           className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"

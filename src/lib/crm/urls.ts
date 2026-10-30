@@ -35,6 +35,7 @@ export function crmCatalogPageHref(values: {
   model?: string;
   type?: string;
   year?: string;
+  stoc?: string;
   page?: number;
 }) {
   return crmHref("produse", {
@@ -43,6 +44,7 @@ export function crmCatalogPageHref(values: {
     model: values.model,
     type: values.type,
     year: values.year,
+    stoc: values.stoc,
     page: values.page && values.page > 1 ? values.page : undefined,
   });
 }
@@ -54,6 +56,7 @@ export function crmCatalogFilterHref(params: URLSearchParams) {
     model: params.get("model"),
     type: params.get("type"),
     year: params.get("year"),
+    stoc: params.get("stoc"),
   });
 }
 

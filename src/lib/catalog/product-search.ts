@@ -13,6 +13,8 @@ export type ProductSearchResult = {
   defaultCostLei: string;
   salePriceLei: string;
   stock: number;
+  /** Stocul pe fiecare depozit — vânzarea avertizează când locația aleasă nu ajunge. */
+  stocks?: { warehouseId: string; quantity: number }[];
 };
 
 export type ProductSearchLabelInput = ProductFitmentsInfo & {
@@ -53,9 +55,12 @@ export function formatProductSearchLabel(
 
 /** `includeCosts=false` (ANGAJAT): costurile de aducere nu pleacă din API. */
 export function toProductSearchResult(
-  product: ProductSearchLabelInput & { id: string },
+  product: ProductSearchLabelInput & {
+    id: string;
+    warehouseStocks?: { warehouseId: string; quantity: number }[];
+  },
   includeCosts = true,
-) {
+): ProductSearchResult {
   return {
     id: product.id,
     label: formatProductSearchLabel(product, includeCosts),
@@ -63,6 +68,7 @@ export function toProductSearchResult(
     defaultCostLei: includeCosts ? formatFormValue(product.costLei) : "",
     salePriceLei: formatFormValue(product.salePriceLei),
     stock: product.stock ?? 0,
+    stocks: product.warehouseStocks?.map(({ warehouseId, quantity }) => ({ warehouseId, quantity })),
   };
 }
 

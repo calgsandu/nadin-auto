@@ -10,6 +10,12 @@ import {
 import { findMatchingProductIds } from "@/lib/catalog/product-match";
 import { productLabelInclude } from "@/lib/catalog/product-include";
 
+// Stocul pe depozite doar aici: celelalte locuri care afișează eticheta n-au nevoie de el.
+const searchInclude = {
+  ...productLabelInclude,
+  warehouseStocks: { select: { warehouseId: true, quantity: true } },
+} as const;
+
 export async function GET(request: NextRequest) {
   const user = await getCurrentAppUser();
   if (!user) {
@@ -24,7 +30,7 @@ export async function GET(request: NextRequest) {
   // `?id=` = un singur produs, pentru „Vinde" din fișa rapidă (pagina Azi).
   const id = request.nextUrl.searchParams.get("id");
   if (id) {
-    const product = await prisma.product.findUnique({ where: { id }, include: productLabelInclude });
+    const product = await prisma.product.findUnique({ where: { id }, include: searchInclude });
     return Response.json({
       canCreate,
       products: product ? [toProductSearchResult(product, includeCosts)] : [],
@@ -41,7 +47,7 @@ export async function GET(request: NextRequest) {
 
   const products = await prisma.product.findMany({
     where: matchedIds ? { id: { in: matchedIds } } : undefined,
-    include: productLabelInclude,
+    include: searchInclude,
     orderBy: [{ fitment: { carModel: { brand: { name: "asc" } } } }, { sourceRow: "asc" }],
     take: matchedIds ? undefined : PRODUCT_SEARCH_LIMIT,
   });

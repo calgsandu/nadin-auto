@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Printer, ShoppingCart } from "lucide-react";
+import { CopyCode } from "@/app/components/copy-code";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { drawerPanelClassName } from "@/app/components/operation-drawer";
 
@@ -70,7 +71,7 @@ export function ProductPreview({
                 <div className="min-w-0">
                   {product.code ? (
                     <p className="font-mono text-xl font-bold text-[#18181b]">
-                      {product.code}
+                      <CopyCode code={product.code} />
                       {product.alternativeCode ? (
                         <span className="ml-2 text-sm font-medium text-[#71717a]">{product.alternativeCode}</span>
                       ) : null}
@@ -143,7 +144,8 @@ export function ProductPreview({
                     </span>
                   </h3>
                   <ul className="grid sm:grid-cols-2">
-                    {product.stocks.map((stock) => (
+                    {/* Întâi depozitele unde chiar e marfă. */}
+                    {[...product.stocks].sort((a, b) => b.quantity - a.quantity).map((stock) => (
                       <li
                         key={stock.id}
                         className="flex items-center justify-between gap-3 border-b border-[#f4f4f5] px-4 py-2 text-sm"
