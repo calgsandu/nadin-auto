@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
+import { useRef, useState, type ReactNode } from "react";
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import {
   createProductAction,
   updateProductAction,
@@ -11,6 +11,7 @@ import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
   drawerBoundaryProps,
   drawerPanelClassName,
+  handleEnterNavigation,
   useDrawerAction,
   useDrawerStackChild,
 } from "@/app/components/operation-drawer";
@@ -136,6 +137,12 @@ export function ProductFormDialog({
   const [fitments, setFitments] = useState<ExtraFitmentValue[]>(
     () => toFitments(product),
   );
+  // Costul și prețul, urmărite ca să arătăm pe loc prețul automat și marja.
+  const [cost, setCost] = useState(product?.costLei ?? "");
+  const [salePrice, setSalePrice] = useState(product?.salePriceLei ?? "");
+  // „+ Tip nou…" ales din listă: apare câmpul pentru numele tipului.
+  const [newType, setNewType] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const action = product ? updateProductAction : createProductAction;
   // Fără resetul automat al React: la eroare rămâne tot completat.
   const { pending, onSubmit } = useDrawerAction(action, initialState, (saved) => {
@@ -156,7 +163,24 @@ export function ProductFormDialog({
   function initFields() {
     setFitments(toFitments(product));
     setWarehouseQuantities(getWarehouseQuantities(product, warehouses));
+    setCost(product?.costLei ?? "");
+    setSalePrice(product?.salePriceLei ?? "");
+    setNewType(false);
   }
+
+  const costValue = Number(cost.replace(",", ".")) || 0;
+  const saleValue = Number(salePrice.replace(",", ".")) || 0;
+  const effectiveSale = saleValue || costValue * 2;
+  const margin = costValue > 0 && effectiveSale > 0 ? Math.round(((effectiveSale - costValue) / effectiveSale) * 100) : null;
+  const hasDetails = Boolean(
+    product?.alternativeCode ||
+      product?.priceEuro ||
+      product?.minStock ||
+      product?.isLocal ||
+      product?.descriptionRu ||
+      product?.notes ||
+      product?.notesRu,
+  );
 
   // În modul controlat nu trece nimeni prin `openDialog`, dar panoul tot trebuie
   // montat (și inițializat) la prima deschidere. Ajustarea stării în timpul
@@ -222,34 +246,80 @@ export function ProductFormDialog({
           <aside
             className={drawerPanelClassName}
             onKeyDown={(event) => {
+              // Ca în celelalte panouri: Ctrl+Enter salvează, Esc închide.
+              if ((event.ctrlKey || event.metaKey) && (event.key === "Enter" || event.key.toLowerCase() === "s")) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (!pending) formRef.current?.requestSubmit();
+                return;
+              }
               if (event.key !== "Escape") return;
               event.stopPropagation();
               setOpen(false);
             }}
+            onFocus={(event) => {
+              const target = event.target;
+              if (target instanceof HTMLInputElement && target.type === "number") {
+                requestAnimationFrame(() => target.select());
+              }
+            }}
+            onWheel={(event) => {
+              const target = event.target;
+              if (target instanceof HTMLInputElement && target.type === "number" && target === document.activeElement) {
+                target.blur();
+              }
+            }}
           >
             <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
-              <div>
-                <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">
-                  {product ? "Editează produs" : "Adaugă produs"}
-                </h2>
+              <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">
+                {product ? "Editează produs" : "Adaugă produs"}
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  className="button-primary inline-flex items-center gap-2 rounded-md bg-[#18181b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={pending}
+                  title="Ctrl+Enter"
+                  type="button"
+                  onClick={() => formRef.current?.requestSubmit()}
+                >
+                  {pending ? "Se salvează..." : product ? "Salvează" : "Adaugă produsul"}
+                  {pending ? null : (
+                    <kbd className="hidden rounded bg-white/15 px-1.5 font-sans text-xs font-medium text-white/80 lg:inline">
+                      Ctrl+Enter
+                    </kbd>
+                  )}
+                </button>
+                <button
+                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
+                  title="Esc"
+                  type="button"
+                  onClick={() => setOpen(false)}
+                >
+                  Închide
+                </button>
               </div>
-              <button
-                className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-                type="button"
-                onClick={() => setOpen(false)}
-              >
-                Închide
-              </button>
             </div>
 
-            <form onSubmit={onSubmit} className="grid gap-4 px-5 py-4">
+            <form
+              ref={formRef}
+              onSubmit={onSubmit}
+              className="grid gap-5 px-5 py-4"
+              onKeyDown={(event) => handleEnterNavigation(event)}
+            >
               {product ? (
                 <input name="productId" type="hidden" value={product.id} />
               ) : null}
 
-              {/* Ce scrie omul la fiecare produs: denumirea, codul și tipul. */}
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <Field className="lg:col-span-2" label="Descriere">
+              {/* Ordinea în care se scrie o piesă: codul, ce e, ce tip. */}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[12rem_minmax(0,1fr)_14rem]">
+                <Field label="Cod">
+                  <ProductCodeField
+                    className={inputClassName}
+                    defaultValue={product?.externalCode ?? ""}
+                    productId={product?.id}
+                  />
+                </Field>
+                <Field label="Descriere">
                   <textarea
                     className={`${inputClassName} min-h-9 resize-y py-2`}
                     rows={1}
@@ -259,26 +329,12 @@ export function ProductFormDialog({
                     required
                   />
                 </Field>
-                <Field label="Cod">
-                  <ProductCodeField
-                    className={inputClassName}
-                    defaultValue={product?.externalCode ?? ""}
-                    productId={product?.id}
-                  />
-                </Field>
-                <Field label="Cod alternativ">
-                  <input
-                    className={inputClassName}
-                    name="alternativeCode"
-                    defaultValue={product?.alternativeCode ?? ""}
-                    placeholder="ex. cod furnizor"
-                  />
-                </Field>
-                <Field label="Tip produs">
+                <Field label="Tip">
                   <select
                     className={inputClassName}
                     name="typeId"
                     defaultValue={product?.typeId ?? ""}
+                    onChange={(event) => setNewType(event.currentTarget.value === NEW_TYPE)}
                   >
                     <option value="">Alege tipul</option>
                     {types.map((type) => (
@@ -286,70 +342,32 @@ export function ProductFormDialog({
                         {type.name}
                       </option>
                     ))}
+                    <option value={NEW_TYPE}>+ Tip nou…</option>
                   </select>
-                </Field>
-                <Field label="Tip produs nou">
-                  <input
-                    className={inputClassName}
-                    name="newTypeName"
-                    placeholder="Doar dacă nu există în listă"
-                  />
+                  {newType ? (
+                    <input
+                      autoFocus
+                      className={inputClassName}
+                      name="newTypeName"
+                      placeholder="Numele tipului nou"
+                      required
+                    />
+                  ) : null}
                 </Field>
               </div>
 
-              {/* Textele pentru site (rusă, mențiuni publice) se completează rar: stau
-                  strânse și se deschid singure când produsul are deja ceva scris. */}
-              <details
-                className="group rounded-lg border border-[#e4e4e7] bg-white"
-                open={Boolean(product?.descriptionRu || product?.notes || product?.notesRu) || undefined}
-              >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-semibold text-[#18181b] [&::-webkit-details-marker]:hidden">
-                  <span>
-                    Texte pentru site
-                    <span className="ml-2 font-normal text-[#52525b]">descriere în rusă, mențiuni publice</span>
-                  </span>
-                  <ChevronDown className="size-4 text-[#71717a] transition-transform group-open:rotate-180" aria-hidden="true" />
-                </summary>
-                <div className="grid gap-3 border-t border-[#f0f0f2] p-3 sm:grid-cols-2">
-                    <Field label="Descriere în rusă">
-                      <textarea
-                        className={`${inputClassName} min-h-16 resize-y py-2`}
-                        name="descriptionRu"
-                        defaultValue={product?.descriptionRu ?? ""}
-                        placeholder="ex. Левый порог для 4/5 дверей"
-                      />
-                    </Field>
-                  {/*
-                    Câmpul se numea „Notițe" și suna a notă internă, dar se publică
-                    pe site-ul public, în fișa piesei. Eticheta o spune acum.
-                  */}
-                    <Field label="Mențiune publică (apare pe site)">
-                      <textarea
-                        className={`${inputClassName} min-h-14 resize-y py-2`}
-                        name="notes"
-                        defaultValue={product?.notes ?? ""}
-                        placeholder="ex. Livrare în 2 zile. Nu scrie aici note interne."
-                      />
-                    </Field>
-                    <Field label="Mențiune publică în rusă">
-                      <textarea
-                        className={`${inputClassName} min-h-14 resize-y py-2`}
-                        name="notesRu"
-                        defaultValue={product?.notesRu ?? ""}
-                      />
-                    </Field>
+              <section className="grid gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-semibold text-[#18181b]">Se potrivește pe</h3>
+                  <button
+                    className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+                    type="button"
+                    onClick={addFitment}
+                  >
+                    <Plus className="size-4" aria-hidden="true" /> Altă mașină
+                  </button>
                 </div>
-              </details>
-
-              <section className="rounded-lg border border-[#e4e4e7] bg-white p-3">
-                <div>
-                  <h3 className="text-sm font-semibold text-[#18181b]">Compatibilități</h3>
-                  <p className="mt-1 text-xs text-[#52525b]">
-                    Prima linie e mașina principală. Adaugă câte linii are piesa (Sprinter ↔ Crafter).
-                  </p>
-                </div>
-
-                <div className="mt-4 grid gap-3">
+                <div className="grid gap-1.5">
                   {fitments.map((fitment, index) => (
                     <FitmentRow
                       key={index}
@@ -362,34 +380,44 @@ export function ProductFormDialog({
                     />
                   ))}
                 </div>
-
-                <button
-                  className="button-secondary mt-3 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-                  type="button"
-                  onClick={addFitment}
-                >
-                  + Adaugă altă compatibilitate
-                </button>
               </section>
 
-              <label className="field-control flex items-center gap-2 self-start rounded-md border border-[#e4e4e7] bg-white px-3 py-3 text-sm text-[#3f3f46]">
-                <input name="isLocal" type="checkbox" defaultChecked={product?.isLocal ?? false} />
-                Piesă fabricată local (manufactura proprie)
-              </label>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <Field label="Cost (lei)">
+                  <input
+                    className={inputClassName}
+                    name="costLei"
+                    defaultValue={product?.costLei ?? ""}
+                    inputMode="decimal"
+                    onChange={(event) => setCost(event.currentTarget.value)}
+                  />
+                </Field>
+                <Field label="Preț vânzare (lei)">
+                  <input
+                    className={inputClassName}
+                    name="salePriceLei"
+                    defaultValue={product?.salePriceLei ?? ""}
+                    inputMode="decimal"
+                    // Gol = 2× cost: arătăm direct cât va fi.
+                    placeholder={costValue > 0 ? `${formatLei(costValue * 2)} (automat)` : "automat: 2× cost"}
+                    onChange={(event) => setSalePrice(event.currentTarget.value)}
+                  />
+                  {margin !== null ? (
+                    <span className={`text-xs font-normal ${margin < 0 ? "font-medium text-[#b91c1c]" : "text-[#71717a]"}`}>
+                      {margin < 0 ? "sub cost" : `marjă ${margin}%`}
+                    </span>
+                  ) : null}
+                </Field>
+              </div>
 
-              <section className="rounded-lg border border-[#e4e4e7] bg-white p-3">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-sm font-semibold text-[#18181b]">Stoc pe depozite</h3>
-                    <p className="mt-1 text-xs text-[#52525b]">
-                      Completează cantitatea reală din fiecare depozit. Totalul se calculează automat.
-                    </p>
-                  </div>
-                  <p className="text-sm font-semibold text-[#18181b]">
-                    Total: <span className="font-mono">{calculateTotal(warehouseQuantities)}</span> buc.
+              <section className="grid gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-semibold text-[#18181b]">Stoc pe depozite</h3>
+                  <p className="text-sm text-[#52525b]">
+                    Total <span className="font-semibold tabular-nums text-[#18181b]">{calculateTotal(warehouseQuantities)}</span> buc.
                   </p>
                 </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
                   {warehouses.map((warehouse) => (
                     <div key={warehouse.id} className="grid gap-1.5">
                       <input name="warehouseId" type="hidden" value={warehouse.id} readOnly />
@@ -417,53 +445,75 @@ export function ProductFormDialog({
                 </div>
               </section>
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <Field label="Stoc minim (alertă) — gol = 3">
-                  <input
-                    className={inputClassName}
-                    name="minStock"
-                    defaultValue={product?.minStock ?? ""}
-                    inputMode="numeric"
-                    placeholder="3"
-                  />
-                </Field>
-                <Field label="Preț EUR">
-                  <input
-                    className={inputClassName}
-                    name="priceEuro"
-                    defaultValue={product?.priceEuro ?? ""}
-                    inputMode="decimal"
-                  />
-                </Field>
-                <Field label="Cost aducere (lei)">
-                  <input
-                    className={inputClassName}
-                    name="costLei"
-                    defaultValue={product?.costLei ?? ""}
-                    inputMode="decimal"
-                  />
-                </Field>
-                <Field label="Preț vânzare (lei) — gol = 2× cost">
-                  <input
-                    className={inputClassName}
-                    name="salePriceLei"
-                    defaultValue={product?.salePriceLei ?? ""}
-                    inputMode="decimal"
-                    placeholder="automat din cost"
-                  />
-                </Field>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
-                <button
-                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-                  type="button"
-                  onClick={() => setOpen(false)}
-                >
-                  Anulează
-                </button>
-                <SubmitButton label={product ? "Salvează" : "Adaugă"} pending={pending} />
-              </div>
+              {/* Ce se completează rar stă strâns; se deschide singur când produsul
+                  are deja ceva scris aici. */}
+              <details className="group rounded-lg border border-[#e4e4e7] bg-white" open={hasDetails || undefined}>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-semibold text-[#18181b] [&::-webkit-details-marker]:hidden">
+                  <span>
+                    Mai multe detalii
+                    <span className="ml-2 font-normal text-[#71717a]">cod alternativ, preț EUR, stoc minim, site</span>
+                  </span>
+                  <ChevronDown className="size-4 text-[#71717a] transition-transform group-open:rotate-180" aria-hidden="true" />
+                </summary>
+                <div className="grid gap-3 border-t border-[#f0f0f2] p-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <Field label="Cod alternativ">
+                    <input
+                      className={inputClassName}
+                      name="alternativeCode"
+                      defaultValue={product?.alternativeCode ?? ""}
+                      placeholder="ex. cod furnizor"
+                    />
+                  </Field>
+                  <Field label="Preț EUR">
+                    <input
+                      className={inputClassName}
+                      name="priceEuro"
+                      defaultValue={product?.priceEuro ?? ""}
+                      inputMode="decimal"
+                    />
+                  </Field>
+                  <Field label="Stoc minim">
+                    <input
+                      className={inputClassName}
+                      name="minStock"
+                      defaultValue={product?.minStock ?? ""}
+                      inputMode="numeric"
+                      placeholder="3"
+                    />
+                  </Field>
+                  <label className="flex items-center gap-2 self-end pb-2 text-sm text-[#3f3f46]">
+                    <input name="isLocal" type="checkbox" defaultChecked={product?.isLocal ?? false} />
+                    Fabricată local
+                  </label>
+                  <Field className="sm:col-span-2" label="Descriere în rusă">
+                    <textarea
+                      className={`${inputClassName} min-h-14 resize-y py-2`}
+                      name="descriptionRu"
+                      defaultValue={product?.descriptionRu ?? ""}
+                      placeholder="ex. Левый порог для 4/5 дверей"
+                    />
+                  </Field>
+                  {/*
+                    Câmpul se numea „Notițe" și suna a notă internă, dar se publică
+                    pe site-ul public, în fișa piesei. Eticheta o spune acum.
+                  */}
+                  <Field label="Mențiune publică (apare pe site)">
+                    <textarea
+                      className={`${inputClassName} min-h-14 resize-y py-2`}
+                      name="notes"
+                      defaultValue={product?.notes ?? ""}
+                      placeholder="Nu scrie aici note interne."
+                    />
+                  </Field>
+                  <Field label="Mențiune publică în rusă">
+                    <textarea
+                      className={`${inputClassName} min-h-14 resize-y py-2`}
+                      name="notesRu"
+                      defaultValue={product?.notesRu ?? ""}
+                    />
+                  </Field>
+                </div>
+              </details>
             </form>
           </aside>
           </div>
@@ -497,7 +547,7 @@ function FitmentRow({
   onRemove?: () => void;
 }) {
   return (
-    <div className="grid gap-3 rounded-md border border-[#f0f0f2] p-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_8rem_8rem_13rem] lg:items-start">
+    <div className="grid gap-2 rounded-lg border border-[#e4e4e7] bg-white px-2.5 py-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6.5rem_6.5rem_8.5rem_2.25rem] lg:items-start">
       <input
         name={primary ? "yearOpenEnded" : "extraYearOpenEnded"}
         type="hidden"
@@ -546,8 +596,8 @@ function FitmentRow({
           onChange={(event) => onChange({ yearEnd: event.target.value })}
         />
       </Field>
-      <div className="flex items-center gap-3 lg:mt-7">
-        <label className="flex items-center gap-1.5 whitespace-nowrap text-xs text-[#3f3f46]">
+      <div className="flex items-center gap-3 lg:mt-8">
+        <label className="flex items-center gap-1.5 whitespace-nowrap text-sm text-[#3f3f46]">
           <input
             checked={value.yearOpenEnded}
             type="checkbox"
@@ -558,19 +608,20 @@ function FitmentRow({
               })
             }
           />
-          În continuare
+          și în prezent
         </label>
-        {onRemove ? (
-          <button
-            aria-label="Șterge compatibilitatea"
-            className="button-danger rounded-md border border-[#e4e4e7] bg-white px-2 py-2 text-sm font-semibold text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2]"
-            type="button"
-            onClick={onRemove}
-          >
-            Șterge
-          </button>
-        ) : null}
       </div>
+      {onRemove ? (
+        <button
+          aria-label="Șterge compatibilitatea"
+          className="button-danger grid size-9 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] lg:mt-6"
+          title="Șterge mașina"
+          type="button"
+          onClick={onRemove}
+        >
+          <Trash2 className="size-4" aria-hidden="true" />
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -611,18 +662,10 @@ function Field({
   );
 }
 
-function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
+/** Opțiunea „+ Tip nou…" din lista de tipuri; serverul folosește atunci `newTypeName`. */
+const NEW_TYPE = "__new";
 
-  return (
-    <button
-      className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
-      disabled={pending}
-      type="submit"
-    >
-      {pending ? "Se salvează..." : label}
-    </button>
-  );
-}
+const formatLei = (value: number) => new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 2 }).format(value);
 
 const inputClassName =
   "field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm outline-none placeholder:text-[#71717a] disabled:bg-[#f1f1f3]";

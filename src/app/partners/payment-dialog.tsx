@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { Plus } from "lucide-react";
 import {
   registerPartnerPaymentAction,
   type PartnerActionState,
 } from "@/app/partners/actions";
 import {
   DrawerField,
-  DrawerFooter,
   OperationDrawer,
   useDrawerAction,
   drawerFormClassName,
@@ -49,6 +49,12 @@ export function PartnerPaymentDialog({
     },
   );
   const today = useMemo(() => formatDateInputValue(new Date()), []);
+  const fullDebt = balanceLei > 0 ? balanceLei.toFixed(2) : "";
+  // Doar pentru „rămâne de plată"; valoarea trimisă e cea din câmp.
+  const [amount, setAmount] = useState(fullDebt);
+  const amountRef = useRef<HTMLInputElement>(null);
+  const left = Math.round((balanceLei - (Number(amount) || 0)) * 100) / 100;
+  const money = (value: number) => new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 2 }).format(value);
 
   return (
     <>
@@ -75,31 +81,60 @@ export function PartnerPaymentDialog({
             <input type="hidden" name="partnerId" value={partnerId} />
             <input name="idempotencyKey" type="hidden" value={draft.token} />
             <div className="grid gap-4 md:grid-cols-2">
-              <DrawerField label="Suma încasată (lei)" hint={`Datorie curentă: ${balanceLei.toFixed(2)} lei`}>
-                <input
-                  autoFocus
-                  className={drawerInputClassName}
-                  defaultValue={balanceLei > 0 ? balanceLei.toFixed(2) : ""}
-                  inputMode="decimal"
-                  min={0.01}
-                  name="amount"
-                  required
-                  step="0.01"
-                  type="number"
-                />
+              <DrawerField label="Suma încasată (lei)">
+                <div className="flex gap-2">
+                  <input
+                    ref={amountRef}
+                    autoFocus
+                    className={drawerInputClassName}
+                    defaultValue={fullDebt}
+                    inputMode="decimal"
+                    min={0.01}
+                    name="amount"
+                    required
+                    step="0.01"
+                    type="number"
+                    onChange={(event) => setAmount(event.currentTarget.value)}
+                  />
+                  {balanceLei > 0 ? (
+                    <button
+                      className="button-secondary shrink-0 whitespace-nowrap rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
+                      type="button"
+                      onClick={() => {
+                        if (amountRef.current) amountRef.current.value = fullDebt;
+                        setAmount(fullDebt);
+                        amountRef.current?.focus();
+                      }}
+                    >
+                      Toată datoria
+                    </button>
+                  ) : null}
+                </div>
+                {/* Ce rămâne după încasare, calculat pe loc. */}
+                <span className={`text-xs ${left < 0 ? "font-medium text-[#b45309]" : "text-[#52525b]"}`}>
+                  Datorie {money(balanceLei)} lei ·{" "}
+                  {left > 0
+                    ? `rămâne de plată ${money(left)} lei`
+                    : left === 0
+                      ? "se achită toată"
+                      : `cu ${money(-left)} lei mai mult decât datoria`}
+                </span>
               </DrawerField>
-              <DrawerField label="Data încasării">
+              <DrawerField label="Data">
                 <input className={drawerInputClassName} defaultValue={today} name="paidAt" type="date" />
               </DrawerField>
             </div>
-            <DrawerField label="Notițe">
+            <details className="group">
+              <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#52525b] hover:text-[#18181b] [&::-webkit-details-marker]:hidden">
+                <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Notițe
+              </summary>
               <textarea
-                className={`${drawerInputClassName} min-h-16 resize-y py-2`}
+                aria-label="Notițe"
+                className={`${drawerInputClassName} mt-2 min-h-16 resize-y py-2`}
                 name="notes"
                 placeholder="numerar, transfer, cine a predat banii"
               />
-            </DrawerField>
-            <DrawerFooter onCancel={() => setOpen(false)} pending={pending} submitLabel="Salvează încasarea" />
+            </details>
           </form>
         </OperationDrawer>
       ) : null}

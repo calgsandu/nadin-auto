@@ -2,6 +2,7 @@
 
 import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
+import { Plus } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
   drawerBoundaryProps,
@@ -436,9 +437,10 @@ export function BrandSelect({
   }
 
   return (
-    <div className="grid gap-2">
+    // Butonul „+" pe același rând cu selectul: sub el, rândul formularului se dezalinia.
+    <div className="flex gap-2">
       <select
-        className={inputClassName}
+        className={`${inputClassName} min-w-0 flex-1`}
         name={name}
         required={required}
         value={current}
@@ -450,11 +452,13 @@ export function BrandSelect({
         ))}
       </select>
       <button
-        className="button-secondary justify-self-start rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+        aria-label="Brand nou"
+        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
+        title="Brand nou"
         type="button"
         onClick={() => setCreating(true)}
       >
-        Brand nou
+        <Plus className="size-4" aria-hidden="true" />
       </button>
       <BrandDialog
         open={creating}
@@ -503,9 +507,10 @@ export function ModelSelect({
   }
 
   return (
-    <div className="grid gap-2">
+    // Butonul „+" pe același rând cu selectul: sub el, rândul formularului se dezalinia.
+    <div className="flex gap-2">
       <select
-        className={inputClassName}
+        className={`${inputClassName} min-w-0 flex-1`}
         name={name}
         required={required}
         value={current}
@@ -520,11 +525,13 @@ export function ModelSelect({
       {brands.length > 0 ? (
         <>
           <button
-            className="button-secondary justify-self-start rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+            aria-label="Model nou"
+            className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
+            title="Model nou"
             type="button"
             onClick={() => setCreating(true)}
           >
-            Model nou
+            <Plus className="size-4" aria-hidden="true" />
           </button>
           <ModelDialog
             brands={[...brands]}
