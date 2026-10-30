@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
-import { Banknote, Car, ChevronDown, PackageSearch, Plus, Printer, Tag, Trash2, Warehouse } from "lucide-react";
+import { Banknote, Car, ChevronDown, ListPlus, PackageSearch, Pencil, Plus, Printer, Tag, Trash2, Warehouse } from "lucide-react";
 import {
   createProductAction,
   updateProductAction,
   type CatalogActionState,
 } from "@/app/catalog/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { CloseIconButton, IconLabel, rowIconButtonCls, SaveIconButton } from "@/app/components/icon-buttons";
 import {
   DrawerCard,
   drawerBoundaryProps,
@@ -260,13 +261,21 @@ export function ProductFormDialog({
         <button
           className={
             triggerKind === "row"
-              ? "button-secondary button-icon-edit inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+              ? rowIconButtonCls
               : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
           }
+          title={triggerKind === "row" ? triggerLabel : undefined}
           type="button"
           onClick={openDialog}
         >
-          {triggerLabel}
+          {triggerKind === "row" ? (
+            <>
+              <Pencil aria-hidden="true" />
+              <IconLabel>{triggerLabel ?? "Editează"}</IconLabel>
+            </>
+          ) : (
+            triggerLabel
+          )}
         </button>
       )}
 
@@ -321,39 +330,27 @@ export function ProductFormDialog({
                 {/* Doar la produs nou, deschis direct (nu din vânzare/recepție). */}
                 {!product && !controlled ? (
                   <button
-                    className="button-secondary hidden items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5] disabled:opacity-60 sm:inline-flex"
+                    className="button-secondary hidden size-9 items-center justify-center rounded-md border border-[#e4e4e7] bg-white text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#18181b] disabled:opacity-60 sm:inline-flex"
                     disabled={pending}
+                    title="Salvează și adaugă altul"
+                    aria-label="Salvează și adaugă altul"
                     type="button"
                     onClick={() => submit(true)}
                   >
-                    <Plus className="size-4" aria-hidden="true" /> Salvează și adaugă altul
+                    <ListPlus className="size-4.5" aria-hidden="true" />
                   </button>
                 ) : null}
-                <button
-                  className="button-primary inline-flex items-center gap-2 rounded-md bg-[#18181b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={pending}
-                  title="Ctrl+Enter"
-                  type="button"
+                <SaveIconButton
+                  label={product ? "Salvează" : "Adaugă produsul"}
+                  pending={pending}
                   onClick={() => submit(false)}
-                >
-                  {pending ? "Se salvează..." : product ? "Salvează" : "Adaugă produsul"}
-                  {pending ? null : (
-                    <kbd className="hidden rounded bg-white/15 px-1.5 font-sans text-xs font-medium text-white/80 lg:inline">
-                      Ctrl+Enter
-                    </kbd>
-                  )}
-                </button>
-                <button
-                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-                  title="Esc"
-                  type="button"
+                />
+                <CloseIconButton
                   onClick={() => {
                     setOpen(false);
                     setLastSaved(null);
                   }}
-                >
-                  Închide
-                </button>
+                />
               </div>
             </div>
 

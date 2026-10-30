@@ -28,7 +28,7 @@ function parseSalePayload(value: unknown): PendingSalePayload {
   const partnerId = readOptionalString(record.partnerId);
   const newCustomerName = readOptionalString(record.newCustomerName);
   const notes = readOptionalString(record.notes);
-  const cashRegistered = readRequiredBoolean(record.cashRegistered);
+  const cashRegistered = readOptionalBoolean(record.cashRegistered);
   const paymentMethod = readRequiredPaymentMethod(record.paymentMethod);
   const externalNumber = readOptionalString(record.externalNumber);
   const discountPercent = readOptionalPercent(record.discountPercent);
@@ -105,9 +105,11 @@ function readOptionalPercent(value: unknown): number | null {
   return parsed === 0 ? null : Math.round(parsed * 100) / 100;
 }
 
-function readRequiredBoolean(value: unknown) {
+/** Gol (`null`/lipsă) e permis: „bătut în casă" nu se mai cere la vânzare. */
+function readOptionalBoolean(value: unknown) {
+  if (value === null || value === undefined) return null;
   if (typeof value !== "boolean") {
-    throw new Error("Alege dacă vânzarea a fost bătută în casă.");
+    throw new Error("Statut de casă invalid.");
   }
   return value;
 }

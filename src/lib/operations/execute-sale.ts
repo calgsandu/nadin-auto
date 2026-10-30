@@ -31,10 +31,7 @@ export function saleRequestSummary(
   payload: PendingSalePayload,
   warehouseName: string,
 ) {
-  const cashStatus = payload.cashRegistered
-    ? "bătută în casă"
-    : "nebătută în casă";
-  return `Cerere vânzare (${payload.lines.length} produse, ${saleTotalLei(payload)} lei, ${cashStatus}, plată ${salePaymentMethodLabel(payload.paymentMethod)}) — ${warehouseName}`;
+  return `Cerere vânzare (${payload.lines.length} produse, ${saleTotalLei(payload)} lei, plată ${salePaymentMethodLabel(payload.paymentMethod)}) — ${warehouseName}`;
 }
 
 export async function validateSaleRequest(

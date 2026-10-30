@@ -50,19 +50,19 @@ assert.throws(
   /mai multe ori/i,
 );
 
-assert.throws(
-  () =>
-    parsePendingOperationPayload("SALE", {
-      warehouseId: "w1",
-      documentDate: "2026-07-17",
-      partnerId: null,
-      newCustomerName: null,
-      notes: null,
-      paymentMethod: "CASH",
-      lines: [{ productId: "p1", quantity: 1, unitPriceLei: 10 }],
-    }),
-  /bătută în casă/i,
-);
+// „Bătut în casă" nu se mai cere: o vânzare fără el e validă și rămâne `null`.
+{
+  const withoutCash = parsePendingOperationPayload("SALE", {
+    warehouseId: "w1",
+    documentDate: "2026-07-17",
+    partnerId: null,
+    newCustomerName: null,
+    notes: null,
+    paymentMethod: "CASH",
+    lines: [{ productId: "p1", quantity: 1, unitPriceLei: 10 }],
+  });
+  assert.equal(withoutCash.kind === "SALE" ? withoutCash.payload.cashRegistered : undefined, null);
+}
 
 assert.throws(
   () =>

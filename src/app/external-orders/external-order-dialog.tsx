@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Banknote, Package, Truck, UserRound } from "lucide-react";
+import { Banknote, Package, Pencil, Truck, UserRound } from "lucide-react";
 import {
   createExternalOrderAction,
   updateExternalOrderAction,
@@ -16,6 +16,7 @@ import {
   useDrawerAction,
 } from "@/app/components/operation-drawer";
 import { SupplierPicker } from "@/app/partners/supplier-picker";
+import { IconLabel, rowIconButtonCls } from "@/app/components/icon-buttons";
 
 export type ExternalOrderFormValue = {
   id: string;
@@ -73,16 +74,24 @@ export function ExternalOrderDialog({
       <button
         className={
           triggerKind === "row"
-            ? "button-secondary button-icon-edit inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+            ? rowIconButtonCls
             : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
         }
+        title={triggerKind === "row" ? triggerLabel : undefined}
         type="button"
         onClick={() => {
           setMounted(true);
           setOpen(true);
         }}
       >
-        {triggerLabel}
+        {triggerKind === "row" ? (
+          <>
+            <Pencil aria-hidden="true" />
+            <IconLabel>{triggerLabel}</IconLabel>
+          </>
+        ) : (
+          triggerLabel
+        )}
       </button>
 
       {mounted ? (

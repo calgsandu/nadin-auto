@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
-import { Handshake, Landmark, UserRound } from "lucide-react";
+import { Handshake, Landmark, Pencil, UserRound } from "lucide-react";
 import type { PartnerKind } from "@/generated/prisma/enums";
 import {
   createPartnerAction,
@@ -9,6 +9,7 @@ import {
   type PartnerActionState,
 } from "@/app/partners/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { CloseIconButton, IconLabel, rowIconButtonCls, SaveIconButton } from "@/app/components/icon-buttons";
 import {
   DrawerCard,
   drawerBoundaryProps,
@@ -113,13 +114,21 @@ export function PartnerFormDialog({
         <button
           className={
             triggerKind === "row"
-              ? "button-secondary button-icon-edit inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+              ? rowIconButtonCls
               : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
           }
+          title={triggerKind === "row" ? triggerLabel : undefined}
           type="button"
           onClick={() => setOpen(true)}
         >
-          {triggerLabel}
+          {triggerKind === "row" ? (
+            <>
+              <Pencil aria-hidden="true" />
+              <IconLabel>{triggerLabel ?? "Editează"}</IconLabel>
+            </>
+          ) : (
+            triggerLabel
+          )}
         </button>
       )}
 
@@ -159,28 +168,12 @@ export function PartnerFormDialog({
                   {partner ? "Editează partener" : "Partener nou"}
                 </h2>
                 <div className="flex items-center gap-2">
-                  <button
-                    className="button-primary inline-flex items-center gap-2 rounded-md bg-[#18181b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={pending}
-                    title="Ctrl+Enter"
-                    type="button"
+                  <SaveIconButton
+                    label={partner ? "Salvează" : "Adaugă"}
+                    pending={pending}
                     onClick={() => formRef.current?.requestSubmit()}
-                  >
-                    {pending ? "Se salvează..." : partner ? "Salvează" : "Adaugă"}
-                    {pending ? null : (
-                      <kbd className="hidden rounded bg-white/15 px-1.5 font-sans text-xs font-medium text-white/80 lg:inline">
-                        Ctrl+Enter
-                      </kbd>
-                    )}
-                  </button>
-                  <button
-                    className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-                    title="Esc"
-                    type="button"
-                    onClick={() => setOpen(false)}
-                  >
-                    Închide
-                  </button>
+                  />
+                  <CloseIconButton onClick={() => setOpen(false)} />
                 </div>
               </div>
 

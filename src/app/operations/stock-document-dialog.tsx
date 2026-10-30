@@ -1186,16 +1186,6 @@ export function StockSaleDialog({
                     ]}
                     required
                   />
-                  <DrawerChoice
-                    hint="Alege Da sau Nu"
-                    label="Bătut la casă?"
-                    name="cashRegistered"
-                    options={[
-                      { value: "yes", label: "Da" },
-                      { value: "no", label: "Nu" },
-                    ]}
-                    required
-                  />
                   {paymentMethod === "credit" && !customerId ? (
                     <p className="rounded-md bg-[#fffbeb] px-3 py-2 text-sm text-[#92400e] md:col-span-2">
                       Pe datorie cu „Consumator final”: datoria nu se scrie pe nimeni. Alege clientul sus.

@@ -18,7 +18,6 @@ import {
 } from "@/lib/operations/receipt-lines";
 import { parseTransferLines } from "@/lib/operations/transfer-lines";
 import { parseSaleLines } from "@/lib/operations/sales";
-import { parseRequiredCashRegistered } from "@/lib/operations/cash-register";
 import { parseRequiredSalePaymentMethod } from "@/lib/operations/sale-payment-method";
 import { reconcileSaleRestockTasks, restockTasksCoveredBy } from "@/lib/operations/restock";
 import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
@@ -295,9 +294,8 @@ export async function createSaleAction(
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
     const newCustomerName = readString(formData, "newCustomerName");
     const notes = readString(formData, "notes");
-    const cashRegistered = parseRequiredCashRegistered(
-      readString(formData, "cashRegistered"),
-    );
+    // „Bătut în casă" nu se mai folosește: vânzările noi îl lasă necompletat.
+    const cashRegistered = null;
     const paymentMethod = parseRequiredSalePaymentMethod(
       readString(formData, "paymentMethod"),
     );

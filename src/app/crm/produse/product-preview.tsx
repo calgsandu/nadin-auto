@@ -6,6 +6,7 @@ import { Car, Printer, ShoppingCart, Warehouse } from "lucide-react";
 import { CopyCode } from "@/app/components/copy-code";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { drawerPanelClassName } from "@/app/components/operation-drawer";
+import { CloseIconButton } from "@/app/components/icon-buttons";
 
 export type ProductPreviewValue = {
   id: string;
@@ -80,13 +81,7 @@ export function ProductPreview({
                   <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">{product.description}</h2>
                   <p className="text-sm text-[#52525b]">{product.type}</p>
                 </div>
-                <button
-                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-                  type="button"
-                  onClick={() => setOpen(false)}
-                >
-                  Închide
-                </button>
+                <CloseIconButton onClick={() => setOpen(false)} />
               </div>
 
               <div className="grid gap-4 px-5 py-4">

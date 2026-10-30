@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { CalendarDays, Download, FileText, Users } from "lucide-react";
-import { CashRegisterBadge, CashRegisterControl } from "@/app/operations/cash-register-control";
 import { SalePaymentMethodBadge, SalePaymentMethodControl } from "@/app/operations/sale-payment-method-control";
 import { DocumentDetailsButton } from "@/app/operations/document-details";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
@@ -120,7 +119,6 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                 <TableHead>Partener</TableHead>
                 <TableHead align="right">Produse</TableHead>
                 <TableHead align="right">Total</TableHead>
-                <TableHead>Casă</TableHead>
                 <TableHead>Plată</TableHead>
                 <TableHead align="right">
                   <span className="sr-only">Acțiuni</span>
@@ -139,15 +137,6 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                   <TableCell align="right" className="font-mono">{formatNumber(d._count.lines)}</TableCell>
                   <TableCell align="right" className="font-mono">
                     {d.totalEuro != null ? `${formatMoney(d.totalEuro)} EUR` : d.totalLei != null ? `${formatMoney(d.totalLei)} lei` : "—"}
-                  </TableCell>
-                  <TableCell>
-                    {d.type === "SALE" ? (
-                      canModify ? (
-                        <CashRegisterControl documentId={d.id} value={d.cashRegistered} />
-                      ) : (
-                        <CashRegisterBadge value={d.cashRegistered} />
-                      )
-                    ) : "—"}
                   </TableCell>
                   <TableCell>
                     {d.type === "SALE" ? (

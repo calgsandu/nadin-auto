@@ -22,11 +22,6 @@ import {
   syncProductAggregateStocks,
 } from "@/lib/operations/stock-mutations";
 import {
-  assertCashRegisterDocumentType,
-  cashRegisterLabel,
-  parseOptionalCashRegistered,
-} from "@/lib/operations/cash-register";
-import {
   assertSalePaymentMethodDocumentType,
   parseOptionalSalePaymentMethod,
   salePaymentMethodLabel,
@@ -60,55 +55,6 @@ function fail(error: unknown): DocumentActionState {
 function readString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
-}
-
-export async function updateCashRegisteredAction(
-  _state: DocumentActionState,
-  formData: FormData,
-): Promise<DocumentActionState> {
-  try {
-    const user = await requireWrite();
-    const id = readString(formData, "id");
-    if (!id) throw new Error("Document lipsă.");
-    const cashRegistered = parseOptionalCashRegistered(
-      readString(formData, "cashRegistered"),
-    );
-    let changed = false;
-
-    await prisma.$transaction(async (tx) => {
-      const doc = await tx.stockDocument.findUnique({
-        where: { id },
-        select: { id: true, type: true, number: true, cashRegistered: true },
-      });
-      if (!doc) throw new Error("Document inexistent.");
-      assertCashRegisterDocumentType(doc.type);
-      if (doc.cashRegistered === cashRegistered) return;
-
-      await tx.stockDocument.update({
-        where: { id },
-        data: { cashRegistered },
-      });
-      await logAuditRequired(tx, user, {
-        action: "UPDATE",
-        entity: "StockDocument",
-        entityId: id,
-        summary: `Vânzare #${doc.number}: statut casă schimbat din „${cashRegisterLabel(doc.cashRegistered)}” în „${cashRegisterLabel(cashRegistered)}”`,
-        details: {
-          before: { cashRegistered: doc.cashRegistered },
-          after: { cashRegistered },
-        },
-      });
-      changed = true;
-    });
-
-    revalidatePath("/crm", "layout");
-    return {
-      ok: true,
-      message: changed ? "Statutul de casă a fost actualizat." : "Statutul de casă este deja setat astfel.",
-    };
-  } catch (error) {
-    return fail(error);
-  }
 }
 
 export async function updateSalePaymentMethodAction(

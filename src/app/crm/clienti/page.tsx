@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { ShoppingBag, Users, Wallet } from "lucide-react";
+import { ShoppingBag, Users, Wallet, X } from "lucide-react";
 import Link from "next/link";
 import { PartnerFormDialog, type PartnerFormValue } from "@/app/partners/partner-form-dialog";
 import { PartnerDeleteButton } from "@/app/partners/partner-delete-button";
@@ -20,6 +20,7 @@ import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
 import { DailyMetric, TableCell, TableHead, WorkspaceSkeleton } from "../_components/ui";
 import { formatDate, formatMoney, formatNumber, formatText } from "../_components/format";
+import { IconLabel, rowIconButtonCls } from "@/app/components/icon-buttons";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -213,11 +214,13 @@ function CustomerCard({
             />
           ) : null}
           <Link
-            className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+            className={rowIconButtonCls}
             href={crmCustomersHref()}
             scroll={false}
+            title="Închide"
           >
-            Închide
+            <X aria-hidden="true" />
+            <IconLabel>Închide</IconLabel>
           </Link>
         </div>
       </div>

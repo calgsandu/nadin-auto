@@ -2,7 +2,6 @@
 
 import { ClipboardCheck, Package, Pencil, Plus, Trash2 } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
-import { useFormStatus } from "react-dom";
 import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   DrawerField,
@@ -37,6 +36,8 @@ import type {
   WarehouseOption,
 } from "@/app/operations/stock-document-dialog";
 import { quantityAfterSelect } from "@/lib/operations/default-quantity";
+import { DeleteIconSubmit } from "@/app/components/delete-icon-submit";
+import { IconLabel, rowIconButtonCls } from "@/app/components/icon-buttons";
 
 const initial: DocumentActionState = { ok: false, message: "" };
 
@@ -152,9 +153,11 @@ function EditDrawer(props: EditProps) {
           setMounted(true);
           setOpen(true);
         }}
-        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+        title="Editează"
+        className={rowIconButtonCls}
       >
-        <Pencil className="size-4 text-[#71717a]" aria-hidden="true" /> Editează
+        <Pencil aria-hidden="true" />
+        <IconLabel>Editează</IconLabel>
       </button>
       {mounted ? (
         <EditPanel {...props} open={open} setOpen={setOpen} onSaved={() => setMounted(false)} />
@@ -466,17 +469,9 @@ function DeleteForm({ id, title }: { id: string; title: string }) {
   return (
     <form className="grid justify-items-end gap-1" action={formAction} onSubmit={(e) => { if (!window.confirm(`Ștergi ${title}? Stocul va fi reversat.`)) e.preventDefault(); }}>
       <input type="hidden" name="id" value={id} />
-      <DeleteButton />
+      <DeleteIconSubmit />
       <ActionFeedback state={state} />
     </form>
   );
 }
 
-function DeleteButton() {
-  const status = useFormStatus();
-  return (
-    <button type="submit" disabled={status.pending} className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:opacity-60">
-      <Trash2 className="size-4" aria-hidden="true" /> {status.pending ? "Se șterge..." : "Șterge"}
-    </button>
-  );
-}

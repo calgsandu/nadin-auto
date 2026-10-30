@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Download, FileText, History } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Download, Eye, FileText, History } from "lucide-react";
 import Link from "next/link";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { drawerPanelClassName } from "@/app/components/operation-drawer";
-import { cashRegisterLabel } from "@/lib/operations/cash-register";
 import {
   salePaymentMethodLabel,
   type SalePaymentMethodStatus,
 } from "@/lib/operations/sale-payment-method";
+import { CloseIconButton, IconLabel, rowIconButtonCls } from "@/app/components/icon-buttons";
 
 export type DocumentDetailsLine = {
   id: string;
@@ -35,7 +35,6 @@ export type DocumentDetailsValue = {
   updatedAt: string;
   totalLei: number;
   isSale: boolean;
-  cashRegistered: boolean | null;
   paymentMethod: SalePaymentMethodStatus;
   lines: DocumentDetailsLine[];
   /** Seria/numărul facturii externe (1C: „Сер. № накладной"). */
@@ -62,9 +61,11 @@ export function DocumentDetailsButton({ details }: { details: DocumentDetailsVal
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="button-secondary button-icon-eye inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+        title="Detalii"
+        className={rowIconButtonCls}
       >
-        Detalii
+        <Eye aria-hidden="true" />
+        <IconLabel>Detalii</IconLabel>
       </button>
       {open ? <DetailsPanel details={details} onClose={() => setOpen(false)} /> : null}
     </>
@@ -80,6 +81,14 @@ function DetailsPanel({
 }) {
   const total = details.totalLei;
   const tva = Math.round((total / 6) * 100) / 100;
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
 
   return (
     <DrawerPortal>
@@ -97,13 +106,7 @@ function DetailsPanel({
                 {details.typeLabel} #{details.number}
               </h2>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-            >
-              Închide
-            </button>
+            <CloseIconButton onClick={onClose} />
           </div>
 
           <div className="grid gap-4 px-5 py-4">
@@ -126,16 +129,10 @@ function DetailsPanel({
                 <MetaItem label="Discount" value={`${details.discountPercent}%`} />
               ) : null}
               {details.isSale ? (
-                <>
-                  <MetaItem
-                    label="Statut casă"
-                    value={cashRegisterLabel(details.cashRegistered)}
-                  />
-                  <MetaItem
-                    label="Metoda de plată"
-                    value={salePaymentMethodLabel(details.paymentMethod)}
-                  />
-                </>
+                <MetaItem
+                  label="Metoda de plată"
+                  value={salePaymentMethodLabel(details.paymentMethod)}
+                />
               ) : null}
               <MetaItem label="Creat în sistem" value={details.createdAt} />
               <MetaItem label="Ultima modificare" value={details.updatedAt} />

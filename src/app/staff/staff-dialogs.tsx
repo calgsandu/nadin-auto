@@ -14,6 +14,7 @@ import {
   type StaffActionState,
 } from "@/app/staff/actions";
 import type { AppRole } from "@/generated/prisma/enums";
+import { CloseIconButton, SaveIconButton } from "@/app/components/icon-buttons";
 
 const initialState: StaffActionState = { ok: false, message: "" };
 const ROLE_OPTIONS: { value: AppRole; label: string }[] = [
@@ -265,7 +266,7 @@ function StaffDrawer({ title, onClose, children }: { title: string; onClose: () 
             <div>
               <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">{title}</h2>
             </div>
-            <RowButton onClick={onClose}>Închide</RowButton>
+            <CloseIconButton onClick={onClose} />
           </div>
           <div className="px-6 py-6">{children}</div>
         </aside>
@@ -373,8 +374,8 @@ function RevealedActivationCode({
 
 function DrawerActions({ onClose, submitLabel }: { onClose: () => void; submitLabel: string }) {
   return (
-    <div className="flex justify-end gap-3 border-t border-[#e4e4e7] pt-5">
-      <RowButton onClick={onClose}>Anulează</RowButton>
+    <div className="flex justify-end gap-2 border-t border-[#e4e4e7] pt-5">
+      <CloseIconButton label="Anulează" onClick={onClose} />
       <PendingSubmit label={submitLabel} />
     </div>
   );
@@ -382,7 +383,7 @@ function DrawerActions({ onClose, submitLabel }: { onClose: () => void; submitLa
 
 function PendingSubmit({ label }: { label: string }) {
   const { pending } = useFormStatus();
-  return <button className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se salvează..." : label}</button>;
+  return <SaveIconButton label={label} pending={pending} type="submit" />;
 }
 
 function ActiveSubmit({ active }: { active: boolean }) {

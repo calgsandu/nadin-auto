@@ -46,8 +46,6 @@ async function Loader({ dataPromise }: { dataPromise: Promise<DayCloseData> }) {
 function DayCloseWorkspace({ data }: { data: DayCloseData }) {
   const selectedDate = new Date(`${data.dayKey}T12:00:00`);
   const exportQuery = `from=${data.dayKey}&to=${data.dayKey}`;
-  const unregisteredCash =
-    data.methods.cash.lei - data.cashRegister.registered.lei;
 
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
@@ -99,7 +97,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4">
         <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
           <div className="border-b border-[#f0f0f2] px-4 py-3 font-semibold text-[#18181b]">
             Cum s-a plătit
@@ -139,48 +137,6 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
           </table>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
-          <div className="border-b border-[#f0f0f2] px-4 py-3 font-semibold text-[#18181b]">
-            Casa de marcat
-          </div>
-          <table className="w-full border-collapse text-left text-sm">
-            <tbody>
-              <MethodRow
-                label="Bătute"
-                count={data.cashRegister.registered.count}
-                lei={data.cashRegister.registered.lei}
-              />
-              <MethodRow
-                label="Nebătute"
-                count={data.cashRegister.notRegistered.count}
-                lei={data.cashRegister.notRegistered.lei}
-                warn={data.cashRegister.notRegistered.count > 0}
-              />
-              <MethodRow
-                label="Nespecificat"
-                count={data.cashRegister.undeclared.count}
-                lei={data.cashRegister.undeclared.lei}
-                warn={data.cashRegister.undeclared.count > 0}
-              />
-            </tbody>
-          </table>
-          <div
-            className={`border-t border-[#f0f0f2] px-4 py-3 text-sm ${
-              Math.abs(unregisteredCash) < 0.01 ? "text-[#52525b]" : "text-[#b91c1c]"
-            }`}
-          >
-            {Math.abs(unregisteredCash) < 0.01 ? (
-              "Numerarul încasat coincide cu ce s-a bătut la casă."
-            ) : (
-              <>
-                Diferență numerar încasat − bătut la casă:{" "}
-                <span className="font-semibold tabular-nums">
-                  {formatMoney(unregisteredCash)} lei
-                </span>
-              </>
-            )}
-          </div>
-        </div>
       </div>
 
       {data.partnerPayments.length > 0 ? (
@@ -219,7 +175,6 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
                 <TableHead>Document</TableHead>
                 <TableHead secondary>Client</TableHead>
                 <TableHead>Plată</TableHead>
-                <TableHead secondary>Casă</TableHead>
                 <TableHead align="right">Total</TableHead>
                 {COMPANY.vatPayer ? <TableHead align="right" secondary>TVA</TableHead> : null}
               </tr>
@@ -234,13 +189,6 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
                       {sale.partnerName ?? "—"}
                     </TableCell>
                     <TableCell>{salePaymentMethodLabel(sale.paymentMethod)}</TableCell>
-                    <TableCell secondary>
-                      {sale.cashRegistered === true
-                        ? "Bătută"
-                        : sale.cashRegistered === false
-                          ? "Nebătută"
-                          : "—"}
-                    </TableCell>
                     <TableCell align="right" className="font-semibold tabular-nums">
                       {formatMoney(sale.totalLei)} lei
                     </TableCell>
@@ -253,7 +201,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
                 ))
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#52525b]" colSpan={COMPANY.vatPayer ? 7 : 6}>
+                  <td className="px-3 py-10 text-center text-[#52525b]" colSpan={COMPANY.vatPayer ? 6 : 5}>
                     Nicio vânzare în ziua aleasă.
                   </td>
                 </tr>

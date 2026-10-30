@@ -2,8 +2,9 @@
 
 import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { CloseIconButton, IconLabel, rowIconButtonCls, SaveIconButton } from "@/app/components/icon-buttons";
 import {
   drawerBoundaryProps,
   drawerPanelClassName,
@@ -25,6 +26,7 @@ import {
   updateWarehouseAction,
   type AdminActionState,
 } from "@/app/admin/actions";
+import { DeleteIconSubmit } from "@/app/components/delete-icon-submit";
 
 type Action = (state: AdminActionState, fd: FormData) => Promise<AdminActionState>;
 
@@ -33,15 +35,19 @@ const inputClassName =
   "h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm text-[#18181b] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30 placeholder:text-[#71717a]";
 
 function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary" | "row"; onClick: () => void }) {
+  if (kind === "row") {
+    return (
+      <button type="button" onClick={onClick} title={label} className={rowIconButtonCls}>
+        <Pencil aria-hidden="true" />
+        <IconLabel>{label || "Editează"}</IconLabel>
+      </button>
+    );
+  }
   return (
     <button
       type="button"
       onClick={onClick}
-      className={
-        kind === "row"
-          ? "button-secondary button-icon-edit inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-          : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
-      }
+      className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
     >
       {label}
     </button>
@@ -51,15 +57,7 @@ function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary
 function SubmitButton({ label, pending }: { label: string; pending?: boolean }) {
   const status = useFormStatus();
   const busy = pending ?? status.pending;
-  return (
-    <button
-      type="submit"
-      disabled={busy}
-      className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      {busy ? "Se salvează..." : label}
-    </button>
-  );
+  return <SaveIconButton label={label} pending={busy} type="submit" />;
 }
 
 function Field({
@@ -132,24 +130,12 @@ function Drawer({
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">{title}</h2>
           </div>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-          >
-            Închide
-          </button>
+          <CloseIconButton onClick={() => setOpen(false)} />
         </div>
         <form onSubmit={onSubmit} className="grid gap-4 px-5 py-4 lg:grid-cols-2">
           {children}
-          <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5 lg:col-span-2">
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-            >
-              Anulează
-            </button>
+          <div className="flex items-center justify-end gap-2 border-t border-[#e4e4e7] pt-5 lg:col-span-2">
+            <CloseIconButton label="Anulează" onClick={() => setOpen(false)} />
             <SubmitButton label={submitLabel} pending={pending} />
           </div>
         </form>
@@ -571,21 +557,9 @@ export function AdminDeleteButton({
       }}
     >
       <input type="hidden" name="id" value={id} />
-      <DeleteSubmit />
+      <DeleteIconSubmit />
       <ActionFeedback state={state} />
     </form>
   );
 }
 
-function DeleteSubmit() {
-  const status = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={status.pending}
-      className="button-secondary rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      {status.pending ? "..." : "Șterge"}
-    </button>
-  );
-}

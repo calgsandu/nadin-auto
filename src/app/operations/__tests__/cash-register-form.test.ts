@@ -15,26 +15,24 @@ const approvalWorkspace = readFileSync(
   "utf8",
 );
 
-// Casa și metoda de plată se aleg din butoane (DrawerChoice), obligatoriu și
-// fără valoare preselectată: omul trebuie să aleagă explicit la fiecare vânzare.
-assert.match(saleDialog, /name="cashRegistered"/);
-assert.match(saleDialog, /value: "yes"/);
-assert.match(saleDialog, /value: "no"/);
-assert.match(saleDialog, /Alege Da sau Nu/);
+// „Bătut în casă" nu se mai folosește: vânzarea nu-l mai cere și nu-l mai arată.
+assert.doesNotMatch(saleDialog, /name="cashRegistered"/);
+assert.doesNotMatch(saleDialog, /Bătut/);
+
+// Metoda de plată se alege din butoane (DrawerChoice), obligatoriu și fără
+// valoare preselectată: omul trebuie să aleagă explicit la fiecare vânzare.
 assert.match(saleDialog, /name="paymentMethod"/);
 assert.match(saleDialog, /value: "cash"/);
 assert.match(saleDialog, /value: "card"/);
 assert.match(saleDialog, /Alege metoda de plată/);
 assert.match(saleDialog, /value: "credit"/);
-assert.match(saleDialog, /name="cashRegistered"[\s\S]*?required/);
 assert.match(saleDialog, /name="paymentMethod"[\s\S]*?required/);
 assert.match(drawer, /export function DrawerChoice/);
 assert.match(drawer, /type="radio"/);
 assert.doesNotMatch(drawer, /defaultChecked/, "niciun buton nu e bifat din start");
 
-assert.match(approvalWorkspace, /cashRegisterLabel/);
-assert.match(approvalWorkspace, /entry\.details\.cashRegistered/);
+assert.doesNotMatch(approvalWorkspace, /cashRegister/);
 assert.match(approvalWorkspace, /salePaymentMethodLabel/);
 assert.match(approvalWorkspace, /entry\.details\.paymentMethod/);
 
-console.log("cash register sale form tests passed");
+console.log("sale payment form tests passed");

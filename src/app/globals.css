@@ -416,6 +416,19 @@ a {
   white-space: nowrap;
 }
 
+/* Pe rând acțiunile sunt doar iconițe; în meniu își arată și numele. */
+.row-menu-panel .sr-only {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: nowrap;
+}
+
 .row-menu-panel :is(button, a):hover:not(:disabled),
 .row-menu-panel :is(button, a):focus-visible {
   background: #f4f4f5;

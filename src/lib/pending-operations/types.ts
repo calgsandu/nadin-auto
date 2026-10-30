@@ -20,7 +20,8 @@ export type PendingSalePayload = {
   partnerId: string | null;
   newCustomerName: string | null;
   notes: string | null;
-  cashRegistered: boolean;
+  /** Vechiul „bătut în casă"; vânzările noi îl lasă `null`. */
+  cashRegistered: boolean | null;
   paymentMethod: SalePaymentMethodValue;
   /// Seria/numărul facturii externe.
   externalNumber: string | null;

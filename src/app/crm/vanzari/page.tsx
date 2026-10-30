@@ -91,11 +91,10 @@ const salesMonthLabelFormat = new Intl.DateTimeFormat("ro-MD", {
 
 /**
  * Filtrele rapide de deasupra tabelului: ce rămâne de rezolvat până la
- * închiderea zilei (nebătute la casă, vândute pe datorie).
+ * închiderea zilei (vândute pe datorie).
  */
 const saleFilters = [
   { id: "toate", label: "Toate", match: () => true },
-  { id: "nebatute", label: "Nebătute la casă", match: (sale: { cashRegistered: boolean | null }) => sale.cashRegistered !== true },
   { id: "datorie", label: "Pe datorie", match: (sale: { paymentMethod: string | null }) => sale.paymentMethod === "CREDIT" },
 ] as const;
 type SaleFilterId = (typeof saleFilters)[number]["id"];

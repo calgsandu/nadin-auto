@@ -15,6 +15,7 @@ import {
 import { useFormStatus } from "react-dom";
 import type { LucideIcon } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
+import { CloseIconButton, SaveIconButton } from "@/app/components/icon-buttons";
 import { useActionToast } from "@/app/components/action-toast";
 import type { DrawerDraftBanner } from "@/app/components/use-drawer-draft";
 
@@ -216,24 +217,13 @@ export function OperationDrawer({
             <div className="flex items-center gap-2">
               {submitLabel ? (
                 // requestSubmit() = aceeași validare + același onSubmit ca butonul din josul formularului.
-                <button
-                  className="button-primary inline-flex items-center gap-2 rounded-md bg-[#18181b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={pending}
-                  title="Ctrl+Enter"
-                  type="button"
+                <SaveIconButton
+                  label={submitLabel}
+                  pending={pending}
                   onClick={() => panelRef.current?.querySelector("form")?.requestSubmit()}
-                >
-                  {pending ? "Se salvează..." : submitLabel}
-                  {pending ? null : (
-                    <kbd className="hidden rounded bg-white/15 px-1.5 font-sans text-xs font-medium text-white/80 lg:inline">
-                      Ctrl+Enter
-                    </kbd>
-                  )}
-                </button>
+                />
               ) : null}
-              <button className={drawerSecondaryButton} title="Esc" type="button" onClick={onClose}>
-                Închide
-              </button>
+              <CloseIconButton onClick={onClose} />
             </div>
           </div>
           <DraftBanner draft={draft} />
@@ -534,13 +524,8 @@ export function DrawerFooter({
   pending?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-4">
-      <span className="mr-auto text-xs text-[#52525b]">
-        Enter trece la câmpul următor. Salvarea doar din buton.
-      </span>
-      <button className={drawerSecondaryButton} type="button" onClick={onCancel}>
-        Anulează
-      </button>
+    <div className="flex items-center justify-end gap-2 border-t border-[#e4e4e7] pt-4">
+      <CloseIconButton label="Anulează" onClick={onCancel} />
       <DrawerSubmit label={submitLabel} pending={pending} />
     </div>
   );
@@ -550,15 +535,7 @@ export function DrawerSubmit({ label, pending }: { label: string; pending?: bool
   // useFormStatus nu vede trimiterile manuale (useDrawerAction) — de aceea `pending`.
   const status = useFormStatus();
   const busy = pending ?? status.pending;
-  return (
-    <button
-      className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
-      disabled={busy}
-      type="submit"
-    >
-      {busy ? "Se salvează..." : label}
-    </button>
-  );
+  return <SaveIconButton label={label} pending={busy} type="submit" />;
 }
 
 // `data-enter-skip` = câmp auxiliar (filtru, bifă de etichetă): Enter sare peste el.

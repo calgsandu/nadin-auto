@@ -217,7 +217,8 @@ async function createDeliverySale(
   const paymentMethod = parseRequiredSalePaymentMethod(
     readString(formData, "paymentMethod"),
   );
-  const cashRegistered = formData.get("cashRegistered") === "on";
+  // „Bătut în casă" nu se mai folosește: vânzarea din livrare îl lasă necompletat.
+  const cashRegistered = null;
 
   const warehouse = await tx.warehouse.findFirst({
     where: { active: true },

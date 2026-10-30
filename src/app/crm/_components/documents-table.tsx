@@ -4,7 +4,6 @@ import type { VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
 import { COMPANY } from "@/lib/company";
 import type { OperationsData } from "@/lib/operations/queries";
 import type { SalePaymentMethodStatus } from "@/lib/operations/sale-payment-method";
-import { CashRegisterBadge, CashRegisterControl } from "@/app/operations/cash-register-control";
 import { SalePaymentMethodBadge, SalePaymentMethodControl } from "@/app/operations/sale-payment-method-control";
 import { DocumentDetailsButton, type DocumentDetailsValue } from "@/app/operations/document-details";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
@@ -138,7 +137,6 @@ export function toDocumentDetails(
     createdAt: Date;
     updatedAt: Date;
     notes: string | null;
-    cashRegistered: boolean | null;
     paymentMethod: SalePaymentMethodStatus;
     externalNumber: string | null;
     discountPercent: { toString(): string } | null;
@@ -183,7 +181,6 @@ export function toDocumentDetails(
     updatedAt: dateTimeFormat.format(doc.updatedAt),
     totalLei: documentTotalLei(doc),
     isSale: doc.type === "SALE",
-    cashRegistered: doc.cashRegistered,
     paymentMethod: doc.paymentMethod,
     externalNumber: doc.externalNumber,
     discountPercent: doc.discountPercent == null ? null : Number(doc.discountPercent),
@@ -261,8 +258,8 @@ export function RecentDocumentsTable({
   warehouses?: WarehouseOption[];
   emptyText?: string;
 }) {
-  // Casă/Plată au sens doar pe vânzări; pe recepții și transferuri erau două
-  // coloane de liniuțe care furau lățimea coloanei de produse.
+  // Plata are sens doar pe vânzări; pe recepții și transferuri ar fi o
+  // coloană de liniuțe care fură lățimea coloanei de produse.
   const hasSales = documents.some((document) => document.type === "SALE");
   return (
     <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
@@ -276,7 +273,6 @@ export function RecentDocumentsTable({
               <TableHead secondary>Depozit</TableHead>
               <TableHead className="min-w-[16rem]">Produs</TableHead>
               <TableHead align="right">Total</TableHead>
-              {hasSales ? <TableHead secondary>Casă</TableHead> : null}
               {hasSales ? <TableHead secondary>Plată</TableHead> : null}
               <TableHead align="right">
                 <span className="sr-only">Acțiuni</span>
@@ -317,15 +313,6 @@ export function RecentDocumentsTable({
                     {COMPANY.vatPayer ? ` · TVA ${formatMoney(docTotal / 6)}` : null}
                   </span>
                 </TableCell>
-                {hasSales ? <TableCell secondary>
-                  {document.type === "SALE" ? (
-                    canModify ? (
-                      <CashRegisterControl documentId={document.id} value={document.cashRegistered} />
-                    ) : (
-                      <CashRegisterBadge value={document.cashRegistered} />
-                    )
-                  ) : "—"}
-                </TableCell> : null}
                 {hasSales ? <TableCell secondary>
                   {document.type === "SALE" ? (
                     canModify ? (

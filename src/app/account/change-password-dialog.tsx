@@ -10,6 +10,7 @@ import {
   changeOwnPasswordAction,
   type PasswordChangeState,
 } from "@/app/account/actions";
+import { CloseIconButton, SaveIconButton } from "@/app/components/icon-buttons";
 
 const initialState: PasswordChangeState = { ok: false, message: "" };
 
@@ -45,7 +46,7 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
             <div>
               <h2 className="mt-1 text-lg font-semibold">Schimbă parola</h2>
             </div>
-            <button className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-xs font-semibold" type="button" onClick={onClose}>Închide</button>
+            <CloseIconButton onClick={onClose} />
           </div>
           {state.ok ? (
             <div className="grid gap-4 px-5 py-4">
@@ -59,8 +60,8 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
                 <PasswordInput name="newPassword" label="Parola nouă" autoComplete="new-password" />
                 <PasswordInput name="confirmPassword" label="Confirmă parola nouă" autoComplete="new-password" />
               </div>
-              <div className="flex justify-end gap-3 border-t border-[#e4e4e7] pt-5">
-                <button className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold" type="button" onClick={onClose}>Anulează</button>
+              <div className="flex justify-end gap-2 border-t border-[#e4e4e7] pt-5">
+                <CloseIconButton label="Anulează" onClick={onClose} />
                 <PasswordSubmit />
               </div>
             </form>
@@ -77,5 +78,5 @@ function PasswordInput({ name, label, autoComplete }: { name: string; label: str
 
 function PasswordSubmit() {
   const { pending } = useFormStatus();
-  return <button className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se schimbă..." : "Schimbă parola"}</button>;
+  return <SaveIconButton label="Schimbă parola" pending={pending} type="submit" />;
 }

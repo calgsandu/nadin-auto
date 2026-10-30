@@ -23,7 +23,7 @@ const payload = {
 assert.equal(saleTotalLei(payload), 380);
 assert.equal(
   saleRequestSummary(payload, "Depozit"),
-  "Cerere vânzare (2 produse, 380 lei, nebătută în casă, plată Card) — Depozit",
+  "Cerere vânzare (2 produse, 380 lei, plată Card) — Depozit",
 );
 
 console.log("sale execution helper tests passed");

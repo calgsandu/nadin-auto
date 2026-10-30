@@ -18,6 +18,7 @@ import {
 } from "@/app/components/operation-drawer";
 import { NEXT_STATUS, STATUS_LABELS } from "@/lib/external-orders/status";
 import type { ExternalOrderStatus } from "@/generated/prisma/enums";
+import { DeleteIconSubmit } from "@/app/components/delete-icon-submit";
 
 const initialState: ExternalOrderActionState = { ok: false, message: "" };
 
@@ -104,9 +105,6 @@ function DeliverControl({ orderId }: { orderId: string }) {
                 <option value="transfer">Transfer bancar</option>
               </select>
             </DrawerField>
-            <label className="flex items-center gap-2 text-sm font-medium text-[#3f3f46]">
-              <input name="cashRegistered" type="checkbox" /> Bătută în casa de marcat
-            </label>
             <DrawerFooter
               pending={pending}
               submitLabel="Livrează"
@@ -159,21 +157,9 @@ export function OrderDeleteButton({
       }}
     >
       <input name="orderId" type="hidden" value={orderId} />
-      <DeleteButton />
+      <DeleteIconSubmit />
       <ActionFeedback state={state} />
     </form>
   );
 }
 
-function DeleteButton() {
-  const status = useFormStatus();
-  return (
-    <button
-      className="button-secondary rounded-md border border-[#fca5a5] px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
-      disabled={status.pending}
-      type="submit"
-    >
-      {status.pending ? "..." : "Șterge"}
-    </button>
-  );
-}

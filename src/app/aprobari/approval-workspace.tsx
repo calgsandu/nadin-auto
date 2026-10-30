@@ -5,7 +5,6 @@ import {
   RejectButton,
 } from "@/app/aprobari/approval-buttons";
 import type { ApprovalsData } from "@/lib/audit/queries";
-import { cashRegisterLabel } from "@/lib/operations/cash-register";
 import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
 import { DailyMetric, StatusBadge } from "@/app/crm/_components/ui";
 
@@ -130,10 +129,6 @@ function ApprovalCard({
           {entry.details.kind === "SALE" ? (
             <>
               <Detail label="Data documentului" value={entry.details.documentDate} />
-              <Detail
-                label="Casă"
-                value={cashRegisterLabel(entry.details.cashRegistered)}
-              />
               <Detail
                 label="Metoda de plată"
                 value={salePaymentMethodLabel(entry.details.paymentMethod)}

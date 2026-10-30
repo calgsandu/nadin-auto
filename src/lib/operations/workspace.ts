@@ -175,7 +175,7 @@ export const workspaceSections: WorkspaceSection[] = [
   {
     id: "inchidere-zi",
     title: "Închidere de zi",
-    description: "Cât s-a încasat azi, cum s-a plătit și ce s-a bătut la casă.",
+    description: "Cât s-a încasat azi și cum s-a plătit.",
   },
   {
     id: "tva",
@@ -332,7 +332,7 @@ export const navigationEntries: NavigationEntry[] = [
   {
     section: "inchidere-zi",
     label: "Închidere de zi",
-    description: "Încasări și casa de marcat",
+    description: "Încasări pe zi",
     icon: "CalendarRange",
   },
   {
