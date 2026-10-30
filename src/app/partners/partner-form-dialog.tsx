@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
+import { Handshake, Landmark, UserRound } from "lucide-react";
 import type { PartnerKind } from "@/generated/prisma/enums";
 import {
   createPartnerAction,
@@ -9,8 +10,10 @@ import {
 } from "@/app/partners/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
+  DrawerCard,
   drawerBoundaryProps,
   drawerPanelClassName,
+  handleEnterNavigation,
   useDrawerAction,
   useDrawerStackChild,
 } from "@/app/components/operation-drawer";
@@ -80,10 +83,20 @@ export function PartnerFormDialog({
   const { pending, onSubmit } = useDrawerAction(action, initialState, (saved) => {
     setOpen(false);
     setMounted(false);
+    // Formularul se remontează cu valorile inițiale: și verificările pornesc de la ele.
+    setIdno(partner?.idno ?? "");
+    setIban(partner?.iban ?? "");
     if (saved.created) onCreated?.(saved.created);
   });
   // Cât timp formularul ăsta e deschis, dialogul din care s-a plecat se ascunde.
   useDrawerStackChild(open);
+  const formRef = useRef<HTMLFormElement>(null);
+  // Aceleași reguli ca pe server, dar spuse pe loc, nu abia la salvare.
+  const [idno, setIdno] = useState(partner?.idno ?? "");
+  const [iban, setIban] = useState(partner?.iban ?? "");
+  const idnoProblem = idno.trim() && !/^\d{7,13}$/.test(idno.trim()) ? "IDNO-ul are 7–13 cifre." : "";
+  const ibanValue = iban.replace(/\s+/g, "").toUpperCase();
+  const ibanProblem = ibanValue && !/^[A-Z]{2}[A-Z0-9]{13,32}$/.test(ibanValue) ? "IBAN-ul nu pare valid (ex. MD24AG000225100013104168)." : "";
 
   function setOpen(next: boolean) {
     if (!controlled) setSelfOpen(next);
@@ -126,32 +139,63 @@ export function PartnerFormDialog({
             <aside
               className={drawerPanelClassName}
               onKeyDown={(event) => {
+                // Ca în celelalte panouri: Ctrl+Enter salvează, Esc închide.
+                if ((event.ctrlKey || event.metaKey) && (event.key === "Enter" || event.key.toLowerCase() === "s")) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  if (!pending) formRef.current?.requestSubmit();
+                  return;
+                }
                 if (event.key !== "Escape") return;
                 event.stopPropagation();
                 setOpen(false);
               }}
             >
               <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
-                <div>
-                  <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">
-                    {partner ? "Editează partener" : "Adaugă partener"}
-                  </h2>
+                <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#18181b]">
+                  <span className="grid size-8 place-items-center rounded-lg bg-[#18181b] text-white">
+                    <Handshake className="size-4" aria-hidden="true" />
+                  </span>
+                  {partner ? "Editează partener" : "Partener nou"}
+                </h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="button-primary inline-flex items-center gap-2 rounded-md bg-[#18181b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={pending}
+                    title="Ctrl+Enter"
+                    type="button"
+                    onClick={() => formRef.current?.requestSubmit()}
+                  >
+                    {pending ? "Se salvează..." : partner ? "Salvează" : "Adaugă"}
+                    {pending ? null : (
+                      <kbd className="hidden rounded bg-white/15 px-1.5 font-sans text-xs font-medium text-white/80 lg:inline">
+                        Ctrl+Enter
+                      </kbd>
+                    )}
+                  </button>
+                  <button
+                    className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
+                    title="Esc"
+                    type="button"
+                    onClick={() => setOpen(false)}
+                  >
+                    Închide
+                  </button>
                 </div>
-                <button
-                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-                  type="button"
-                  onClick={() => setOpen(false)}
-                >
-                  Închide
-                </button>
               </div>
 
-              <form onSubmit={onSubmit} className="grid gap-3 px-5 py-4 sm:grid-cols-2 lg:grid-cols-4">
+              <form
+                ref={formRef}
+                onSubmit={onSubmit}
+                className="grid gap-4 px-5 py-4"
+                onKeyDown={(event) => handleEnterNavigation(event)}
+              >
                 {partner ? (
                   <input name="partnerId" type="hidden" value={partner.id} />
                 ) : null}
 
-                <h3 className="text-sm font-semibold text-[#18181b] lg:col-span-4">Date de contact</h3>
+                <DrawerCard icon={UserRound} title="Contact">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Field className="lg:col-span-2" label="Nume">
                   <input
                     className={inputClassName}
@@ -202,9 +246,13 @@ export function PartnerFormDialog({
                     type="email"
                   />
                 </Field>
+                </div>
+                </DrawerCard>
+
                 {/* Datele de facturare sunt cerute de proforme și e-Factura;
                     la o persoană fizică pot rămâne goale. */}
-                <h3 className="text-sm font-semibold text-[#18181b] lg:col-span-4 pt-1">Date pentru factură</h3>
+                <DrawerCard icon={Landmark} title="Date pentru factură">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Field label="IDNO / Cod fiscal">
                   <input
                     className={inputClassName}
@@ -212,7 +260,9 @@ export function PartnerFormDialog({
                     defaultValue={partner?.idno ?? ""}
                     inputMode="numeric"
                     placeholder="ex. 1006600052073"
+                    onChange={(event) => setIdno(event.currentTarget.value)}
                   />
+                  {idnoProblem ? <span className="text-xs font-medium text-[#b45309]">{idnoProblem}</span> : null}
                 </Field>
                 <Field label="Cod TVA">
                   <input
@@ -237,7 +287,9 @@ export function PartnerFormDialog({
                     name="iban"
                     defaultValue={partner?.iban ?? ""}
                     placeholder="MD..."
+                    onChange={(event) => setIban(event.currentTarget.value)}
                   />
+                  {ibanProblem ? <span className="text-xs font-medium text-[#b45309]">{ibanProblem}</span> : null}
                 </Field>
                 <Field label="Banca">
                   <input
@@ -255,24 +307,17 @@ export function PartnerFormDialog({
                     placeholder="ex. MOBBMD22"
                   />
                 </Field>
-                <Field className="sm:col-span-2 lg:col-span-4" label="Note">
+                </div>
+                </DrawerCard>
+
+                <Field label="Note">
                   <textarea
-                    className={`${inputClassName} min-h-16 resize-y py-2`}
+                    className={`${inputClassName} min-h-14 resize-y py-2`}
                     name="notes"
                     defaultValue={partner?.notes ?? ""}
                     placeholder="Observații, condiții de livrare etc."
                   />
                 </Field>
-                <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-4 sm:col-span-2 lg:col-span-4">
-                  <button
-                    className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-                    type="button"
-                    onClick={() => setOpen(false)}
-                  >
-                    Anulează
-                  </button>
-                  <SubmitButton label={partner ? "Salvează" : "Adaugă"} pending={pending} />
-                </div>
               </form>
             </aside>
           </div>
@@ -292,24 +337,13 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`grid content-start gap-1 text-sm font-medium text-[#3f3f46] ${className}`}>
+    <label className={`grid content-start gap-1 text-[13px] font-medium text-[#52525b] ${className}`}>
       {label}
       {children}
     </label>
   );
 }
 
-function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
-  return (
-    <button
-      className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
-      disabled={pending}
-      type="submit"
-    >
-      {pending ? "Se salvează..." : label}
-    </button>
-  );
-}
 
 const inputClassName =
   "field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm outline-none placeholder:text-[#71717a] disabled:bg-[#f1f1f3]";

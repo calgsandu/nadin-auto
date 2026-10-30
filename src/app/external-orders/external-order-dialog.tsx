@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import { Banknote, Package, Truck, UserRound } from "lucide-react";
 import {
   createExternalOrderAction,
   updateExternalOrderAction,
   type ExternalOrderActionState,
 } from "@/app/external-orders/actions";
-import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
-  drawerPanelClassName,
+  DrawerCard,
+  DrawerField,
+  OperationDrawer,
+  drawerFormClassName,
+  handleEnterNavigation,
   useDrawerAction,
 } from "@/app/components/operation-drawer";
 import { SupplierPicker } from "@/app/partners/supplier-picker";
@@ -48,9 +52,20 @@ export function ExternalOrderDialog({
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const action = order ? updateExternalOrderAction : createExternalOrderAction;
+  const [cost, setCost] = useState(order?.supplierPriceLei ?? "");
+  const [sale, setSale] = useState(order?.salePriceLei ?? "");
+  const [quantity, setQuantity] = useState(String(order?.quantity ?? 1));
+  const qty = Number(quantity) || 1;
+  const costValue = Number(cost.replace(",", "."));
+  const saleValue = Number(sale.replace(",", "."));
+  const margin = cost && sale && Number.isFinite(costValue) && Number.isFinite(saleValue) ? (saleValue - costValue) * qty : null;
   const { pending, onSubmit } = useDrawerAction(action, initialState, () => {
     setOpen(false);
     setMounted(false);
+    // Formularul se remontează gol: și marja pornește de la zero.
+    setCost(order?.supplierPriceLei ?? "");
+    setSale(order?.salePriceLei ?? "");
+    setQuantity(String(order?.quantity ?? 1));
   });
 
   return (
@@ -71,178 +86,149 @@ export function ExternalOrderDialog({
       </button>
 
       {mounted ? (
-        <DrawerPortal locked={open}>
-          <div
-            className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
-            style={open ? undefined : { display: "none" }}
-          >
-            <button
-              className="absolute inset-0 cursor-default"
-              type="button"
-              aria-label="Închide formularul"
-              onClick={() => setOpen(false)}
-            />
-            <aside className={drawerPanelClassName}>
-              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
-                <div>
-                  <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">
-                    {order ? "Editează comanda" : "Comandă nouă"}
-                  </h2>
-                </div>
-                <button
-                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-                  type="button"
-                  onClick={() => setOpen(false)}
-                >
-                  Închide
-                </button>
-              </div>
-
-              <form onSubmit={onSubmit} className="grid gap-4 px-5 py-4">
+        <OperationDrawer
+          title={order ? "Editează comanda" : "Comandă nouă la furnizor"}
+          icon={Truck}
+          open={open}
+          pending={pending}
+          submitLabel={order ? "Salvează" : "Creează comanda"}
+          onClose={() => setOpen(false)}
+        >
+              <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event)}>
                 {order ? <input name="orderId" type="hidden" value={order.id} /> : null}
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Client">
-                    <input
-                      className={inputClassName}
-                      name="customerName"
-                      defaultValue={order?.customerName ?? ""}
-                      placeholder="Numele clientului"
-                      required
-                    />
-                  </Field>
-                  <Field label="Telefon client">
-                    <input
-                      className={inputClassName}
-                      name="customerPhone"
-                      defaultValue={order?.customerPhone ?? ""}
-                      inputMode="tel"
-                      placeholder="ex. 060 123 456"
-                    />
-                  </Field>
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <DrawerCard icon={UserRound} title="Clientul">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Field label="Nume">
+                        <input
+                          className={inputClassName}
+                          name="customerName"
+                          defaultValue={order?.customerName ?? ""}
+                          placeholder="Numele clientului"
+                          required
+                        />
+                      </Field>
+                      <Field label="Telefon">
+                        <input
+                          className={inputClassName}
+                          name="customerPhone"
+                          defaultValue={order?.customerPhone ?? ""}
+                          inputMode="tel"
+                          placeholder="ex. 060 123 456"
+                        />
+                      </Field>
+                    </div>
+                  </DrawerCard>
+
+                  <DrawerCard icon={Package} title="Piesa">
+                    <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_9rem_5rem]">
+                      <Field label="Ce cere">
+                        <input
+                          className={inputClassName}
+                          name="productName"
+                          defaultValue={order?.productName ?? ""}
+                          placeholder="ex. Far stânga Dacia Logan 2018"
+                          required
+                        />
+                      </Field>
+                      <Field label="Cod">
+                        <input
+                          className={`${inputClassName} font-mono`}
+                          name="productCode"
+                          defaultValue={order?.productCode ?? ""}
+                          placeholder="opțional"
+                        />
+                      </Field>
+                      <Field label="Cant.">
+                        <input
+                          className={inputClassName}
+                          name="quantity"
+                          defaultValue={order?.quantity ?? 1}
+                          type="number"
+                          min={1}
+                          step={1}
+                          required
+                          onChange={(event) => setQuantity(event.currentTarget.value)}
+                        />
+                      </Field>
+                    </div>
+                  </DrawerCard>
                 </div>
 
-                <Field label="Piesa solicitată">
-                  <input
-                    className={inputClassName}
-                    name="productName"
-                    defaultValue={order?.productName ?? ""}
-                    placeholder="ex. Far stânga Dacia Logan 2018"
-                    required
-                  />
-                </Field>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Cod piesă (opțional)">
-                    <input
-                      className={`${inputClassName} font-mono`}
-                      name="productCode"
-                      defaultValue={order?.productCode ?? ""}
-                      placeholder="Codul din catalogul furnizorului"
-                    />
-                  </Field>
-                  <Field label="Cantitate">
-                    <input
-                      className={inputClassName}
-                      name="quantity"
-                      defaultValue={order?.quantity ?? 1}
-                      type="number"
-                      min={1}
-                      step={1}
-                      required
-                    />
-                  </Field>
-                </div>
-
-                <Field label="Furnizor">
-                  <SupplierPicker
-                    className={inputClassName}
-                    defaultValue={order?.supplierId ?? ""}
-                    name="supplierId"
-                    noneLabel="— de stabilit —"
-                    suppliers={suppliers}
-                  />
-                </Field>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Preț achiziție / buc (lei)">
-                    <input
-                      className={inputClassName}
-                      name="supplierPriceLei"
-                      defaultValue={order?.supplierPriceLei ?? ""}
-                      inputMode="decimal"
-                      placeholder="Costul de la furnizor"
-                    />
-                  </Field>
-                  <Field label="Preț vânzare / buc (lei)">
-                    <input
-                      className={inputClassName}
-                      name="salePriceLei"
-                      defaultValue={order?.salePriceLei ?? ""}
-                      inputMode="decimal"
-                      placeholder="Prețul pentru client"
-                    />
-                  </Field>
-                </div>
-
-                <Field label="Oferta valabilă până la">
-                  <input
-                    className={inputClassName}
-                    name="offerValidUntil"
-                    defaultValue={order?.offerValidUntil ?? ""}
-                    type="date"
-                  />
-                </Field>
+                <DrawerCard
+                  icon={Banknote}
+                  title="Furnizor și preț"
+                  action={
+                    // Marja pe loc: vezi dacă merită comanda înainte s-o confirmi.
+                    margin !== null ? (
+                      <p className={`text-sm font-semibold tabular-nums ${margin < 0 ? "text-[#b91c1c]" : "text-[#166534]"}`}>
+                        marjă {formatLei(margin)} lei
+                        {qty > 1 ? <span className="font-normal text-[#52525b]"> ({formatLei(margin / qty)} / buc)</span> : null}
+                      </p>
+                    ) : null
+                  }
+                >
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <Field label="Furnizor">
+                      <SupplierPicker
+                        className={inputClassName}
+                        defaultValue={order?.supplierId ?? ""}
+                        name="supplierId"
+                        noneLabel="— de stabilit —"
+                        suppliers={suppliers}
+                      />
+                    </Field>
+                    <Field label="Cost / buc (lei)">
+                      <input
+                        className={inputClassName}
+                        name="supplierPriceLei"
+                        defaultValue={order?.supplierPriceLei ?? ""}
+                        inputMode="decimal"
+                        placeholder="de la furnizor"
+                        onChange={(event) => setCost(event.currentTarget.value)}
+                      />
+                    </Field>
+                    <Field label="Preț client / buc (lei)">
+                      <input
+                        className={inputClassName}
+                        name="salePriceLei"
+                        defaultValue={order?.salePriceLei ?? ""}
+                        inputMode="decimal"
+                        placeholder="pentru client"
+                        onChange={(event) => setSale(event.currentTarget.value)}
+                      />
+                    </Field>
+                    <Field label="Ofertă valabilă până la">
+                      <input
+                        className={inputClassName}
+                        name="offerValidUntil"
+                        defaultValue={order?.offerValidUntil ?? ""}
+                        type="date"
+                      />
+                    </Field>
+                  </div>
+                </DrawerCard>
 
                 <Field label="Note">
                   <textarea
-                    className={`${inputClassName} min-h-16 resize-y py-2`}
+                    className={`${inputClassName} min-h-14 resize-y py-2`}
                     name="notes"
                     defaultValue={order?.notes ?? ""}
                     placeholder="Termen de livrare, condiții, observații..."
                   />
                 </Field>
-
-
-                <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
-                  <button
-                    className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-                    type="button"
-                    onClick={() => setOpen(false)}
-                  >
-                    Anulează
-                  </button>
-                  <SubmitButton label={order ? "Salvează" : "Creează comanda"} pending={pending} />
-                </div>
               </form>
-            </aside>
-          </div>
-        </DrawerPortal>
+        </OperationDrawer>
       ) : null}
     </>
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className="grid gap-1 text-sm font-medium text-[#3f3f46]">
-      {label}
-      {children}
-    </label>
-  );
-}
 
-function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
-  return (
-    <button
-      className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
-      disabled={pending}
-      type="submit"
-    >
-      {pending ? "Se salvează..." : label}
-    </button>
-  );
-}
+
+const Field = DrawerField;
+const formatLei = (value: number) => new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 2 }).format(value);
 
 const inputClassName =
   "field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm outline-none placeholder:text-[#71717a] disabled:bg-[#f1f1f3]";
