@@ -69,7 +69,12 @@ export function ProductPreview({
               <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
                 <div className="min-w-0">
                   {product.code ? (
-                    <p className="font-mono text-sm font-semibold text-[#52525b]">{product.code}</p>
+                    <p className="font-mono text-xl font-bold text-[#18181b]">
+                      {product.code}
+                      {product.alternativeCode ? (
+                        <span className="ml-2 text-sm font-medium text-[#71717a]">{product.alternativeCode}</span>
+                      ) : null}
+                    </p>
                   ) : null}
                   <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">{product.description}</h2>
                   <p className="text-sm text-[#52525b]">{product.type}</p>
@@ -156,21 +161,8 @@ export function ProductPreview({
                   </ul>
                 </section>
 
-                {product.alternativeCode || product.notes ? (
-                  <dl className="grid gap-2 rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
-                    {product.alternativeCode ? (
-                      <div className="flex justify-between gap-3">
-                        <dt className="text-[#52525b]">Cod alternativ</dt>
-                        <dd className="font-mono font-semibold text-[#18181b]">{product.alternativeCode}</dd>
-                      </div>
-                    ) : null}
-                    {product.notes ? (
-                      <div className="grid gap-0.5">
-                        <dt className="text-[#52525b]">Mențiune publică</dt>
-                        <dd className="text-[#18181b]">{product.notes}</dd>
-                      </div>
-                    ) : null}
-                  </dl>
+                {product.notes ? (
+                  <p className="rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm text-[#18181b]">{product.notes}</p>
                 ) : null}
               </div>
             </aside>

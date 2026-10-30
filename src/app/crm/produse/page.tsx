@@ -121,6 +121,7 @@ function ProductWorkspace({
                         <span className="sr-only">Selectează pentru sticker</span>
                       </TableHead>
                     ) : null}
+                    <TableHead>Cod</TableHead>
                     <TableHead className="min-w-[18rem]">Mașină și piesă</TableHead>
                     <TableHead align="right">Preț vânzare</TableHead>
                     <TableHead align="right">Stoc</TableHead>
@@ -219,6 +220,13 @@ function ProductRow({
           />
         </TableCell>
       ) : null}
+      <TableCell className="whitespace-nowrap">
+        {/* Codul e cheia piesei: după el se caută și se comandă. */}
+        <p className="font-mono text-[15px] font-bold text-[#18181b]">{formatText(product.externalCode)}</p>
+        {product.alternativeCode ? (
+          <p className="mt-0.5 font-mono text-xs text-[#71717a]">{product.alternativeCode}</p>
+        ) : null}
+      </TableCell>
       <TableCell>
         {/* Întâi mașina (după ea întreabă clientul), apoi piesa. Click: fișa cu
             stocul pe fiecare depozit și toate mașinile. */}
@@ -232,7 +240,6 @@ function ProductRow({
           <span className="mt-0.5 block text-[#3f3f46]">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
-            <span className="ml-2 font-mono text-xs text-[#71717a]">{formatText(product.externalCode)}</span>
           </span>
         </ProductPreview>
       </TableCell>
