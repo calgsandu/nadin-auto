@@ -640,14 +640,15 @@ function FitmentRow({
   onRemove?: () => void;
 }) {
   return (
-    <div className="grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6.5rem_6.5rem_8.5rem_2.25rem] lg:items-start">
+    <div className="grid grid-cols-2 gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6.5rem_6.5rem_8.5rem_2.25rem] lg:items-start">
       <input
         name={primary ? "yearOpenEnded" : "extraYearOpenEnded"}
         type="hidden"
         value={value.yearOpenEnded ? "1" : ""}
         readOnly
       />
-      <Field label="Brand">
+      {/* Pe telefon: brandul și modelul pe toată lățimea, anii unul lângă altul. */}
+      <Field label="Brand" className="max-lg:col-span-2">
         <BrandSelect
           brands={brands}
           name={primary ? "brandId" : undefined}
@@ -656,7 +657,7 @@ function FitmentRow({
           onChange={(brandId) => onChange({ brandId, modelId: "" })}
         />
       </Field>
-      <Field label="Model">
+      <Field label="Model" className="max-lg:col-span-2">
         <ModelSelect
           brands={brands}
           defaultBrandId={value.brandId}
@@ -707,7 +708,7 @@ function FitmentRow({
       {onRemove ? (
         <button
           aria-label="Șterge compatibilitatea"
-          className="button-danger grid size-9 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] lg:mt-6"
+          className="button-danger grid size-9 place-items-center justify-self-end rounded-md border border-[#e4e4e7] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] lg:mt-6 lg:justify-self-auto"
           title="Șterge mașina"
           type="button"
           onClick={onRemove}

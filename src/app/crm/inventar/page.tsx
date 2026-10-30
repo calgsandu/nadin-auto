@@ -25,6 +25,7 @@ import {
 } from "../_components/ui";
 import { toDocLines, toDocumentDetails } from "../_components/documents-table";
 import { formatDate, formatMoney, formatNumber, formatText, signedNumber } from "../_components/format";
+import { MobileFilters } from "../_components/mobile-filters";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -191,6 +192,7 @@ function InventoryOperationsTable({
     <div className="grid gap-3">
       <form action="/crm/inventar" method="get" className="flex flex-wrap items-center gap-2">
         <input type="hidden" name="wh" value={selected?.id ?? ""} />
+        <MobileFilters active={[filters.from, filters.to].filter(Boolean).length}>
         <FilterField icon={<CalendarDays />} label="De la" active={Boolean(filters.from)}>
           <input className={filterControlCls} type="date" name="from" defaultValue={filters.from} />
         </FilterField>
@@ -216,6 +218,7 @@ function InventoryOperationsTable({
             </a>
           </div>
         ) : null}
+        </MobileFilters>
       </form>
 
       <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
@@ -223,10 +226,10 @@ function InventoryOperationsTable({
           <h2 className="text-sm font-semibold text-[#18181b]">Inventare efectuate</h2>
         </div>
         <div className="overflow-x-auto">
-        <table className="crm-table w-full min-w-[860px] border-collapse text-left text-sm">
+        <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[860px]">
           <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
             <tr>
-              <TableHead>Data</TableHead>
+              <TableHead className="max-sm:hidden">Data</TableHead>
               <TableHead>Document</TableHead>
               <TableHead align="right" secondary>Poziții</TableHead>
               <TableHead align="right" secondary>Plus</TableHead>
@@ -244,8 +247,11 @@ function InventoryOperationsTable({
                 const docLines = toDocLines(operation);
                 return (
                   <tr key={operation.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
-                    <TableCell>{formatDate(operation.documentDate)}</TableCell>
-                    <TableCell className="font-semibold">Inventar #{operation.number}</TableCell>
+                    <TableCell className="max-sm:hidden">{formatDate(operation.documentDate)}</TableCell>
+                    <TableCell className="font-semibold">
+                      Inventar #{operation.number}
+                      <span className="block text-xs font-normal text-[#52525b] sm:hidden">{formatDate(operation.documentDate)}</span>
+                    </TableCell>
                     <TableCell align="right" secondary className="tabular-nums">{formatNumber(operation.lines.length)}</TableCell>
                     <TableCell align="right" secondary className="tabular-nums text-[#15803d]">{plus > 0 ? `+${plus}` : "—"}</TableCell>
                     <TableCell align="right" secondary className="tabular-nums text-[#b91c1c]">{minus < 0 ? minus : "—"}</TableCell>
@@ -260,13 +266,13 @@ function InventoryOperationsTable({
                           <>
                             <a
                               href={`/api/export/inventory/${operation.id}`}
-                              className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+                              className="button-secondary max-sm:hidden! inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                             >
                               <Download className="size-3.5" aria-hidden="true" /> Excel
                             </a>
                             <a
                               href={`/api/export/inventory/${operation.id}?format=pdf`}
-                              className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+                              className="button-secondary max-sm:hidden! inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                             >
                               <FileText className="size-3.5" aria-hidden="true" /> PDF
                             </a>

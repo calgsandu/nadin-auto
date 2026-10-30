@@ -89,13 +89,13 @@ async function Loader({
 
       <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
-          <table className="crm-table w-full min-w-[820px] border-collapse text-left text-sm">
+          <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[820px]">
             <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Client</TableHead>
                 <TableHead secondary>Contact</TableHead>
                 <TableHead align="right" secondary>Discount</TableHead>
-                <TableHead align="right">Cumpărat</TableHead>
+                <TableHead align="right" className="max-sm:hidden">Cumpărat</TableHead>
                 <TableHead align="right" secondary>Plătit</TableHead>
                 <TableHead align="right">Datorie</TableHead>
                 <TableHead secondary>Ultima vânzare</TableHead>
@@ -120,6 +120,7 @@ async function Loader({
                     </Link>
                     <span className="mt-0.5 block text-xs font-normal text-[#52525b]">
                       {formatNumber(customer.purchases)} vânzări
+                      <span className="sm:hidden"> · {formatMoney(customer.boughtLei)} lei</span>
                     </span>
                   </TableCell>
                   <TableCell secondary className="text-[#52525b]">
@@ -129,7 +130,7 @@ async function Loader({
                   <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
                     {customer.discountPercent ? `${customer.discountPercent}%` : "-"}
                   </TableCell>
-                  <TableCell align="right" className="tabular-nums font-semibold text-[#18181b]">
+                  <TableCell align="right" className="tabular-nums font-semibold text-[#18181b] max-sm:hidden">
                     {formatMoney(customer.boughtLei)}
                   </TableCell>
                   <TableCell align="right" secondary className="tabular-nums text-[#52525b]">

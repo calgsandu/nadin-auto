@@ -86,18 +86,18 @@ function OrdersTable({
         <h2 className="text-sm font-semibold text-[#18181b]">{title}</h2>
       </div>
       <div className="overflow-x-auto">
-        <table className="crm-table w-full min-w-[1080px] border-collapse text-left text-sm">
+        <table className="crm-table w-full sm:min-w-[1080px] border-collapse text-left text-sm">
           <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
             <tr>
-              <TableHead>Nr.</TableHead>
-              <TableHead>Client</TableHead>
+              <TableHead className="max-sm:hidden">Nr.</TableHead>
+              <TableHead className="max-sm:hidden">Client</TableHead>
               <TableHead>Piesa</TableHead>
-              <TableHead>Furnizor</TableHead>
-              <TableHead align="right">Cant.</TableHead>
-              <TableHead align="right">Cost / buc</TableHead>
-              <TableHead align="right">Vânzare / buc</TableHead>
-              <TableHead align="right">Marjă</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="max-sm:hidden">Furnizor</TableHead>
+              <TableHead className="max-sm:hidden" align="right">Cant.</TableHead>
+              <TableHead className="max-sm:hidden" align="right">Cost / buc</TableHead>
+              <TableHead className="max-sm:hidden" align="right">Vânzare / buc</TableHead>
+              <TableHead className="max-sm:hidden" align="right">Marjă</TableHead>
+              <TableHead className="max-sm:hidden">Status</TableHead>
               {actionColumns > 0 ? <TableHead align="right">Acțiuni</TableHead> : null}
             </tr>
           </thead>
@@ -105,8 +105,8 @@ function OrdersTable({
             {orders.length > 0 ? (
               orders.map((order) => (
                 <tr key={order.id} className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]">
-                  <TableCell className="font-mono text-xs font-semibold">#{order.number}</TableCell>
-                  <TableCell>
+                  <TableCell className="font-mono text-xs font-semibold max-sm:hidden">#{order.number}</TableCell>
+                  <TableCell className="max-sm:hidden">
                     <p className="font-medium text-[#18181b]">{order.customerName}</p>
                     {order.customerPhone ? (
                       <p className="mt-0.5 font-mono text-xs text-[#52525b]">{order.customerPhone}</p>
@@ -120,8 +120,18 @@ function OrdersTable({
                     {order.notes ? (
                       <p className="mt-0.5 text-xs text-[#52525b]">{order.notes}</p>
                     ) : null}
+                    {/* Pe telefon: clientul, cantitatea, prețul și statusul sub piesă. */}
+                    <div className="mt-1.5 grid gap-1 text-xs text-[#52525b] sm:hidden">
+                      <p>
+                        #{order.number} · {order.customerName} · x{formatNumber(order.quantity)}
+                        {order.salePriceLei != null ? ` · ${formatMoney(order.salePriceLei)} lei` : ""}
+                      </p>
+                      <div>
+                        <StatusBadge status={order.status} />
+                      </div>
+                    </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-sm:hidden">
                     {order.supplierName ?? <span className="text-[#71717a]">de stabilit</span>}
                     {order.offerValidUntil ? (
                       // Oferta expirată nu era semnalată nicăieri: comanda se
@@ -139,17 +149,17 @@ function OrdersTable({
                       </p>
                     ) : null}
                   </TableCell>
-                  <TableCell align="right" className="font-mono">{formatNumber(order.quantity)}</TableCell>
-                  <TableCell align="right" className="font-mono">
+                  <TableCell align="right" className="font-mono max-sm:hidden">{formatNumber(order.quantity)}</TableCell>
+                  <TableCell align="right" className="font-mono max-sm:hidden">
                     {order.supplierPriceLei != null ? `${formatMoney(order.supplierPriceLei)} lei` : "—"}
                   </TableCell>
-                  <TableCell align="right" className="font-mono font-semibold">
+                  <TableCell align="right" className="font-mono font-semibold max-sm:hidden">
                     {order.salePriceLei != null ? `${formatMoney(order.salePriceLei)} lei` : "—"}
                   </TableCell>
-                  <TableCell align="right" className="font-mono font-semibold">
+                  <TableCell align="right" className="font-mono font-semibold max-sm:hidden">
                     <MarginCell order={order} />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-sm:hidden">
                     <StatusBadge status={order.status} />
                   </TableCell>
                   {actionColumns > 0 ? (
@@ -241,15 +251,17 @@ function toFormValue(order: ExternalOrderRow): ExternalOrderFormValue {
 function TableHead({
   align = "left",
   children,
+  className = "",
 }: {
   align?: "left" | "right";
   children: ReactNode;
+  className?: string;
 }) {
   return (
     <th
       className={`whitespace-nowrap px-4 py-2.5 text-[13px] font-semibold text-[#52525b] ${
         align === "right" ? "text-right" : "text-left"
-      }`}
+      } ${className}`}
     >
       {children}
     </th>

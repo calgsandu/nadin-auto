@@ -9,11 +9,11 @@ import type { ComponentProps } from "react";
 
 /** Pătrat mic, contur — pentru acțiunile de pe rânduri (editează, detalii, PDF…). */
 export const rowIconButtonCls =
-  "button-secondary inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[#e4e4e7] bg-white text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#18181b] disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
+  "button-secondary relative inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[#e4e4e7] bg-white text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#18181b] disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
 
 /** Același pătrat, roșu — pentru ștergere. */
 export const rowDangerIconButtonCls =
-  "button-secondary inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[#fca5a5] bg-white text-[#b91c1c] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
+  "button-secondary relative inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[#fca5a5] bg-white text-[#b91c1c] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
 
 const closeCls =
   "button-secondary inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-[#e4e4e7] bg-white text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]";

@@ -65,9 +65,10 @@ export function PartnerPaymentDialog({
           setMounted(true);
           setOpen(true);
         }}
-        className="button-secondary button-icon-cash inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+        title="Încasează"
+        className="button-secondary button-icon-cash relative inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5] max-sm:size-8 max-sm:justify-center max-sm:px-0"
       >
-        Încasează
+        <span className="max-sm:sr-only">Încasează</span>
       </button>
       {mounted ? (
         <OperationDrawer

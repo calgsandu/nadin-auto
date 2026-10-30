@@ -85,19 +85,19 @@ export function DailyMetric({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="rounded-lg border border-[#e4e4e7] bg-white px-4 py-3">
+    <div className="min-w-0 rounded-lg border border-[#e4e4e7] bg-white px-4 py-3 max-sm:px-3 max-sm:py-2">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[13px] font-medium text-[#52525b]">{label}</p>
+        <p className="text-[13px] font-medium text-[#52525b] max-sm:truncate max-sm:text-xs">{label}</p>
         {Icon ? (
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#f4f4f5] text-[#52525b]">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#f4f4f5] text-[#52525b] max-sm:hidden">
             <Icon className="size-4" aria-hidden="true" />
           </span>
         ) : null}
       </div>
-      <p className="-mt-1 text-2xl font-semibold tracking-tight tabular-nums text-[#18181b]">
+      <p className="-mt-1 text-2xl font-semibold tracking-tight tabular-nums text-[#18181b] max-sm:mt-0.5 max-sm:text-base">
         {value}
       </p>
-      {hint ? <p className="mt-1 text-xs text-[#71717a]">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-[#71717a] max-sm:hidden">{hint}</p> : null}
     </div>
   );
 }
@@ -110,10 +110,11 @@ export function ExportLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
+      title={label}
       className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
     >
       <Download className="size-4" aria-hidden="true" />
-      {label}
+      <span className="max-sm:sr-only">{label}</span>
     </a>
   );
 }
@@ -345,7 +346,9 @@ export function FilterReset({ href }: { href: string }) {
 }
 
 /** Comutator segmentat (depozite, filtre de listă): un grup, nu pastile separate. */
-export const segmentedCls = "inline-flex max-w-full flex-wrap rounded-lg border border-[#e4e4e7] bg-white p-0.5";
+// Pe telefon un singur rând care se derulează, nu trei rânduri de depozite.
+export const segmentedCls =
+  "inline-flex max-w-full flex-wrap rounded-lg border border-[#e4e4e7] bg-white p-0.5 max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:[scrollbar-width:none] [&>*]:shrink-0 [&>*]:whitespace-nowrap";
 
 export function segmentCls(active: boolean) {
   return `rounded-md px-3 py-1 text-sm font-medium transition-colors ${

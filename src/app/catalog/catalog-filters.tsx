@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition, type ReactNode } from "reac
 import { Boxes, CalendarDays, Car, Layers, LoaderCircle, Search, Tag, X } from "lucide-react";
 import type { Brand, CarModel, ProductType } from "@/generated/prisma/client";
 import { crmCatalogFilterHref } from "@/lib/crm/urls";
+import { MobileFilters } from "@/app/crm/_components/mobile-filters";
 
 type CatalogFiltersProps = {
   brands: Brand[];
@@ -57,6 +58,8 @@ export function CatalogFilters({
     router.push(crmCatalogFilterHref(next));
   }
 
+  const activeFilters = ["brand", "model", "type", "year", "stoc"].filter((key) => searchParams.get(key)).length;
+
   const pill = (active: boolean) =>
     `field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
       active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e4e4e7] bg-white text-[#3f3f46]"
@@ -65,7 +68,7 @@ export function CatalogFilters({
 
   return (
     <section className="motion-page flex flex-wrap items-center gap-2 px-3 pt-3 lg:px-6 lg:pt-4">
-      <div className="relative w-full sm:w-60">
+      <div className="relative min-w-0 flex-1 sm:w-60 sm:flex-none">
         <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
           {searching ? (
             <LoaderCircle className="size-4 animate-spin text-[#2563eb]" aria-hidden="true" />
@@ -94,6 +97,7 @@ export function CatalogFilters({
           Ctrl K
         </kbd>
       </div>
+      <MobileFilters active={activeFilters}>
       <label className={pill(Boolean(searchParams.get("brand")))}>
         <Tag className="size-4 shrink-0 opacity-70" aria-hidden="true" />
         <span className="sr-only">Brand</span>
@@ -165,6 +169,7 @@ export function CatalogFilters({
           <option value="mic">Aproape terminate</option>
         </select>
       </label>
+      </MobileFilters>
       {searchParams.toString() ? (
         <button
           className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"

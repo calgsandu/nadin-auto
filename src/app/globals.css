@@ -387,6 +387,41 @@ a {
 }
 
 /*
+ * Pe telefon un rând de produs era o coloană lungă: produs, cantitate, preț,
+ * sumă, coș — fiecare pe toată lățimea. Acum produsul stă sus, iar câmpurile
+ * mici încap toate pe rândul de dedesubt.
+ */
+@media (max-width: 767px) {
+  .line-phone-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .line-phone-row > * {
+    min-width: 0;
+    flex: 1 1 0;
+  }
+
+  .line-phone-row > :first-child {
+    flex-basis: 100%;
+  }
+
+  .line-phone-row > :last-child {
+    flex: 0 0 auto;
+  }
+}
+
+/*
+ * Etichetele ascunse (`sr-only`, poziție absolută) din tabelele care se derulează
+ * pe orizontală ieșeau din zona derulată: pe telefon pagina devenea mai lată
+ * decât ecranul și browserul o micșora toată. Derulatorul le ține acum în el.
+ */
+:is(.overflow-x-auto, .overflow-auto, .overflow-x-scroll) {
+  position: relative;
+}
+
+/*
  * Meniul „⋯" de pe rânduri (`RowMenu`): acțiunile existente (butoane și
  * linkuri cu stilul lor de rând de tabel) devin rânduri de meniu. CSS-ul fără
  * layer bate utilitarele Tailwind, deci componentele rămân neschimbate;
@@ -464,6 +499,21 @@ a {
   border: 0 !important;
   border-radius: 0 !important;
   background: #fff;
+}
+
+/* Pe telefon cifrele stau câte 2 (sau 3, când sunt fix trei) pe rând, nu una sub alta. */
+@media (max-width: 639px) {
+  .stat-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stat-strip:has(> :nth-child(3):last-child) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .stat-strip:has(> :only-child) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Rândul bifat (stickere) iese în evidență, cu bara albastră în stânga. */

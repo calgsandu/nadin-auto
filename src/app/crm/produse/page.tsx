@@ -117,18 +117,18 @@ function ProductWorkspace({
         <LabelPicker>
           <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
             <div className="overflow-x-auto">
-              <table className="crm-table w-full min-w-[720px] border-collapse text-left text-sm">
+              <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[720px]">
                 <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
                   <tr>
                     {canModify ? (
-                      <TableHead>
+                      <TableHead className="max-sm:hidden">
                         <span className="sr-only">Selectează pentru sticker</span>
                       </TableHead>
                     ) : null}
-                    <TableHead>Cod</TableHead>
-                    <TableHead className="min-w-[18rem]">Mașină și piesă</TableHead>
-                    <TableHead align="right">Preț vânzare</TableHead>
-                    <TableHead align="right">Stoc</TableHead>
+                    <TableHead className="max-sm:hidden">Cod</TableHead>
+                    <TableHead className="sm:min-w-[18rem]">Mașină și piesă</TableHead>
+                    <TableHead align="right" className="max-sm:hidden">Preț vânzare</TableHead>
+                    <TableHead align="right" className="max-sm:hidden">Stoc</TableHead>
                     {canModify ? <TableHead align="right" secondary>Cost aducere</TableHead> : null}
                     {canModify ? (
                       <TableHead align="right">
@@ -219,7 +219,7 @@ function ProductRow({
   return (
     <tr className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
       {canModify ? (
-        <TableCell>
+        <TableCell className="max-sm:hidden">
           <input
             type="checkbox"
             data-label-id={product.id}
@@ -234,7 +234,7 @@ function ProductRow({
           />
         </TableCell>
       ) : null}
-      <TableCell className="whitespace-nowrap">
+      <TableCell className="whitespace-nowrap max-sm:hidden">
         {/* Codul e cheia piesei: după el se caută și se comandă. */}
         {product.externalCode ? (
           <CopyCode code={product.externalCode} className="font-mono text-[15px] font-bold text-[#18181b]" />
@@ -246,6 +246,11 @@ function ProductRow({
         ) : null}
       </TableCell>
       <TableCell>
+        {/* Pe telefon coloanele Cod / Preț / Stoc nu încap: codul vine deasupra,
+            prețul și stocul dedesubt, totul într-un singur bloc. */}
+        {product.externalCode ? (
+          <CopyCode code={product.externalCode} className="mb-1 font-mono text-[15px] font-bold text-[#18181b] sm:hidden" />
+        ) : null}
         {/* Întâi mașina (după ea întreabă clientul), apoi piesa. Click: fișa cu
             stocul pe fiecare depozit și toate mașinile. */}
         <ProductPreview product={toPreview(product, catalog, compatibilities)} canModify={canModify} canSell={canSell}>
@@ -268,11 +273,17 @@ function ProductRow({
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
           </span>
         </ProductPreview>
+        <div className="mt-1.5 flex items-center gap-2 pl-5 sm:hidden">
+          <span className="text-[15px] font-semibold tabular-nums text-[#18181b]">
+            {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
+          </span>
+          <StockCount stock={product.stock} minStock={product.minStock} />
+        </div>
       </TableCell>
-      <TableCell align="right" className="text-[15px] font-semibold tabular-nums text-[#18181b]">
+      <TableCell align="right" className="text-[15px] max-sm:hidden font-semibold tabular-nums text-[#18181b]">
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
       </TableCell>
-      <TableCell align="right" className="font-semibold tabular-nums">
+      <TableCell align="right" className="font-semibold tabular-nums max-sm:hidden">
         <StockCount stock={product.stock} minStock={product.minStock} />
       </TableCell>
       {canModify ? (

@@ -22,6 +22,7 @@ import {
 } from "../_components/ui";
 import { toDocLines, toDocumentDetails } from "../_components/documents-table";
 import { formatDate, formatDocType, formatMoney, formatNumber } from "../_components/format";
+import { MobileFilters } from "../_components/mobile-filters";
 
 type DocumentsData = Awaited<ReturnType<typeof getDocumentsData>>;
 
@@ -77,6 +78,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <form action="/crm/documente" method="get" className="flex flex-wrap items-center gap-2">
+        <MobileFilters active={[filters.dtype, filters.partner, filters.from, filters.to].filter(Boolean).length}>
         <FilterField icon={<FileText />} label="Tip" active={Boolean(filters.dtype)}>
           <select className={filterControlCls} name="dtype" defaultValue={filters.dtype}>
             <option value="">Toate tipurile</option>
@@ -107,19 +109,20 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
         {filters.dtype || filters.partner || filters.from || filters.to ? (
           <FilterReset href={crmSectionHref("documente")} />
         ) : null}
+        </MobileFilters>
       </form>
 
       <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
-          <table className="crm-table w-full border-collapse text-left text-sm" style={{ minWidth: "820px" }}>
+          <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[820px]">
             <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
               <tr>
                 <TableHead>Document</TableHead>
-                <TableHead>Depozit</TableHead>
-                <TableHead>Partener</TableHead>
-                <TableHead align="right">Produse</TableHead>
-                <TableHead align="right">Total</TableHead>
-                <TableHead>Plată</TableHead>
+                <TableHead className="max-sm:hidden">Depozit</TableHead>
+                <TableHead className="max-sm:hidden">Partener</TableHead>
+                <TableHead align="right" className="max-sm:hidden">Produse</TableHead>
+                <TableHead align="right" className="max-sm:hidden">Total</TableHead>
+                <TableHead className="max-sm:hidden">Plată</TableHead>
                 <TableHead align="right">
                   <span className="sr-only">Acțiuni</span>
                 </TableHead>
@@ -131,14 +134,18 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                   <TableCell className="whitespace-nowrap">
                     <span className="block font-semibold">{formatDocType(d.type)} #{d.number}</span>
                     <span className="block text-xs text-[#52525b]">{formatDate(d.documentDate)}</span>
+                    {/* Pe telefon: partenerul și totalul sub document, în loc de coloane. */}
+                    <span className="mt-1 block whitespace-normal text-xs text-[#52525b] sm:hidden">
+                      {[d.partner?.name, documentTotal(d)].filter(Boolean).join(" · ")}
+                    </span>
                   </TableCell>
-                  <TableCell>{d.warehouse.name}</TableCell>
-                  <TableCell>{d.partner?.name ?? "—"}</TableCell>
-                  <TableCell align="right" className="font-mono">{formatNumber(d._count.lines)}</TableCell>
-                  <TableCell align="right" className="font-mono">
-                    {d.totalEuro != null ? `${formatMoney(d.totalEuro)} EUR` : d.totalLei != null ? `${formatMoney(d.totalLei)} lei` : "—"}
+                  <TableCell className="max-sm:hidden">{d.warehouse.name}</TableCell>
+                  <TableCell className="max-sm:hidden">{d.partner?.name ?? "—"}</TableCell>
+                  <TableCell align="right" className="font-mono max-sm:hidden">{formatNumber(d._count.lines)}</TableCell>
+                  <TableCell align="right" className="font-mono max-sm:hidden">
+                    {documentTotal(d) ?? "—"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-sm:hidden">
                     {d.type === "SALE" ? (
                       canModify ? (
                         <SalePaymentMethodControl documentId={d.id} value={d.paymentMethod} />
@@ -197,3 +204,8 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
   );
 }
 
+function documentTotal(d: { totalEuro: Parameters<typeof formatMoney>[0] | null; totalLei: Parameters<typeof formatMoney>[0] | null }) {
+  if (d.totalEuro != null) return `${formatMoney(d.totalEuro)} EUR`;
+  if (d.totalLei != null) return `${formatMoney(d.totalLei)} lei`;
+  return null;
+}

@@ -311,7 +311,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                     return (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
+                      className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
                     >
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
@@ -588,7 +588,7 @@ export function StockTransferDialog({
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
+                      className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
                     >
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
@@ -1094,7 +1094,7 @@ export function StockSaleDialog({
                     const showStock = Boolean(line.productId) && line.stocks.length > 0;
                     const notEnough = showStock && (Number(line.qty) || 0) > stockHere;
                     return (
-                    <div key={line.id} className="motion-line-item grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
+                    <div key={line.id} className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
                         <input name="externalName" type="hidden" value="" />

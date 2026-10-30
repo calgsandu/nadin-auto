@@ -274,7 +274,7 @@ export function InventoryDialog({
               {lines.map((line, index) => (
                 <div
                   key={line.id}
-                  className={`${drawerLineClassName} md:grid-cols-[minmax(0,1fr)_11rem_11rem_2.25rem]`}
+                  className={`${drawerLineClassName} line-phone-row md:grid-cols-[minmax(0,1fr)_11rem_11rem_2.25rem]`}
                   style={matchesLineFilter(filter, line) ? undefined : { display: "none" }}
                 >
                   <div>
