@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { Suspense } from "react";
-import { Download, FileText } from "lucide-react";
+import { CalendarDays, Download, FileText, Users } from "lucide-react";
 import { CashRegisterBadge, CashRegisterControl } from "@/app/operations/cash-register-control";
 import { SalePaymentMethodBadge, SalePaymentMethodControl } from "@/app/operations/sale-payment-method-control";
 import { DocumentDetailsButton } from "@/app/operations/document-details";
@@ -11,7 +10,17 @@ import { crmDocumentsHref, crmSectionHref } from "@/lib/crm/urls";
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { PagerLink, TableCell, TableHead, WorkspaceSkeleton, adminRowCls } from "../_components/ui";
+import {
+  FilterField,
+  FilterReset,
+  FilterSubmit,
+  Pagination,
+  TableCell,
+  TableHead,
+  WorkspaceSkeleton,
+  adminRowCls,
+  filterControlCls,
+} from "../_components/ui";
 import { toDocLines, toDocumentDetails } from "../_components/documents-table";
 import { formatDate, formatDocType, formatMoney, formatNumber } from "../_components/format";
 
@@ -63,62 +72,42 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
   // Fără asta, editarea unei recepții arăta „Nu există furnizori" cu selectul
   // dezactivat, deși furnizorii existau: prop-ul pur și simplu nu era dat.
   const suppliers = partners.filter((p) => p.kind === "SUPPLIER" || p.kind === "BOTH");
-  const filterInputCls =
-    "h-9 rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm text-[#18181b]";
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
 
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
-      <form
-        action="/crm/documente"
-        method="get"
-        className="flex flex-wrap items-end gap-2 rounded-xl border border-[#e4e4e7] bg-white px-3 py-3"
-      >
-        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
-          Tip
-          <select className={filterInputCls} name="dtype" defaultValue={filters.dtype}>
-            <option value="">Toate</option>
+      <form action="/crm/documente" method="get" className="flex flex-wrap items-center gap-2">
+        <FilterField icon={<FileText />} label="Tip" active={Boolean(filters.dtype)}>
+          <select className={filterControlCls} name="dtype" defaultValue={filters.dtype}>
+            <option value="">Toate tipurile</option>
             <option value="RECEIPT">Recepții</option>
             <option value="SALE">Vânzări</option>
             <option value="RETURN">Retururi</option>
             <option value="ADJUSTMENT">Ajustări/Transferuri</option>
           </select>
-        </label>
-        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
-          Partener
-          <select className={filterInputCls} name="partner" defaultValue={filters.partner}>
-            <option value="">Toți</option>
+        </FilterField>
+        <FilterField icon={<Users />} label="Partener" active={Boolean(filters.partner)}>
+          <select className={`${filterControlCls} max-w-44`} name="partner" defaultValue={filters.partner}>
+            <option value="">Toți partenerii</option>
             {partners.map((partner) => (
               <option key={partner.id} value={partner.id}>
                 {partner.name}
               </option>
             ))}
           </select>
-        </label>
-        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
-          De la
-          <input className={filterInputCls} type="date" name="from" defaultValue={filters.from} />
-        </label>
-        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
-          Până la
-          <input className={filterInputCls} type="date" name="to" defaultValue={filters.to} />
-        </label>
-        <button
-          type="submit"
-          className="button-primary h-9 rounded-md bg-[#18181b] px-4 text-sm font-semibold text-white hover:bg-[#27272a]"
-        >
-          Filtrează
-        </button>
-        <Link
-          href={crmSectionHref("documente")}
-          className="h-9 content-center px-2 text-sm font-medium text-[#18181b] underline decoration-[#2563eb] underline-offset-4"
-        >
-          Resetează
-        </Link>
-        <span className="ml-auto text-sm text-[#52525b]">
-          {start}-{end} din {formatNumber(total)} documente
-        </span>
+        </FilterField>
+        <FilterField icon={<CalendarDays />} label="De la" active={Boolean(filters.from)}>
+          <input className={filterControlCls} type="date" name="from" defaultValue={filters.from} />
+        </FilterField>
+        <span className="text-[#a1a1aa]" aria-hidden="true">–</span>
+        <FilterField icon={<CalendarDays />} label="Până la" active={Boolean(filters.to)}>
+          <input className={filterControlCls} type="date" name="to" defaultValue={filters.to} />
+        </FilterField>
+        <FilterSubmit />
+        {filters.dtype || filters.partner || filters.from || filters.to ? (
+          <FilterReset href={crmSectionHref("documente")} />
+        ) : null}
       </form>
 
       <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
@@ -209,25 +198,12 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
         {documents.length === 0 ? <div className="px-4 py-12 text-center text-sm text-[#52525b]">Niciun document pentru filtrele curente.</div> : null}
       </div>
 
-      {pageCount > 1 ? (
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <p className="text-[#52525b]">
-            Pagina {page} din {pageCount}
-          </p>
-          <div className="flex gap-2">
-            <PagerLink
-              disabled={page <= 1}
-              href={crmDocumentsHref({ ...filters, dpage: page - 1 })}
-              label="Înapoi"
-            />
-            <PagerLink
-              disabled={page >= pageCount}
-              href={crmDocumentsHref({ ...filters, dpage: page + 1 })}
-              label="Înainte"
-            />
-          </div>
-        </div>
-      ) : null}
+      <Pagination
+        page={page}
+        pageCount={pageCount}
+        hrefFor={(target) => crmDocumentsHref({ ...filters, dpage: target })}
+        summary={`${start}–${end} din ${formatNumber(total)} documente`}
+      />
     </section>
   );
 }

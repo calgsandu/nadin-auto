@@ -6,6 +6,7 @@ import {
 import type { ApprovalsData } from "@/lib/audit/queries";
 import { cashRegisterLabel } from "@/lib/operations/cash-register";
 import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
+import { DailyMetric, StatusBadge } from "@/app/crm/_components/ui";
 
 const dateTimeFormat = new Intl.DateTimeFormat("ro-MD", {
   day: "2-digit",
@@ -24,10 +25,10 @@ type ApprovalItem = ApprovalsData["pending"][number];
 export function ApprovalWorkspace({ data }: { data: ApprovalsData }) {
   return (
     <section className="motion-page grid gap-4 p-4">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Metric label="În așteptare" value={data.pending.length} tone="blue" />
-        <Metric label="Respinse recent" value={data.rejected.length} tone="red" />
-        <Metric label="Aprobate recent" value={data.approved.length} tone="green" />
+      <div className="stat-strip grid grid-cols-1 sm:grid-cols-3">
+        <DailyMetric label="În așteptare" value={String(data.pending.length)} hint="stocul nu e modificat încă" />
+        <DailyMetric label="Respinse recent" value={String(data.rejected.length)} />
+        <DailyMetric label="Aprobate recent" value={String(data.approved.length)} />
       </div>
 
       <ApprovalList
@@ -61,27 +62,6 @@ export function ApprovalWorkspace({ data }: { data: ApprovalsData }) {
   );
 }
 
-function Metric({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: number;
-  tone: "blue" | "red" | "green";
-}) {
-  const colors = {
-    blue: "bg-[#eff6ff] text-[#1d4ed8]",
-    red: "bg-[#fff1f1] text-[#b42318]",
-    green: "bg-[#ecfdf3] text-[#027a48]",
-  };
-  return (
-    <div className={`rounded-lg px-3.5 py-2.5 ${colors[tone]}`}>
-      <p className="text-xs font-medium opacity-70">{label}</p>
-      <p className="mt-0.5 text-xl font-bold tabular-nums">{value}</p>
-    </div>
-  );
-}
 
 function ApprovalList({
   title,
@@ -125,14 +105,12 @@ function ApprovalCard({
   mode: "pending" | "rejected" | "approved";
 }) {
   return (
-    <article className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+    <article className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[#f0f0f2] px-4 py-3.5">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge mode={mode} />
-            <span className="rounded-md bg-[#f4f4f5] px-2 py-1 text-[11px] font-semibold text-[#52525b]">
-              {entry.kind === "SALE" ? "Vânzare" : "Predare cont"}
-            </span>
+            <ModeBadge mode={mode} />
+            <StatusBadge tone="gray">{entry.kind === "SALE" ? "Vânzare" : "Predare cont"}</StatusBadge>
           </div>
           <h3 className="mt-2 font-semibold text-[#18181b]">{entry.summary}</h3>
           <p className="mt-1 text-xs text-[#71717a]">
@@ -245,28 +223,8 @@ function Detail({ label, value }: { label: string; value: string }) {
   );
 }
 
-function StatusBadge({
-  mode,
-}: {
-  mode: "pending" | "rejected" | "approved";
-}) {
-  const meta = {
-    pending: {
-      label: "În așteptare",
-      className: "bg-[#eff6ff] text-[#1d4ed8]",
-    },
-    rejected: {
-      label: "Respinsă",
-      className: "bg-[#fff1f1] text-[#b42318]",
-    },
-    approved: {
-      label: "Aprobată",
-      className: "bg-[#ecfdf3] text-[#027a48]",
-    },
-  }[mode];
-  return (
-    <span className={`rounded-md px-2 py-1 text-[11px] font-bold ${meta.className}`}>
-      {meta.label}
-    </span>
-  );
+function ModeBadge({ mode }: { mode: "pending" | "rejected" | "approved" }) {
+  if (mode === "pending") return <StatusBadge tone="blue">În așteptare</StatusBadge>;
+  if (mode === "rejected") return <StatusBadge tone="red">Respinsă</StatusBadge>;
+  return <StatusBadge tone="green">Aprobată</StatusBadge>;
 }

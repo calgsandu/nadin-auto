@@ -1,3 +1,4 @@
+import { PageNote, StatusBadge } from "@/app/crm/_components/ui";
 import { PaymentAccountDialog } from "@/app/payment-accounts/payment-account-dialog";
 import { PaymentAccountRowActions } from "@/app/payment-accounts/payment-account-row-actions";
 import type { PaymentAccountsData } from "@/lib/payment-accounts/queries";
@@ -15,15 +16,14 @@ export function PaymentAccountsWorkspace({
 }) {
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e4e4e7] bg-white px-4 py-3">
-        <div>
-          <p className="font-semibold text-[#18181b]">Înainte de vânzare</p>
-          <p className="mt-0.5 text-sm text-[#52525b]">Contul nu rezervă și nu scade stocul. Stocul se schimbă numai la „Predă marfa”.</p>
-        </div>
-        <PaymentAccountDialog customers={data.customers} warehouses={data.warehouses} />
-      </div>
+      <PageNote
+        title="Înainte de vânzare"
+        action={<PaymentAccountDialog customers={data.customers} warehouses={data.warehouses} />}
+      >
+        Contul nu rezervă și nu scade stocul. Stocul se schimbă numai la „Predă marfa”.
+      </PageNote>
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[1040px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e4e4e7] bg-[#fafafa] text-xs text-[#52525b]">
@@ -92,7 +92,7 @@ export function PaymentAccountsWorkspace({
 }
 
 function Flow({ account }: { account: PaymentAccountsData["accounts"][number] }) {
-  if (account.cancelledAt) return <span className="inline-flex rounded-full bg-[#fef2f2] px-2.5 py-1 text-xs font-semibold text-[#b91c1c]">Anulat</span>;
+  if (account.cancelledAt) return <StatusBadge tone="red">Anulat</StatusBadge>;
   const steps = [
     { label: "Emis", done: true },
     { label: "Achitat", done: Boolean(account.paidAt) },

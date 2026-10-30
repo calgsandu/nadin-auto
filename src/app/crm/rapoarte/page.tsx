@@ -68,7 +68,7 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
       <CurrencyWidget valueLei={data.stockValueLei} rates={data.rates} />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+        <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
           <div className="border-b border-[#f0f0f2] px-4 py-3 font-semibold text-[#18181b]">Stoc pe depozit</div>
           <table className="w-full border-collapse text-left text-sm">
             <tbody>
@@ -93,7 +93,7 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
           </table>
         </div>
 
-        <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+        <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
           <div className="border-b border-[#f0f0f2] px-4 py-3 font-semibold text-[#18181b]">
             Produse sub stocul minim
             <span className="ml-2 text-xs font-normal text-[#71717a]">prag per produs, implicit 3</span>

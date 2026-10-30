@@ -71,7 +71,7 @@ function VatWorkspace({ data }: { data: VatReportData }) {
         din vânzări, nu se adună la ele.
       </p>
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[980px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">

@@ -22,7 +22,7 @@ function cashRegisterTone(value: CashRegisterStatus) {
 
 export function CashRegisterBadge({ value }: { value: CashRegisterStatus }) {
   return (
-    <span className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-semibold ${cashRegisterTone(value)}`}>
+    <span className={`inline-flex whitespace-nowrap rounded-md border px-2 py-0.5 text-xs font-medium ${cashRegisterTone(value)}`}>
       {cashRegisterLabel(value)}
     </span>
   );
@@ -63,7 +63,7 @@ function CashRegisterSelect({ value }: { value: CashRegisterStatus }) {
   return (
     <select
       aria-label="Statut casă"
-      className={`inline-select h-7 rounded-full border pl-2.5 pr-7 text-xs font-semibold disabled:opacity-60 ${cashRegisterTone(value)}`}
+      className={`inline-select h-7 rounded-md border pl-2.5 pr-7 text-xs font-semibold disabled:opacity-60 ${cashRegisterTone(value)}`}
       defaultValue={cashRegisterFormValue(value)}
       disabled={pending}
       name="cashRegistered"

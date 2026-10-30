@@ -1,9 +1,9 @@
-import Link from "next/link";
+import { Search } from "lucide-react";
 import { Suspense } from "react";
 import { getPriceHistoryData, type PriceHistoryData } from "@/lib/reports/prices";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { PagerLink, TableCell, TableHead, WorkspaceSkeleton } from "../_components/ui";
+import { FilterReset, FilterSubmit, Pagination, TableCell, TableHead, WorkspaceSkeleton } from "../_components/ui";
 import { dateTimeFormat, formatMoney, formatNumber, formatText } from "../_components/format";
 
 export const dynamic = "force-dynamic";
@@ -50,41 +50,26 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
 
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
-      <form
-        action="/crm/preturi"
-        method="get"
-        className="flex flex-wrap items-end gap-2 rounded-xl border border-[#e4e4e7] bg-white px-3 py-3"
-      >
-        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
-          Caută produs
+      <form action="/crm/preturi" method="get" className="flex flex-wrap items-center gap-2">
+        <label className="relative w-full sm:w-72">
+          <Search
+            className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-[#71717a]"
+            aria-hidden="true"
+          />
+          <span className="sr-only">Caută produs</span>
           <input
-            className="h-9 w-64 max-w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm text-[#18181b]"
+            className="field-control h-9 w-full rounded-lg border border-[#e4e4e7] bg-white pl-8 pr-3 text-sm text-[#18181b] outline-none placeholder:text-[#71717a]"
             type="search"
             name="q"
             defaultValue={data.filters.q}
-            placeholder="cod sau denumire"
+            placeholder="Caută după cod sau denumire"
           />
         </label>
-        <button
-          type="submit"
-          className="button-primary h-9 rounded-md bg-[#18181b] px-4 text-sm font-semibold text-white hover:bg-[#27272a]"
-        >
-          Caută
-        </button>
-        {data.filters.q ? (
-          <Link
-            href="/crm/preturi"
-            className="h-9 content-center px-2 text-sm font-medium text-[#18181b] underline decoration-[#2563eb] underline-offset-4"
-          >
-            Resetează
-          </Link>
-        ) : null}
-        <span className="ml-auto text-sm text-[#52525b]">
-          {start}-{end} din {formatNumber(data.total)} modificări
-        </span>
+        <FilterSubmit label="Caută" />
+        {data.filters.q ? <FilterReset href="/crm/preturi" /> : null}
       </form>
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[900px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
@@ -129,25 +114,12 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
         ) : null}
       </div>
 
-      {data.pageCount > 1 ? (
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <p className="text-[#52525b]">
-            Pagina {data.page} din {data.pageCount}
-          </p>
-          <div className="flex gap-2">
-            <PagerLink
-              disabled={data.page <= 1}
-              href={pageHref(data.filters.q, data.page - 1)}
-              label="Înapoi"
-            />
-            <PagerLink
-              disabled={data.page >= data.pageCount}
-              href={pageHref(data.filters.q, data.page + 1)}
-              label="Înainte"
-            />
-          </div>
-        </div>
-      ) : null}
+      <Pagination
+        page={data.page}
+        pageCount={data.pageCount}
+        hrefFor={(target) => pageHref(data.filters.q, target)}
+        summary={`${start}–${end} din ${formatNumber(data.total)} modificări`}
+      />
     </section>
   );
 }

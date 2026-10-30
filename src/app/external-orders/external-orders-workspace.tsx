@@ -7,6 +7,7 @@ import {
   OrderDeleteButton,
   OrderStatusControl,
 } from "@/app/external-orders/order-row-actions";
+import { PageNote, StatusBadge as Badge, type BadgeTone } from "@/app/crm/_components/ui";
 import { STATUS_LABELS } from "@/lib/external-orders/status";
 import type {
   ExternalOrderRow,
@@ -36,15 +37,12 @@ export function ExternalOrdersWorkspace({
         <Metric label="Marjă totală (livrate)" value={`${formatMoney(deliveredMargin)} lei`} />
       </div>
 
-      <div className="motion-card flex flex-col gap-3 rounded-xl border border-[#e4e4e7] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-semibold text-[#18181b]">Aprovizionare la comandă</h2>
-          <p className="text-sm text-[#52525b]">
-            Clientul cere piesa → suni furnizorul → confirmi → aduci → livrezi. Catalogul propriu nu este afectat.
-          </p>
-        </div>
-        <ExternalOrderDialog suppliers={data.suppliers} triggerLabel="Comandă nouă" />
-      </div>
+      <PageNote
+        title="Aprovizionare la comandă"
+        action={<ExternalOrderDialog suppliers={data.suppliers} triggerLabel="Comandă nouă" />}
+      >
+        Clientul cere piesa → suni furnizorul → confirmi → aduci → livrezi. Catalogul propriu nu este afectat.
+      </PageNote>
 
       <OrdersTable
         title="Comenzi în lucru"
@@ -85,7 +83,7 @@ function OrdersTable({
   const actionColumns = (showActions ? 1 : 0) + (canDelete ? 1 : 0);
 
   return (
-    <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+    <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
       <div className="border-b border-[#e4e4e7] px-4 py-2.5">
         <h2 className="text-sm font-semibold text-[#18181b]">{title}</h2>
       </div>
@@ -192,20 +190,18 @@ function OrdersTable({
   );
 }
 
-const STATUS_STYLES: Record<ExternalOrderStatus, string> = {
-  CERERE: "bg-[#f4f4f5] text-[#52525b]",
-  OFERTAT: "bg-[#fef3c7] text-[#92400e]",
-  CONFIRMAT: "bg-[#dbeafe] text-[#1d4ed8]",
-  RECEPTIONAT: "bg-[#ede9fe] text-[#6d28d9]",
-  LIVRAT: "bg-[#dcfce7] text-[#166534]",
-  ANULAT: "bg-[#fee2e2] text-[#b91c1c]",
+const STATUS_TONES: Record<ExternalOrderStatus, BadgeTone> = {
+  CERERE: "gray",
+  OFERTAT: "amber",
+  CONFIRMAT: "blue",
+  RECEPTIONAT: "purple",
+  LIVRAT: "green",
+  ANULAT: "red",
 };
 
 function StatusBadge({ status }: { status: ExternalOrderStatus }) {
   return (
-    <span className={`inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[status]}`}>
-      {STATUS_LABELS[status]}
-    </span>
+    <Badge tone={STATUS_TONES[status]}>{STATUS_LABELS[status]}</Badge>
   );
 }
 

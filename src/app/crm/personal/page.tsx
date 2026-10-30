@@ -11,7 +11,7 @@ import {
 import { getStaffData, type StaffRow } from "@/lib/staff/queries";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { TableCell, TableHead, WorkspaceSkeleton } from "../_components/ui";
+import { StatusBadge, TableCell, TableHead, WorkspaceSkeleton } from "../_components/ui";
 import { formatText } from "../_components/format";
 import type { AppRole } from "@/generated/prisma/enums";
 
@@ -56,7 +56,7 @@ function StaffWorkspace({
 }) {
   return (
     <section className="motion-page p-4 lg:px-6 lg:py-5">
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
@@ -83,36 +83,12 @@ function StaffWorkspace({
                   </TableCell>
                   <TableCell>{formatRole(user.role)}</TableCell>
                   <TableCell secondary>
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        user.active
-                          ? "bg-[#f0fdf4] text-[#166534]"
-                          : "bg-[#fef2f2] text-[#b91c1c]"
-                      }`}
-                    >
+                    <StatusBadge tone={user.active ? "green" : "red"}>
                       {user.active ? "Activ" : "Dezactivat"}
-                    </span>
+                    </StatusBadge>
                   </TableCell>
                   <TableCell>
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        user.twoFactorStatus === "ACTIVE"
-                          ? "bg-[#f0fdf4] text-[#166534]"
-                          : user.twoFactorStatus === "PENDING"
-                            ? "bg-[#fff7ed] text-[#9a3412]"
-                            : user.twoFactorStatus === "CODE_ISSUED"
-                              ? "bg-[#eff6ff] text-[#1d4ed8]"
-                            : "bg-[#f5f5f4] text-[#57534e]"
-                      }`}
-                    >
-                      {user.twoFactorStatus === "ACTIVE"
-                        ? "Activ"
-                        : user.twoFactorStatus === "PENDING"
-                          ? "În configurare"
-                          : user.twoFactorStatus === "CODE_ISSUED"
-                            ? "Cod emis"
-                          : "Neconfigurat"}
-                    </span>
+                    <TwoFactorBadge status={user.twoFactorStatus} />
                   </TableCell>
                   <TableCell align="right">
                     <div className="flex flex-wrap items-center justify-end gap-1.5">
@@ -168,3 +144,9 @@ function formatRole(role: AppRole) {
   return "Angajat";
 }
 
+function TwoFactorBadge({ status }: { status: StaffRow["twoFactorStatus"] }) {
+  if (status === "ACTIVE") return <StatusBadge tone="green">Activ</StatusBadge>;
+  if (status === "PENDING") return <StatusBadge tone="amber">În configurare</StatusBadge>;
+  if (status === "CODE_ISSUED") return <StatusBadge tone="blue">Cod emis</StatusBadge>;
+  return <StatusBadge tone="gray">Neconfigurat</StatusBadge>;
+}

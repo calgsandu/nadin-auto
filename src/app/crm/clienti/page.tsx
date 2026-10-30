@@ -85,7 +85,7 @@ async function Loader({
         <CustomerCard canModify={canModify} customer={open} detail={detail} />
       ) : null}
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[820px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Filter, Info, X } from "lucide-react";
 import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
 import { productLineSubtitle, type ProductLineInfo } from "@/lib/catalog/product-line-label";
 
@@ -96,32 +96,6 @@ export function RowActions({ children }: { children: ReactNode }) {
   return <div className="flex justify-end gap-2">{children}</div>;
 }
 
-export function PagerLink({
-  href,
-  label,
-  disabled,
-}: {
-  href: string;
-  label: string;
-  disabled: boolean;
-}) {
-  if (disabled) {
-    return (
-      <span className="rounded-md border border-[#e4e4e7] px-3 py-1.5 font-medium text-[#a1a1aa]">
-        {label}
-      </span>
-    );
-  }
-  return (
-    <Link
-      href={href}
-      className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-    >
-      {label}
-    </Link>
-  );
-}
-
 export function ExportLink({ href, label }: { href: string; label: string }) {
   return (
     <a
@@ -150,7 +124,7 @@ export function AdminSection({
 }) {
   return (
     <section className="motion-page p-4 lg:px-6 lg:py-5">
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table
             className="crm-table w-full border-collapse text-left text-sm"
@@ -300,5 +274,119 @@ export function Pagination({
       {step(page + 1, "Pagina următoare", <ChevronRight className="size-4" aria-hidden="true" />)}
       {step(pageCount, "Ultima pagină", <ChevronsRight className="size-4" aria-hidden="true" />)}
     </nav>
+  );
+}
+
+/*
+ * Bara de filtre a paginilor (același aspect ca filtrele de la Produse): fiecare
+ * filtru e o „pastilă" cu iconiță, eticheta e pentru cititoarele de ecran, iar
+ * pastila se colorează când filtrul e activ. Merge în formulare GET simple.
+ */
+export const filterControlCls =
+  "min-w-0 cursor-pointer bg-transparent font-medium text-inherit outline-none [color-scheme:light]";
+
+export function FilterField({
+  icon,
+  label,
+  active = false,
+  children,
+}: {
+  icon: ReactNode;
+  label: string;
+  active?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <label
+      className={`field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
+        active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e4e4e7] bg-white text-[#3f3f46]"
+      }`}
+    >
+      <span className="shrink-0 opacity-70 [&>svg]:size-4" aria-hidden="true">
+        {icon}
+      </span>
+      <span className="sr-only">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+export function FilterSubmit({ label = "Aplică" }: { label?: string }) {
+  return (
+    <button
+      type="submit"
+      className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
+    >
+      <Filter className="size-4 text-[#71717a]" aria-hidden="true" />
+      {label}
+    </button>
+  );
+}
+
+export function FilterReset({ href }: { href: string }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+    >
+      <X className="size-4" aria-hidden="true" /> Resetează
+    </Link>
+  );
+}
+
+/** Comutator segmentat (depozite, filtre de listă): un grup, nu pastile separate. */
+export const segmentedCls = "inline-flex max-w-full flex-wrap rounded-lg border border-[#e4e4e7] bg-white p-0.5";
+
+export function segmentCls(active: boolean) {
+  return `rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+    active ? "bg-[#18181b] text-white" : "text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+  }`;
+}
+
+export type BadgeTone = "blue" | "green" | "amber" | "red" | "gray" | "purple";
+
+const badgeTones: Record<BadgeTone, string> = {
+  blue: "bg-[#eff6ff] text-[#1d4ed8] ring-[#bfdbfe]",
+  green: "bg-[#f0fdf4] text-[#166534] ring-[#bbf7d0]",
+  amber: "bg-[#fffbeb] text-[#92400e] ring-[#fde68a]",
+  red: "bg-[#fef2f2] text-[#b91c1c] ring-[#fecaca]",
+  gray: "bg-[#f4f4f5] text-[#3f3f46] ring-[#e4e4e7]",
+  purple: "bg-[#f5f3ff] text-[#6d28d9] ring-[#ddd6fe]",
+};
+
+/** Insigna de status din tabele (aceeași formă peste tot: În stoc, Activ, Creare…). */
+export function StatusBadge({ tone, children }: { tone: BadgeTone; children: ReactNode }) {
+  return (
+    <span
+      className={`inline-flex whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${badgeTones[tone]}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+/**
+ * Nota scurtă de deasupra unui tabel („cum funcționează secțiunea") cu acțiunea
+ * principală la dreapta — un rând de bară de instrumente, nu o cutie separată.
+ */
+export function PageNote({
+  title,
+  children,
+  action,
+}: {
+  title: string;
+  children: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <p className="flex min-w-0 items-start gap-2 text-sm text-[#52525b]">
+        <Info className="mt-0.5 size-4 shrink-0 text-[#71717a]" aria-hidden="true" />
+        <span>
+          <span className="font-medium text-[#18181b]">{title}.</span> {children}
+        </span>
+      </p>
+      {action ? <div className="flex shrink-0 gap-2">{action}</div> : null}
+    </div>
   );
 }

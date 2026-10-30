@@ -6,6 +6,7 @@ import { getCatalogData } from "@/lib/catalog/queries";
 import { getTodayData, type TodayData } from "@/lib/crm/today";
 import { canCreateSales, canViewSection, canWriteCatalog } from "@/lib/roles";
 import type { AppRole } from "@/generated/prisma/enums";
+import { HeaderNotifications } from "../_components/chrome";
 import { requireCrmSection } from "../_components/guard";
 import { formatMoney, formatNumber } from "../_components/format";
 import { ProductFinder } from "./product-finder";
@@ -139,6 +140,7 @@ function QuickActions({ role }: { role: AppRole }) {
           <ShoppingCart className="size-4" aria-hidden="true" /> Vânzare nouă
         </Link>
       ) : null}
+      <HeaderNotifications />
     </div>
   );
 }

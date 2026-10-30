@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Download, FileText } from "lucide-react";
+import { CalendarDays, Download, FileText } from "lucide-react";
 import { InventoryDialog } from "@/app/operations/inventory-dialog";
 import { DocumentDetailsButton } from "@/app/operations/document-details";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
@@ -9,7 +9,19 @@ import { crmInventoryHref } from "@/lib/crm/urls";
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { PagerLink, TableCell, TableHead, VehicleSubline, WorkspaceSkeleton } from "../_components/ui";
+import {
+  FilterField,
+  FilterReset,
+  FilterSubmit,
+  Pagination,
+  segmentCls,
+  segmentedCls,
+  TableCell,
+  TableHead,
+  VehicleSubline,
+  WorkspaceSkeleton,
+  filterControlCls,
+} from "../_components/ui";
 import { toDocLines, toDocumentDetails } from "../_components/documents-table";
 import { formatDate, formatMoney, formatNumber, formatText, signedNumber } from "../_components/format";
 
@@ -57,18 +69,15 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
       {/* Depozitul, sumarul lui și acțiunea pe un singur rând — înainte erau trei
           rânduri (pastile, două carduri mari, butonul singur în dreapta). */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className={segmentedCls}>
           {data.warehouses.map((warehouse) => {
             const active = warehouse.id === data.selected?.id;
             return (
               <Link
                 key={warehouse.id}
                 href={crmInventoryHref({ wh: warehouse.id, ...data.filters })}
-                className={`rounded-full border px-3 py-1 text-sm font-semibold transition-colors ${
-                  active
-                    ? "border-[#18181b] bg-[#18181b] text-white"
-                    : "border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
-                }`}
+                aria-current={active ? "page" : undefined}
+                className={segmentCls(active)}
               >
                 {warehouse.name}
               </Link>
@@ -165,8 +174,6 @@ function InventoryOperationsTable({
     id: warehouse.id,
     name: warehouse.name,
   }));
-  const filterInputCls =
-    "h-9 rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm text-[#18181b]";
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
   const exportQuery = new URLSearchParams({
@@ -177,54 +184,36 @@ function InventoryOperationsTable({
 
   return (
     <div className="grid gap-3">
-      <form
-        action="/crm/inventar"
-        method="get"
-        className="flex flex-wrap items-end gap-2 rounded-xl border border-[#e4e4e7] bg-white px-3 py-3"
-      >
+      <form action="/crm/inventar" method="get" className="flex flex-wrap items-center gap-2">
         <input type="hidden" name="wh" value={selected?.id ?? ""} />
-        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
-          De la
-          <input className={filterInputCls} type="date" name="from" defaultValue={filters.from} />
-        </label>
-        <label className="grid gap-1 text-xs font-semibold text-[#52525b]">
-          Până la
-          <input className={filterInputCls} type="date" name="to" defaultValue={filters.to} />
-        </label>
-        <button
-          type="submit"
-          className="button-primary h-9 rounded-md bg-[#18181b] px-4 text-sm font-semibold text-white hover:bg-[#27272a]"
-        >
-          Filtrează
-        </button>
-        <Link
-          href={crmInventoryHref({ wh: selected?.id })}
-          className="h-9 content-center px-2 text-sm font-medium text-[#18181b] underline decoration-[#2563eb] underline-offset-4"
-        >
-          Resetează
-        </Link>
+        <FilterField icon={<CalendarDays />} label="De la" active={Boolean(filters.from)}>
+          <input className={filterControlCls} type="date" name="from" defaultValue={filters.from} />
+        </FilterField>
+        <span className="text-[#a1a1aa]" aria-hidden="true">–</span>
+        <FilterField icon={<CalendarDays />} label="Până la" active={Boolean(filters.to)}>
+          <input className={filterControlCls} type="date" name="to" defaultValue={filters.to} />
+        </FilterField>
+        <FilterSubmit />
+        {filters.from || filters.to ? <FilterReset href={crmInventoryHref({ wh: selected?.id })} /> : null}
         {canModify && selected ? (
-          <div className="flex gap-2">
+          <div className="ml-auto flex gap-2">
             <a
               href={`/api/export/inventory?${exportQuery}`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
             >
-              <Download className="size-4" aria-hidden="true" /> Toate (Excel)
+              <Download className="size-4 text-[#71717a]" aria-hidden="true" /> Toate (Excel)
             </a>
             <a
               href={`/api/export/inventory?${exportQuery}&format=pdf`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
             >
-              <FileText className="size-4" aria-hidden="true" /> Toate (PDF)
+              <FileText className="size-4 text-[#71717a]" aria-hidden="true" /> Toate (PDF)
             </a>
           </div>
         ) : null}
-        <span className="ml-auto text-sm text-[#52525b]">
-          {start}-{end} din {formatNumber(total)} inventare
-        </span>
       </form>
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="border-b border-[#e4e4e7] px-4 py-2.5">
           <h2 className="text-sm font-semibold text-[#18181b]">Inventare efectuate</h2>
         </div>
@@ -307,25 +296,12 @@ function InventoryOperationsTable({
         </div>
       </div>
 
-      {pageCount > 1 ? (
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <p className="text-[#52525b]">
-            Pagina {page} din {pageCount}
-          </p>
-          <div className="flex gap-2">
-            <PagerLink
-              disabled={page <= 1}
-              href={crmInventoryHref({ wh: selected?.id, ...filters, ipage: page - 1 })}
-              label="Înapoi"
-            />
-            <PagerLink
-              disabled={page >= pageCount}
-              href={crmInventoryHref({ wh: selected?.id, ...filters, ipage: page + 1 })}
-              label="Înainte"
-            />
-          </div>
-        </div>
-      ) : null}
+      <Pagination
+        page={page}
+        pageCount={pageCount}
+        hrefFor={(target) => crmInventoryHref({ wh: selected?.id, ...filters, ipage: target })}
+        summary={`${start}–${end} din ${formatNumber(total)} inventare`}
+      />
     </div>
   );
 }

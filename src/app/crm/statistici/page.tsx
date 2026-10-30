@@ -105,7 +105,7 @@ function StatsWorkspace({
 
       {partnerProfit ? <PartnerProfitTable rows={partnerProfit} /> : null}
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="border-b border-[#e4e4e7] px-4 py-2.5">
           <h2 className="text-sm font-semibold text-[#18181b]">Top produse vândute (30 zile)</h2>
         </div>
@@ -165,7 +165,7 @@ function PeriodStatsTable({
   const max = Math.max(...rows.map((row) => row.revenueLei), 1);
 
   return (
-    <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+    <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
       <div className="border-b border-[#e4e4e7] px-4 py-2.5">
         <h2 className="text-sm font-semibold text-[#18181b]">{title}</h2>
       </div>
@@ -227,7 +227,7 @@ function PeriodStatsTable({
 /** Cine aduce banii: venit, cost și marjă pe client, pe ultimul an. */
 function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
   return (
-    <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+    <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
       <div className="border-b border-[#e4e4e7] px-4 py-2.5">
         <h2 className="text-sm font-semibold text-[#18181b]">Profit pe client (12 luni)</h2>
       </div>

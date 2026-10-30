@@ -30,7 +30,7 @@ export function SalePaymentMethodBadge({
   value: SalePaymentMethodStatus;
 }) {
   return (
-    <span className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-semibold ${salePaymentMethodTone(value)}`}>
+    <span className={`inline-flex whitespace-nowrap rounded-md border px-2 py-0.5 text-xs font-medium ${salePaymentMethodTone(value)}`}>
       {salePaymentMethodLabel(value)}
     </span>
   );
@@ -67,7 +67,7 @@ function SalePaymentMethodSelect({ value }: { value: SalePaymentMethodStatus }) 
   return (
     <select
       aria-label="Metoda de plată"
-      className={`inline-select h-7 rounded-full border pl-2.5 pr-7 text-xs font-semibold disabled:opacity-60 ${salePaymentMethodTone(value)}`}
+      className={`inline-select h-7 rounded-md border pl-2.5 pr-7 text-xs font-semibold disabled:opacity-60 ${salePaymentMethodTone(value)}`}
       defaultValue={salePaymentMethodFormValue(value)}
       disabled={pending}
       name="paymentMethod"

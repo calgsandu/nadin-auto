@@ -10,7 +10,7 @@ import { StockSaleDialog } from "@/app/operations/stock-document-dialog";
 import { canCreateSales, canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { DailyMetric, WorkspaceSkeleton } from "../_components/ui";
+import { DailyMetric, segmentCls, segmentedCls, WorkspaceSkeleton } from "../_components/ui";
 import {
   RecentDocumentsTable,
   SalesRegisterExport,
@@ -163,6 +163,7 @@ function SalesWorkspace({
           <h2 className="mr-2 text-sm font-semibold text-[#18181b] first-letter:uppercase">
             {salesDayLabelFormat.format(selectedDate)}
           </h2>
+          <div className={segmentedCls}>
           {saleFilters.map((item) => {
             const count = sales.filter((sale) => item.match(sale)).length;
             const active = item.id === filter;
@@ -175,16 +176,13 @@ function SalesWorkspace({
                 key={item.id}
                 aria-current={active ? "true" : undefined}
                 href={search ? `/crm/vanzari?${search}` : "/crm/vanzari"}
-                className={`rounded-full border px-3 py-1 text-[13px] font-medium ${
-                  active
-                    ? "border-[#18181b] bg-[#18181b] text-white"
-                    : "border-[#e4e4e7] bg-white text-[#3f3f46] hover:bg-[#f4f4f5]"
-                }`}
+                className={segmentCls(active)}
               >
-                {item.label} · {formatNumber(count)}
+                {item.label} <span className="tabular-nums opacity-70">{formatNumber(count)}</span>
               </Link>
             );
           })}
+          </div>
         </div>
         <RecentDocumentsTable
           documents={sales.filter((sale) => activeFilter.match(sale))}

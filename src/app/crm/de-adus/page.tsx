@@ -5,7 +5,7 @@ import { RestockCheckbox } from "@/app/operations/restock-checkbox";
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { DailyMetric, TableCell, TableHead, VehicleSubline, WorkspaceSkeleton } from "../_components/ui";
+import { DailyMetric, PageNote, TableCell, TableHead, VehicleSubline, WorkspaceSkeleton } from "../_components/ui";
 import { toWarehouseOptions } from "../_components/operations-options";
 import { formatDate, formatNumber, formatText } from "../_components/format";
 
@@ -47,23 +47,18 @@ function RestockWorkspace({
 }) {
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
-      <div className="motion-card flex flex-col gap-3 rounded-xl border border-[#e4e4e7] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-semibold text-[#18181b]">Reaprovizionare Pavilion 110A</h2>
-          <p className="text-sm text-[#52525b]">
-            Produsele vândute din 110A rămân aici până sunt bifate ca aduse.
-          </p>
-        </div>
-        {canModify ? (
-          <StockTransferDialog warehouses={toWarehouseOptions(operations.warehouses)} />
-        ) : null}
-      </div>
+      <PageNote
+        title="Reaprovizionare Pavilion 110A"
+        action={canModify ? <StockTransferDialog warehouses={toWarehouseOptions(operations.warehouses)} /> : null}
+      >
+        Produsele vândute din 110A rămân aici până sunt bifate ca aduse.
+      </PageNote>
       <div className="stat-strip grid sm:grid-cols-3">
         <DailyMetric label="Poziții active" value={formatNumber(operations.restockPending.length)} />
         <DailyMetric label="Aduse azi" value={formatNumber(operations.restockDeliveredToday.length)} />
         <DailyMetric label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
       </div>
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[980px] border-collapse text-left text-sm">
             <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">

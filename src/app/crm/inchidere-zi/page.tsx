@@ -101,7 +101,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+        <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
           <div className="border-b border-[#f0f0f2] px-4 py-3 font-semibold text-[#18181b]">
             Cum s-a plătit
           </div>
@@ -140,7 +140,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
           </table>
         </div>
 
-        <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+        <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
           <div className="border-b border-[#f0f0f2] px-4 py-3 font-semibold text-[#18181b]">
             Casa de marcat
           </div>
@@ -185,7 +185,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
       </div>
 
       {data.partnerPayments.length > 0 ? (
-        <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+        <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
           <div className="border-b border-[#e4e4e7] px-4 py-2.5">
             <h2 className="text-sm font-semibold text-[#18181b]">
               Încasări pe datorii vechi ·{" "}
@@ -208,7 +208,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
         </div>
       ) : null}
 
-      <div className="motion-card overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="border-b border-[#e4e4e7] px-4 py-2.5">
           <h2 className="text-sm font-semibold text-[#18181b]">Vânzările zilei</h2>
         </div>
