@@ -546,9 +546,14 @@ export async function createInventoryAction(
     const seen = new Set<string>();
     const lines = productIds.map((rawProductId, index) => {
       const productId = rawProductId.trim();
-      const counted = Number(countedValues[index] ?? "");
+      const rawCounted = (countedValues[index] ?? "").trim();
+      const counted = Number(rawCounted);
       if (!productId) {
         throw new Error(`Alege produsul de pe poziția ${index + 1}.`);
+      }
+      // Gol ≠ zero: Number("") ar fi 0 și ar goli stocul unei piese nenumărate.
+      if (rawCounted === "") {
+        throw new Error(`Scrie cantitatea numărată pe poziția ${index + 1} (sau șterge rândul).`);
       }
       if (seen.has(productId)) {
         throw new Error(`Produsul de pe poziția ${index + 1} este adăugat de mai multe ori.`);
@@ -565,6 +570,7 @@ export async function createInventoryAction(
     }
 
     let adjustedCount = 0;
+    let countedCount = 0;
     await prisma.$transaction(async (tx) => {
       // Un inventar are zeci de poziții: se lucrează pe loturi, altfel tranzacția
       // depășește limita de timp înainte să apuce să scrie ceva.
@@ -575,20 +581,18 @@ export async function createInventoryAction(
       );
 
       const diffs: { productId: string; quantity: number }[] = [];
-      // Snapshot pentru istoric: în sistem vs numărat (liniile păstrează doar diferența).
+      // Snapshot pentru istoric: în sistem vs numărat, pentru TOATE produsele
+      // numărate — și cele fără diferență. Liniile documentului păstrează doar
+      // diferența; din snapshot se vede ce s-a numărat deja (progresul inventarului).
       const counts: { productId: string; before: number; counted: number }[] = [];
       for (const line of lines) {
         const before = quantities.get(line.productId) ?? 0;
         const diff = line.counted - before;
-        if (diff !== 0) {
-          diffs.push({ productId: line.productId, quantity: diff });
-          counts.push({ productId: line.productId, before, counted: line.counted });
-        }
+        counts.push({ productId: line.productId, before, counted: line.counted });
+        if (diff !== 0) diffs.push({ productId: line.productId, quantity: diff });
       }
-
-      if (diffs.length === 0) {
-        throw new Error("Stocul numărat coincide cu cel din sistem — nimic de ajustat.");
-      }
+      // Totul se potrivește = vestea bună a inventarului: se salvează oricum
+      // (document fără ajustări), altfel numărătoarea s-ar pierde.
 
       const inventoryDoc = await tx.stockDocument.create({
         data: {
@@ -608,19 +612,23 @@ export async function createInventoryAction(
         entity: "StockDocument",
         entityId: inventoryDoc.id,
         summary: `Inventar #${inventoryDoc.number} salvat (${diffs.length} poziții ajustate) — ${inventoryDoc.warehouse.name}`,
-        details: { diffs, counts },
+        details: { warehouseId, diffs, counts },
       });
 
       await applyWarehouseStockDeltas(tx, warehouseId, diffs);
       await syncProductAggregateStocks(tx, diffs.map((diff) => diff.productId));
       adjustedCount = diffs.length;
+      countedCount = counts.length;
     // Marjă peste cele 5 s implicite: inventarele mari plus latența spre Neon.
     }, DOCUMENT_TX_OPTIONS);
 
     revalidatePath("/crm", "layout");
     return {
       ok: true,
-      message: `Inventarul a fost salvat: ${adjustedCount} poziții ajustate.`,
+      message:
+        adjustedCount === 0
+          ? `Toate cele ${countedCount} produse numărate se potrivesc cu sistemul. Numărătoarea e salvată.`
+          : `Inventarul a fost salvat: ${countedCount} produse numărate, ${adjustedCount} ajustate.`,
     };
   } catch (error) {
     return toActionError(error);

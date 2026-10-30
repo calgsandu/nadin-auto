@@ -55,15 +55,26 @@ const emptyLine = (id: number): InventoryLine => ({
   copies: "",
 });
 
+/** Un produs de numărat, pus gata pe rând (vezi „Numără rămasele"). */
+export type InventoryPrefillItem = { productId: string; label: string; stockHere: number };
+
 export function InventoryDialog({
   warehouses,
   defaultWarehouseId,
   openFromUrl,
+  alreadyCounted,
+  prefill,
+  triggerLabel = "Corectează stocul",
 }: {
   warehouses: WarehouseOption[];
   defaultWarehouseId?: string;
   /** true = se deschide singur când adresa are `?nou=1` (vezi `useOpenFromUrl`). */
   openFromUrl?: boolean;
+  /** Ce s-a numărat deja în depozitul implicit: avertisment contra numărării duble. */
+  alreadyCounted?: Record<string, { date: string; counted: number }>;
+  /** Dat = rândurile pleacă gata puse (produsele rămase de numărat). */
+  prefill?: InventoryPrefillItem[];
+  triggerLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
@@ -83,7 +94,8 @@ export function InventoryDialog({
     setFilter("");
   }
   const draft = useDrawerDraft({
-    kind: "inventory",
+    // Lista „rămase" are ciorna ei: altfel s-ar amesteca cu numărătoarea liberă.
+    kind: prefill ? "inventory-remaining" : "inventory",
     lines: { lines, warehouseId },
     setLines: (restored) => {
       // Ciornele vechi erau doar lista de rânduri, fără depozit.
@@ -142,6 +154,38 @@ export function InventoryDialog({
     setLines((current) => current.filter((line) => line.id !== id));
   }
 
+  function openDialog() {
+    if (prefill && prefill.length > 0) {
+      // Lista se ia de la capăt la fiecare deschidere: cele numărate între timp au ieșit din ea.
+      const start = 1;
+      nextLineId.current = start + prefill.length;
+      setLines(
+        prefill.map((item, index) => ({
+          ...emptyLine(start + index),
+          productId: item.productId,
+          label: item.label,
+          stocks: [{ warehouseId: defaultWarehouseId ?? "", quantity: item.stockHere }],
+        })),
+      );
+      setWarehouseId(defaultWarehouseId ?? warehouses[0]?.id ?? "");
+    }
+    setMounted(true);
+    setOpen(true);
+  }
+
+  /** Rândurile fără cantitate ies: numeri cât apuci și salvezi doar ce ai numărat. */
+  function removeUncounted() {
+    setLines((current) => {
+      const counted = current.filter((line) => line.productId && line.counted.trim() !== "");
+      return counted.length > 0 ? counted : [emptyLine(nextLineId.current++)];
+    });
+    // Butonul dispare odată cu rândurile: cursorul rămâne în panou, ca Ctrl+Enter să meargă.
+    requestAnimationFrame(() =>
+      document.querySelector<HTMLInputElement>('[data-drawer-lines] input[name="countedQuantity"]')?.focus(),
+    );
+  }
+  const uncountedLines = lines.filter((line) => line.productId && line.counted.trim() === "").length;
+
   function patchLine(id: number, patch: Partial<InventoryLine>) {
     setLines((current) => current.map((line) => (line.id === id ? { ...line, ...patch } : line)));
   }
@@ -149,14 +193,15 @@ export function InventoryDialog({
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
+        className={
+          prefill
+            ? "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+            : "button-primary rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
+        }
         type="button"
-        onClick={() => {
-          setMounted(true);
-          setOpen(true);
-        }}
+        onClick={openDialog}
       >
-        Corectează stocul
+        {triggerLabel}
       </button>
       {mounted ? (
         <OperationDrawer
@@ -212,6 +257,11 @@ export function InventoryDialog({
               description="Scrie cât ai numărat fizic — diferența o calculează sistemul."
               action={
                 <div className="flex flex-wrap items-center gap-2">
+                  {uncountedLines > 0 ? (
+                    <button className={drawerSecondaryButton} type="button" onClick={removeUncounted}>
+                      Scoate necompletate ({uncountedLines})
+                    </button>
+                  ) : null}
                   <AddedLinesFilter value={filter} onChange={setFilter} />
                   <StickerPrintButton lines={lines} />
                   <button className={drawerSecondaryButton} type="button" onClick={addLine}>
@@ -261,6 +311,12 @@ export function InventoryDialog({
                       onChange={(event) => patchLine(line.id, { counted: event.currentTarget.value })}
                     />
                     <CountDifference system={systemQuantity(line)} counted={line.counted} />
+                    {/* Numărat deja în ultima perioadă: nu-l număra de două ori. */}
+                    {line.productId && warehouseId === defaultWarehouseId && alreadyCounted?.[line.productId] ? (
+                      <span className="text-xs font-medium text-[#b45309]">
+                        numărat deja pe {formatDay(alreadyCounted[line.productId].date)} ({alreadyCounted[line.productId].counted} buc.)
+                      </span>
+                    ) : null}
                   </DrawerField>
                   <LabelStickerCell
                     index={index}
@@ -315,4 +371,10 @@ function CountDifference({ system, counted }: { system: number | null; counted: 
       {difference > 0 ? `+${difference}` : `−${-difference}`} față de sistem ({system})
     </span>
   );
+}
+
+/** „2026-10-28" → „28.10". */
+function formatDay(value: string) {
+  const [, month, day] = value.split("-");
+  return `${day}.${month}`;
 }

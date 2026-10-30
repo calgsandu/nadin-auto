@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { CalendarDays, Download, FileText } from "lucide-react";
-import { InventoryDialog } from "@/app/operations/inventory-dialog";
+import { CalendarDays, ClipboardCheck, Download, FileText } from "lucide-react";
+import { InventoryDialog, type InventoryPrefillItem } from "@/app/operations/inventory-dialog";
+import { vehicleLabels } from "@/lib/catalog/vehicle-label";
 import { DocumentDetailsButton } from "@/app/operations/document-details";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
 import { getInventoryData, type InventoryData } from "@/lib/operations/queries";
@@ -90,10 +91,17 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
         </p>
         {canModify ? (
           <div className="ml-auto">
-            <InventoryDialog openFromUrl warehouses={warehouseOptions} defaultWarehouseId={data.selected?.id} />
+            <InventoryDialog
+              openFromUrl
+              warehouses={warehouseOptions}
+              defaultWarehouseId={data.selected?.id}
+              alreadyCounted={data.counted}
+            />
           </div>
         ) : null}
       </div>
+
+      {data.selected ? <CountProgress data={data} canModify={canModify} /> : null}
 
       <InventoryOperationsTable data={data} canModify={canModify} />
 
@@ -306,3 +314,95 @@ function InventoryOperationsTable({
   );
 }
 
+/** Câte rânduri pleacă deodată în „Numără rămasele" — un raft, nu tot depozitul. */
+const REMAINING_BATCH = 100;
+
+/**
+ * Progresul numărătorii în depozitul ales: ce s-a numărat de la o dată încoace
+ * și ce mai are stoc în sistem fără să fi fost numărat. Rămasele se pot
+ * deschide direct într-un inventar, gata puse pe rânduri.
+ */
+function CountProgress({ data, canModify }: { data: InventoryData; canModify: boolean }) {
+  const counted = new Set(Object.keys(data.counted));
+  const remaining = data.stocks.filter((row) => row.quantity > 0 && !counted.has(row.productId));
+  const total = counted.size + remaining.length;
+  const percent = total > 0 ? Math.round((counted.size / total) * 100) : 0;
+  const [year, month, day] = data.countSince.split("-");
+  const prefill: InventoryPrefillItem[] = remaining.slice(0, REMAINING_BATCH).map((row) => ({
+    productId: row.productId,
+    label: [row.product.externalCode ?? "—", vehicleLabels(row.product), row.product.description]
+      .filter(Boolean)
+      .join(" · "),
+    stockHere: row.quantity,
+  }));
+
+  return (
+    <section className="grid gap-3 rounded-xl border border-[#e4e4e7] bg-white p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2.5 font-semibold text-[#18181b]">
+          <span className="grid size-8 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
+            <ClipboardCheck className="size-4" aria-hidden="true" />
+          </span>
+          Numărătoarea în {data.selected?.name}
+          <span className="text-sm font-normal text-[#71717a]">
+            de la {day}.{month}.{year}
+          </span>
+        </h2>
+        {canModify && remaining.length > 0 ? (
+          <InventoryDialog
+            warehouses={data.warehouses.map((w) => ({ id: w.id, name: w.name }))}
+            defaultWarehouseId={data.selected?.id}
+            alreadyCounted={data.counted}
+            prefill={prefill}
+            triggerLabel={`Numără rămasele (${prefill.length}${remaining.length > prefill.length ? ` din ${remaining.length}` : ""})`}
+          />
+        ) : null}
+      </div>
+
+      <div className="grid gap-1.5">
+        <div className="h-2 overflow-hidden rounded-full bg-[#f1f1f3]">
+          <div className="h-2 rounded-full bg-[#16a34a]" style={{ width: `${percent}%` }} />
+        </div>
+        <p className="text-sm text-[#52525b]">
+          <span className="font-semibold tabular-nums text-[#166534]">{formatNumber(counted.size)}</span> numărate ·{" "}
+          <span className="font-semibold tabular-nums text-[#18181b]">{formatNumber(remaining.length)}</span> rămase cu stoc
+          în sistem · <span className="font-semibold tabular-nums text-[#18181b]">{percent}%</span>
+        </p>
+      </div>
+
+      {remaining.length > 0 ? (
+        <details className="group">
+          <summary className="inline-flex cursor-pointer list-none text-sm font-medium text-[#2563eb] hover:underline [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">Arată ce a rămas de numărat</span>
+            <span className="hidden group-open:inline">Ascunde lista</span>
+          </summary>
+          <div className="mt-2 max-h-96 overflow-auto rounded-lg border border-[#f0f0f2]">
+            <table className="crm-table w-full border-collapse text-left text-sm">
+              <thead className="sticky top-0 border-b border-[#e4e4e7] bg-[#fafafa]">
+                <tr>
+                  <TableHead>Cod</TableHead>
+                  <TableHead>Produs</TableHead>
+                  <TableHead align="right">În sistem</TableHead>
+                </tr>
+              </thead>
+              <tbody>
+                {remaining.map((row) => (
+                  <tr key={row.id} className="border-t border-[#f0f0f2]">
+                    <TableCell className="whitespace-nowrap font-mono font-semibold">{formatText(row.product.externalCode)}</TableCell>
+                    <TableCell>
+                      {row.product.description}
+                      <VehicleSubline product={row.product} />
+                    </TableCell>
+                    <TableCell align="right" className="font-semibold tabular-nums">{formatNumber(row.quantity)}</TableCell>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      ) : total > 0 ? (
+        <p className="text-sm font-medium text-[#166534]">Tot ce are stoc în sistem a fost numărat.</p>
+      ) : null}
+    </section>
+  );
+}

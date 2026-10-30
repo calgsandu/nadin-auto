@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { productLabelInclude } from "@/lib/catalog/product-include";
 import { formatProductSearchLabel } from "@/lib/catalog/product-search";
+import { defaultCountSince, getCountedProducts, type CountedProduct } from "@/lib/operations/inventory-progress";
 import { getPartnerBalances } from "@/lib/partners/debt";
 import type { VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
 import {
@@ -238,7 +239,9 @@ export async function getInventoryData(params: {
     : null;
 
   // Stocul și arhiva nu depind unul de altul — un singur dus-întors, nu trei.
-  const [stocks, operations, total] = await Promise.all([
+  // Progresul numărătorii: de la data din filtru sau din ultimele 30 de zile.
+  const countSince = params.from || defaultCountSince();
+  const [stocks, operations, total, counted] = await Promise.all([
     selected
       ? prisma.warehouseStock.findMany({
           where: { warehouseId: selected.id, quantity: { not: 0 } },
@@ -286,6 +289,7 @@ export async function getInventoryData(params: {
         })
       : Promise.resolve([]),
     where ? prisma.stockDocument.count({ where }) : Promise.resolve(0),
+    selected ? getCountedProducts(selected.id, countSince) : Promise.resolve({} as Record<string, CountedProduct>),
   ]);
 
   return {
@@ -294,6 +298,8 @@ export async function getInventoryData(params: {
     stocks,
     operations,
     total,
+    counted,
+    countSince,
     page,
     pageSize: INVENTORY_PAGE_SIZE,
     pageCount: Math.max(Math.ceil(total / INVENTORY_PAGE_SIZE), 1),
