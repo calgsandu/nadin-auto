@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CircleCheck, CircleX, Clock } from "lucide-react";
 import {
   ApproveButton,
   RejectButton,
@@ -26,9 +27,9 @@ export function ApprovalWorkspace({ data }: { data: ApprovalsData }) {
   return (
     <section className="motion-page grid gap-4 p-4">
       <div className="stat-strip grid grid-cols-1 sm:grid-cols-3">
-        <DailyMetric label="În așteptare" value={String(data.pending.length)} />
-        <DailyMetric label="Respinse recent" value={String(data.rejected.length)} />
-        <DailyMetric label="Aprobate recent" value={String(data.approved.length)} />
+        <DailyMetric icon={Clock} label="În așteptare" value={String(data.pending.length)} />
+        <DailyMetric icon={CircleX} label="Respinse recent" value={String(data.rejected.length)} />
+        <DailyMetric icon={CircleCheck} label="Aprobate recent" value={String(data.approved.length)} />
       </div>
 
       <ApprovalList

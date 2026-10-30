@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { ClipboardCheck, Plus, Trash2 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import {
   createInventoryAction,
@@ -132,6 +132,7 @@ export function InventoryDialog({
       {mounted ? (
         <OperationDrawer
           title="Inventar"
+          icon={ClipboardCheck}
           open={open}
           pending={pending}
           submitLabel="Salvează inventarul"
@@ -160,7 +161,8 @@ export function InventoryDialog({
 
             <DrawerSection
               title="Produse numărate"
-              description="Scrie cantitatea NUMĂRATĂ fizic — sistemul calculează singur diferența și o ajustează."
+              icon={ClipboardCheck}
+              description="Scrie cât ai numărat fizic — diferența o calculează sistemul."
               action={
                 <div className="flex flex-wrap items-center gap-2">
                   <AddedLinesFilter value={filter} onChange={setFilter} />

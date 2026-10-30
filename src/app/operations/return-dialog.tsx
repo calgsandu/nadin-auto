@@ -1,5 +1,6 @@
 "use client";
 
+import { Undo2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   createReturnAction,
@@ -90,6 +91,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
       {open ? (
         <OperationDrawer
           title="Retur marfă"
+          icon={Undo2}
           pending={pending}
           submitLabel="Salvează returul"
           draft={draft.banner}

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { ShoppingBag, Users, Wallet } from "lucide-react";
 import Link from "next/link";
 import { PartnerFormDialog, type PartnerFormValue } from "@/app/partners/partner-form-dialog";
 import { PartnerDeleteButton } from "@/app/partners/partner-delete-button";
@@ -70,12 +71,12 @@ async function Loader({
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <div className="stat-strip grid sm:grid-cols-3">
-        <DailyMetric label="Clienți" value={formatNumber(data.customers.length)} />
-        <DailyMetric
+        <DailyMetric icon={Users} label="Clienți" value={formatNumber(data.customers.length)} />
+        <DailyMetric icon={ShoppingBag}
           label="Cumpărat total"
           value={`${formatMoney(sum(data.customers, (one) => one.boughtLei))} lei`}
         />
-        <DailyMetric
+        <DailyMetric icon={Wallet}
           label="Datorii deschise"
           value={`${formatMoney(sum(data.customers, (one) => Math.max(one.debtLei, 0)))} lei`}
         />

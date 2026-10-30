@@ -7,7 +7,8 @@ import {
   OrderDeleteButton,
   OrderStatusControl,
 } from "@/app/external-orders/order-row-actions";
-import { StatusBadge as Badge, type BadgeTone } from "@/app/crm/_components/ui";
+import { CircleCheck, TrendingUp, Truck } from "lucide-react";
+import { DailyMetric, StatusBadge as Badge, type BadgeTone } from "@/app/crm/_components/ui";
 import { STATUS_LABELS } from "@/lib/external-orders/status";
 import type {
   ExternalOrderRow,
@@ -32,9 +33,9 @@ export function ExternalOrdersWorkspace({
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <div className="stat-strip grid sm:grid-cols-3">
-        <Metric label="Comenzi active" value={formatNumber(data.active.length)} />
-        <Metric label="Livrate" value={formatNumber(delivered.length)} />
-        <Metric label="Marjă totală (livrate)" value={`${formatMoney(deliveredMargin)} lei`} />
+        <DailyMetric icon={Truck} label="Comenzi active" value={formatNumber(data.active.length)} />
+        <DailyMetric icon={CircleCheck} label="Livrate" value={formatNumber(delivered.length)} />
+        <DailyMetric icon={TrendingUp} label="Marjă totală (livrate)" value={`${formatMoney(deliveredMargin)} lei`} />
       </div>
 
       <div className="flex justify-end">
@@ -236,14 +237,6 @@ function toFormValue(order: ExternalOrderRow): ExternalOrderFormValue {
   };
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="px-4 py-3">
-      <p className="text-[13px] font-medium text-[#52525b]">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-[#18181b]">{value}</p>
-    </div>
-  );
-}
 
 function TableHead({
   align = "left",

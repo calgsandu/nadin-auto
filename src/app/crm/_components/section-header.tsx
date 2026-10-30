@@ -3,6 +3,7 @@ import { getSection, groupForSection, type WorkspaceSectionId } from "@/lib/oper
 import { canViewSection } from "@/lib/roles";
 import type { AppRole } from "@/generated/prisma/enums";
 import { HeaderNotifications, SectionTabs } from "./chrome";
+import { sectionIconElement } from "./section-icons";
 
 /**
  * Antetul secțiunii: titlul mare, acțiunile paginii și clopoțelul „De făcut"
@@ -28,7 +29,13 @@ export function CrmHeader({
   return (
     <header className="motion-page border-b border-[#e4e4e7] px-4 lg:px-6">
       <div className="flex min-h-14 flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
-        <h1 className="text-xl font-semibold tracking-tight text-[#18181b]">{title}</h1>
+        {/* Iconița secțiunii, aceeași ca în meniu: dintr-o privire știi unde ești. */}
+        <h1 className="flex items-center gap-3 text-xl font-semibold tracking-tight text-[#18181b]">
+          <span className="grid size-9 place-items-center rounded-xl bg-[#eff6ff] text-[#2563eb] ring-1 ring-[#dbeafe]">
+            {sectionIconElement(section, "size-[18px]")}
+          </span>
+          {title}
+        </h1>
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {children}
           <HeaderNotifications />

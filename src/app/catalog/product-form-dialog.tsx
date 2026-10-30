@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
-import { ChevronDown, Plus, Trash2 } from "lucide-react";
+import { Banknote, Car, ChevronDown, PackageSearch, Plus, Tag, Trash2, Warehouse } from "lucide-react";
 import {
   createProductAction,
   updateProductAction,
@@ -9,6 +9,7 @@ import {
 } from "@/app/catalog/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
+  DrawerCard,
   drawerBoundaryProps,
   drawerPanelClassName,
   handleEnterNavigation,
@@ -271,7 +272,10 @@ export function ProductFormDialog({
             }}
           >
             <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
-              <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">
+              <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#18181b]">
+                <span className="grid size-8 place-items-center rounded-lg bg-[#18181b] text-white">
+                  <PackageSearch className="size-4" aria-hidden="true" />
+                </span>
                 {product ? "Editează produs" : "Adaugă produs"}
               </h2>
               <div className="flex items-center gap-2">
@@ -311,6 +315,7 @@ export function ProductFormDialog({
               ) : null}
 
               {/* Ordinea în care se scrie o piesă: codul, ce e, ce tip. */}
+              <DrawerCard icon={Tag} title="Piesa">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[12rem_minmax(0,1fr)_14rem]">
                 <Field label="Cod">
                   <ProductCodeField
@@ -355,10 +360,12 @@ export function ProductFormDialog({
                   ) : null}
                 </Field>
               </div>
+              </DrawerCard>
 
-              <section className="grid gap-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-semibold text-[#18181b]">Se potrivește pe</h3>
+              <DrawerCard
+                icon={Car}
+                title="Se potrivește pe"
+                action={
                   <button
                     className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
                     type="button"
@@ -366,7 +373,8 @@ export function ProductFormDialog({
                   >
                     <Plus className="size-4" aria-hidden="true" /> Altă mașină
                   </button>
-                </div>
+                }
+              >
                 <div className="grid gap-1.5">
                   {fitments.map((fitment, index) => (
                     <FitmentRow
@@ -380,9 +388,11 @@ export function ProductFormDialog({
                     />
                   ))}
                 </div>
-              </section>
+              </DrawerCard>
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+              <DrawerCard icon={Banknote} title="Preț">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <Field label="Cost (lei)">
                   <input
                     className={inputClassName}
@@ -409,15 +419,18 @@ export function ProductFormDialog({
                   ) : null}
                 </Field>
               </div>
+              </DrawerCard>
 
-              <section className="grid gap-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-semibold text-[#18181b]">Stoc pe depozite</h3>
+              <DrawerCard
+                icon={Warehouse}
+                title="Stoc pe depozite"
+                action={
                   <p className="text-sm text-[#52525b]">
                     Total <span className="font-semibold tabular-nums text-[#18181b]">{calculateTotal(warehouseQuantities)}</span> buc.
                   </p>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                }
+              >
+                <div className="grid gap-3 sm:grid-cols-3">
                   {warehouses.map((warehouse) => (
                     <div key={warehouse.id} className="grid gap-1.5">
                       <input name="warehouseId" type="hidden" value={warehouse.id} readOnly />
@@ -443,7 +456,8 @@ export function ProductFormDialog({
                     </div>
                   ))}
                 </div>
-              </section>
+              </DrawerCard>
+              </div>
 
               {/* Ce se completează rar stă strâns; se deschide singur când produsul
                   are deja ceva scris aici. */}
@@ -547,7 +561,7 @@ function FitmentRow({
   onRemove?: () => void;
 }) {
   return (
-    <div className="grid gap-2 rounded-lg border border-[#e4e4e7] bg-white px-2.5 py-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6.5rem_6.5rem_8.5rem_2.25rem] lg:items-start">
+    <div className="grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6.5rem_6.5rem_8.5rem_2.25rem] lg:items-start">
       <input
         name={primary ? "yearOpenEnded" : "extraYearOpenEnded"}
         type="hidden"
@@ -655,7 +669,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`grid content-start gap-1 text-sm font-medium text-[#3f3f46] ${className}`}>
+    <label className={`grid content-start gap-1 text-[13px] font-medium text-[#52525b] ${className}`}>
       {label}
       {children}
     </label>

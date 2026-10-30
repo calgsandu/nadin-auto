@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Wallet } from "lucide-react";
 import {
   registerPartnerPaymentAction,
   type PartnerActionState,
 } from "@/app/partners/actions";
 import {
+  DrawerCard,
   DrawerField,
   OperationDrawer,
   useDrawerAction,
@@ -71,6 +72,7 @@ export function PartnerPaymentDialog({
       {mounted ? (
         <OperationDrawer
           title={`Încasare — ${partnerName}`}
+          icon={Wallet}
           open={open}
           pending={pending}
           submitLabel="Salvează încasarea"
@@ -80,6 +82,7 @@ export function PartnerPaymentDialog({
           <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName}>
             <input type="hidden" name="partnerId" value={partnerId} />
             <input name="idempotencyKey" type="hidden" value={draft.token} />
+            <DrawerCard icon={Wallet} title={`Datorie ${money(balanceLei)} lei`}>
             <div className="grid gap-4 md:grid-cols-2">
               <DrawerField label="Suma încasată (lei)">
                 <div className="flex gap-2">
@@ -112,7 +115,6 @@ export function PartnerPaymentDialog({
                 </div>
                 {/* Ce rămâne după încasare, calculat pe loc. */}
                 <span className={`text-xs ${left < 0 ? "font-medium text-[#b45309]" : "text-[#52525b]"}`}>
-                  Datorie {money(balanceLei)} lei ·{" "}
                   {left > 0
                     ? `rămâne de plată ${money(left)} lei`
                     : left === 0
@@ -124,6 +126,7 @@ export function PartnerPaymentDialog({
                 <input className={drawerInputClassName} defaultValue={today} name="paidAt" type="date" />
               </DrawerField>
             </div>
+            </DrawerCard>
             <details className="group">
               <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#52525b] hover:text-[#18181b] [&::-webkit-details-marker]:hidden">
                 <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Notițe

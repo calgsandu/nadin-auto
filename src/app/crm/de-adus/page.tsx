@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { CircleCheck, ClipboardList, PackageX } from "lucide-react";
 import { getOperationsData, getRestockTransferPrefill, type OperationsData } from "@/lib/operations/queries";
 import type { RestockTransferPrefill } from "@/lib/operations/restock";
 import { StockTransferDialog } from "@/app/operations/stock-document-dialog";
@@ -58,9 +59,9 @@ function RestockWorkspace({
         </div>
       ) : null}
       <div className="stat-strip grid sm:grid-cols-3">
-        <DailyMetric label="Poziții active" value={formatNumber(operations.restockPending.length)} />
-        <DailyMetric label="Aduse azi" value={formatNumber(operations.restockDeliveredToday.length)} />
-        <DailyMetric label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
+        <DailyMetric icon={ClipboardList} label="Poziții active" value={formatNumber(operations.restockPending.length)} />
+        <DailyMetric icon={CircleCheck} label="Aduse azi" value={formatNumber(operations.restockDeliveredToday.length)} />
+        <DailyMetric icon={PackageX} label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
       </div>
       <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">

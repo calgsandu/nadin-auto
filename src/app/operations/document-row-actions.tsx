@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { ClipboardCheck, Package, Pencil, Plus, Trash2 } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ActionFeedback } from "@/app/components/action-feedback";
@@ -297,10 +297,9 @@ function EditPanel({
 
         <DrawerSection
           title={isInventory ? "Poziții ajustate" : "Produse"}
+          icon={isInventory ? ClipboardCheck : Package}
           description={
-            isInventory
-              ? "Diferența față de stocul din sistem: plus fără semn, minus cu „-”."
-              : "Cantitate și preț în lei."
+            isInventory ? "Diferența față de stocul din sistem: plus fără semn, minus cu „-”." : undefined
           }
           action={
             <div className="flex flex-wrap items-center gap-2">

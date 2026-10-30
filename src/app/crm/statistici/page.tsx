@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { PiggyBank, ShoppingCart, TrendingUp, Undo2 } from "lucide-react";
 import { DailyChart, MonthlyChart, TopProductsChart } from "@/app/stats-charts";
 import { getStatsData, type StatsData } from "@/lib/stats/queries";
 import { getPartnerProfitData, type PartnerProfitData } from "@/lib/reports/partner-profit";
@@ -61,13 +62,13 @@ function StatsWorkspace({
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <div className={`stat-strip grid sm:grid-cols-2 ${canModify ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
-        <DailyMetric
+        <DailyMetric icon={TrendingUp}
           label="Venit (30 zile)"
           value={`${formatMoney(data.last30.revenueLei)} lei`}
           hint={`${formatNumber(data.last30.quantity)} produse vândute`}
         />
         {canModify ? (
-          <DailyMetric
+          <DailyMetric icon={PiggyBank}
             label="Profit (30 zile)"
             value={`${formatMoney(data.last30.profitLei)} lei`}
             hint={
@@ -77,12 +78,12 @@ function StatsWorkspace({
             }
           />
         ) : null}
-        <DailyMetric
+        <DailyMetric icon={ShoppingCart}
           label="Vânzări (30 zile)"
           value={formatNumber(data.last30.salesCount)}
           hint={`coș mediu ${formatMoney(data.last30.avgSaleLei)} lei`}
         />
-        <DailyMetric
+        <DailyMetric icon={Undo2}
           label="Retururi (13 luni)"
           value={formatNumber(data.returnsCount)}
           hint={`${formatMoney(data.returnsLei)} lei returnați`}

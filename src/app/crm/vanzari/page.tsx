@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Banknote, CalendarRange, Package, ShoppingCart } from "lucide-react";
 import { Suspense } from "react";
 import {
   getOperationsData,
@@ -145,13 +146,13 @@ function SalesWorkspace({
       </div>
 
       <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
-        <DailyMetric
+        <DailyMetric icon={ShoppingCart}
           label={isToday ? "Vânzări azi" : "Vânzări în ziua aleasă"}
           value={formatNumber(sales.length)}
         />
-        <DailyMetric label="Produse vândute" value={formatNumber(dayProducts)} />
-        <DailyMetric label="Total zi" value={`${formatMoney(dayLei)} lei`} />
-        <DailyMetric
+        <DailyMetric icon={Package} label="Produse vândute" value={formatNumber(dayProducts)} />
+        <DailyMetric icon={Banknote} label="Total zi" value={`${formatMoney(dayLei)} lei`} />
+        <DailyMetric icon={CalendarRange}
           label={`Total ${monthName}`}
           value={`${formatMoney(monthLei)} lei`}
           hint={`${formatNumber(monthCount)} vânzări în lună`}

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Download, FileText } from "lucide-react";
+import { Banknote, Download, FileText, Scale, ShoppingCart, Undo2 } from "lucide-react";
 import { getDayCloseData, type DayCloseData } from "@/lib/reports/day-close";
 import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
 import { COMPANY } from "@/lib/company";
@@ -78,22 +78,22 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
       </h2>
 
       <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
-        <DailyMetric
+        <DailyMetric icon={ShoppingCart}
           label="Vânzări"
           value={`${formatMoney(data.salesTotal)} lei`}
           hint={`${formatNumber(data.salesCount)} documente`}
         />
-        <DailyMetric
+        <DailyMetric icon={Undo2}
           label="Retururi"
           value={`${formatMoney(data.returnsLei)} lei`}
           hint={`${formatNumber(data.returnsCount)} documente`}
         />
-        <DailyMetric
+        <DailyMetric icon={Scale}
           label="Net pe zi"
           value={`${formatMoney(data.netLei)} lei`}
           hint={data.vat ? `din care TVA ${formatMoney(data.vat.tva)} lei` : undefined}
         />
-        <DailyMetric
+        <DailyMetric icon={Banknote}
           label="Bani intrați în casă"
           value={`${formatMoney(data.cashInHand)} lei`}
         />

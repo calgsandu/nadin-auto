@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Download } from "lucide-react";
+import { Boxes, Coins, Download, Package, TrendingUp } from "lucide-react";
 import { CurrencyWidget } from "@/app/rapoarte/currency-widget";
 import { getReportsData, type ReportsData } from "@/lib/reports/queries";
 import { canManageStaff } from "@/lib/roles";
@@ -51,14 +51,14 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
         </div>
       ) : null}
       <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
-        <DailyMetric label="Produse" value={formatNumber(data.totalProducts)} />
-        <DailyMetric label="Stoc total (buc.)" value={formatNumber(data.totalStock)} />
-        <DailyMetric
+        <DailyMetric icon={Package} label="Produse" value={formatNumber(data.totalProducts)} />
+        <DailyMetric icon={Boxes} label="Stoc total (buc.)" value={formatNumber(data.totalStock)} />
+        <DailyMetric icon={Coins}
           label="Valoare stoc"
           value={`${formatMoney(data.valueEur)} EUR`}
           hint={`${formatMoney(data.stockValueLei)} lei la preț de vânzare`}
         />
-        <DailyMetric
+        <DailyMetric icon={TrendingUp}
           label="Vânzări 30 zile"
           value={formatNumber(data.sales30Count)}
           hint={`${formatMoney(data.sales30Lei)} lei încasați`}

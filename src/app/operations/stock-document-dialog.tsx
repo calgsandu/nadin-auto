@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Trash2, UserPlus } from "lucide-react";
+import { ArrowRightLeft, FileText, Package, PackagePlus, Plus, ShoppingCart, Trash2, UserPlus, Wallet } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import {
   createReceiptAction,
@@ -9,8 +9,10 @@ import {
   type OperationActionState,
 } from "@/app/operations/actions";
 import {
+  DrawerCard,
   DrawerChoice,
   DrawerField,
+  DrawerTotal,
   OperationDrawer,
   focusFirstLineSearch,
   handleEnterNavigation,
@@ -215,6 +217,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
       {mounted ? (
         <OperationDrawer
           title="Recepție marfă"
+          icon={PackagePlus}
           open={open}
           pending={pending}
           submitLabel="Salvează recepția"
@@ -252,7 +255,8 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
               ) : null}
               {/* Ca la vânzare: de la cine și unde intră marfa, piesele, apoi totalul.
                   Notițele, rar folosite, stau strânse. */}
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
+              <DrawerCard icon={FileText} title="Detalii">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
                 <Field label="Furnizor">
                   <SupplierPicker
                     className={inputClassName}
@@ -287,15 +291,18 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                   <input className={inputClassName} name="externalNumber" placeholder="ex. AA 0123456" />
                 </Field>
               </div>
+              </DrawerCard>
 
-              <section data-drawer-lines className="grid gap-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-semibold text-[#18181b]">Produse</h3>
+              <DrawerCard
+                lines
+                icon={PackagePlus}
+                title="Produse"
+                action={
                   <button className={secondaryButtonClassName} type="button" onClick={addLine}>
                     <Plus className="size-4" aria-hidden="true" /> Produs
                   </button>
-                </div>
-
+                }
+              >
                 <div className="grid gap-1.5">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
@@ -304,7 +311,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                     return (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2 rounded-lg border border-[#e4e4e7] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
+                      className="motion-line-item grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
                     >
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
@@ -362,9 +369,9 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                     );
                   })}
                 </div>
-              </section>
+              </DrawerCard>
 
-              <div className="grid gap-4 border-t border-[#e4e4e7] pt-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
                 <details className="group">
                   <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#52525b] hover:text-[#18181b] [&::-webkit-details-marker]:hidden">
                     <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Notițe
@@ -376,11 +383,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                     placeholder="transport, explicații"
                   />
                 </details>
-                <div className="rounded-xl bg-[#f4f4f5] px-4 py-3 text-right">
-                  <p className="text-sm text-[#52525b]">Total</p>
-                  <p className="text-2xl font-semibold tracking-tight tabular-nums text-[#18181b]">{money(valoare)} lei</p>
-                  <p className="text-xs text-[#71717a]">din care TVA {money(tvaTotal)} lei</p>
-                </div>
+                <DrawerTotal total={money(valoare)} vat={money(tvaTotal)} />
               </div>
             </form>
         </OperationDrawer>
@@ -506,6 +509,7 @@ export function StockTransferDialog({
       {mounted ? (
         <OperationDrawer
           title="Transfer între locații"
+          icon={ArrowRightLeft}
           open={open}
           pending={pending}
           submitLabel="Salvează transferul"
@@ -514,7 +518,8 @@ export function StockTransferDialog({
         >
           <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
               <input name="idempotencyKey" type="hidden" value={draft.token} />
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              <DrawerCard icon={ArrowRightLeft} title="De unde și unde">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                 <Field label="Data transferului">
                   <input
                     className={inputClassName}
@@ -567,19 +572,23 @@ export function StockTransferDialog({
                 </p>
               ) : null}
 
-              <section data-drawer-lines className="grid gap-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-semibold text-[#18181b]">Produse</h3>
+              </DrawerCard>
+
+              <DrawerCard
+                lines
+                icon={Package}
+                title="Produse"
+                action={
                   <button className={secondaryButtonClassName} type="button" onClick={addLine}>
                     <Plus className="size-4" aria-hidden="true" /> Produs
                   </button>
-                </div>
-
+                }
+              >
                 <div className="grid gap-1.5">
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2 rounded-lg border border-[#e4e4e7] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
+                      className="motion-line-item grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
                     >
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
@@ -619,7 +628,7 @@ export function StockTransferDialog({
                     </div>
                   ))}
                 </div>
-              </section>
+              </DrawerCard>
 
               <Field label="Notițe">
                 <textarea
@@ -870,6 +879,7 @@ export function StockSaleDialog({
       {mounted ? (
         <OperationDrawer
           title="Vânzare marfă"
+          icon={ShoppingCart}
           open={open}
           pending={pending}
           submitLabel="Salvează vânzarea"
@@ -880,7 +890,8 @@ export function StockSaleDialog({
               <input name="idempotencyKey" type="hidden" value={draft.token} />
               {/* Ordinea muncii la tejghea: cine cumpără, piesele, apoi cum plătește
                   lângă total. Factura și notițele, rar folosite, stau strânse. */}
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
+              <DrawerCard icon={FileText} title="Detalii">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
                 <Field label="Client">
                   <div className="flex gap-2">
                     <select
@@ -974,10 +985,13 @@ export function StockSaleDialog({
                   </div>
                 </Field>
               </div>
+              </DrawerCard>
 
-              <section data-drawer-lines className="grid gap-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-semibold text-[#18181b]">Produse</h3>
+              <DrawerCard
+                lines
+                icon={Package}
+                title="Produse"
+                action={
                   <div className="flex gap-2">
                     <button className={secondaryButtonClassName} type="button" onClick={() => addLine(false)}>
                       <Plus className="size-4" aria-hidden="true" /> Produs
@@ -986,14 +1000,15 @@ export function StockSaleDialog({
                       <Plus className="size-4" aria-hidden="true" /> Piesă externă
                     </button>
                   </div>
-                </div>
+                }
+              >
                 <div className="grid gap-1.5">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
                     if (line.external) {
                       const marja = ((Number(line.price) || 0) - (Number(line.cost) || 0)) * (Number(line.qty) || 0);
                       return (
-                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-lg border border-[#dbeafe] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_13rem_5rem_6.5rem_7.5rem_2.25rem] md:items-start">
+                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-lg border border-[#dbeafe] bg-[#f5f9ff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_13rem_5rem_6.5rem_7.5rem_2.25rem] md:items-start">
                           <Field label="Piesă externă">
                             <input name="productId" type="hidden" value="" />
                             <input
@@ -1079,7 +1094,7 @@ export function StockSaleDialog({
                     const showStock = Boolean(line.productId) && line.stocks.length > 0;
                     const notEnough = showStock && (Number(line.qty) || 0) > stockHere;
                     return (
-                    <div key={line.id} className="motion-line-item grid gap-2 rounded-lg border border-[#e4e4e7] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
+                    <div key={line.id} className="motion-line-item grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
                         <input name="externalName" type="hidden" value="" />
@@ -1148,9 +1163,10 @@ export function StockSaleDialog({
                     );
                   })}
                 </div>
-              </section>
+              </DrawerCard>
 
-              <div className="grid gap-4 border-t border-[#e4e4e7] pt-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+                <DrawerCard icon={Wallet} title="Plată">
                 <div
                   className="grid gap-3 md:grid-cols-2"
                   onChange={(event) => {
@@ -1160,7 +1176,7 @@ export function StockSaleDialog({
                 >
                   <DrawerChoice
                     hint="Alege metoda de plată"
-                    label="Plată"
+                    label="Metoda de plată"
                     name="paymentMethod"
                     options={[
                       { value: "cash", label: "Cash" },
@@ -1199,11 +1215,8 @@ export function StockSaleDialog({
                     </div>
                   </details>
                 </div>
-                <div className="rounded-xl bg-[#f4f4f5] px-4 py-3 text-right">
-                  <p className="text-sm text-[#52525b]">Total</p>
-                  <p className="text-2xl font-semibold tracking-tight tabular-nums text-[#18181b]">{money(valoare)} lei</p>
-                  <p className="text-xs text-[#71717a]">din care TVA {money(tvaTotal)} lei</p>
-                </div>
+                </DrawerCard>
+                <DrawerTotal total={money(valoare)} vat={money(tvaTotal)} />
               </div>
             </form>
         </OperationDrawer>

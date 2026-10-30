@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Boxes, PackageX } from "lucide-react";
 import { getOperationsData, type OperationsData } from "@/lib/operations/queries";
 import { RestockCheckbox } from "@/app/operations/restock-checkbox";
 import { canWriteCatalog } from "@/lib/roles";
@@ -45,8 +46,8 @@ function UnavailableRestockWorkspace({
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <div className="stat-strip grid sm:grid-cols-2">
-        <DailyMetric label="Poziții fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
-        <DailyMetric
+        <DailyMetric icon={PackageX} label="Poziții fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
+        <DailyMetric icon={Boxes}
           label="Cantitate totală"
           value={formatNumber(
             operations.restockUnavailable.reduce((sum, line) => sum + line.quantity, 0),

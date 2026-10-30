@@ -4,26 +4,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, Fragment, useContext, useEffect, type ReactNode } from "react";
 import {
-  ArrowRightLeft,
   Bell,
   ChevronsUpDown,
-  BarChart3,
-  Boxes,
-  CalendarRange,
-  Car,
   ClipboardList,
   FileText,
-  Handshake,
-  Layers,
   LogOut,
-  PackagePlus,
   PackageMinus,
-  PackageSearch,
   ShieldCheck,
-  ShoppingCart,
-  Tag,
-  Users,
-  Warehouse,
   type LucideIcon,
 } from "lucide-react";
 import { logoutAction } from "@/app/auth/actions";
@@ -34,6 +21,7 @@ import { SidebarCollapseButton } from "../sidebar-collapse";
 import { crmSectionHref, sectionFromPathname } from "@/lib/crm/urls";
 import { groupForSection, navigationEntries, navigationGroups, sectionLabel } from "@/lib/operations/workspace";
 import { canViewSection } from "@/lib/roles";
+import { menuIcons } from "./section-icons";
 import type { AppRole } from "@/generated/prisma/enums";
 
 /**
@@ -65,24 +53,6 @@ const roleLabels: Record<AppRole, string> = {
   ANGAJAT: "Angajat",
 };
 
-const menuIcons: Record<string, LucideIcon> = {
-  ArrowRightLeft,
-  BarChart3,
-  Boxes,
-  CalendarRange,
-  Car,
-  ClipboardList,
-  FileText,
-  Handshake,
-  Layers,
-  PackagePlus,
-  PackageSearch,
-  ShieldCheck,
-  ShoppingCart,
-  Tag,
-  Users,
-  Warehouse,
-};
 
 /** Nav-ul principal; secțiunea activă vine din URL, nu dintr-un prop. */
 export function Sidebar({

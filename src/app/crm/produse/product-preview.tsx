@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Printer, ShoppingCart } from "lucide-react";
+import { Car, Printer, ShoppingCart, Warehouse } from "lucide-react";
 import { CopyCode } from "@/app/components/copy-code";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { drawerPanelClassName } from "@/app/components/operation-drawer";
@@ -90,10 +90,10 @@ export function ProductPreview({
               </div>
 
               <div className="grid gap-4 px-5 py-4">
-                <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-[#e4e4e7] bg-white p-4">
+                <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl bg-[#18181b] p-4 text-white">
                   <div>
-                    <p className="text-sm text-[#52525b]">Preț de vânzare</p>
-                    <p className="text-3xl font-semibold tracking-tight tabular-nums text-[#18181b]">
+                    <p className="text-sm text-white/70">Preț de vânzare</p>
+                    <p className="text-3xl font-semibold tracking-tight tabular-nums">
                       {product.price ?? "fără preț"}
                     </p>
                   </div>
@@ -110,7 +110,7 @@ export function ProductPreview({
                     ) : null}
                     {canSell ? (
                       <Link
-                        className="button-primary inline-flex h-10 items-center gap-2 rounded-md bg-[#18181b] px-4 text-sm font-semibold text-white hover:bg-[#27272a]"
+                        className="inline-flex h-10 items-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
                         href={`/crm/vanzari?nou=1&produs=${product.id}`}
                       >
                         <ShoppingCart className="size-4" aria-hidden="true" /> Vinde
@@ -120,7 +120,10 @@ export function ProductPreview({
                 </div>
 
                 <section className="rounded-xl border border-[#e4e4e7] bg-white">
-                  <h3 className="border-b border-[#f0f0f2] px-4 py-2.5 text-sm font-semibold text-[#18181b]">
+                  <h3 className="flex items-center gap-2.5 border-b border-[#f0f0f2] px-4 py-2.5 text-sm font-semibold text-[#18181b]">
+                    <span className="grid size-7 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
+                      <Car className="size-4" aria-hidden="true" />
+                    </span>
                     Se potrivește pe
                   </h3>
                   <ul className="divide-y divide-[#f4f4f5]">
@@ -137,8 +140,13 @@ export function ProductPreview({
                 </section>
 
                 <section className="rounded-xl border border-[#e4e4e7] bg-white">
-                  <h3 className="flex items-baseline justify-between border-b border-[#f0f0f2] px-4 py-2.5 text-sm font-semibold text-[#18181b]">
-                    Stoc pe depozite
+                  <h3 className="flex items-center justify-between border-b border-[#f0f0f2] px-4 py-2.5 text-sm font-semibold text-[#18181b]">
+                    <span className="flex items-center gap-2.5">
+                      <span className="grid size-7 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
+                        <Warehouse className="size-4" aria-hidden="true" />
+                      </span>
+                      Stoc pe depozite
+                    </span>
                     <span className="font-normal text-[#52525b]">
                       total <span className="font-semibold text-[#18181b]">{product.total}</span> buc.
                     </span>

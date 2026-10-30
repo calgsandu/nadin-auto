@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Filter, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Filter, X, type LucideIcon } from "lucide-react";
 import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
 import { productLineSubtitle, type ProductLineInfo } from "@/lib/catalog/product-line-label";
 
@@ -76,15 +76,25 @@ export function DailyMetric({
   label,
   value,
   hint,
+  icon: Icon,
 }: {
   label: string;
   value: string;
   hint?: string;
+  /** Iconița din colț: cifrele se recunosc dintr-o privire, fără să citești eticheta. */
+  icon?: LucideIcon;
 }) {
   return (
     <div className="rounded-lg border border-[#e4e4e7] bg-white px-4 py-3">
-      <p className="text-[13px] font-medium text-[#52525b]">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-[#18181b]">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[13px] font-medium text-[#52525b]">{label}</p>
+        {Icon ? (
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#f4f4f5] text-[#52525b]">
+            <Icon className="size-4" aria-hidden="true" />
+          </span>
+        ) : null}
+      </div>
+      <p className="-mt-1 text-2xl font-semibold tracking-tight tabular-nums text-[#18181b]">
         {value}
       </p>
       {hint ? <p className="mt-1 text-xs text-[#71717a]">{hint}</p> : null}

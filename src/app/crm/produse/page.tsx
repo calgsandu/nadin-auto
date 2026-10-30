@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Printer } from "lucide-react";
+import { Car, Printer } from "lucide-react";
 import { CopyCode } from "@/app/components/copy-code";
 import { LocalBadge } from "@/app/components/local-badge";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
@@ -171,12 +171,22 @@ function ProductWorkspace({
   );
 }
 
-/** Stocul ca număr colorat: verde în stoc, galben stoc mic, roșu lipsă. */
+/** Stocul ca etichetă cu punct: verde în stoc, galben aproape terminat, roșu lipsă. */
 function StockCount({ stock, minStock }: { stock: number | null; minStock: number | null }) {
   const value = stock ?? 0;
-  // Același prag ca filtrul „stoc mic": minStock, implicit 3.
-  const tone = value <= 0 ? "text-[#b91c1c]" : value <= (minStock ?? 3) ? "text-[#b45309]" : "text-[#166534]";
-  return <span className={tone}>{formatNumber(value)}</span>;
+  // Același prag ca filtrul „aproape terminate": minStock, implicit 3.
+  const tone =
+    value <= 0
+      ? "bg-[#fef2f2] text-[#b91c1c] ring-[#fecaca]"
+      : value <= (minStock ?? 3)
+        ? "bg-[#fffbeb] text-[#b45309] ring-[#fde68a]"
+        : "bg-[#f0fdf4] text-[#166534] ring-[#bbf7d0]";
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[13px] font-semibold tabular-nums ring-1 ring-inset ${tone}`}>
+      <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+      {formatNumber(value)}
+    </span>
+  );
 }
 
 function ProductRow({
@@ -238,19 +248,20 @@ function ProductRow({
         {/* Întâi mașina (după ea întreabă clientul), apoi piesa. Click: fișa cu
             stocul pe fiecare depozit și toate mașinile. */}
         <ProductPreview product={toPreview(product, catalog, compatibilities)} canModify={canModify} canSell={canSell}>
-          <span className="block font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline">
+          <span className="flex items-center gap-1.5 font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline">
+            <Car className="size-3.5 shrink-0 text-[#a1a1aa]" aria-hidden="true" />
             {compatibilities[0] ? `${compatibilities[0].title} ${compatibilities[0].years}` : "—"}
             {compatibilities.length > 1 ? (
               <span className="ml-1 font-normal text-[#71717a]">+{compatibilities.length - 1}</span>
             ) : null}
           </span>
-          <span className="mt-0.5 block text-[#3f3f46]">
+          <span className="mt-0.5 block pl-5 text-[#3f3f46]">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
           </span>
         </ProductPreview>
       </TableCell>
-      <TableCell align="right" className="font-semibold tabular-nums">
+      <TableCell align="right" className="text-[15px] font-semibold tabular-nums text-[#18181b]">
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">

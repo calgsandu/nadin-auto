@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 import { useFormStatus } from "react-dom";
+import type { LucideIcon } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { useActionToast } from "@/app/components/action-toast";
 import type { DrawerDraftBanner } from "@/app/components/use-drawer-draft";
@@ -91,6 +92,7 @@ export function useOpenFromUrl(enabled: boolean | undefined, open: (params: URLS
  */
 export function OperationDrawer({
   title,
+  icon: Icon,
   onClose,
   children,
   open = true,
@@ -99,6 +101,8 @@ export function OperationDrawer({
   draft,
 }: {
   title: string;
+  /** Iconița operațiunii, lângă titlu (aceeași ca pe butonul care o deschide). */
+  icon?: LucideIcon;
   onClose: () => void;
   children: ReactNode;
   /** false = ciornă păstrată în DOM, panoul doar ascuns. */
@@ -195,7 +199,14 @@ export function OperationDrawer({
         >
           <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">{title}</h2>
+              <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#18181b]">
+                {Icon ? (
+                  <span className="grid size-8 place-items-center rounded-lg bg-[#18181b] text-white">
+                    <Icon className="size-4" aria-hidden="true" />
+                  </span>
+                ) : null}
+                {title}
+              </h2>
               {draft?.savedAt ? (
                 <p className="text-xs text-[#52525b]">
                   Ciornă salvată {draftTime(draft.savedAt)}
@@ -313,7 +324,8 @@ export function DrawerField({
   hint?: string;
 }) {
   return (
-    <label className="grid gap-1 text-sm font-medium text-[#3f3f46]">
+    // Eticheta mai stinsă decât valoarea: ochiul cade pe ce e scris, nu pe titluri.
+    <label className="grid gap-1 text-[13px] font-medium text-[#52525b]">
       <span className="line-label">{label}</span>
       {children}
       {hint ? <span className="text-xs font-normal text-[#52525b]">{hint}</span> : null}
@@ -321,27 +333,89 @@ export function DrawerField({
   );
 }
 
+/** Titlul unei părți din formular: iconiță în pătrățel + nume, acțiunea la dreapta. */
+export function DrawerHeading({ icon: Icon, title, action }: { icon: LucideIcon; title: string; action?: ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <h3 className="flex items-center gap-2.5 font-semibold text-[#18181b]">
+        <span className="grid size-8 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
+          <Icon className="size-4" aria-hidden="true" />
+        </span>
+        {title}
+      </h3>
+      {action}
+    </div>
+  );
+}
+
+/**
+ * O parte a formularului ca un card alb (cine, ce, cum plătește): pe fundalul
+ * gri al panoului, grupurile se văd dintr-o privire. `lines` marchează cardul
+ * cu rândurile de produse, pentru navigarea cu Enter.
+ */
+export function DrawerCard({
+  icon,
+  title,
+  action,
+  lines = false,
+  className = "",
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  action?: ReactNode;
+  lines?: boolean;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      data-drawer-lines={lines ? "" : undefined}
+      className={`grid content-start gap-3 rounded-xl border border-[#e4e4e7] bg-white p-4 ${className}`}
+    >
+      <DrawerHeading icon={icon} title={title} action={action} />
+      {children}
+    </section>
+  );
+}
+
+/** Totalul documentului: cardul închis, cel mai vizibil lucru din formular. */
+export function DrawerTotal({ total, vat }: { total: string; vat: string }) {
+  return (
+    <div className="self-start rounded-xl bg-[#18181b] px-4 py-3.5 text-right text-white shadow-sm">
+      <p className="text-sm text-white/70">Total</p>
+      <p className="text-[1.75rem] font-semibold leading-tight tracking-tight tabular-nums">{total} lei</p>
+      <p className="text-xs text-white/60">din care TVA {vat} lei</p>
+    </div>
+  );
+}
+
 export function DrawerSection({
   title,
+  icon,
   description,
   action,
   children,
 }: {
   title: string;
+  icon?: LucideIcon;
+  /** O singură frază, doar când previne o greșeală (ex. la inventar). */
   description?: string;
   action?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
-      <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-3 py-2">
-        <div>
+    <section data-drawer-lines className="grid gap-3 overflow-visible rounded-xl border border-[#e4e4e7] bg-white p-4">
+      {icon ? (
+        <DrawerHeading icon={icon} title={title} action={action} />
+      ) : (
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-semibold text-[#18181b]">{title}</h3>
-          {description ? <p className="text-xs text-[#52525b]">{description}</p> : null}
+          {action}
         </div>
-        {action}
-      </div>
-      <div className="grid gap-1.5 p-2">{children}</div>
+      )}
+      {description ? <p className="-mt-1 text-sm text-[#52525b]">{description}</p> : null}
+      <div className="grid gap-1.5">{children}</div>
     </section>
   );
 }

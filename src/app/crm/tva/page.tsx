@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Calculator, Landmark, ShoppingCart, Undo2 } from "lucide-react";
 import { getVatReportData, type VatReportData } from "@/lib/reports/vat";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
@@ -43,20 +44,20 @@ function VatWorkspace({ data }: { data: VatReportData }) {
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
-        <DailyMetric
+        <DailyMetric icon={ShoppingCart}
           label={`Vânzări (${data.months.length} luni)`}
           value={`${formatMoney(data.totals.salesGross)} lei`}
         />
-        <DailyMetric
+        <DailyMetric icon={Landmark}
           label="TVA colectată"
           value={`${formatMoney(data.totals.salesVat)} lei`}
           hint={`cota ${Math.round(data.vatRate * 100)}%`}
         />
-        <DailyMetric
+        <DailyMetric icon={Undo2}
           label="TVA din retururi"
           value={`${formatMoney(data.totals.returnsVat)} lei`}
         />
-        <DailyMetric
+        <DailyMetric icon={Calculator}
           label="TVA netă"
           value={`${formatMoney(data.totals.netVat)} lei`}
         />

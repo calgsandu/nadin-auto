@@ -65,7 +65,7 @@ export function CatalogFilters({
 
   return (
     <section className="motion-page flex flex-wrap items-center gap-2 px-3 pt-3 lg:px-6 lg:pt-4">
-      <div className="relative w-full sm:w-80">
+      <div className="relative w-full sm:w-60">
         <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
           {searching ? (
             <LoaderCircle className="size-4 animate-spin text-[#2563eb]" aria-hidden="true" />
@@ -79,7 +79,7 @@ export function CatalogFilters({
           className="field-control h-9 w-full rounded-lg border border-[#e4e4e7] bg-white pl-8 pr-12 text-sm outline-none placeholder:text-[#71717a]"
           data-catalog-search
           enterKeyHint="search"
-          placeholder="Caută cod, mașină, piesă"
+          placeholder="Cod, mașină, piesă"
           value={query}
           onChange={(event) => changeQuery(event.currentTarget.value)}
           onKeyDown={(event) => {
@@ -150,7 +150,7 @@ export function CatalogFilters({
         placeholder="An"
         inputMode="numeric"
         icon={<CalendarDays className="size-4 text-[#71717a]" aria-hidden="true" />}
-        className="w-28"
+        className="w-24"
       />
       <label className={pill(Boolean(searchParams.get("stoc")))}>
         <Boxes className="size-4 shrink-0 opacity-70" aria-hidden="true" />
