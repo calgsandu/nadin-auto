@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { createContext, Fragment, useContext, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { createContext, Fragment, useContext, useEffect, type ReactNode } from "react";
 import {
   ArrowRightLeft,
   Bell,
@@ -95,6 +95,7 @@ export function Sidebar({
 }) {
   const counts = useContext(NavCountsContext);
   const activeSectionId = sectionFromPathname(usePathname());
+  useSearchShortcut();
   const visibleGroups = navigationGroups
     .map((group) => ({
       ...group,
@@ -254,6 +255,51 @@ function NavLink({
  * Căutarea de piese, mereu la îndemână: duce în Produse cu termenul scris.
  * Ctrl+K (sau ⌘K) o focusează de oriunde din CRM.
  */
+/**
+ * Ctrl+K (sau „/" când nu scrii într-un câmp) duce în căutarea din Produse, de
+ * oriunde din CRM. Cu un panou deschis nu face nimic: ar pierde ciorna din ochi.
+ */
+function useSearchShortcut() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const focusSearch = () => {
+      const input = document.querySelector<HTMLInputElement>("[data-catalog-search]");
+      if (!input) return false;
+      input.focus();
+      input.select();
+      return true;
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      const typing =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target.isContentEditable;
+      const shortcut =
+        ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") ||
+        (event.key === "/" && !typing && !event.ctrlKey && !event.metaKey && !event.altKey);
+      if (!shortcut) return;
+      const drawerOpen = Array.from(document.querySelectorAll<HTMLElement>(".motion-drawer-backdrop")).some(
+        (backdrop) => backdrop.style.display !== "none",
+      );
+      if (drawerOpen) return;
+      event.preventDefault();
+      if (focusSearch()) return;
+      router.push("/crm/produse");
+      // Pagina vine din server: așteptăm câmpul cel mult câteva secunde.
+      let tries = 0;
+      const wait = window.setInterval(() => {
+        tries += 1;
+        if (focusSearch() || tries > 50) window.clearInterval(wait);
+      }, 100);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [router]);
+}
+
 function LogoutButton({ compact = false }: { compact?: boolean }) {
   return (
     <form action={logoutAction}>

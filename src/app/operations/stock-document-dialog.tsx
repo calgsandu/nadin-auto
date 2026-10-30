@@ -121,6 +121,8 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
     () => {
       resetLines();
       draft.clear();
+      // Panoul rămâne deschis: cursorul trece direct la următoarea recepție.
+      focusFirstLineSearch();
     },
   );
   const defaultWarehouse = warehouses[0]?.id ?? "";

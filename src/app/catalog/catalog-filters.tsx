@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import type { ReactNode } from "react";
-import { CalendarDays, Car, Layers, Search, Tag, X } from "lucide-react";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
+import { CalendarDays, Car, Layers, LoaderCircle, Search, Tag, X } from "lucide-react";
 import type { Brand, CarModel, ProductType } from "@/generated/prisma/client";
 import { crmCatalogFilterHref } from "@/lib/crm/urls";
 
@@ -19,6 +19,25 @@ export function CatalogFilters({
 }: CatalogFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const [searching, startSearch] = useTransition();
+  const timer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  /** Căutarea filtrează pe loc, cu o mică pauză ca să nu cerem fiecare literă. */
+  function changeQuery(value: string) {
+    setQuery(value);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => {
+      const next = new URLSearchParams(searchParams);
+      if (value.trim()) next.set("q", value.trim());
+      else next.delete("q");
+      next.delete("page");
+      // replace, nu push: „Înapoi" nu trebuie să treacă prin fiecare literă.
+      startSearch(() => router.replace(crmCatalogFilterHref(next), { scroll: false }));
+    }, 300);
+  }
 
   function updateParam(key: string, value: string) {
     const next = new URLSearchParams(searchParams);
@@ -46,16 +65,35 @@ export function CatalogFilters({
 
   return (
     <section className="motion-page flex flex-wrap items-center gap-2 px-3 pt-3 lg:px-6 lg:pt-4">
-      {/* Cheia = valoarea din adresă: după „Resetează" câmpul se golește. */}
-      <TextFilterInput
-        key={`q:${searchParams.get("q") ?? ""}`}
-        name="q"
-        value={searchParams.get("q") ?? ""}
-        onApply={updateParam}
-        placeholder="Caută cod, model, descriere"
-        icon={<Search className="size-4 text-[#71717a]" aria-hidden="true" />}
-        className="w-full sm:w-72"
-      />
+      <div className="relative w-full sm:w-80">
+        <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
+          {searching ? (
+            <LoaderCircle className="size-4 animate-spin text-[#2563eb]" aria-hidden="true" />
+          ) : (
+            <Search className="size-4 text-[#71717a]" aria-hidden="true" />
+          )}
+        </span>
+        <input
+          aria-label="Caută cod, mașină, piesă"
+          autoComplete="off"
+          className="field-control h-9 w-full rounded-lg border border-[#e4e4e7] bg-white pl-8 pr-12 text-sm outline-none placeholder:text-[#71717a]"
+          data-catalog-search
+          enterKeyHint="search"
+          placeholder="Caută cod, mașină, piesă"
+          value={query}
+          onChange={(event) => changeQuery(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && query) {
+              event.preventDefault();
+              changeQuery("");
+            }
+          }}
+        />
+        {/* Scurtătura de la tastatură, ca s-o vadă lumea (vezi Sidebar). */}
+        <kbd className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-[#e4e4e7] bg-white px-1 font-sans text-xs text-[#71717a] sm:block">
+          Ctrl K
+        </kbd>
+      </div>
       <label className={pill(Boolean(searchParams.get("brand")))}>
         <Tag className="size-4 shrink-0 opacity-70" aria-hidden="true" />
         <span className="sr-only">Brand</span>
@@ -118,7 +156,11 @@ export function CatalogFilters({
         <button
           className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
           type="button"
-          onClick={() => router.push(crmCatalogFilterHref(new URLSearchParams()))}
+          onClick={() => {
+            window.clearTimeout(timer.current);
+            setQuery("");
+            router.push(crmCatalogFilterHref(new URLSearchParams()));
+          }}
         >
           <X className="size-4" aria-hidden="true" /> Resetează
         </button>

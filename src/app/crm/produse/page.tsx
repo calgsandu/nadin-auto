@@ -42,7 +42,9 @@ export default async function ProductsPage({
   const catalogPromise = getCatalogData(params, {
     onlyInStock: appUser.role === "ANGAJAT",
   });
-  const key = [params.q, params.brand, params.model, params.type, params.year, params.page].join(":");
+  // Fără `q`: căutarea filtrează pe măsură ce scrii, iar o cheie nouă ar
+  // remonta câmpul (pierde focusul) și ar arăta scheletul la fiecare literă.
+  const key = [params.brand, params.model, params.type, params.year, params.page].join(":");
 
   return (
     <>

@@ -164,6 +164,13 @@ export function OperationDrawer({
         <aside
           ref={panelRef}
           onKeyDown={(event) => {
+            // Ctrl+Enter (sau Ctrl+S) salvează din orice câmp, fără drum la buton.
+            if ((event.ctrlKey || event.metaKey) && (event.key === "Enter" || event.key.toLowerCase() === "s")) {
+              event.preventDefault();
+              event.stopPropagation();
+              if (!pending) panelRef.current?.querySelector("form")?.requestSubmit();
+              return;
+            }
             if (event.key !== "Escape") return;
             // Escape tratat aici nu mai are ce căuta mai sus: dacă panoul e un
             // dialog-copil, ar închide și părintele în aceeași apăsare.
@@ -185,15 +192,21 @@ export function OperationDrawer({
               {submitLabel ? (
                 // requestSubmit() = aceeași validare + același onSubmit ca butonul din josul formularului.
                 <button
-                  className="button-primary rounded-md bg-[#18181b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="button-primary inline-flex items-center gap-2 rounded-md bg-[#18181b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={pending}
+                  title="Ctrl+Enter"
                   type="button"
                   onClick={() => panelRef.current?.querySelector("form")?.requestSubmit()}
                 >
                   {pending ? "Se salvează..." : submitLabel}
+                  {pending ? null : (
+                    <kbd className="hidden rounded bg-white/15 px-1.5 font-sans text-xs font-medium text-white/80 lg:inline">
+                      Ctrl+Enter
+                    </kbd>
+                  )}
                 </button>
               ) : null}
-              <button className={drawerSecondaryButton} type="button" onClick={onClose}>
+              <button className={drawerSecondaryButton} title="Esc" type="button" onClick={onClose}>
                 Închide
               </button>
             </div>
