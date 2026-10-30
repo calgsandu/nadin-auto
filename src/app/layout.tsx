@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Manrope, Roboto_Mono } from "next/font/google";
+import { Figtree, Manrope, Roboto_Mono } from "next/font/google";
 import { Toaster } from "@/app/components/action-toast";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
 import "./globals.css";
@@ -8,6 +8,13 @@ import "./globals.css";
 const appFont = Manrope({
   variable: "--font-app",
   subsets: ["latin", "latin-ext", "cyrillic"],
+});
+
+// CRM-ul: Figtree, clar și compact la mărimi mici (vezi `.crm-main` în
+// globals.css). Vitrina, care are și varianta în rusă, rămâne pe Manrope.
+const crmFont = Figtree({
+  variable: "--font-crm",
+  subsets: ["latin", "latin-ext"],
 });
 
 // Self-hostat: stickerele folosesc mono, iar un mono de sistem are alte lățimi
@@ -45,7 +52,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${appFont.variable} ${monoFont.variable} h-full antialiased`}
+      className={`${appFont.variable} ${crmFont.variable} ${monoFont.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#f6f6f4] text-[#1b1a17]">
         <Script id="crm-sidebar-state" strategy="beforeInteractive">

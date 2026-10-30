@@ -39,7 +39,7 @@
 /*
  * Aspectul CRM-ului (direcția „Clar"): griuri neutre și un singur albastru.
  * Vitrina publică își păstrează paleta caldă, de aceea totul e legat de
- * `.crm-main`. Fontul rămâne Manrope, ca în tot proiectul.
+ * `.crm-main`. Fontul e Figtree (vitrina rămâne pe Manrope).
  */
 :root:has(.crm-main) {
   --background: #fafafa;
@@ -47,6 +47,12 @@
   --accent: #2563eb;
   --border: #e4e4e7;
   --ring: #2563eb;
+}
+
+/* Pe body, nu pe `.crm-main`: drawerele și meniurile sunt portate în body.
+   Figtree n-are chirilice; textul în rusă se afișează cu fontul de rezervă. */
+:root:has(.crm-main) body {
+  font-family: var(--font-crm), var(--font-app), ui-sans-serif, system-ui, sans-serif;
 }
 
 :root:has(.crm-main) body {
