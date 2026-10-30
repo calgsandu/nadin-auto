@@ -9,6 +9,7 @@ import { RowMenu } from "@/app/components/row-menu";
 import { ProductFormDialog, type ProductFormValue } from "@/app/catalog/product-form-dialog";
 import { LabelPicker } from "@/app/catalog/label-picker";
 import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
+import { normalizeText, searchTerms } from "@/lib/catalog/search-text";
 import { getCatalogData, type CatalogSearchParams } from "@/lib/catalog/queries";
 import { crmCatalogPageHref, crmSectionHref } from "@/lib/crm/urls";
 import { canCreateSales, canWriteCatalog } from "@/lib/roles";
@@ -248,13 +249,20 @@ function ProductRow({
         {/* Întâi mașina (după ea întreabă clientul), apoi piesa. Click: fișa cu
             stocul pe fiecare depozit și toate mașinile. */}
         <ProductPreview product={toPreview(product, catalog, compatibilities)} canModify={canModify} canSell={canSell}>
-          <span className="flex items-center gap-1.5 font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline">
-            <Car className="size-3.5 shrink-0 text-[#a1a1aa]" aria-hidden="true" />
-            {compatibilities[0] ? `${compatibilities[0].title} ${compatibilities[0].years}` : "—"}
-            {compatibilities.length > 1 ? (
-              <span className="ml-1 font-normal text-[#71717a]">+{compatibilities.length - 1}</span>
-            ) : null}
-          </span>
+          {/* TOATE mașinile, fiecare pe rândul ei — un „+1" ascundea gemenii
+              (Sprinter ↔ Crafter) și părea că s-au șters. Cea căutată vine prima. */}
+          {(compatibilities.length > 0
+            ? matchingFirst(compatibilities, catalog.params.q)
+            : [{ title: "—", years: "" }]
+          ).map((compatibility, index) => (
+            <span
+              key={`${compatibility.title}:${compatibility.years}:${index}`}
+              className="flex items-center gap-1.5 font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline"
+            >
+              <Car className="size-3.5 shrink-0 text-[#a1a1aa]" aria-hidden="true" />
+              {compatibility.title} {compatibility.years}
+            </span>
+          ))}
           <span className="mt-0.5 block pl-5 text-[#3f3f46]">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
@@ -303,6 +311,14 @@ function ProductRow({
   );
 }
 
+
+/** Mașinile care se potrivesc cu căutarea întâi (caut „crafter" → Crafter sus). */
+function matchingFirst<T extends { title: string }>(lines: T[], query: string | undefined) {
+  const terms = searchTerms(query ?? "");
+  if (terms.length === 0) return lines;
+  const matches = (line: T) => terms.some((term) => normalizeText(line.title).includes(term));
+  return [...lines.filter(matches), ...lines.filter((line) => !matches(line))];
+}
 
 function toProductFormValue(product: CatalogProduct): ProductFormValue {
   return {
