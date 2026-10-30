@@ -1,12 +1,17 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { FileText, Package, Plus, Trash2, UserPlus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
-  DraftBanner,
-  drawerPanelClassName,
+  DrawerCard,
+  DrawerField,
+  DrawerTotal,
+  OperationDrawer,
+  drawerDangerButton,
+  drawerFormClassName,
+  drawerSecondaryButton,
   focusFirstLineSearch,
+  handleEnterNavigation,
   useDrawerAction,
 } from "@/app/components/operation-drawer";
 import { useDrawerDraft } from "@/app/components/use-drawer-draft";
@@ -105,6 +110,7 @@ export function PaymentAccountDialog({
     warehouses.find((warehouse) => warehouse.name === "Pavilion 110A")?.id ??
     warehouses[0]?.id ??
     "";
+  const selectedCustomer = customerOptions.find((customer) => customer.id === customerId);
   const totals = calculatePaymentTotals(
     lines.map((line) => ({
       quantity: Number(line.quantity) || 0,
@@ -140,110 +146,102 @@ export function PaymentAccountDialog({
       </button>
 
       {mounted ? (
-        <DrawerPortal locked={open}>
-          <div
-            className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
-            style={open ? undefined : { display: "none" }}
-          >
-            <button
-              aria-label="Închide contul de plată"
-              className="absolute inset-0 cursor-default"
-              type="button"
-              onClick={() => setOpen(false)}
-            />
-            <aside className={drawerPanelClassName}>
-              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
-                <div>
-                  <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">Cont de plată nou</h2>
-                </div>
-                <button
-                  className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold"
-                  type="button"
-                  onClick={() => setOpen(false)}
-                >
-                  Închide
-                </button>
-              </div>
-              <DraftBanner draft={draft.banner} />
-
-              <form ref={attachForm} onSubmit={onSubmit} className="grid gap-4 px-5 py-4">
+        <OperationDrawer
+          title="Cont de plată nou"
+          icon={FileText}
+          open={open}
+          pending={pending}
+          submitLabel="Emite contul"
+          draft={draft.banner}
+          onClose={() => setOpen(false)}
+        >
+              <form
+                ref={attachForm}
+                onSubmit={onSubmit}
+                className={drawerFormClassName}
+                onKeyDown={(event) => handleEnterNavigation(event, addLine)}
+              >
                 <input name="idempotencyKey" type="hidden" value={draft.token} />
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <Field label="Data emiterii">
-                    <input className={inputClassName} defaultValue={today} name="issueDate" required type="date" />
+                <DrawerCard icon={FileText} title="Detalii">
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
+                  <Field label="Client">
+                    <div className="flex gap-2">
+                      <select
+                        className={inputClassName}
+                        name="partnerId"
+                        required
+                        value={customerId}
+                        onChange={(event) => setCustomerId(event.currentTarget.value)}
+                      >
+                        <option disabled value="">Alege clientul</option>
+                        {customerOptions.map((customer) => (
+                          <option key={customer.id} value={customer.id}>
+                            {customer.name}{!customer.idno || !customer.address ? " (date incomplete)" : ""}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        aria-label="Client nou"
+                        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
+                        title="Client nou"
+                        type="button"
+                        onClick={() => setCustomerForm(true)}
+                      >
+                        <UserPlus className="size-4" aria-hidden="true" />
+                      </button>
+                    </div>
+                    {/* Fără IDNO și adresă contul nu se poate emite: spunem pe loc. */}
+                    {selectedCustomer && (!selectedCustomer.idno || !selectedCustomer.address) ? (
+                      <span className="text-xs font-medium text-[#b45309]">
+                        Lipsește {!selectedCustomer.idno ? "IDNO-ul" : "adresa"} — completează fișa clientului.
+                      </span>
+                    ) : null}
+                    <PartnerFormDialog
+                      defaultKind="CUSTOMER"
+                      open={customerForm}
+                      onOpenChange={setCustomerForm}
+                      onCreated={(partner) => {
+                        addCustomer(partner);
+                        setCustomerId(partner.id);
+                      }}
+                    />
                   </Field>
-                  <Field label="Scadența">
-                    <input className={inputClassName} defaultValue={defaultDueDate} name="dueDate" type="date" />
-                  </Field>
-                  <Field label="Marfa va fi predată din">
+                  <Field label="Predat din">
                     <select className={inputClassName} defaultValue={defaultWarehouse} name="warehouseId" required>
                       {warehouses.map((warehouse) => (
                         <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
                       ))}
                     </select>
                   </Field>
-                  <Field label="Client">
-                    <div className="grid gap-2">
-                      <div className="flex gap-2">
-                        <select
-                          className={inputClassName}
-                          name="partnerId"
-                          required
-                          value={customerId}
-                          onChange={(event) => setCustomerId(event.currentTarget.value)}
-                        >
-                          <option disabled value="">Alege clientul</option>
-                          {customerOptions.map((customer) => (
-                            <option key={customer.id} value={customer.id}>
-                              {customer.name}{!customer.idno || !customer.address ? " (date incomplete)" : ""}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          className="button-secondary shrink-0 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-                          type="button"
-                          onClick={() => setCustomerForm(true)}
-                        >
-                          Client nou
-                        </button>
-                      </div>
-                      <PartnerFormDialog
-                        defaultKind="CUSTOMER"
-                        open={customerForm}
-                        onOpenChange={setCustomerForm}
-                        onCreated={(partner) => {
-                          addCustomer(partner);
-                          setCustomerId(partner.id);
-                        }}
-                      />
-                    </div>
+                  <Field label="Data emiterii">
+                    <input className={inputClassName} defaultValue={today} name="issueDate" required type="date" />
+                  </Field>
+                  <Field label="Scadența">
+                    <input className={inputClassName} defaultValue={defaultDueDate} name="dueDate" type="date" />
                   </Field>
                 </div>
+                </DrawerCard>
 
-                <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
-                  <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-3">
-                    <div>
-                      <h3 className="font-semibold text-[#18181b]">Marfă</h3>
-                      <p className="text-xs text-[#52525b]">Prețurile sunt finale, cu TVA inclus.</p>
-                    </div>
-                    <button
-                      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold"
-                      type="button"
-                      onClick={addLine}
-                    >
-                      <Plus className="size-4" aria-hidden="true" /> Adaugă produs
+                <DrawerCard
+                  lines
+                  icon={Package}
+                  title="Marfă"
+                  action={
+                    <button className={drawerSecondaryButton} type="button" onClick={addLine}>
+                      <Plus className="size-4" aria-hidden="true" /> Produs
                     </button>
-                  </div>
-                  <div className="grid gap-1.5 p-2">
+                  }
+                >
+                  <div className="grid gap-1.5">
                     {lines.map((line, index) => {
                       const calculated = totals.lines[index];
                       return (
                         <div
                           key={line.id}
-                          className="motion-line-item grid gap-2 rounded-md border border-[#f0f0f2] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_6rem_9rem_10rem_2.25rem] md:items-start"
+                          className="motion-line-item grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_8rem_8rem_2.25rem] md:items-start"
                         >
                           <div>
-                            <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#52525b]">Produs {index + 1}</p>
+                            <p className="line-label mb-1 text-[13px] font-medium leading-5 text-[#52525b]">Produs</p>
                             <ProductSearchCombobox
                               showHint={false}
                               initialProduct={
@@ -262,7 +260,7 @@ export function PaymentAccountDialog({
                               }
                             />
                           </div>
-                          <Field label="Cantitate">
+                          <Field label="Cant.">
                             <input
                               className={inputClassName}
                               min={1}
@@ -285,15 +283,14 @@ export function PaymentAccountDialog({
                               onChange={(event) => updateLine(line.id, { price: event.currentTarget.value })}
                             />
                           </Field>
-                          <Field label="Linie">
-                            <div className="flex h-9 flex-col justify-center rounded-md bg-[#f4f4f5] px-2.5 font-mono text-xs leading-tight">
-                              <span className="font-semibold">{money(calculated.gross)} lei</span>
-                              <span className="text-[#52525b]">TVA {money(calculated.vat)}, net {money(calculated.net)}</span>
+                          <Field label="Sumă">
+                            <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-[#18181b]">
+                              {money(calculated.gross)} lei
                             </div>
                           </Field>
                           <button
                             aria-label={`Șterge produsul ${index + 1}`}
-                            className="button-danger line-offset mt-6 grid size-9 place-items-center rounded-md border border-[#fca5a5] text-[#b91c1c] disabled:opacity-35"
+                            className={drawerDangerButton}
                             disabled={lines.length === 1}
                             type="button"
                             onClick={() => setLines((current) => current.filter((item) => item.id !== line.id))}
@@ -304,55 +301,27 @@ export function PaymentAccountDialog({
                       );
                     })}
                   </div>
-                </section>
+                </DrawerCard>
 
-                <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_20rem]">
-                  <Field label="Mențiuni">
+                <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
+                  <Field label="Mențiuni pe cont">
                     <textarea
-                      className={`${inputClassName} min-h-16 resize-y py-2`}
+                      className={`${inputClassName} min-h-14 resize-y py-2`}
                       name="notes"
                       placeholder="Termen de achitare, condiții de ridicare etc."
                     />
                   </Field>
-                  <div className="rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
-                    <Summary label="Fără TVA" value={totals.net} />
-                    <Summary label="TVA" value={totals.vat} />
-                    <div className="mt-2 flex justify-between border-t border-[#e4e4e7] pt-3 text-base font-semibold">
-                      <span>Total</span><span className="font-mono">{money(totals.gross)} lei</span>
-                    </div>
-                  </div>
-                </div>
-
-
-                <div className="flex justify-end gap-3 border-t border-[#e4e4e7] pt-5">
-                  <button className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3.5 py-2 text-sm font-semibold" type="button" onClick={() => setOpen(false)}>
-                    Anulează
-                  </button>
-                  <SubmitButton pending={pending} />
+                  <DrawerTotal total={money(totals.gross)} vat={money(totals.vat)} />
                 </div>
               </form>
-            </aside>
-          </div>
-        </DrawerPortal>
+        </OperationDrawer>
       ) : null}
     </>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="grid gap-1.5 text-xs font-semibold text-[#52525b]">{label}{children}</label>;
-}
+const Field = DrawerField;
 
-function Summary({ label, value }: { label: string; value: number }) {
-  return <div className="flex justify-between py-1"><span className="text-[#52525b]">{label}</span><span className="font-mono font-semibold">{money(value)} lei</span></div>;
-}
 
-function SubmitButton({ pending }: { pending: boolean }) {
-  return (
-    <button className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">
-      {pending ? "Se emite..." : "Emite contul"}
-    </button>
-  );
-}
 
 const money = (value: number) => new Intl.NumberFormat("ro-MD", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);

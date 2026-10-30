@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
-import { Banknote, Car, ChevronDown, PackageSearch, Plus, Tag, Trash2, Warehouse } from "lucide-react";
+import { Banknote, Car, ChevronDown, PackageSearch, Plus, Printer, Tag, Trash2, Warehouse } from "lucide-react";
 import {
   createProductAction,
   updateProductAction,
@@ -146,13 +146,51 @@ export function ProductFormDialog({
   const formRef = useRef<HTMLFormElement>(null);
   const action = product ? updateProductAction : createProductAction;
   // Fără resetul automat al React: la eroare rămâne tot completat.
+  // „Salvează și adaugă altul": la inventar se introduc piese una după alta,
+  // adesea pentru aceeași mașină — tipul și mașinile rămân, restul se golește.
+  const continueAfterSave = useRef(false);
+  const submittedStock = useRef(0);
+  // Tipul ales, citit la trimitere: la succes formularul e deja golit (`useDrawerAction`).
+  const submittedType = useRef("");
+  const [lastSaved, setLastSaved] = useState<{ id: string; label: string; copies: number } | null>(null);
   const { pending, onSubmit } = useDrawerAction(action, initialState, (saved) => {
+    if (continueAfterSave.current) {
+      continueAfterSave.current = false;
+      if (saved.created) {
+        setLastSaved({ id: saved.created.id, label: saved.created.label, copies: submittedStock.current });
+      }
+      prepareNext();
+      return;
+    }
     setOpen(false);
     setMounted(false);
+    setLastSaved(null);
     // Cel care a deschis dialogul primește produsul gata de selectat pe rândul
     // în lucru — altfel ar trebui să-l caute din nou după ce l-a creat.
     if (saved.created) onCreated?.(saved.created);
   });
+
+  /** Formular gol pentru piesa următoare, cu tipul și mașinile păstrate. */
+  function prepareNext() {
+    const form = formRef.current;
+    const typeSelect = form?.querySelector<HTMLSelectElement>('select[name="typeId"]');
+    form?.reset();
+    // Un tip nou abia creat nu e încă în listă: atunci rămâne „Alege tipul".
+    if (typeSelect && submittedType.current !== NEW_TYPE) typeSelect.value = submittedType.current;
+    setWarehouseQuantities(getWarehouseQuantities(undefined, warehouses));
+    setCost("");
+    setSalePrice("");
+    setNewType(false);
+    requestAnimationFrame(() => form?.querySelector<HTMLInputElement>('input[name="externalCode"]')?.focus());
+  }
+
+  function submit(continueNext: boolean) {
+    continueAfterSave.current = continueNext;
+    submittedStock.current = calculateTotal(warehouseQuantities);
+    submittedType.current =
+      formRef.current?.querySelector<HTMLSelectElement>('select[name="typeId"]')?.value ?? "";
+    formRef.current?.requestSubmit();
+  }
   // Cât timp formularul ăsta e deschis, drawerul din care s-a plecat se ascunde.
   useDrawerStackChild(open);
 
@@ -169,6 +207,7 @@ export function ProductFormDialog({
     setNewType(false);
   }
 
+  const originalQuantities = getWarehouseQuantities(product, warehouses);
   const costValue = Number(cost.replace(",", ".")) || 0;
   const saleValue = Number(salePrice.replace(",", ".")) || 0;
   const effectiveSale = saleValue || costValue * 2;
@@ -251,7 +290,7 @@ export function ProductFormDialog({
               if ((event.ctrlKey || event.metaKey) && (event.key === "Enter" || event.key.toLowerCase() === "s")) {
                 event.preventDefault();
                 event.stopPropagation();
-                if (!pending) formRef.current?.requestSubmit();
+                if (!pending) submit(false);
                 return;
               }
               if (event.key !== "Escape") return;
@@ -279,12 +318,23 @@ export function ProductFormDialog({
                 {product ? "Editează produs" : "Adaugă produs"}
               </h2>
               <div className="flex items-center gap-2">
+                {/* Doar la produs nou, deschis direct (nu din vânzare/recepție). */}
+                {!product && !controlled ? (
+                  <button
+                    className="button-secondary hidden items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5] disabled:opacity-60 sm:inline-flex"
+                    disabled={pending}
+                    type="button"
+                    onClick={() => submit(true)}
+                  >
+                    <Plus className="size-4" aria-hidden="true" /> Salvează și adaugă altul
+                  </button>
+                ) : null}
                 <button
                   className="button-primary inline-flex items-center gap-2 rounded-md bg-[#18181b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={pending}
                   title="Ctrl+Enter"
                   type="button"
-                  onClick={() => formRef.current?.requestSubmit()}
+                  onClick={() => submit(false)}
                 >
                   {pending ? "Se salvează..." : product ? "Salvează" : "Adaugă produsul"}
                   {pending ? null : (
@@ -297,7 +347,10 @@ export function ProductFormDialog({
                   className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
                   title="Esc"
                   type="button"
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    setOpen(false);
+                    setLastSaved(null);
+                  }}
                 >
                   Închide
                 </button>
@@ -312,6 +365,30 @@ export function ProductFormDialog({
             >
               {product ? (
                 <input name="productId" type="hidden" value={product.id} />
+              ) : null}
+
+              {lastSaved ? (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#f0fdf4] px-3 py-2 text-sm text-[#166534]">
+                  <span className="min-w-0 truncate">Salvat: {lastSaved.label}</span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#bbf7d0] bg-white px-3 py-1.5 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+                      href={`/print/labels?items=${lastSaved.id}:${Math.max(lastSaved.copies, 1)}&layout=grid`}
+                      rel="noopener"
+                      target="_blank"
+                    >
+                      <Printer className="size-4" aria-hidden="true" /> Sticker ({Math.max(lastSaved.copies, 1)})
+                    </a>
+                    <button
+                      aria-label="Ascunde"
+                      className="grid size-8 place-items-center rounded-md hover:bg-[#dcfce7]"
+                      type="button"
+                      onClick={() => setLastSaved(null)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
               ) : null}
 
               {/* Ordinea în care se scrie o piesă: codul, ce e, ce tip. */}
@@ -430,7 +507,7 @@ export function ProductFormDialog({
                   </p>
                 }
               >
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2">
                   {warehouses.map((warehouse) => (
                     <div key={warehouse.id} className="grid gap-1.5">
                       <input name="warehouseId" type="hidden" value={warehouse.id} readOnly />
@@ -452,6 +529,10 @@ export function ProductFormDialog({
                             }));
                           }}
                         />
+                        {/* La editare: cât era înainte, ca să vezi ce schimbi. */}
+                        {product && originalQuantities[warehouse.id] !== (warehouseQuantities[warehouse.id] ?? "0") ? (
+                          <span className="text-xs font-medium text-[#b45309]">era {originalQuantities[warehouse.id]}</span>
+                        ) : null}
                       </Field>
                     </div>
                   ))}
