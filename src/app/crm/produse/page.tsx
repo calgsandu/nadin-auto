@@ -10,12 +10,11 @@ import { LabelPicker } from "@/app/catalog/label-picker";
 import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
 import { getCatalogData, type CatalogSearchParams } from "@/lib/catalog/queries";
 import { crmCatalogPageHref, crmSectionHref } from "@/lib/crm/urls";
-import { canWriteCatalog } from "@/lib/roles";
+import { canCreateSales, canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
 import {
   ButtonSkeleton,
-  DailyMetric,
   Pagination,
   ExportLink,
   TableCell,
@@ -23,6 +22,7 @@ import {
   WorkspaceSkeleton,
 } from "../_components/ui";
 import { formatFormValue, formatMoney, formatNumber, formatText } from "../_components/format";
+import { ProductPreview, type ProductPreviewValue } from "./product-preview";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -38,6 +38,7 @@ export default async function ProductsPage({
   const appUser = await requireCrmSection("produse");
   const params = await searchParams;
   const canModify = canWriteCatalog(appUser.role);
+  const canSell = canCreateSales(appUser.role);
   const catalogPromise = getCatalogData(params, {
     onlyInStock: appUser.role === "ANGAJAT",
   });
@@ -55,7 +56,7 @@ export default async function ProductsPage({
       </CrmHeader>
 
       <Suspense key={key} fallback={<WorkspaceSkeleton filters={5} rows={8} />}>
-        <ProductWorkspaceLoader catalogPromise={catalogPromise} canModify={canModify} />
+        <ProductWorkspaceLoader catalogPromise={catalogPromise} canModify={canModify} canSell={canSell} />
       </Suspense>
     </>
   );
@@ -64,12 +65,14 @@ export default async function ProductsPage({
 async function ProductWorkspaceLoader({
   catalogPromise,
   canModify,
+  canSell,
 }: {
   catalogPromise: Promise<CatalogData>;
   canModify: boolean;
+  canSell: boolean;
 }) {
   const catalog = await catalogPromise;
-  return <ProductWorkspace catalog={catalog} canModify={canModify} />;
+  return <ProductWorkspace catalog={catalog} canModify={canModify} canSell={canSell} />;
 }
 
 async function ProductHeaderAction({
@@ -93,9 +96,11 @@ async function ProductHeaderAction({
 function ProductWorkspace({
   catalog,
   canModify,
+  canSell,
 }: {
   catalog: CatalogData;
   canModify: boolean;
+  canSell: boolean;
 }) {
   const { page, pageCount, pageSize } = catalog.pagination;
   const start = catalog.productCount === 0 ? 0 : (page - 1) * pageSize + 1;
@@ -105,17 +110,10 @@ function ProductWorkspace({
     <>
       <CatalogFilters brands={catalog.brands} models={catalog.models} types={catalog.types} />
       <section className="motion-page grid grid-cols-1 gap-4 p-3 lg:px-6 lg:py-4">
-        <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
-          <DailyMetric label="Produse" value={formatNumber(catalog.productCount)} />
-          <DailyMetric label="Bucăți în stoc" value={formatNumber(catalog.stats.totalUnits)} />
-          <DailyMetric label="Stoc mic" value={formatNumber(catalog.stats.criticalStockCount)} />
-          <DailyMetric label="Fără stoc" value={formatNumber(catalog.stats.outOfStockCount)} />
-        </div>
-
         <LabelPicker>
           <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
             <div className="overflow-x-auto">
-              <table className="crm-table w-full min-w-[960px] border-collapse text-left text-sm">
+              <table className="crm-table w-full min-w-[720px] border-collapse text-left text-sm">
                 <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
                   <tr>
                     {canModify ? (
@@ -123,8 +121,7 @@ function ProductWorkspace({
                         <span className="sr-only">Selectează pentru sticker</span>
                       </TableHead>
                     ) : null}
-                    <TableHead className="min-w-[16rem]">Produs</TableHead>
-                    <TableHead secondary>Compatibilitate</TableHead>
+                    <TableHead className="min-w-[18rem]">Mașină și piesă</TableHead>
                     <TableHead align="right">Preț vânzare</TableHead>
                     <TableHead align="right">Stoc</TableHead>
                     {canModify ? <TableHead align="right" secondary>Cost aducere</TableHead> : null}
@@ -140,6 +137,7 @@ function ProductWorkspace({
                     <ProductRow
                       key={product.id}
                       canModify={canModify}
+                      canSell={canSell}
                       catalog={catalog}
                       product={product}
                     />
@@ -179,10 +177,12 @@ function StockCount({ stock, minStock }: { stock: number | null; minStock: numbe
 
 function ProductRow({
   canModify,
+  canSell,
   catalog,
   product,
 }: {
   canModify: boolean;
+  canSell: boolean;
   catalog: CatalogData;
   product: CatalogProduct;
 }) {
@@ -220,26 +220,21 @@ function ProductRow({
         </TableCell>
       ) : null}
       <TableCell>
-        <p className="font-medium text-[#18181b]">
-          {product.description}
-          {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
-        </p>
-        <p className="mt-0.5 text-xs text-[#52525b]">
-          <span className="font-mono font-semibold text-[#3f3f46]">{formatText(product.externalCode)}</span>
-          {" · "}
-          {product.type.name}
-        </p>
-      </TableCell>
-      <TableCell secondary className="text-[#3f3f46]">
-        {compatibilities[0] ? `${compatibilities[0].title} ${compatibilities[0].years}` : "—"}
-        {compatibilities.length > 1 ? (
-          <span
-            className="ml-1 text-[#71717a]"
-            title={compatibilities.map((compatibility) => `${compatibility.title} ${compatibility.years}`).join("\n")}
-          >
-            +{compatibilities.length - 1}
+        {/* Întâi mașina (după ea întreabă clientul), apoi piesa. Click: fișa cu
+            stocul pe fiecare depozit și toate mașinile. */}
+        <ProductPreview product={toPreview(product, catalog, compatibilities)} canModify={canModify} canSell={canSell}>
+          <span className="block font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline">
+            {compatibilities[0] ? `${compatibilities[0].title} ${compatibilities[0].years}` : "—"}
+            {compatibilities.length > 1 ? (
+              <span className="ml-1 font-normal text-[#71717a]">+{compatibilities.length - 1}</span>
+            ) : null}
           </span>
-        ) : null}
+          <span className="mt-0.5 block text-[#3f3f46]">
+            {product.description}
+            {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
+            <span className="ml-2 font-mono text-xs text-[#71717a]">{formatText(product.externalCode)}</span>
+          </span>
+        </ProductPreview>
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
@@ -321,3 +316,26 @@ function toProductFormValue(product: CatalogProduct): ProductFormValue {
   };
 }
 
+function toPreview(
+  product: CatalogProduct,
+  catalog: CatalogData,
+  compatibilities: ReturnType<typeof buildCompatibilityLines>,
+): ProductPreviewValue {
+  const stocks = catalog.warehouses.map((warehouse) => ({
+    id: warehouse.id,
+    name: warehouse.name,
+    quantity: product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id)?.quantity ?? 0,
+  }));
+  return {
+    id: product.id,
+    code: product.externalCode,
+    alternativeCode: product.alternativeCode,
+    description: product.description,
+    type: product.type.name,
+    compatibilities,
+    stocks,
+    total: stocks.reduce((sum, stock) => sum + stock.quantity, 0),
+    price: product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : null,
+    notes: product.notes,
+  };
+}

@@ -1,5 +1,4 @@
 export type WorkspaceSectionId =
-  | "azi"
   | "produse"
   | "receptii"
   | "transferuri"
@@ -38,7 +37,6 @@ type NavigationEntry = {
   label: string;
   description: string;
   icon:
-    | "Home"
     | "PackageSearch"
     | "PackagePlus"
     | "ArrowRightLeft"
@@ -58,11 +56,6 @@ type NavigationEntry = {
 };
 
 export const workspaceSections: WorkspaceSection[] = [
-  {
-    id: "azi",
-    title: "Azi",
-    description: "Ce s-a vândut azi și ce mai e de făcut.",
-  },
   {
     id: "produse",
     title: "Produse",
@@ -197,12 +190,6 @@ export const workspaceSections: WorkspaceSection[] = [
 ];
 
 export const navigationEntries: NavigationEntry[] = [
-  {
-    section: "azi",
-    label: "Azi",
-    description: "Pagina de start",
-    icon: "Home",
-  },
   {
     section: "produse",
     label: "Produse",
@@ -363,7 +350,6 @@ export const navigationEntries: NavigationEntry[] = [
 ];
 
 type NavGroupIcon =
-  | "Home"
   | "ShoppingCart"
   | "Boxes"
   | "Layers"
@@ -399,19 +385,19 @@ export type NavGroup = {
  */
 export const navigationGroups: NavGroup[] = [
   {
-    id: "zi",
-    label: "Zi de zi",
-    description: "Vânzări, proforme, comenzi, retururi",
-    icon: "ShoppingCart",
-    sections: ["azi", "vanzari", "conturi-plata", "la-comanda", "retururi"],
-    display: "list",
-  },
-  {
     id: "stoc",
     label: "Produse",
     description: "Catalogul cu stocul",
     icon: "Boxes",
     sections: ["produse"],
+    display: "list",
+  },
+  {
+    id: "zi",
+    label: "Zi de zi",
+    description: "Vânzări, proforme, comenzi, retururi",
+    icon: "ShoppingCart",
+    sections: ["vanzari", "conturi-plata", "la-comanda", "retururi"],
     display: "list",
   },
   {

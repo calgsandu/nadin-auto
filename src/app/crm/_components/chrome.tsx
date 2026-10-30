@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createContext, Fragment, useContext, useEffect, useRef, type ReactNode } from "react";
+import { createContext, Fragment, useContext, type ReactNode } from "react";
 import {
   ArrowRightLeft,
   Bell,
@@ -14,12 +14,10 @@ import {
   ClipboardList,
   FileText,
   Handshake,
-  Home,
   Layers,
   LogOut,
   PackagePlus,
   PackageSearch,
-  Search,
   ShieldCheck,
   ShoppingCart,
   Tag,
@@ -75,7 +73,6 @@ const menuIcons: Record<string, LucideIcon> = {
   ClipboardList,
   FileText,
   Handshake,
-  Home,
   Layers,
   PackagePlus,
   PackageSearch,
@@ -117,7 +114,7 @@ export function Sidebar({
     <nav aria-label="Meniu principal" className="flex flex-col gap-2 px-3 py-2 lg:h-full lg:gap-0 lg:px-2.5 lg:py-2">
       {/* Cartea firmei: sigla, numele și butonul de restrângere a meniului. */}
       <div className="crm-account flex items-center justify-between gap-2 px-1 pb-1 lg:mb-2 lg:rounded-xl lg:border lg:border-[#e4e4e7] lg:bg-white lg:p-2 lg:shadow-[0_1px_2px_rgb(24_24_27/0.04)]">
-        <Link href="/crm/azi" className="flex min-w-0 items-center gap-2.5">
+        <Link href="/crm/produse" className="flex min-w-0 items-center gap-2.5">
           <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#f4f4f5] ring-1 ring-[#e4e4e7]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="" className="h-5 w-7 object-contain" />
@@ -136,8 +133,6 @@ export function Sidebar({
           <LogoutButton compact />
         </div>
       </div>
-
-      <SidebarSearch />
 
       {/* Telefon: un rând de grupuri; secțiunile fiecărui grup apar ca tab-uri sus. */}
       <div className="mobile-nav-scroll -mx-3 flex gap-1 overflow-x-auto px-3 pb-1 lg:hidden">
@@ -259,38 +254,6 @@ function NavLink({
  * Căutarea de piese, mereu la îndemână: duce în Produse cu termenul scris.
  * Ctrl+K (sau ⌘K) o focusează de oriunde din CRM.
  */
-function SidebarSearch() {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const focusSearch = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }
-    };
-    window.addEventListener("keydown", focusSearch);
-    return () => window.removeEventListener("keydown", focusSearch);
-  }, []);
-
-  return (
-    <form action="/crm/produse" method="get" role="search" className="crm-nav-search hidden pb-2 lg:block">
-      <label className="flex h-9 items-center gap-2 rounded-lg border border-[#e4e4e7] bg-white px-2.5 text-[#71717a] focus-within:border-[#2563eb]">
-        <Search className="size-3.5 shrink-0" aria-hidden="true" />
-        <span className="sr-only">Caută piesă</span>
-        <input
-          ref={inputRef}
-          className="min-w-0 flex-1 bg-transparent text-sm text-[#18181b] outline-none placeholder:text-[#71717a]"
-          name="q"
-          placeholder="Caută piesă…"
-        />
-        <kbd className="rounded border border-[#e4e4e7] bg-white px-1 font-sans text-[10px] font-medium">Ctrl K</kbd>
-      </label>
-    </form>
-  );
-}
-
 function LogoutButton({ compact = false }: { compact?: boolean }) {
   return (
     <form action={logoutAction}>

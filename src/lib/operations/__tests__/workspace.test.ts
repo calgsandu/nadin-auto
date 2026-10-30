@@ -13,7 +13,6 @@ assert.equal(resolveSection("sectiune-inexistenta"), "produse");
 assert.equal(resolveSection("depozite"), "depozite");
 
 const expectedSections = [
-  "azi",
   "produse",
   "receptii",
   "transferuri",

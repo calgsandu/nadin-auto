@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Pencil, Printer, ShoppingCart } from "lucide-react";
+import { Printer, ShoppingCart } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { drawerPanelClassName } from "@/app/components/operation-drawer";
 
@@ -102,14 +102,6 @@ export function ProductPreview({
                         <Printer className="size-4" aria-hidden="true" /> Sticker
                       </a>
                     ) : null}
-                    {canModify ? (
-                      <Link
-                        className="button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
-                        href={`/crm/produse?q=${encodeURIComponent(product.code ?? product.description)}`}
-                      >
-                        <Pencil className="size-4" aria-hidden="true" /> Editează
-                      </Link>
-                    ) : null}
                     {canSell ? (
                       <Link
                         className="button-primary inline-flex h-10 items-center gap-2 rounded-md bg-[#18181b] px-4 text-sm font-semibold text-white hover:bg-[#27272a]"
@@ -120,6 +112,23 @@ export function ProductPreview({
                     ) : null}
                   </div>
                 </div>
+
+                <section className="rounded-xl border border-[#e4e4e7] bg-white">
+                  <h3 className="border-b border-[#f0f0f2] px-4 py-2.5 text-sm font-semibold text-[#18181b]">
+                    Se potrivește pe
+                  </h3>
+                  <ul className="divide-y divide-[#f4f4f5]">
+                    {product.compatibilities.map((compatibility) => (
+                      <li
+                        key={`${compatibility.title}:${compatibility.years}`}
+                        className="flex items-baseline justify-between gap-3 px-4 py-2 text-sm"
+                      >
+                        <span className="font-medium text-[#18181b]">{compatibility.title}</span>
+                        <span className="text-[#52525b]">{compatibility.years}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
 
                 <section className="rounded-xl border border-[#e4e4e7] bg-white">
                   <h3 className="flex items-baseline justify-between border-b border-[#f0f0f2] px-4 py-2.5 text-sm font-semibold text-[#18181b]">
@@ -142,23 +151,6 @@ export function ProductPreview({
                         >
                           {stock.quantity}
                         </span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-
-                <section className="rounded-xl border border-[#e4e4e7] bg-white">
-                  <h3 className="border-b border-[#f0f0f2] px-4 py-2.5 text-sm font-semibold text-[#18181b]">
-                    Se potrivește pe
-                  </h3>
-                  <ul className="divide-y divide-[#f4f4f5]">
-                    {product.compatibilities.map((compatibility) => (
-                      <li
-                        key={`${compatibility.title}:${compatibility.years}`}
-                        className="flex items-baseline justify-between gap-3 px-4 py-2 text-sm"
-                      >
-                        <span className="font-medium text-[#18181b]">{compatibility.title}</span>
-                        <span className="text-[#52525b]">{compatibility.years}</span>
                       </li>
                     ))}
                   </ul>

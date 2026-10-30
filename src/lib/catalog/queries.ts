@@ -38,10 +38,6 @@ export async function getCatalogData(
   const [
     products,
     productCount,
-    editedProductCount,
-    criticalStockCount,
-    stockTotals,
-    outOfStockCount,
     brands,
     models,
     types,
@@ -83,26 +79,6 @@ export async function getCatalogData(
       take: PAGE_SIZE,
     }),
     prisma.product.count({ where }),
-    prisma.product.count({ where: { AND: [where, { manuallyEdited: true }] } }),
-    // Sub pragul de alertă per produs (minStock, implicit 3).
-    prisma.product.count({
-      where: {
-        AND: [
-          where,
-          {
-            OR: [
-              { stock: null },
-              { AND: [{ minStock: null }, { stock: { lte: 3 } }] },
-              { stock: { lte: prisma.product.fields.minStock } },
-            ],
-          },
-        ],
-      },
-    }),
-    prisma.product.aggregate({ where, _sum: { stock: true } }),
-    prisma.product.count({
-      where: { AND: [where, { OR: [{ stock: null }, { stock: { lte: 0 } }] }] },
-    }),
     prisma.brand.findMany({ orderBy: { name: "asc" } }),
     prisma.carModel.findMany({
       where: params.brand ? { brandId: params.brand } : undefined,
@@ -119,12 +95,6 @@ export async function getCatalogData(
   return {
     products,
     productCount,
-    stats: {
-      editedProductCount,
-      criticalStockCount,
-      totalUnits: stockTotals._sum.stock ?? 0,
-      outOfStockCount,
-    },
     pagination: {
       page,
       pageSize: PAGE_SIZE,
