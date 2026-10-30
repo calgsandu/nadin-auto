@@ -369,7 +369,8 @@ type NavGroupIcon =
   | "Layers"
   | "Handshake"
   | "ShieldCheck"
-  | "BarChart3";
+  | "BarChart3"
+  | "ArrowRightLeft";
 
 export type NavGroup = {
   id: string;
@@ -384,11 +385,14 @@ export type NavGroup = {
    * și își arată secțiunile ca sub-tab-uri sus.
    */
   display: "list" | "tabs";
+  /** Folosit rar: stă jos în sidebar, după o linie despărțitoare. */
+  rare?: boolean;
 };
 
 /**
- * Sidebar-ul. Munca de zi cu zi (vânzări, stoc, parteneri) e la vedere, câte o
- * secțiune pe rând; ce se folosește rar stă strâns într-un singur rând.
+ * Sidebar-ul, cât mai scurt: ce se face zilnic (vânzări, produse) e la vedere,
+ * câte o secțiune pe rând; restul stă strâns câte un rând pe grup, cu
+ * secțiunile ca tab-uri sus.
  *
  * Vizibilitatea pe rol vine din `canViewSection`: un grup fără nicio secțiune
  * vizibilă dispare singur (ANGAJAT vede Azi, Vânzări și Produse).
@@ -404,11 +408,19 @@ export const navigationGroups: NavGroup[] = [
   },
   {
     id: "stoc",
-    label: "Stoc",
-    description: "Produse și mișcări de stoc",
+    label: "Produse",
+    description: "Catalogul cu stocul",
     icon: "Boxes",
-    sections: ["produse", "receptii", "transferuri", "inventar", "de-adus", "fara-stoc", "documente"],
+    sections: ["produse"],
     display: "list",
+  },
+  {
+    id: "miscari",
+    label: "Stoc",
+    description: "Recepții, transferuri, inventar, documente",
+    icon: "ArrowRightLeft",
+    sections: ["receptii", "transferuri", "inventar", "de-adus", "fara-stoc", "documente"],
+    display: "tabs",
   },
   {
     id: "furnizori",
@@ -416,7 +428,7 @@ export const navigationGroups: NavGroup[] = [
     description: "Clienți și furnizori",
     icon: "Handshake",
     sections: ["clienti", "furnizori"],
-    display: "list",
+    display: "tabs",
   },
   {
     id: "rapoarte",
@@ -425,6 +437,7 @@ export const navigationGroups: NavGroup[] = [
     icon: "BarChart3",
     sections: ["rapoarte", "statistici", "inchidere-zi", "tva", "preturi"],
     display: "tabs",
+    rare: true,
   },
   {
     id: "nomenclatoare",
@@ -433,6 +446,7 @@ export const navigationGroups: NavGroup[] = [
     icon: "Layers",
     sections: ["branduri", "modele", "tipuri", "compatibilitati", "depozite"],
     display: "tabs",
+    rare: true,
   },
   {
     id: "control",
@@ -441,6 +455,7 @@ export const navigationGroups: NavGroup[] = [
     icon: "ShieldCheck",
     sections: ["aprobari", "istoric", "personal"],
     display: "tabs",
+    rare: true,
   },
 ];
 

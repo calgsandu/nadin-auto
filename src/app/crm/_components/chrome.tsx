@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createContext, useContext, useEffect, useRef, type ReactNode } from "react";
+import { createContext, Fragment, useContext, useEffect, useRef, type ReactNode } from "react";
 import {
   ArrowRightLeft,
   Bell,
@@ -104,8 +104,6 @@ export function Sidebar({
       sections: group.sections.filter((section) => canViewSection(role, section)),
     }))
     .filter((group) => group.sections.length > 0);
-  const listGroups = visibleGroups.filter((group) => group.display === "list");
-  const tabGroups = visibleGroups.filter((group) => group.display === "tabs");
   const userLabel = userName || userEmail || "Utilizator";
   const initials = userLabel
     .split(/\s+/)
@@ -155,34 +153,28 @@ export function Sidebar({
         ))}
       </div>
 
-      {/* Desktop: munca de zi cu zi la vedere, câte o secțiune pe rând. */}
+      {/* Desktop: o listă scurtă, fără titluri de grup — grupurile cu tab-uri
+          ocupă un singur rând; cele folosite rar stau sub o linie. */}
       <div className="hidden min-h-0 flex-1 overflow-y-auto pt-1 lg:block">
-        {listGroups.map((group) => (
-          <div key={group.id} className="pb-2.5">
-            <p className="crm-nav-heading px-2.5 pb-1 text-xs font-medium text-[#71717a]">
-              {group.label}
-            </p>
-            <div className="grid gap-px">
-              {group.sections.map((section) => (
+        <div className="grid gap-px">
+          {visibleGroups.map((group, index) => (
+            <Fragment key={group.id}>
+              {group.rare && !visibleGroups[index - 1]?.rare ? (
+                <hr className="mx-2.5 my-2 border-[#e4e4e7]" />
+              ) : null}
+              {group.display === "list" ? (
+                group.sections.map((section) => (
+                  <NavLink
+                    key={section}
+                    active={section === activeSectionId}
+                    badge={countFor(counts, section)}
+                    href={crmSectionHref(section)}
+                    icon={menuIcons[navigationEntries.find((entry) => entry.section === section)?.icon ?? "FileText"]}
+                    label={sectionLabel(section)}
+                  />
+                ))
+              ) : (
                 <NavLink
-                  key={section}
-                  active={section === activeSectionId}
-                  badge={countFor(counts, section)}
-                  href={crmSectionHref(section)}
-                  icon={menuIcons[navigationEntries.find((entry) => entry.section === section)?.icon ?? "FileText"]}
-                  label={sectionLabel(section)}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-        {tabGroups.length > 0 ? (
-          <div className="pb-2.5">
-            <p className="crm-nav-heading px-2.5 pb-1 text-xs font-medium text-[#71717a]">Mai mult</p>
-            <div className="grid gap-px">
-              {tabGroups.map((group) => (
-                <NavLink
-                  key={group.id}
                   active={group.sections.includes(activeSectionId)}
                   badge={group.sections.reduce((sum, section) => sum + countFor(counts, section), 0)}
                   highlightBadge={group.sections.includes("aprobari")}
@@ -190,10 +182,10 @@ export function Sidebar({
                   icon={menuIcons[group.icon]}
                   label={group.label}
                 />
-              ))}
-            </div>
-          </div>
-        ) : null}
+              )}
+            </Fragment>
+          ))}
+        </div>
       </div>
 
       {/* Cine e logat, cu acțiunile contului ca iconițe. */}

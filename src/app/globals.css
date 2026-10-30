@@ -328,7 +328,6 @@ a {
   }
   html[data-crm-collapsed] .crm-nav-label,
   html[data-crm-collapsed] .crm-nav-badge,
-  html[data-crm-collapsed] .crm-nav-heading,
   html[data-crm-collapsed] .crm-nav-search,
   html[data-crm-collapsed] .crm-account-meta {
     display: none;

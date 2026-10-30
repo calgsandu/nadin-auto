@@ -5,7 +5,7 @@ import { RestockCheckbox } from "@/app/operations/restock-checkbox";
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { DailyMetric, PageNote, TableCell, TableHead, VehicleSubline, WorkspaceSkeleton } from "../_components/ui";
+import { DailyMetric, TableCell, TableHead, VehicleSubline, WorkspaceSkeleton } from "../_components/ui";
 import { toWarehouseOptions } from "../_components/operations-options";
 import { formatDate, formatNumber, formatText } from "../_components/format";
 
@@ -47,12 +47,11 @@ function RestockWorkspace({
 }) {
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
-      <PageNote
-        title="Reaprovizionare Pavilion 110A"
-        action={canModify ? <StockTransferDialog warehouses={toWarehouseOptions(operations.warehouses)} /> : null}
-      >
-        Produsele vândute din 110A rămân aici până sunt bifate ca aduse.
-      </PageNote>
+      {canModify ? (
+        <div className="flex justify-end">
+          <StockTransferDialog warehouses={toWarehouseOptions(operations.warehouses)} />
+        </div>
+      ) : null}
       <div className="stat-strip grid sm:grid-cols-3">
         <DailyMetric label="Poziții active" value={formatNumber(operations.restockPending.length)} />
         <DailyMetric label="Aduse azi" value={formatNumber(operations.restockDeliveredToday.length)} />

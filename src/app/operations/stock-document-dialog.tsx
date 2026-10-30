@@ -257,8 +257,6 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                 <div className="grid gap-1.5 p-2">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
-                    const lineTva = lineVal / 6;
-                    const lineNet = lineVal - lineTva;
                     return (
                     <div
                       key={line.id}
@@ -315,10 +313,9 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                           onChange={(e) => setLineField(line.id, "price", e.currentTarget.value)}
                         />
                       </Field>
-                      <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-9 flex-col justify-center whitespace-nowrap rounded-md border border-[#f0f0f2] bg-[#f4f4f5] px-2 font-mono text-xs leading-tight text-[#18181b]">
-                          <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[11px] text-[#52525b]">TVA {money(lineTva)}, net {money(lineNet)}</span>
+                      <Field label="Valoare">
+                        <div className="flex h-9 items-center whitespace-nowrap rounded-md border border-[#f0f0f2] bg-[#f4f4f5] px-2 text-sm font-semibold tabular-nums text-[#18181b]">
+                          {money(lineVal)} lei
                         </div>
                       </Field>
                       <LineControls
@@ -335,7 +332,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
 
               <div className="ml-auto w-full max-w-xs rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
                 <div className="flex justify-between py-1">
-                  <span className="text-[#52525b]">TVA plătit (÷6)</span>
+                  <span className="text-[#52525b]">TVA</span>
                   <span className="font-mono font-semibold">{money(tvaTotal)} lei</span>
                 </div>
                 <div className="flex justify-between py-1">
@@ -826,7 +823,7 @@ export function StockSaleDialog({
               {/* Ordinea muncii la tejghea: cine cumpără, apoi piesele, la final cum
                   plătește — întrebările despre casă și plată stau lângă total. */}
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))_minmax(0,0.6fr)]">
-                <Field label="Client (pentru factură)">
+                <Field label="Client">
                   <div className="flex gap-2">
                     <select
                       className={inputClassName}
@@ -903,10 +900,7 @@ export function StockSaleDialog({
               </div>
               <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
                 <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-3">
-                  <div>
-                    <h3 className="font-semibold text-[#18181b]">Produse vândute</h3>
-                    <p className="text-xs text-[#52525b]">Vânzările din 110A intră automat în lista De adus.</p>
-                  </div>
+                  <h3 className="font-semibold text-[#18181b]">Produse vândute</h3>
                   <div className="flex gap-2">
                     <button className={secondaryButtonClassName} type="button" onClick={() => addLine(false)}>
                       <Plus className="size-4" aria-hidden="true" /> Adaugă produs
@@ -919,8 +913,6 @@ export function StockSaleDialog({
                 <div className="grid gap-1.5 p-2">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
-                    const lineTva = lineVal / 6;
-                    const lineNet = lineVal - lineTva;
                     if (line.external) {
                       const marja = ((Number(line.price) || 0) - (Number(line.cost) || 0)) * (Number(line.qty) || 0);
                       return (
@@ -1050,7 +1042,7 @@ export function StockSaleDialog({
                           onChange={(e) => setLineField(line.id, "qty", e.currentTarget.value)}
                         />
                       </Field>
-                      <Field label="Preț lei / bucată">
+                      <Field label="Preț / buc.">
                         <input
                           className={inputClassName}
                           inputMode="decimal"
@@ -1063,10 +1055,9 @@ export function StockSaleDialog({
                           onChange={(e) => setLineField(line.id, "price", e.currentTarget.value)}
                         />
                       </Field>
-                      <Field label="Valoare / TVA / fără TVA">
-                        <div className="flex h-9 flex-col justify-center whitespace-nowrap rounded-md border border-[#f0f0f2] bg-[#f4f4f5] px-2 font-mono text-xs leading-tight text-[#18181b]">
-                          <span className="font-semibold">{money(lineVal)} lei</span>
-                          <span className="text-[11px] text-[#52525b]">TVA {money(lineTva)}, net {money(lineNet)}</span>
+                      <Field label="Valoare">
+                        <div className="flex h-9 items-center whitespace-nowrap rounded-md border border-[#f0f0f2] bg-[#f4f4f5] px-2 text-sm font-semibold tabular-nums text-[#18181b]">
+                          {money(lineVal)} lei
                         </div>
                       </Field>
                       <LineControls
@@ -1115,7 +1106,7 @@ export function StockSaleDialog({
                 </section>
                 <div className="self-start rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
                   <div className="flex justify-between py-1">
-                    <span className="text-[#52525b]">TVA plătit (÷6)</span>
+                    <span className="text-[#52525b]">TVA</span>
                     <span className="font-mono font-semibold">{money(tvaTotal)} lei</span>
                   </div>
                   <div className="flex justify-between py-1">

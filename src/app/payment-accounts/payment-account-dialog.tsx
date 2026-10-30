@@ -155,7 +155,6 @@ export function PaymentAccountDialog({
               <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
                 <div>
                   <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">Cont de plată nou</h2>
-                  <p className="mt-1 text-sm text-[#52525b]">Nu modifică stocul până la predarea mărfii.</p>
                 </div>
                 <button
                   className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold"

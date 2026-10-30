@@ -1,4 +1,4 @@
-import { PageNote, StatusBadge } from "@/app/crm/_components/ui";
+import { StatusBadge } from "@/app/crm/_components/ui";
 import { PaymentAccountDialog } from "@/app/payment-accounts/payment-account-dialog";
 import { PaymentAccountRowActions } from "@/app/payment-accounts/payment-account-row-actions";
 import type { PaymentAccountsData } from "@/lib/payment-accounts/queries";
@@ -16,12 +16,9 @@ export function PaymentAccountsWorkspace({
 }) {
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
-      <PageNote
-        title="Înainte de vânzare"
-        action={<PaymentAccountDialog customers={data.customers} warehouses={data.warehouses} />}
-      >
-        Contul nu rezervă și nu scade stocul. Stocul se schimbă numai la „Predă marfa”.
-      </PageNote>
+      <div className="flex justify-end">
+        <PaymentAccountDialog customers={data.customers} warehouses={data.warehouses} />
+      </div>
 
       <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
@@ -81,10 +78,7 @@ export function PaymentAccountsWorkspace({
           </table>
         </div>
         {data.accounts.length === 0 ? (
-          <div className="px-4 py-14 text-center">
-            <p className="font-medium text-[#18181b]">Nu există conturi de plată.</p>
-            <p className="mt-1 text-sm text-[#52525b]">Emite primul cont pentru un client cu IDNO și adresă completate.</p>
-          </div>
+          <p className="px-4 py-12 text-center text-sm text-[#52525b]">Nu există conturi de plată.</p>
         ) : null}
       </div>
     </section>

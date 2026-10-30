@@ -26,14 +26,13 @@ export function ApprovalWorkspace({ data }: { data: ApprovalsData }) {
   return (
     <section className="motion-page grid gap-4 p-4">
       <div className="stat-strip grid grid-cols-1 sm:grid-cols-3">
-        <DailyMetric label="În așteptare" value={String(data.pending.length)} hint="stocul nu e modificat încă" />
+        <DailyMetric label="În așteptare" value={String(data.pending.length)} />
         <DailyMetric label="Respinse recent" value={String(data.rejected.length)} />
         <DailyMetric label="Aprobate recent" value={String(data.approved.length)} />
       </div>
 
       <ApprovalList
-        title="Cereri care așteaptă decizia"
-        description="Stocul nu este modificat până când aprobi cererea."
+        title="De aprobat"
         entries={data.pending}
         empty="Nu există cereri în așteptare."
         mode="pending"
@@ -42,7 +41,6 @@ export function ApprovalWorkspace({ data }: { data: ApprovalsData }) {
       {data.rejected.length > 0 ? (
         <ApprovalList
           title="Respinse recent"
-          description="Aceste cereri nu au produs nicio modificare de stoc."
           entries={data.rejected}
           empty=""
           mode="rejected"
@@ -52,7 +50,6 @@ export function ApprovalWorkspace({ data }: { data: ApprovalsData }) {
       {data.approved.length > 0 ? (
         <ApprovalList
           title="Aprobate recent"
-          description="Operațiunile de mai jos au fost aplicate tranzacțional."
           entries={data.approved}
           empty=""
           mode="approved"
@@ -65,23 +62,18 @@ export function ApprovalWorkspace({ data }: { data: ApprovalsData }) {
 
 function ApprovalList({
   title,
-  description,
   entries,
   empty,
   mode,
 }: {
   title: string;
-  description: string;
   entries: ApprovalItem[];
   empty: string;
   mode: "pending" | "rejected" | "approved";
 }) {
   return (
     <section className="grid gap-3">
-      <div>
-        <h2 className="text-base font-semibold text-[#18181b]">{title}</h2>
-        <p className="mt-1 text-sm text-[#52525b]">{description}</p>
-      </div>
+      <h2 className="text-base font-semibold text-[#18181b]">{title}</h2>
       {entries.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[#d8d5ce] bg-white px-5 py-12 text-center text-sm text-[#52525b]">
           {empty}

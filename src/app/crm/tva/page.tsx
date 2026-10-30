@@ -46,7 +46,6 @@ function VatWorkspace({ data }: { data: VatReportData }) {
         <DailyMetric
           label={`Vânzări (${data.months.length} luni)`}
           value={`${formatMoney(data.totals.salesGross)} lei`}
-          hint="cu TVA inclus"
         />
         <DailyMetric
           label="TVA colectată"
@@ -56,20 +55,12 @@ function VatWorkspace({ data }: { data: VatReportData }) {
         <DailyMetric
           label="TVA din retururi"
           value={`${formatMoney(data.totals.returnsVat)} lei`}
-          hint="se scade din colectată"
         />
         <DailyMetric
           label="TVA netă"
           value={`${formatMoney(data.totals.netVat)} lei`}
-          hint="colectată − retururi"
         />
       </div>
-
-      <p className="text-sm text-[#52525b]">
-        Prețurile sunt cu TVA inclus, deci TVA = total ÷ 6. Coloana „Facturi”
-        arată cât din vânzările lunii au plecat cu cont de plată — sunt o parte
-        din vânzări, nu se adună la ele.
-      </p>
 
       <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">

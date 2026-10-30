@@ -88,9 +88,6 @@ export function ExternalOrderDialog({
                   <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">
                     {order ? "Editează comanda" : "Comandă nouă"}
                   </h2>
-                  <p className="mt-1 text-sm text-[#52525b]">
-                    Piesa rămâne în catalogul furnizorului — nu se adaugă în stocul propriu.
-                  </p>
                 </div>
                 <button
                   className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"

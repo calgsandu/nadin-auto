@@ -106,14 +106,10 @@ function ProductWorkspace({
       <CatalogFilters brands={catalog.brands} models={catalog.models} types={catalog.types} />
       <section className="motion-page grid grid-cols-1 gap-4 p-3 lg:px-6 lg:py-4">
         <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
-          <DailyMetric label="Produse" value={formatNumber(catalog.productCount)} hint="pentru filtrele curente" />
-          <DailyMetric label="Bucăți în stoc" value={formatNumber(catalog.stats.totalUnits)} hint="toate depozitele" />
-          <DailyMetric
-            label="Stoc mic"
-            value={formatNumber(catalog.stats.criticalStockCount)}
-            hint="sub pragul de alertă"
-          />
-          <DailyMetric label="Fără stoc" value={formatNumber(catalog.stats.outOfStockCount)} hint="0 bucăți" />
+          <DailyMetric label="Produse" value={formatNumber(catalog.productCount)} />
+          <DailyMetric label="Bucăți în stoc" value={formatNumber(catalog.stats.totalUnits)} />
+          <DailyMetric label="Stoc mic" value={formatNumber(catalog.stats.criticalStockCount)} />
+          <DailyMetric label="Fără stoc" value={formatNumber(catalog.stats.outOfStockCount)} />
         </div>
 
         <LabelPicker>
@@ -131,7 +127,6 @@ function ProductWorkspace({
                     <TableHead secondary>Compatibilitate</TableHead>
                     <TableHead align="right">Preț vânzare</TableHead>
                     <TableHead align="right">Stoc</TableHead>
-                    <TableHead>Status</TableHead>
                     {canModify ? <TableHead align="right" secondary>Cost aducere</TableHead> : null}
                     {canModify ? (
                       <TableHead align="right">
@@ -154,9 +149,9 @@ function ProductWorkspace({
             </div>
             {catalog.products.length === 0 ? (
               <div className="px-4 py-12 text-center text-sm text-[#52525b]">
-                Nu sunt produse pentru filtrele curente.{" "}
+                Nu am găsit nimic.{" "}
                 <Link className="font-medium text-[#2563eb] hover:underline" href={crmSectionHref("produse")}>
-                  Resetează filtrele
+                  Resetează
                 </Link>
               </div>
             ) : null}
@@ -174,34 +169,12 @@ function ProductWorkspace({
   );
 }
 
-function StockBreakdown({ entries }: { entries: { id: string; name: string; quantity: number }[] }) {
-  if (entries.length === 0) return null;
-  const all = entries.map((entry) => `${entry.name}: ${entry.quantity}`).join(", ");
-  return (
-    <p className="mt-0.5 whitespace-nowrap text-xs font-normal text-[#52525b]" title={all}>
-      {entries
-        .slice(0, 3)
-        .map((entry) => `${entry.name} ${entry.quantity}`)
-        .join(" · ")}
-      {entries.length > 3 ? ` · +${entries.length - 3}` : null}
-    </p>
-  );
-}
-
-/** Statusul de stoc, ca în tabelele de magazin: în stoc / stoc mic / lipsă. */
-function StockStatus({ stock, minStock }: { stock: number | null; minStock: number | null }) {
+/** Stocul ca număr colorat: verde în stoc, galben stoc mic, roșu lipsă. */
+function StockCount({ stock, minStock }: { stock: number | null; minStock: number | null }) {
   const value = stock ?? 0;
-  const [label, tone] =
-    value <= 0
-      ? ["Lipsă", "bg-[#fef2f2] text-[#b91c1c] ring-[#fecaca]"]
-      : value <= (minStock ?? 3)
-        ? ["Stoc mic", "bg-[#fffbeb] text-[#92400e] ring-[#fde68a]"]
-        : ["În stoc", "bg-[#eff6ff] text-[#1d4ed8] ring-[#bfdbfe]"];
-  return (
-    <span className={`inline-flex whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${tone}`}>
-      {label}
-    </span>
-  );
+  // Același prag ca filtrul „stoc mic": minStock, implicit 3.
+  const tone = value <= 0 ? "text-[#b91c1c]" : value <= (minStock ?? 3) ? "text-[#b45309]" : "text-[#166534]";
+  return <span className={tone}>{formatNumber(value)}</span>;
 }
 
 function ProductRow({
@@ -229,7 +202,7 @@ function ProductRow({
   );
 
   return (
-    <tr className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]">
+    <tr className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
       {canModify ? (
         <TableCell>
           <input
@@ -257,41 +230,26 @@ function ProductRow({
           {product.type.name}
         </p>
       </TableCell>
-      <TableCell secondary>
-        <div className="space-y-1">
-          {compatibilities.map((compatibility, index) => (
-            <div key={`${compatibility.title}:${compatibility.years}:${index}`}>
-              <p className="text-[#18181b]">{compatibility.title}</p>
-              <p className="text-xs text-[#52525b]">{compatibility.years}</p>
-            </div>
-          ))}
-        </div>
+      <TableCell secondary className="text-[#3f3f46]">
+        {compatibilities[0] ? `${compatibilities[0].title} ${compatibilities[0].years}` : "—"}
+        {compatibilities.length > 1 ? (
+          <span
+            className="ml-1 text-[#71717a]"
+            title={compatibilities.map((compatibility) => `${compatibility.title} ${compatibility.years}`).join("\n")}
+          >
+            +{compatibilities.length - 1}
+          </span>
+        ) : null}
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
-        {formatNumber(product.stock)}
-        {/* Doar depozitele cu marfă, pe un rând (primele trei, restul ca „+N"). */}
-        <StockBreakdown
-          entries={catalog.warehouses
-            .map((warehouse) => ({
-              id: warehouse.id,
-              name: warehouse.name.replace("Pavilion ", ""),
-              quantity:
-                product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id)?.quantity ?? 0,
-            }))
-            .filter((entry) => entry.quantity > 0)}
-        />
-      </TableCell>
-      <TableCell>
-        {/* Același prag ca filtrul „stoc mic": minStock, implicit 3. */}
-        <StockStatus stock={product.stock} minStock={product.minStock} />
+        <StockCount stock={product.stock} minStock={product.minStock} />
       </TableCell>
       {canModify ? (
         <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
-          <p>{formatMoney(product.costLei)} lei</p>
-          <p className="mt-0.5 text-xs">{formatMoney(product.priceEuro)} EUR</p>
+          {formatMoney(product.costLei)} lei
         </TableCell>
       ) : null}
       {canModify ? (

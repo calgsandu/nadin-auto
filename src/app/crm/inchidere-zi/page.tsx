@@ -96,7 +96,6 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
         <DailyMetric
           label="Bani intrați în casă"
           value={`${formatMoney(data.cashInHand)} lei`}
-          hint="numerar din vânzări + încasări pe datorii − retururi"
         />
       </div>
 

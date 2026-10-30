@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Filter, Info, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Filter, X } from "lucide-react";
 import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
 import { productLineSubtitle, type ProductLineInfo } from "@/lib/catalog/product-line-label";
 
@@ -362,31 +362,5 @@ export function StatusBadge({ tone, children }: { tone: BadgeTone; children: Rea
     >
       {children}
     </span>
-  );
-}
-
-/**
- * Nota scurtă de deasupra unui tabel („cum funcționează secțiunea") cu acțiunea
- * principală la dreapta — un rând de bară de instrumente, nu o cutie separată.
- */
-export function PageNote({
-  title,
-  children,
-  action,
-}: {
-  title: string;
-  children: ReactNode;
-  action?: ReactNode;
-}) {
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <p className="flex min-w-0 items-start gap-2 text-sm text-[#52525b]">
-        <Info className="mt-0.5 size-4 shrink-0 text-[#71717a]" aria-hidden="true" />
-        <span>
-          <span className="font-medium text-[#18181b]">{title}.</span> {children}
-        </span>
-      </p>
-      {action ? <div className="flex shrink-0 gap-2">{action}</div> : null}
-    </div>
   );
 }

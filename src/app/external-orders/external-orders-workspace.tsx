@@ -7,7 +7,7 @@ import {
   OrderDeleteButton,
   OrderStatusControl,
 } from "@/app/external-orders/order-row-actions";
-import { PageNote, StatusBadge as Badge, type BadgeTone } from "@/app/crm/_components/ui";
+import { StatusBadge as Badge, type BadgeTone } from "@/app/crm/_components/ui";
 import { STATUS_LABELS } from "@/lib/external-orders/status";
 import type {
   ExternalOrderRow,
@@ -37,12 +37,9 @@ export function ExternalOrdersWorkspace({
         <Metric label="Marjă totală (livrate)" value={`${formatMoney(deliveredMargin)} lei`} />
       </div>
 
-      <PageNote
-        title="Aprovizionare la comandă"
-        action={<ExternalOrderDialog suppliers={data.suppliers} triggerLabel="Comandă nouă" />}
-      >
-        Clientul cere piesa → suni furnizorul → confirmi → aduci → livrezi. Catalogul propriu nu este afectat.
-      </PageNote>
+      <div className="flex justify-end">
+        <ExternalOrderDialog suppliers={data.suppliers} triggerLabel="Comandă nouă" />
+      </div>
 
       <OrdersTable
         title="Comenzi în lucru"
