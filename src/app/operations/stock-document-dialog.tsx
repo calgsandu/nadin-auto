@@ -161,7 +161,6 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
 
   const valoare = lines.reduce((sum, l) => sum + (Number(l.qty) || 0) * (Number(l.price) || 0), 0);
   const tvaTotal = Math.round((valoare / 6) * 100) / 100;
-  const faraTva = Math.round((valoare - tvaTotal) * 100) / 100;
   const money = (v: number) => new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 2 }).format(v);
 
   function openDrawer() {
@@ -190,16 +189,17 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
         >
           <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
               <input name="idempotencyKey" type="hidden" value={draft.token} />
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <Field label="Data documentului">
-                  <input
+              {/* Ca la vânzare: de la cine și unde intră marfa, piesele, apoi totalul.
+                  Notițele, rar folosite, stau strânse. */}
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
+                <Field label="Furnizor">
+                  <SupplierPicker
                     className={inputClassName}
-                    defaultValue={today}
-                    name="documentDate"
-                    type="date"
+                    name="partnerId"
+                    suppliers={suppliers}
                   />
                 </Field>
-                <Field label="Locație">
+                <Field label="În locația">
                   <select
                     className={inputClassName}
                     defaultValue={defaultWarehouse}
@@ -213,48 +213,39 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                     ))}
                   </select>
                 </Field>
-                <Field label="Serie / nr. factură">
-                  <input className={inputClassName} name="externalNumber" placeholder="ex. AA 0123456" />
-                </Field>
-                <Field label="Furnizor">
-                  <SupplierPicker
+                <Field label="Data">
+                  <input
                     className={inputClassName}
-                    name="partnerId"
-                    suppliers={suppliers}
+                    defaultValue={today}
+                    name="documentDate"
+                    type="date"
                   />
+                </Field>
+                <Field label="Nr. factură">
+                  <input className={inputClassName} name="externalNumber" placeholder="ex. AA 0123456" />
                 </Field>
               </div>
 
-              <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
-                <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-3">
-                  <div>
-                    <h3 className="font-semibold text-[#18181b]">Produse recepționate</h3>
-                    <p className="text-xs text-[#52525b]">
-                      Toate pozițiile vor fi salvate într-un singur document.
-                    </p>
-                  </div>
-                  <button
-                    className={secondaryButtonClassName}
-                    type="button"
-                    onClick={addLine}
-                  >
-                    <Plus className="size-4" aria-hidden="true" />
-                    Adaugă produs
+              <section data-drawer-lines className="grid gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-semibold text-[#18181b]">Produse</h3>
+                  <button className={secondaryButtonClassName} type="button" onClick={addLine}>
+                    <Plus className="size-4" aria-hidden="true" /> Produs
                   </button>
                 </div>
 
-                <div className="grid gap-1.5 p-2">
+                <div className="grid gap-1.5">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
+                    // Costul nou înlocuiește costul din fișă; arătăm doar când chiar diferă.
+                    const costChanged = Boolean(line.oldCost && line.price && line.price !== line.oldCost);
                     return (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2 rounded-md border border-[#f0f0f2] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_12.5rem_7.5rem] md:items-start"
+                      className="motion-line-item grid gap-2 rounded-lg border border-[#e4e4e7] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
                     >
                       <div>
-                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#52525b]">
-                          Produs {index + 1}
-                        </p>
+                        <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
                         <ProductSearchCombobox
                           showHint={false}
                           initialProduct={initialProductOf(line)}
@@ -266,18 +257,8 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                           }
                           onClear={() => selectReceiptProduct(line.id, "", "", "")}
                         />
-                        {/* Sub produs, pe un rând (vezi vânzarea): în coloana costului se rupea. */}
-                        {line.oldCost && line.price && line.price !== line.oldCost ? (
-                          <span className="mt-0.5 block font-mono text-[11px] font-semibold text-[#b45309]">
-                            cost curent {money(Number(line.oldCost))} → se actualizează
-                          </span>
-                        ) : line.oldCost ? (
-                          <span className="mt-0.5 block font-mono text-[11px] text-[#52525b]">
-                            cost curent {money(Number(line.oldCost))}
-                          </span>
-                        ) : null}
                       </div>
-                      <Field label="Cantitate">
+                      <Field label="Cant.">
                         <input
                           className={inputClassName}
                           inputMode="numeric"
@@ -289,7 +270,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                           onChange={(e) => setLineField(line.id, "qty", e.currentTarget.value)}
                         />
                       </Field>
-                      <Field label="Cost lei / bucată">
+                      <Field label="Cost">
                         <input
                           className={inputClassName}
                           inputMode="decimal"
@@ -301,9 +282,12 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                           value={line.price}
                           onChange={(e) => setLineField(line.id, "price", e.currentTarget.value)}
                         />
+                        {costChanged ? (
+                          <span className="text-xs font-medium text-[#b45309]">era {money(Number(line.oldCost))} lei</span>
+                        ) : null}
                       </Field>
-                      <Field label="Valoare">
-                        <div className="flex h-9 items-center whitespace-nowrap rounded-md border border-[#f0f0f2] bg-[#f4f4f5] px-2 text-sm font-semibold tabular-nums text-[#18181b]">
+                      <Field label="Sumă">
+                        <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-[#18181b]">
                           {money(lineVal)} lei
                         </div>
                       </Field>
@@ -318,39 +302,23 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                 </div>
               </section>
 
-              <div className="ml-auto w-full max-w-xs rounded-xl border border-[#e4e4e7] bg-white p-4 text-sm">
-                <div className="flex justify-between py-1">
-                  <span className="text-[#52525b]">TVA</span>
-                  <span className="font-mono font-semibold">{money(tvaTotal)} lei</span>
+              <div className="grid gap-4 border-t border-[#e4e4e7] pt-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+                <details className="group">
+                  <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#52525b] hover:text-[#18181b] [&::-webkit-details-marker]:hidden">
+                    <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Notițe
+                  </summary>
+                  <textarea
+                    aria-label="Notițe"
+                    className={`${inputClassName} mt-2 min-h-16 resize-y py-2`}
+                    name="notes"
+                    placeholder="transport, explicații"
+                  />
+                </details>
+                <div className="rounded-xl bg-[#f4f4f5] px-4 py-3 text-right">
+                  <p className="text-sm text-[#52525b]">Total</p>
+                  <p className="text-2xl font-semibold tracking-tight tabular-nums text-[#18181b]">{money(valoare)} lei</p>
+                  <p className="text-xs text-[#71717a]">din care TVA {money(tvaTotal)} lei</p>
                 </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-[#52525b]">Fără TVA</span>
-                  <span className="font-mono font-semibold">{money(faraTva)} lei</span>
-                </div>
-                <div className="mt-1 flex justify-between border-t border-[#f0f0f2] pt-2 text-base">
-                  <span className="font-semibold text-[#18181b]">Total (cu TVA)</span>
-                  <span className="font-mono font-bold text-[#18181b]">{money(valoare)} lei</span>
-                </div>
-              </div>
-
-              <Field label="Notițe">
-                <textarea
-                  className={`${inputClassName} min-h-16 resize-y py-2`}
-                  name="notes"
-                  placeholder="factură, transport, explicații"
-                />
-              </Field>
-
-
-              <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
-                <button
-                  className={`${secondaryButtonClassName} px-4 py-2.5`}
-                  type="button"
-                  onClick={() => setOpen(false)}
-                >
-                  Anulează
-                </button>
-                <SubmitButton label="Salvează recepția" pending={pending} />
               </div>
             </form>
         </OperationDrawer>
@@ -907,7 +875,7 @@ export function StockSaleDialog({
                     if (line.external) {
                       const marja = ((Number(line.price) || 0) - (Number(line.cost) || 0)) * (Number(line.qty) || 0);
                       return (
-                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-lg border border-[#dbeafe] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_10rem_5rem_6.5rem_7.5rem_2.25rem] md:items-start">
+                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-lg border border-[#dbeafe] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_13rem_5rem_6.5rem_7.5rem_2.25rem] md:items-start">
                           <Field label="Piesă externă">
                             <input name="productId" type="hidden" value="" />
                             <input

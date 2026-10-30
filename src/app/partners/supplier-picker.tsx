@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { PartnerFormDialog } from "@/app/partners/partner-form-dialog";
 import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
 
@@ -47,9 +48,9 @@ export function SupplierPicker({
   }
 
   return (
-    <div className="grid gap-2">
+    <div className="flex gap-2">
       <select
-        className={className}
+        className={`${className} min-w-0 flex-1`}
         name={name}
         value={current}
         onChange={(event) => select(event.currentTarget.value)}
@@ -63,12 +64,15 @@ export function SupplierPicker({
           </option>
         ))}
       </select>
+      {/* Pe același rând cu selectul: sub el, rândul formularului se dezalinia. */}
       <button
-        className="button-secondary justify-self-start rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+        aria-label="Furnizor nou"
+        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
+        title="Furnizor nou"
         type="button"
         onClick={() => setCreating(true)}
       >
-        Furnizor nou
+        <Plus className="size-4" aria-hidden="true" />
       </button>
 
       <PartnerFormDialog
