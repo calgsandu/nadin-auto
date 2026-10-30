@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardCheck, FileText, Plus, Trash2 } from "lucide-react";
+import { ClipboardCheck, FileText, ListChecks, Plus, Trash2 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import {
   createInventoryAction,
@@ -196,11 +196,12 @@ export function InventoryDialog({
         className={
           prefill
             ? "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-            : "button-primary rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
+            : "button-primary inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
         }
         type="button"
         onClick={openDialog}
       >
+        {prefill ? <ListChecks className="size-4" aria-hidden="true" /> : <ClipboardCheck className="size-4" aria-hidden="true" />}
         {triggerLabel}
       </button>
       {mounted ? (

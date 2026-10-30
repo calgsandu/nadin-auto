@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, X, type LucideIcon } from "lucide-react";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -22,9 +23,10 @@ export function ApproveButton({ operationId }: { operationId: string }) {
     <form action={formAction} className="grid justify-items-end gap-1.5">
       <input type="hidden" name="operationId" value={operationId} />
       <PendingAwareButton
+        icon={Check}
         idleLabel="Aprobă și aplică"
         pendingLabel="Se aplică…"
-        className="button-secondary rounded-md border border-[#bbf7d0] bg-white px-3 py-1.5 text-xs font-semibold text-[#15803d] hover:bg-[#f0fdf4] disabled:cursor-wait disabled:opacity-60"
+        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#bbf7d0] bg-white px-3 py-1.5 text-xs font-semibold text-[#15803d] hover:bg-[#f0fdf4] disabled:cursor-wait disabled:opacity-60"
       />
       <ActionFeedback state={state} />
     </form>
@@ -47,8 +49,9 @@ export function RejectButton({ operationId }: { operationId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="button-secondary rounded-md border border-[#fecaca] bg-white px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2]"
+        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#fecaca] bg-white px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2]"
       >
+        <X className="size-3.5" aria-hidden="true" />
         Respinge
       </button>
     );
@@ -77,9 +80,10 @@ export function RejectButton({ operationId }: { operationId: string }) {
           Renunță
         </button>
         <PendingAwareButton
+          icon={X}
           idleLabel="Confirmă respingerea"
           pendingLabel="Se respinge…"
-          className="rounded-md bg-[#b91c1c] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#991b1b] disabled:cursor-wait disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-md bg-[#b91c1c] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#991b1b] disabled:cursor-wait disabled:opacity-60"
         />
       </div>
     </form>
@@ -87,10 +91,12 @@ export function RejectButton({ operationId }: { operationId: string }) {
 }
 
 function PendingAwareButton({
+  icon: Icon,
   idleLabel,
   pendingLabel,
   className,
 }: {
+  icon: LucideIcon;
   idleLabel: string;
   pendingLabel: string;
   className: string;
@@ -98,6 +104,7 @@ function PendingAwareButton({
   const status = useFormStatus();
   return (
     <button type="submit" disabled={status.pending} className={className}>
+      <Icon className="size-3.5" aria-hidden="true" />
       {status.pending ? pendingLabel : idleLabel}
     </button>
   );

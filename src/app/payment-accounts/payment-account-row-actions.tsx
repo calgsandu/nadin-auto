@@ -1,6 +1,6 @@
 "use client";
 
-import { FileCode2, FileText, Send } from "lucide-react";
+import { FileCode2, FileText, Pencil, Send } from "lucide-react";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ActionFeedback } from "@/app/components/action-feedback";
@@ -238,6 +238,7 @@ function CorrectionForm({
         type="button"
         onClick={() => setOpen(true)}
       >
+        <Pencil className="size-3.5" aria-hidden="true" />
         Corectează
       </button>
       {mounted ? (

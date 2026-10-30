@@ -1,5 +1,6 @@
 "use client";
 
+import { Ban, Inbox, PackageCheck, ShoppingCart, Tag, Truck, type LucideIcon } from "lucide-react";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -19,6 +20,16 @@ import {
 import { NEXT_STATUS, STATUS_LABELS } from "@/lib/external-orders/status";
 import type { ExternalOrderStatus } from "@/generated/prisma/enums";
 import { DeleteIconSubmit } from "@/app/components/delete-icon-submit";
+
+/** Iconița pasului următor din flux, lângă numele lui. */
+const STATUS_ICONS: Record<ExternalOrderStatus, LucideIcon> = {
+  CERERE: Inbox,
+  OFERTAT: Tag,
+  CONFIRMAT: ShoppingCart,
+  RECEPTIONAT: PackageCheck,
+  LIVRAT: Truck,
+  ANULAT: Ban,
+};
 
 const initialState: ExternalOrderActionState = { ok: false, message: "" };
 
@@ -78,10 +89,11 @@ function DeliverControl({ orderId }: { orderId: string }) {
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#18181b] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#27272a]"
+        className="button-primary inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#27272a]"
         type="button"
         onClick={() => setOpen(true)}
       >
+        <Truck className="size-3.5" aria-hidden="true" />
         Livrează
       </button>
       {mounted ? (
@@ -120,9 +132,10 @@ function DeliverControl({ orderId }: { orderId: string }) {
 function StatusButton({ status }: { status: ExternalOrderStatus }) {
   const pending = useFormStatus().pending;
   const cancel = status === "ANULAT";
+  const StatusIcon = STATUS_ICONS[status];
   return (
     <button
-      className={`button-secondary rounded-md border px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
+      className={`button-secondary inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
         cancel
           ? "border-[#fca5a5] text-[#b91c1c] hover:bg-[#fef2f2]"
           : "border-[#e4e4e7] text-[#18181b] hover:bg-[#f4f4f5]"
@@ -132,6 +145,7 @@ function StatusButton({ status }: { status: ExternalOrderStatus }) {
       value={status}
       type="submit"
     >
+      {pending ? null : <StatusIcon className="size-3.5" aria-hidden="true" />}
       {pending ? "..." : STATUS_LABELS[status]}
     </button>
   );

@@ -2,9 +2,9 @@ import { Check, Loader2, X } from "lucide-react";
 import type { ComponentProps } from "react";
 
 /**
- * Butoane doar cu iconiță: „Închide" e un X, „Salvează" e o bifă. Textul nu
- * dispare de tot — rămâne în `aria-label` (cititoare de ecran, teste) și în
- * `title` (apare la hover, împreună cu scurtătura).
+ * Iconițe peste tot, combinate cu un cuvânt unde ajută: „Închide" e doar un X,
+ * „Salvează" e bifă + cuvântul scurt. Numele complet rămâne în `aria-label`
+ * (cititoare de ecran, teste) și în `title` (apare la hover, cu scurtătura).
  */
 
 /** Pătrat mic, contur — pentru acțiunile de pe rânduri (editează, detalii, PDF…). */
@@ -19,7 +19,7 @@ const closeCls =
   "button-secondary inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-[#e4e4e7] bg-white text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]";
 
 const saveCls =
-  "button-primary inline-flex h-9 min-w-12 shrink-0 items-center justify-center rounded-md bg-[#18181b] px-3 text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60";
+  "button-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#18181b] px-3.5 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60";
 
 export function CloseIconButton({
   label = "Închide",
@@ -32,7 +32,14 @@ export function CloseIconButton({
   );
 }
 
-export function SaveIconButton({
+/** „Salvează vânzarea" → „Salvează": pe buton cuvântul scurt, în tooltip numele complet. */
+function shortLabel(label: string) {
+  const [first] = label.split(" ");
+  return first === "Salvează" || first === "Adaugă" ? first : label;
+}
+
+/** Bifă + cuvânt scurt (Salvează / Adaugă / Livrează…). */
+export function SaveButton({
   label,
   pending,
   ...props
@@ -47,10 +54,11 @@ export function SaveIconButton({
       {...props}
     >
       {pending ? (
-        <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
       ) : (
-        <Check className="size-5" strokeWidth={2.5} aria-hidden="true" />
+        <Check className="size-4" strokeWidth={2.75} aria-hidden="true" />
       )}
+      <span aria-hidden="true">{pending ? "Se salvează" : shortLabel(label)}</span>
     </button>
   );
 }

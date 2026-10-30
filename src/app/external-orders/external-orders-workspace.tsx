@@ -154,16 +154,16 @@ function OrdersTable({
                   </TableCell>
                   {actionColumns > 0 ? (
                     <TableCell align="right">
-                      <div className="grid justify-items-end gap-2">
+                      <div className="flex flex-wrap items-start justify-end gap-1.5">
                         {showActions ? (
                           <>
+                            <OrderStatusControl orderId={order.id} status={order.status} />
                             <ExternalOrderDialog
                               order={toFormValue(order)}
                               suppliers={suppliers}
                               triggerLabel="Editează"
                               triggerKind="row"
                             />
-                            <OrderStatusControl orderId={order.id} status={order.status} />
                           </>
                         ) : null}
                         {canDelete ? (

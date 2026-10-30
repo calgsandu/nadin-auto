@@ -9,7 +9,7 @@ import {
   type PartnerActionState,
 } from "@/app/partners/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { CloseIconButton, IconLabel, rowIconButtonCls, SaveIconButton } from "@/app/components/icon-buttons";
+import { CloseIconButton, IconLabel, rowIconButtonCls, SaveButton } from "@/app/components/icon-buttons";
 import {
   DrawerCard,
   drawerBoundaryProps,
@@ -168,7 +168,7 @@ export function PartnerFormDialog({
                   {partner ? "Editează partener" : "Partener nou"}
                 </h2>
                 <div className="flex items-center gap-2">
-                  <SaveIconButton
+                  <SaveButton
                     label={partner ? "Salvează" : "Adaugă"}
                     pending={pending}
                     onClick={() => formRef.current?.requestSubmit()}

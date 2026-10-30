@@ -8,7 +8,7 @@ import {
   type CatalogActionState,
 } from "@/app/catalog/actions";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { CloseIconButton, IconLabel, rowIconButtonCls, SaveIconButton } from "@/app/components/icon-buttons";
+import { CloseIconButton, IconLabel, rowIconButtonCls, SaveButton } from "@/app/components/icon-buttons";
 import {
   DrawerCard,
   drawerBoundaryProps,
@@ -330,17 +330,18 @@ export function ProductFormDialog({
                 {/* Doar la produs nou, deschis direct (nu din vânzare/recepție). */}
                 {!product && !controlled ? (
                   <button
-                    className="button-secondary hidden size-9 items-center justify-center rounded-md border border-[#e4e4e7] bg-white text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#18181b] disabled:opacity-60 sm:inline-flex"
+                    className="button-secondary hidden h-9 items-center justify-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5] disabled:opacity-60 sm:inline-flex"
                     disabled={pending}
                     title="Salvează și adaugă altul"
                     aria-label="Salvează și adaugă altul"
                     type="button"
                     onClick={() => submit(true)}
                   >
-                    <ListPlus className="size-4.5" aria-hidden="true" />
+                    <ListPlus className="size-4" aria-hidden="true" />
+                    <span aria-hidden="true">Încă unul</span>
                   </button>
                 ) : null}
-                <SaveIconButton
+                <SaveButton
                   label={product ? "Salvează" : "Adaugă produsul"}
                   pending={pending}
                   onClick={() => submit(false)}

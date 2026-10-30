@@ -1,5 +1,6 @@
 "use client";
 
+import { RotateCcw } from "lucide-react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { restoreDocumentAction, type RestoreActionState } from "@/app/istoric/actions";
@@ -34,8 +35,9 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={status.pending}
-      className="button-secondary rounded-md border border-[#bbf7d0] px-3 py-1.5 text-xs font-semibold text-[#15803d] hover:bg-[#f0fdf4] disabled:opacity-60"
+      className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#bbf7d0] px-3 py-1.5 text-xs font-semibold text-[#15803d] hover:bg-[#f0fdf4] disabled:opacity-60"
     >
+      <RotateCcw className="size-3.5" aria-hidden="true" />
       {status.pending ? "..." : "Restaurează"}
     </button>
   );

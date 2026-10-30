@@ -15,7 +15,7 @@ import {
 import { useFormStatus } from "react-dom";
 import type { LucideIcon } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { CloseIconButton, SaveIconButton } from "@/app/components/icon-buttons";
+import { CloseIconButton, SaveButton } from "@/app/components/icon-buttons";
 import { useActionToast } from "@/app/components/action-toast";
 import type { DrawerDraftBanner } from "@/app/components/use-drawer-draft";
 
@@ -217,7 +217,7 @@ export function OperationDrawer({
             <div className="flex items-center gap-2">
               {submitLabel ? (
                 // requestSubmit() = aceeași validare + același onSubmit ca butonul din josul formularului.
-                <SaveIconButton
+                <SaveButton
                   label={submitLabel}
                   pending={pending}
                   onClick={() => panelRef.current?.querySelector("form")?.requestSubmit()}
@@ -275,7 +275,7 @@ export function DrawerChoice({
   /** Se vede doar cât timp nu e nimic ales. */
   hint?: string;
   name: string;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; icon?: LucideIcon }[];
   required?: boolean;
 }) {
   return (
@@ -291,7 +291,8 @@ export function DrawerChoice({
               type="radio"
               value={option.value}
             />
-            <span className="flex h-9 items-center rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#3f3f46] transition-colors peer-hover:border-[#d4d4d8] peer-checked:border-[#2563eb] peer-checked:bg-[#eff6ff] peer-checked:text-[#1d4ed8] peer-focus-visible:ring-2 peer-focus-visible:ring-[#2563eb]/40">
+            <span className="flex h-9 items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#3f3f46] transition-colors peer-hover:border-[#d4d4d8] peer-checked:border-[#2563eb] peer-checked:bg-[#eff6ff] peer-checked:text-[#1d4ed8] peer-focus-visible:ring-2 peer-focus-visible:ring-[#2563eb]/40">
+              {option.icon ? <option.icon className="size-4 opacity-70" aria-hidden="true" /> : null}
               {option.label}
             </span>
           </label>
@@ -535,7 +536,7 @@ export function DrawerSubmit({ label, pending }: { label: string; pending?: bool
   // useFormStatus nu vede trimiterile manuale (useDrawerAction) — de aceea `pending`.
   const status = useFormStatus();
   const busy = pending ?? status.pending;
-  return <SaveIconButton label={label} pending={busy} type="submit" />;
+  return <SaveButton label={label} pending={busy} type="submit" />;
 }
 
 // `data-enter-skip` = câmp auxiliar (filtru, bifă de etichetă): Enter sare peste el.

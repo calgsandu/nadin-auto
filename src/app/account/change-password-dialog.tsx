@@ -10,7 +10,7 @@ import {
   changeOwnPasswordAction,
   type PasswordChangeState,
 } from "@/app/account/actions";
-import { CloseIconButton, SaveIconButton } from "@/app/components/icon-buttons";
+import { CloseIconButton, SaveButton } from "@/app/components/icon-buttons";
 
 const initialState: PasswordChangeState = { ok: false, message: "" };
 
@@ -78,5 +78,5 @@ function PasswordInput({ name, label, autoComplete }: { name: string; label: str
 
 function PasswordSubmit() {
   const { pending } = useFormStatus();
-  return <SaveIconButton label="Schimbă parola" pending={pending} type="submit" />;
+  return <SaveButton label="Schimbă parola" pending={pending} type="submit" />;
 }

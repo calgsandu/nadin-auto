@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightLeft, FileText, Package, PackagePlus, Plus, ShoppingCart, Trash2, UserPlus, Wallet } from "lucide-react";
+import { ArrowRightLeft, Banknote, Clock, CreditCard, FileText, Landmark, Package, PackagePlus, Plus, ShoppingCart, Trash2, UserPlus, Wallet } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import {
   createReceiptAction,
@@ -1179,10 +1179,10 @@ export function StockSaleDialog({
                     label="Metoda de plată"
                     name="paymentMethod"
                     options={[
-                      { value: "cash", label: "Cash" },
-                      { value: "card", label: "Card" },
-                      { value: "credit", label: "Pe datorie" },
-                      { value: "transfer", label: "Transfer" },
+                      { value: "cash", label: "Cash", icon: Banknote },
+                      { value: "card", label: "Card", icon: CreditCard },
+                      { value: "credit", label: "Pe datorie", icon: Clock },
+                      { value: "transfer", label: "Transfer", icon: Landmark },
                     ]}
                     required
                   />

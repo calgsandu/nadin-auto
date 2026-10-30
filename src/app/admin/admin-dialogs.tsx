@@ -4,7 +4,7 @@ import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { Pencil, Plus } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { CloseIconButton, IconLabel, rowIconButtonCls, SaveIconButton } from "@/app/components/icon-buttons";
+import { CloseIconButton, IconLabel, rowIconButtonCls, SaveButton } from "@/app/components/icon-buttons";
 import {
   drawerBoundaryProps,
   drawerPanelClassName,
@@ -57,7 +57,7 @@ function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary
 function SubmitButton({ label, pending }: { label: string; pending?: boolean }) {
   const status = useFormStatus();
   const busy = pending ?? status.pending;
-  return <SaveIconButton label={label} pending={busy} type="submit" />;
+  return <SaveButton label={label} pending={busy} type="submit" />;
 }
 
 function Field({

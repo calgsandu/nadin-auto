@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Copy, Wand2 } from "lucide-react";
 import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
@@ -14,7 +15,7 @@ import {
   type StaffActionState,
 } from "@/app/staff/actions";
 import type { AppRole } from "@/generated/prisma/enums";
-import { CloseIconButton, SaveIconButton } from "@/app/components/icon-buttons";
+import { CloseIconButton, SaveButton } from "@/app/components/icon-buttons";
 
 const initialState: StaffActionState = { ok: false, message: "" };
 const ROLE_OPTIONS: { value: AppRole; label: string }[] = [
@@ -289,7 +290,8 @@ function PasswordField({ value, onChange }: { value: string; onChange: (value: s
           value={value}
           onChange={(event) => onChange(event.target.value)}
         />
-        <button className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 text-xs font-semibold" type="button" onClick={() => onChange(generatePassword())}>
+        <button className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-xs font-semibold" type="button" onClick={() => onChange(generatePassword())}>
+          <Wand2 className="size-3.5" aria-hidden="true" />
           Generează
         </button>
       </div>
@@ -307,17 +309,19 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
       <div className="flex items-center gap-2 rounded-lg border border-[#e4e4e7] bg-white p-3">
         <code className="min-w-0 flex-1 break-all font-mono text-sm">{password}</code>
         <button
-          className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-2 text-xs font-semibold"
+          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-2 text-xs font-semibold"
           type="button"
           onClick={async () => {
             await navigator.clipboard.writeText(password);
             setCopied(true);
           }}
         >
+          {copied ? <Check className="size-3.5" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
           {copied ? "Copiat" : "Copiază"}
         </button>
       </div>
-      <button className="button-primary justify-self-end rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
+      <button className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
+        <Check className="size-4" aria-hidden="true" />
         Am salvat parola
       </button>
     </div>
@@ -349,23 +353,25 @@ function RevealedActivationCode({
             {code}
           </code>
           <button
-            className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-2 text-xs font-semibold"
+            className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-2 text-xs font-semibold"
             type="button"
             onClick={async () => {
               await navigator.clipboard.writeText(code);
               setCopied(true);
             }}
           >
-            {copied ? "Copiat" : "Copiază"}
+            {copied ? <Check className="size-3.5" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+          {copied ? "Copiat" : "Copiază"}
           </button>
         </div>
         <p className="mt-2 text-xs text-[#52525b]">Expiră la {expiryLabel}.</p>
       </div>
       <button
-        className="button-primary justify-self-end rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white"
+        className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white"
         type="button"
         onClick={onClose}
       >
+        <Check className="size-4" aria-hidden="true" />
         Am comunicat codul
       </button>
     </div>
@@ -383,7 +389,7 @@ function DrawerActions({ onClose, submitLabel }: { onClose: () => void; submitLa
 
 function PendingSubmit({ label }: { label: string }) {
   const { pending } = useFormStatus();
-  return <SaveIconButton label={label} pending={pending} type="submit" />;
+  return <SaveButton label={label} pending={pending} type="submit" />;
 }
 
 function ActiveSubmit({ active }: { active: boolean }) {
