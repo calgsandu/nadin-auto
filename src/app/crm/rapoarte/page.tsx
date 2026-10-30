@@ -39,7 +39,7 @@ async function Loader({
 
 function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: boolean }) {
   return (
-    <section className="motion-page grid gap-3 p-4">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       {canBackup ? (
         <div className="flex justify-end">
           <a
@@ -50,7 +50,7 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
           </a>
         </div>
       ) : null}
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+      <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
         <DailyMetric label="Produse" value={formatNumber(data.totalProducts)} />
         <DailyMetric label="Stoc total (buc.)" value={formatNumber(data.totalStock)} />
         <DailyMetric

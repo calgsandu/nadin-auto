@@ -64,7 +64,7 @@ export function PartnerLedgerButton({
   return (
     <>
       <button
-        className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+        className="button-secondary button-icon-book inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
         type="button"
         onClick={() => {
           // Starea se curăță aici, nu în efect: o redeschidere după o eroare de

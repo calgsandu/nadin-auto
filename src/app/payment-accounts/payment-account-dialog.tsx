@@ -129,7 +129,7 @@ export function PaymentAccountDialog({
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
         type="button"
         onClick={() => {
           setMounted(true);
@@ -350,7 +350,7 @@ function Summary({ label, value }: { label: string; value: number }) {
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
-    <button className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">
+    <button className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">
       {pending ? "Se emite..." : "Emite contul"}
     </button>
   );

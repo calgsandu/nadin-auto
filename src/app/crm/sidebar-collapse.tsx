@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronsLeft, ChevronsRight } from "lucide-react";
 
 const STORAGE_KEY = "nadin-crm-collapsed";
 
@@ -54,17 +54,15 @@ export function SidebarCollapseButton() {
       type="button"
       onClick={toggle}
       aria-expanded={!collapsed}
+      aria-label={collapsed ? "Extinde meniul" : "Restrânge meniul"}
       title={collapsed ? "Extinde meniul" : "Restrânge meniul"}
-      className="motion-nav-link flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+      className="motion-nav-link grid size-7 place-items-center rounded-md text-[#71717a] hover:bg-[#f4f4f5] hover:text-[#18181b]"
     >
       {collapsed ? (
-        <PanelLeftOpen className="size-4 shrink-0 text-[#71717a]" aria-hidden="true" />
+        <ChevronsRight className="size-4" aria-hidden="true" />
       ) : (
-        <PanelLeftClose className="size-4 shrink-0 text-[#71717a]" aria-hidden="true" />
+        <ChevronsLeft className="size-4" aria-hidden="true" />
       )}
-      <span className="crm-nav-label whitespace-nowrap">
-        {collapsed ? "Extinde" : "Restrânge"}
-      </span>
     </button>
   );
 }

@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, type LucideIcon } from "lucide-react";
 
-type Position = { top?: number; bottom?: number; right: number };
+type Position = { top?: number; bottom?: number; right?: number; left?: number };
 
 /**
  * Meniul „⋯" al unui rând de tabel: acțiunile rare (editare, ștergere, export)
@@ -19,7 +19,24 @@ type Position = { top?: number; bottom?: number; right: number };
  * Panoul e portat în `body` cu poziție fixă: în celula tabelului ar fi tăiat
  * de `overflow-x-auto`, iar animația paginii (transform) ar muta `fixed`.
  */
-export function RowMenu({ label, children }: { label: string; children: ReactNode }) {
+export function RowMenu({
+  label,
+  children,
+  icon: Icon = MoreHorizontal,
+  badge = 0,
+  ariaLabel,
+  size = "row",
+}: {
+  label: string;
+  children: ReactNode;
+  /** Altă iconiță decât „⋯" (ex. clopoțelul din antet). */
+  icon?: LucideIcon;
+  /** Număr afișat pe buton (ex. câte lucruri sunt de făcut). */
+  badge?: number;
+  ariaLabel?: string;
+  /** "row" = buton mic de rând de tabel, "header" = buton de antet. */
+  size?: "row" | "header";
+}) {
   const [used, setUsed] = useState(false);
   const [position, setPosition] = useState<Position | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -58,12 +75,14 @@ export function RowMenu({ label, children }: { label: string; children: ReactNod
     }
     const rect = buttonRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const right = window.innerWidth - rect.right;
+    // Aliniat la dreapta butonului; lângă marginea stângă (meniul contului din
+    // sidebar-ul restrâns) s-ar deschide în afara ecranului, deci la stânga.
+    const side = rect.left < 240 ? { left: rect.left } : { right: window.innerWidth - rect.right };
     // Pe ultimele rânduri ale ecranului meniul se deschide în sus.
     setPosition(
       rect.bottom > window.innerHeight - 200
-        ? { bottom: window.innerHeight - rect.top + 4, right }
-        : { top: rect.bottom + 4, right },
+        ? { bottom: window.innerHeight - rect.top + 4, ...side }
+        : { top: rect.bottom + 4, ...side },
     );
     setUsed(true);
   }
@@ -74,13 +93,20 @@ export function RowMenu({ label, children }: { label: string; children: ReactNod
         ref={buttonRef}
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label={`Mai multe acțiuni: ${label}`}
-        className="button-secondary grid size-7 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
-        title="Mai multe acțiuni"
+        aria-label={ariaLabel ?? `Mai multe acțiuni: ${label}`}
+        className={`button-secondary relative grid place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b] ${
+          size === "header" ? "size-9 rounded-lg" : "size-7"
+        }`}
+        title={ariaLabel ?? "Mai multe acțiuni"}
         type="button"
         onClick={toggle}
       >
-        <MoreHorizontal className="size-4" aria-hidden="true" />
+        <Icon className="size-4" aria-hidden="true" />
+        {badge > 0 ? (
+          <span className="absolute -right-1.5 -top-1.5 min-w-4 rounded-full bg-[#2563eb] px-1 text-[10px] font-bold leading-4 tabular-nums text-white">
+            {badge}
+          </span>
+        ) : null}
       </button>
       {used
         ? createPortal(

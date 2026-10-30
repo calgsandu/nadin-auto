@@ -62,7 +62,7 @@ export function DocumentDetailsButton({ details }: { details: DocumentDetailsVal
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+        className="button-secondary button-icon-eye inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
       >
         Detalii
       </button>

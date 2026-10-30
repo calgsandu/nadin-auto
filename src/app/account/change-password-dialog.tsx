@@ -1,5 +1,6 @@
 "use client";
 
+import { KeyRound } from "lucide-react";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
@@ -20,10 +21,11 @@ export function ChangePasswordDialog({ compact = false }: { compact?: boolean })
         type="button"
         title="Schimbă parola"
         aria-label="Schimbă parola"
-        className={`button-secondary inline-flex items-center justify-center rounded-xl border border-[#e4e4e7] bg-white font-semibold text-[#52525b] hover:text-[#18181b] ${compact ? "size-8 text-xs" : "px-3 py-2 text-sm"}`}
+        className={`button-secondary inline-flex items-center justify-center rounded-lg border border-[#e4e4e7] bg-white font-semibold text-[#52525b] hover:text-[#18181b] ${compact ? "size-8" : "gap-2 px-3 py-2 text-sm"}`}
         onClick={() => setOpen(true)}
       >
-        {compact ? "••" : "Schimbă parola"}
+        <KeyRound className="size-4" aria-hidden="true" />
+        {compact ? null : "Schimbă parola"}
       </button>
       {open ? <PasswordDrawer onClose={() => setOpen(false)} /> : null}
     </>
@@ -48,7 +50,7 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
           {state.ok ? (
             <div className="grid gap-4 px-5 py-4">
               <div className="rounded-md border border-[#86efac] bg-[#f0fdf4] px-3 py-3 text-sm text-[#166534]">{state.message}</div>
-              <button className="button-primary justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>Închide</button>
+              <button className="button-primary justify-self-end rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>Închide</button>
             </div>
           ) : (
             <form action={formAction} className="grid gap-4 px-5 py-4">
@@ -75,5 +77,5 @@ function PasswordInput({ name, label, autoComplete }: { name: string; label: str
 
 function PasswordSubmit() {
   const { pending } = useFormStatus();
-  return <button className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se schimbă..." : "Schimbă parola"}</button>;
+  return <button className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se schimbă..." : "Schimbă parola"}</button>;
 }

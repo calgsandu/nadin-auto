@@ -53,7 +53,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
   const warehouseOptions = data.warehouses.map((w) => ({ id: w.id, name: w.name }));
 
   return (
-    <section className="motion-page grid gap-3 p-4">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       {/* Depozitul, sumarul lui și acțiunea pe un singur rând — înainte erau trei
           rânduri (pastile, două carduri mari, butonul singur în dreapta). */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -193,7 +193,7 @@ function InventoryOperationsTable({
         </label>
         <button
           type="submit"
-          className="button-primary h-9 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+          className="button-primary h-9 rounded-md bg-[#18181b] px-4 text-sm font-semibold text-white hover:bg-[#27272a]"
         >
           Filtrează
         </button>

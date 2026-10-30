@@ -27,7 +27,7 @@ export function CreateStaffDialog() {
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
         type="button"
         onClick={() => setOpen(true)}
       >
@@ -316,7 +316,7 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
           {copied ? "Copiat" : "Copiază"}
         </button>
       </div>
-      <button className="button-primary justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
+      <button className="button-primary justify-self-end rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
         Am salvat parola
       </button>
     </div>
@@ -361,7 +361,7 @@ function RevealedActivationCode({
         <p className="mt-2 text-xs text-[#52525b]">Expiră la {expiryLabel}.</p>
       </div>
       <button
-        className="button-primary justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white"
+        className="button-primary justify-self-end rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white"
         type="button"
         onClick={onClose}
       >
@@ -382,7 +382,7 @@ function DrawerActions({ onClose, submitLabel }: { onClose: () => void; submitLa
 
 function PendingSubmit({ label }: { label: string }) {
   const { pending } = useFormStatus();
-  return <button className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se salvează..." : label}</button>;
+  return <button className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-60" disabled={pending} type="submit">{pending ? "Se salvează..." : label}</button>;
 }
 
 function ActiveSubmit({ active }: { active: boolean }) {

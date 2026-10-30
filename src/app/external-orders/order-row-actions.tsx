@@ -77,7 +77,7 @@ function DeliverControl({ orderId }: { orderId: string }) {
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#2563eb] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1d4ed8]"
+        className="button-primary rounded-md bg-[#18181b] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#27272a]"
         type="button"
         onClick={() => setOpen(true)}
       >

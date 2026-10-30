@@ -15,6 +15,8 @@ import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
 import {
   ButtonSkeleton,
+  DailyMetric,
+  Pagination,
   ExportLink,
   TableCell,
   TableHead,
@@ -102,31 +104,34 @@ function ProductWorkspace({
   return (
     <>
       <CatalogFilters brands={catalog.brands} models={catalog.models} types={catalog.types} />
-      <section className="motion-page p-3 lg:p-4">
-        <div className="mb-2 flex items-center justify-between gap-4">
-          <p className="text-sm text-[#52525b]">
-            {start}-{end} din {formatNumber(catalog.productCount)} produse
-          </p>
-          <Link
-            className="text-sm font-medium text-[#18181b] underline decoration-[#2563eb] underline-offset-4"
-            href={crmSectionHref("produse")}
-          >
-            Resetează filtrele
-          </Link>
+      <section className="motion-page grid grid-cols-1 gap-4 p-3 lg:px-6 lg:py-4">
+        <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
+          <DailyMetric label="Produse" value={formatNumber(catalog.productCount)} hint="pentru filtrele curente" />
+          <DailyMetric label="Bucăți în stoc" value={formatNumber(catalog.stats.totalUnits)} hint="toate depozitele" />
+          <DailyMetric
+            label="Stoc mic"
+            value={formatNumber(catalog.stats.criticalStockCount)}
+            hint="sub pragul de alertă"
+          />
+          <DailyMetric label="Fără stoc" value={formatNumber(catalog.stats.outOfStockCount)} hint="0 bucăți" />
         </div>
 
         <LabelPicker>
           <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
             <div className="overflow-x-auto">
-              <table className="crm-table w-full min-w-[1000px] border-collapse text-left text-sm">
+              <table className="crm-table w-full min-w-[960px] border-collapse text-left text-sm">
                 <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
                   <tr>
-                    {canModify ? <TableHead>{""}</TableHead> : null}
-                    <TableHead>Cod</TableHead>
+                    {canModify ? (
+                      <TableHead>
+                        <span className="sr-only">Selectează pentru sticker</span>
+                      </TableHead>
+                    ) : null}
+                    <TableHead className="min-w-[16rem]">Produs</TableHead>
                     <TableHead secondary>Compatibilitate</TableHead>
-                    <TableHead className="min-w-[14rem]">Produs</TableHead>
-                    <TableHead align="right">Stoc</TableHead>
                     <TableHead align="right">Preț vânzare</TableHead>
+                    <TableHead align="right">Stoc</TableHead>
+                    <TableHead>Status</TableHead>
                     {canModify ? <TableHead align="right" secondary>Cost aducere</TableHead> : null}
                     {canModify ? (
                       <TableHead align="right">
@@ -149,30 +154,53 @@ function ProductWorkspace({
             </div>
             {catalog.products.length === 0 ? (
               <div className="px-4 py-12 text-center text-sm text-[#52525b]">
-                Nu sunt produse pentru filtrele curente.
+                Nu sunt produse pentru filtrele curente.{" "}
+                <Link className="font-medium text-[#2563eb] hover:underline" href={crmSectionHref("produse")}>
+                  Resetează filtrele
+                </Link>
               </div>
             ) : null}
           </div>
         </LabelPicker>
 
-        {catalog.productCount > pageSize ? (
-          <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-            <p className="text-[#52525b]">
-              Pagina {page} din {pageCount}
-            </p>
-            <div className="flex gap-2">
-              <PaginationLink catalog={catalog} disabled={page <= 1} label="Înapoi" page={page - 1} />
-              <PaginationLink
-                catalog={catalog}
-                disabled={page >= pageCount}
-                label="Înainte"
-                page={page + 1}
-              />
-            </div>
-          </div>
-        ) : null}
+        <Pagination
+          page={page}
+          pageCount={pageCount}
+          hrefFor={(target) => crmCatalogPageHref({ ...catalog.params, page: target })}
+          summary={`${start}–${end} din ${formatNumber(catalog.productCount)} produse`}
+        />
       </section>
     </>
+  );
+}
+
+function StockBreakdown({ entries }: { entries: { id: string; name: string; quantity: number }[] }) {
+  if (entries.length === 0) return null;
+  const all = entries.map((entry) => `${entry.name}: ${entry.quantity}`).join(", ");
+  return (
+    <p className="mt-0.5 whitespace-nowrap text-xs font-normal text-[#52525b]" title={all}>
+      {entries
+        .slice(0, 3)
+        .map((entry) => `${entry.name} ${entry.quantity}`)
+        .join(" · ")}
+      {entries.length > 3 ? ` · +${entries.length - 3}` : null}
+    </p>
+  );
+}
+
+/** Statusul de stoc, ca în tabelele de magazin: în stoc / stoc mic / lipsă. */
+function StockStatus({ stock, minStock }: { stock: number | null; minStock: number | null }) {
+  const value = stock ?? 0;
+  const [label, tone] =
+    value <= 0
+      ? ["Lipsă", "bg-[#fef2f2] text-[#b91c1c] ring-[#fecaca]"]
+      : value <= (minStock ?? 3)
+        ? ["Stoc mic", "bg-[#fffbeb] text-[#92400e] ring-[#fde68a]"]
+        : ["În stoc", "bg-[#eff6ff] text-[#1d4ed8] ring-[#bfdbfe]"];
+  return (
+    <span className={`inline-flex whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${tone}`}>
+      {label}
+    </span>
   );
 }
 
@@ -185,8 +213,12 @@ function ProductRow({
   catalog: CatalogData;
   product: CatalogProduct;
 }) {
+  // Produsele vechi pot avea doar mașina principală, fără legături suplimentare.
   const compatibilities = buildCompatibilityLines(
-    product.productFitments.map(({ fitment }) => ({
+    (product.productFitments.length > 0
+      ? product.productFitments.map(({ fitment }) => fitment)
+      : [product.fitment]
+    ).map((fitment) => ({
       id: fitment.id,
       brandName: fitment.carModel.brand.name,
       modelName: fitment.carModel.name,
@@ -214,57 +246,47 @@ function ProductRow({
           />
         </TableCell>
       ) : null}
-      <TableCell className="font-mono text-xs font-semibold">{formatText(product.externalCode)}</TableCell>
-      <TableCell secondary>
-        <div className="space-y-1">
-          {compatibilities.map((compatibility, index) => (
-            <div key={`${compatibility.title}:${compatibility.years}:${index}`}>
-              <p className="font-semibold text-[#18181b]">{compatibility.title}</p>
-              <p className="mt-0.5 text-xs text-[#52525b]">Ani: {compatibility.years}</p>
-            </div>
-          ))}
-        </div>
-      </TableCell>
       <TableCell>
         <p className="font-medium text-[#18181b]">
           {product.description}
           {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
         </p>
-        <p className="mt-0.5 text-xs text-[#52525b]">{product.type.name}</p>
-      </TableCell>
-      <TableCell align="right" className="font-semibold tabular-nums">
-        {/* Același prag ca filtrul „stoc mic": minStock, implicit 3. */}
-        <span
-          className={`inline-block min-w-7 rounded-md px-1.5 text-center ${
-            (product.stock ?? 0) <= 0
-              ? "bg-[#fef2f2] text-[#b91c1c]"
-              : (product.stock ?? 0) <= (product.minStock ?? 3)
-                ? "bg-[#fffbeb] text-[#92400e]"
-                : "text-[#18181b]"
-          }`}
-        >
-          {formatNumber(product.stock)}
-        </span>
-        {/* Doar depozitele cu marfă: „110A: 0, Depozit: 0, …" lățea coloana și strivea denumirea. */}
-        <p className="mt-0.5 font-normal text-xs text-[#52525b]">
-          {catalog.warehouses
-            .map((warehouse) => {
-              const quantity =
-                product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id)?.quantity ?? 0;
-              return quantity > 0
-                ? { id: warehouse.id, label: `${warehouse.name.replace("Pavilion ", "")}: ${quantity}` }
-                : null;
-            })
-            .filter((entry) => entry !== null)
-            .map((entry) => (
-              <span key={entry.id} className="block whitespace-nowrap">
-                {entry.label}
-              </span>
-            ))}
+        <p className="mt-0.5 text-xs text-[#52525b]">
+          <span className="font-mono font-semibold text-[#3f3f46]">{formatText(product.externalCode)}</span>
+          {" · "}
+          {product.type.name}
         </p>
+      </TableCell>
+      <TableCell secondary>
+        <div className="space-y-1">
+          {compatibilities.map((compatibility, index) => (
+            <div key={`${compatibility.title}:${compatibility.years}:${index}`}>
+              <p className="text-[#18181b]">{compatibility.title}</p>
+              <p className="text-xs text-[#52525b]">{compatibility.years}</p>
+            </div>
+          ))}
+        </div>
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums">
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
+      </TableCell>
+      <TableCell align="right" className="font-semibold tabular-nums">
+        {formatNumber(product.stock)}
+        {/* Doar depozitele cu marfă, pe un rând (primele trei, restul ca „+N"). */}
+        <StockBreakdown
+          entries={catalog.warehouses
+            .map((warehouse) => ({
+              id: warehouse.id,
+              name: warehouse.name.replace("Pavilion ", ""),
+              quantity:
+                product.warehouseStocks.find((stock) => stock.warehouseId === warehouse.id)?.quantity ?? 0,
+            }))
+            .filter((entry) => entry.quantity > 0)}
+        />
+      </TableCell>
+      <TableCell>
+        {/* Același prag ca filtrul „stoc mic": minStock, implicit 3. */}
+        <StockStatus stock={product.stock} minStock={product.minStock} />
       </TableCell>
       {canModify ? (
         <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
@@ -300,32 +322,6 @@ function ProductRow({
         </TableCell>
       ) : null}
     </tr>
-  );
-}
-
-
-function PaginationLink({
-  catalog,
-  disabled,
-  label,
-  page,
-}: {
-  catalog: CatalogData;
-  disabled: boolean;
-  label: string;
-  page: number;
-}) {
-  if (disabled) {
-    return <span className="rounded-md border border-[#e4e4e7] bg-[#f1f1f3] px-3 py-2 text-[#71717a]">{label}</span>;
-  }
-
-  return (
-    <Link
-      className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 font-medium hover:bg-[#f4f4f5]"
-      href={crmCatalogPageHref({ ...catalog.params, page })}
-    >
-      {label}
-    </Link>
   );
 }
 

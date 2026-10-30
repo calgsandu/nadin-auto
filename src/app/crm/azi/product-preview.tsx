@@ -112,7 +112,7 @@ export function ProductPreview({
                     ) : null}
                     {canSell ? (
                       <Link
-                        className="button-primary inline-flex h-10 items-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+                        className="button-primary inline-flex h-10 items-center gap-2 rounded-md bg-[#18181b] px-4 text-sm font-semibold text-white hover:bg-[#27272a]"
                         href={`/crm/vanzari?nou=1&produs=${product.id}`}
                       >
                         <ShoppingCart className="size-4" aria-hidden="true" /> Vinde

@@ -120,7 +120,7 @@ export function InventoryDialog({
   return (
     <>
       <button
-        className="button-primary rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+        className="button-primary rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
         type="button"
         onClick={() => {
           setMounted(true);

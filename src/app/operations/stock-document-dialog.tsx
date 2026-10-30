@@ -1196,6 +1196,6 @@ const Field = DrawerField;
 const SubmitButton = DrawerSubmit;
 const inputClassName = drawerInputClassName;
 const primaryButtonClassName =
-  "button-primary rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]";
+  "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]";
 const secondaryButtonClassName = drawerSecondaryButton;
 const dangerButtonClassName = drawerDangerButton;

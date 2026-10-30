@@ -50,7 +50,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
     data.methods.cash.lei - data.cashRegister.registered.lei;
 
   return (
-    <section className="motion-page grid gap-3 p-4">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SalesDayNav dayKey={data.dayKey} basePath="/crm/inchidere-zi" />
         <div className="flex flex-wrap gap-2">
@@ -77,7 +77,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
         {dayLabelFormat.format(selectedDate)}
       </h2>
 
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+      <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
         <DailyMetric
           label="Vânzări"
           value={`${formatMoney(data.salesTotal)} lei`}

@@ -49,7 +49,7 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
   const end = Math.min(data.page * data.pageSize, data.total);
 
   return (
-    <section className="motion-page grid gap-3 p-4">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <form
         action="/crm/preturi"
         method="get"
@@ -67,7 +67,7 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
         </label>
         <button
           type="submit"
-          className="button-primary h-9 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+          className="button-primary h-9 rounded-md bg-[#18181b] px-4 text-sm font-semibold text-white hover:bg-[#27272a]"
         >
           Caută
         </button>

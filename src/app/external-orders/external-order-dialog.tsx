@@ -58,8 +58,8 @@ export function ExternalOrderDialog({
       <button
         className={
           triggerKind === "row"
-            ? "button-secondary rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-            : "button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+            ? "button-secondary button-icon-edit inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+            : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
         }
         type="button"
         onClick={() => {
@@ -238,7 +238,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
   return (
     <button
-      className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >

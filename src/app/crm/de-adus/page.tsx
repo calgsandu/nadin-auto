@@ -46,7 +46,7 @@ function RestockWorkspace({
   operations: OperationsData;
 }) {
   return (
-    <section className="motion-page grid gap-3 p-4">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <div className="motion-card flex flex-col gap-3 rounded-xl border border-[#e4e4e7] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-semibold text-[#18181b]">Reaprovizionare Pavilion 110A</h2>
@@ -58,7 +58,7 @@ function RestockWorkspace({
           <StockTransferDialog warehouses={toWarehouseOptions(operations.warehouses)} />
         ) : null}
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="stat-strip grid sm:grid-cols-3">
         <DailyMetric label="Poziții active" value={formatNumber(operations.restockPending.length)} />
         <DailyMetric label="Aduse azi" value={formatNumber(operations.restockDeliveredToday.length)} />
         <DailyMetric label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />

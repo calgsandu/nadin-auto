@@ -40,6 +40,8 @@ export async function getCatalogData(
     productCount,
     editedProductCount,
     criticalStockCount,
+    stockTotals,
+    outOfStockCount,
     brands,
     models,
     types,
@@ -97,6 +99,10 @@ export async function getCatalogData(
         ],
       },
     }),
+    prisma.product.aggregate({ where, _sum: { stock: true } }),
+    prisma.product.count({
+      where: { AND: [where, { OR: [{ stock: null }, { stock: { lte: 0 } }] }] },
+    }),
     prisma.brand.findMany({ orderBy: { name: "asc" } }),
     prisma.carModel.findMany({
       where: params.brand ? { brandId: params.brand } : undefined,
@@ -116,6 +122,8 @@ export async function getCatalogData(
     stats: {
       editedProductCount,
       criticalStockCount,
+      totalUnits: stockTotals._sum.stock ?? 0,
+      outOfStockCount,
     },
     pagination: {
       page,

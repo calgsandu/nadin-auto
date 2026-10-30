@@ -59,8 +59,8 @@ function StatsWorkspace({
   canModify: boolean;
 }) {
   return (
-    <section className="motion-page grid gap-3 p-4">
-      <div className={`grid gap-3 sm:grid-cols-2 ${canModify ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+      <div className={`stat-strip grid sm:grid-cols-2 ${canModify ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
         <DailyMetric
           label="Venit (30 zile)"
           value={`${formatMoney(data.last30.revenueLei)} lei`}

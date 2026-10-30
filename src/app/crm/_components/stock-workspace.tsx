@@ -38,7 +38,7 @@ export function StockWorkspace({
   const documents = isReceipts ? operations.receipts : operations.transfers;
 
   return (
-    <section className="motion-page grid gap-3 p-4">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <RecentDocumentsTable
         documents={documents}
         canModify={canModify}

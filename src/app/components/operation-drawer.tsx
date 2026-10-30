@@ -185,7 +185,7 @@ export function OperationDrawer({
               {submitLabel ? (
                 // requestSubmit() = aceeași validare + același onSubmit ca butonul din josul formularului.
                 <button
-                  className="button-primary rounded-md bg-[#2563eb] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="button-primary rounded-md bg-[#18181b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={pending}
                   type="button"
                   onClick={() => panelRef.current?.querySelector("form")?.requestSubmit()}
@@ -451,7 +451,7 @@ export function DrawerSubmit({ label, pending }: { label: string; pending?: bool
   const busy = pending ?? status.pending;
   return (
     <button
-      className="button-primary rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
+      className="button-primary rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={busy}
       type="submit"
     >

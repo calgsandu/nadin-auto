@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 import { getPendingApprovalCount } from "@/lib/audit/queries";
-import { canReviewOperations } from "@/lib/roles";
+import { prisma } from "@/lib/prisma";
+import { canReviewOperations, canViewSection } from "@/lib/roles";
 import { CrmChrome, Sidebar } from "./_components/chrome";
 
 export const metadata: Metadata = {
@@ -24,14 +25,22 @@ export default async function CrmLayout({
   if (authState.kind !== "AUTHENTICATED") redirect("/auth/2fa/continue");
 
   const appUser = authState.primary.appUser;
-  const pendingApprovals = canReviewOperations(appUser.role)
-    ? await getPendingApprovalCount()
-    : 0;
+  const role = appUser.role;
+  // Contoarele din meniu și din clopoțel: doar ce poate deschide rolul.
+  const [aprobari, deAdus, proforme] = await Promise.all([
+    canReviewOperations(role) ? getPendingApprovalCount() : 0,
+    canViewSection(role, "de-adus")
+      ? prisma.restockTask.count({ where: { status: "PENDING", warehouse: { name: "Pavilion 110A" } } })
+      : 0,
+    canViewSection(role, "conturi-plata")
+      ? prisma.paymentAccount.count({ where: { status: "ISSUED", paidAt: null } })
+      : 0,
+  ]);
 
   return (
-    <CrmChrome pendingApprovals={pendingApprovals}>
-      <main className="crm-main min-h-[100dvh] bg-[#fafafa] lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)]">
-        <aside className="crm-aside sticky top-0 z-40 border-b border-[#e4e4e7] bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-[13.5rem] lg:border-b-0 lg:border-r">
+    <CrmChrome counts={{ aprobari, "de-adus": deAdus, "conturi-plata": proforme }}>
+      <main className="crm-main min-h-[100dvh] bg-[#f4f4f5] lg:grid lg:grid-cols-[14rem_minmax(0,1fr)]">
+        <aside className="crm-aside sticky top-0 z-40 border-b border-[#e4e4e7] bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-[14rem] lg:border-b-0 lg:bg-transparent">
           <Sidebar
             role={appUser.role}
             userName={appUser.name}
@@ -39,7 +48,10 @@ export default async function CrmLayout({
           />
         </aside>
 
-        <section className="min-w-0 lg:col-start-2">{children}</section>
+        {/* Pe desktop conținutul stă într-un panou alb, pe fundalul gri al meniului. */}
+        <section className="min-w-0 bg-white lg:col-start-2 lg:my-2 lg:mr-2 lg:min-h-[calc(100dvh-1rem)] lg:rounded-2xl lg:border lg:border-[#e4e4e7] lg:shadow-[0_1px_3px_rgb(24_24_27/0.05)]">
+          {children}
+        </section>
       </main>
     </CrmChrome>
   );

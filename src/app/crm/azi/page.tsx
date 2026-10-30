@@ -133,7 +133,7 @@ function QuickActions({ role }: { role: AppRole }) {
       ) : null}
       {canCreateSales(role) ? (
         <Link
-          className="button-primary inline-flex h-9 items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+          className="button-primary inline-flex h-9 items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 text-sm font-semibold text-white hover:bg-[#27272a]"
           href="/crm/vanzari?nou=1"
         >
           <ShoppingCart className="size-4" aria-hidden="true" /> Vânzare nouă

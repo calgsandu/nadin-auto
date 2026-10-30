@@ -128,7 +128,7 @@ function SalesWorkspace({
   const activeFilter = saleFilters.find((item) => item.id === filter) ?? saleFilters[0];
 
   return (
-    <section className="motion-page grid gap-3 p-4">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SalesDayNav dayKey={dayKey} />
         <div className="flex flex-wrap items-center gap-2">
@@ -144,7 +144,7 @@ function SalesWorkspace({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+      <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
         <DailyMetric
           label={isToday ? "Vânzări azi" : "Vânzări în ziua aleasă"}
           value={formatNumber(sales.length)}

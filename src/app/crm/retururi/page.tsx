@@ -72,8 +72,8 @@ function ReturnsWorkspace({
     }));
 
   return (
-    <section className="motion-page grid gap-3 p-4">
-      <div className="grid gap-3 sm:grid-cols-2">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+      <div className="stat-strip grid sm:grid-cols-2">
         <DailyMetric label="Retururi înregistrate" value={formatNumber(operations.returns.length)} />
         <DailyMetric label="Valoare returnată" value={`${formatMoney(totalReturnedLei)} lei`} />
       </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, ChevronUp, Minus, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, ListOrdered, Minus, Plus, Printer, X } from "lucide-react";
 import {
   buildLabelPrintQuery,
   hydrateLabelSelection,
@@ -43,7 +43,9 @@ export function LabelPicker({ children }: { children: ReactNode }) {
   const [selected, setSelected] = useState<LabelSelectionItem[]>(() =>
     loadSelection(),
   );
-  const [expanded, setExpanded] = useState(true);
+  // Bara pornește strânsă (ca o bară de selecție); lista de cantități se
+  // deschide la cerere, nu acoperă tabelul la fiecare bifă.
+  const [expanded, setExpanded] = useState(false);
 
   // Produsul nou intră la coada listei — sari direct la el, fără scroll manual.
   useEffect(() => {
@@ -91,7 +93,6 @@ export function LabelPicker({ children }: { children: ReactNode }) {
       const box = event.target as HTMLInputElement;
       const id = box.dataset?.labelId;
       if (!id) return;
-      if (box.checked) setExpanded(true);
 
       setSelected((prev) => {
         const next = toggleLabelSelection(
@@ -120,7 +121,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
       ?.querySelectorAll<HTMLInputElement>("input[data-label-id]")
       .forEach((box) => (box.checked = false));
     setSelected([]);
-    setExpanded(true);
+    setExpanded(false);
     sessionStorage.removeItem(STORAGE_KEY);
   }
 
@@ -174,8 +175,9 @@ export function LabelPicker({ children }: { children: ReactNode }) {
       {/* portal la body: strămoșii cu transform (motion-page/gsap) ar face fixed relativ la ei */}
       {selected.length > 0
         ? createPortal(
-            <div className="fixed inset-x-0 bottom-3 z-50 flex justify-center px-3 print:hidden sm:bottom-4 sm:px-4">
-              <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-[#d4d4d8] bg-white shadow-[0_18px_60px_rgba(27,26,23,0.20)]">
+            // Doar bara primește clicuri; banda goală din jurul ei nu blochează pagina.
+            <div className="pointer-events-none fixed inset-x-0 bottom-3 z-50 flex justify-center px-3 print:hidden sm:bottom-4 sm:px-4">
+              <div className="pointer-events-auto w-full max-w-xl overflow-hidden rounded-xl border border-[#e4e4e7] bg-white shadow-[0_12px_40px_rgb(24_24_27/0.18)]">
                 <div
                   className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${
                     expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
@@ -293,7 +295,21 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 px-3 py-2 sm:px-4">
+                <div className="flex flex-wrap items-center gap-1 px-2 py-1.5 text-sm">
+                  <span aria-live="polite" className="px-2 font-medium text-[#52525b]">
+                    <span className="font-semibold text-[#18181b]">{selected.length}</span>{" "}
+                    {selected.length === 1 ? "selectat" : "selectate"}
+                  </span>
+                  <span aria-hidden="true" className="mx-1 h-5 w-px bg-[#e4e4e7]" />
+                  <a
+                    href={printHref}
+                    rel="noopener"
+                    target="_blank"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-medium text-[#18181b] transition-colors hover:bg-[#f4f4f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b]"
+                  >
+                    <Printer aria-hidden="true" className="size-4 text-[#52525b]" />
+                    Printează {stickerCount} {stickerCount === 1 ? "sticker" : "stickere"}
+                  </a>
                   <button
                     type="button"
                     onClick={() => setExpanded((current) => !current)}
@@ -303,35 +319,25 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                         ? "Restrânge lista cantităților"
                         : "Arată lista cantităților"
                     }
-                    className="flex min-w-0 items-center gap-2 rounded-full px-2 py-1.5 text-left text-sm font-semibold text-[#18181b] transition-colors hover:bg-[#f4f4f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b]"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-medium text-[#18181b] transition-colors hover:bg-[#f4f4f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b]"
                   >
-                    <span aria-live="polite">
-                      {selected.length} {selected.length === 1 ? "produs selectat" : "produse selectate"}
-                    </span>
+                    <ListOrdered aria-hidden="true" className="size-4 text-[#52525b]" />
+                    Cantități
                     {expanded ? (
                       <ChevronDown aria-hidden="true" className="size-4 shrink-0" />
                     ) : (
                       <ChevronUp aria-hidden="true" className="size-4 shrink-0" />
                     )}
                   </button>
-
-                  <div className="ml-auto flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={clear}
-                      className="rounded-full px-3 py-1.5 text-sm text-[#52525b] transition-colors hover:bg-[#f4f4f5] hover:text-[#18181b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b]"
-                    >
-                      Deselectează
-                    </button>
-                    <a
-                      href={printHref}
-                      rel="noopener"
-                      target="_blank"
-                      className="rounded-full bg-[#18181b] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#3f3f46] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b] sm:px-5"
-                    >
-                      Printează stickere
-                    </a>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={clear}
+                    aria-label="Deselectează tot"
+                    title="Deselectează tot"
+                    className="ml-auto grid size-8 place-items-center rounded-lg text-[#52525b] transition-colors hover:bg-[#f4f4f5] hover:text-[#18181b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18181b]"
+                  >
+                    <X aria-hidden="true" className="size-4" />
+                  </button>
                 </div>
               </div>
             </div>,
