@@ -20,7 +20,7 @@ import { parseTransferLines } from "@/lib/operations/transfer-lines";
 import { parseSaleLines } from "@/lib/operations/sales";
 import { parseRequiredCashRegistered } from "@/lib/operations/cash-register";
 import { parseRequiredSalePaymentMethod } from "@/lib/operations/sale-payment-method";
-import { reconcileSaleRestockTasks } from "@/lib/operations/restock";
+import { reconcileSaleRestockTasks, restockTasksCoveredBy } from "@/lib/operations/restock";
 import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
 import {
   findByToken,
@@ -171,6 +171,7 @@ export async function createTransferAction(
     });
 
     validateDifferentWarehouses(sourceWarehouseId, destinationWarehouseId);
+    let restockDelivered = 0;
 
     await prisma.$transaction(async (tx) => {
       for (const line of lines) {
@@ -239,6 +240,25 @@ export async function createTransferAction(
         select: { id: true, name: true },
       });
       const nameOf = (id: string) => warehouseNames.find((w) => w.id === id)?.name ?? id;
+
+      // Marfa adusă în 110A închide singură pozițiile din „De adus" — nu mai
+      // trebuie bifate de mână după transfer.
+      if (nameOf(destinationWarehouseId) === "Pavilion 110A") {
+        for (const line of lines) {
+          const pendingTasks = await tx.restockTask.findMany({
+            where: { productId: line.productId, warehouseId: destinationWarehouseId, status: "PENDING" },
+            orderBy: [{ requestedAt: "asc" }, { createdAt: "asc" }],
+            select: { id: true, quantity: true },
+          });
+          const covered = restockTasksCoveredBy(pendingTasks, line.quantity);
+          if (covered.length === 0) continue;
+          await tx.restockTask.updateMany({
+            where: { id: { in: covered } },
+            data: { status: "DELIVERED", resolvedAt: new Date() },
+          });
+          restockDelivered += covered.length;
+        }
+      }
       await logAuditRequired(tx, user, {
         action: "CREATE",
         entity: "StockDocument",
@@ -250,7 +270,9 @@ export async function createTransferAction(
     revalidatePath("/crm", "layout");
     return {
       ok: true,
-      message: `Transferul a fost salvat cu ${lines.length} produse.`,
+      message:
+        `Transferul a fost salvat cu ${lines.length} produse.` +
+        (restockDelivered > 0 ? ` ${restockDelivered} poziții din „De adus” s-au bifat ca aduse.` : ""),
     };
   } catch (error) {
     return toActionError(error);

@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 import { getPendingApprovalCount } from "@/lib/audit/queries";
 import { prisma } from "@/lib/prisma";
-import { canReviewOperations, canViewSection } from "@/lib/roles";
+import { lowStockWhere } from "@/lib/catalog/queries";
+import { canReviewOperations, canViewSection, canWriteCatalog } from "@/lib/roles";
 import { CrmChrome, Sidebar } from "./_components/chrome";
 
 export const metadata: Metadata = {
@@ -27,7 +28,7 @@ export default async function CrmLayout({
   const appUser = authState.primary.appUser;
   const role = appUser.role;
   // Contoarele din meniu și din clopoțel: doar ce poate deschide rolul.
-  const [aprobari, deAdus, proforme] = await Promise.all([
+  const [aprobari, deAdus, proforme, stocMic] = await Promise.all([
     canReviewOperations(role) ? getPendingApprovalCount() : 0,
     canViewSection(role, "de-adus")
       ? prisma.restockTask.count({ where: { status: "PENDING", warehouse: { name: "Pavilion 110A" } } })
@@ -35,10 +36,12 @@ export default async function CrmLayout({
     canViewSection(role, "conturi-plata")
       ? prisma.paymentAccount.count({ where: { status: "ISSUED", paidAt: null } })
       : 0,
+    // Piesele aproape terminate — doar pentru cine comandă marfă.
+    canWriteCatalog(role) ? prisma.product.count({ where: lowStockWhere }) : 0,
   ]);
 
   return (
-    <CrmChrome counts={{ aprobari, "de-adus": deAdus, "conturi-plata": proforme }}>
+    <CrmChrome counts={{ aprobari, "de-adus": deAdus, "conturi-plata": proforme, "stoc-mic": stocMic }}>
       <main className="crm-main min-h-[100dvh] bg-[#f4f4f5] lg:grid lg:grid-cols-[14rem_minmax(0,1fr)]">
         <aside className="crm-aside sticky top-0 z-40 border-b border-[#e4e4e7] bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-[14rem] lg:border-b-0 lg:bg-transparent">
           <Sidebar

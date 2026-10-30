@@ -12,12 +12,24 @@ export type CatalogSearchParams = {
   model?: string;
   type?: string;
   year?: string;
-  /** "1" = doar produsele cu stoc. */
+  /** "1" = doar produsele cu stoc; "mic" = aproape terminate (de comandat). */
   stoc?: string;
   page?: string;
 };
 
 const PAGE_SIZE = 50;
+
+/**
+ * „Aproape terminat": mai sunt câteva bucăți, dar cel mult pragul din fișă
+ * (stocul minim, implicit 3). Cele la zero au lista lor („Fără stoc").
+ */
+export const lowStockWhere: Prisma.ProductWhereInput = {
+  stock: { gt: 0 },
+  OR: [
+    { minStock: null, stock: { lte: 3 } },
+    { stock: { lte: prisma.product.fields.minStock } },
+  ],
+};
 
 export type CatalogOptions = {
   /** ANGAJAT vede doar produsele cu stoc pozitiv. */
@@ -31,8 +43,11 @@ export async function getCatalogData(
   const query = params.q?.trim() ?? "";
   const matchedIds = query ? await findMatchingProductIds(query) : null;
   const baseWhere = buildProductWhere(params, matchedIds);
-  const where: Prisma.ProductWhereInput = options.onlyInStock || params.stoc === "1"
-    ? { AND: [baseWhere, { stock: { gt: 0 } }] }
+  const stockFilter: Prisma.ProductWhereInput[] = [];
+  if (options.onlyInStock || params.stoc === "1") stockFilter.push({ stock: { gt: 0 } });
+  if (params.stoc === "mic") stockFilter.push(lowStockWhere);
+  const where: Prisma.ProductWhereInput = stockFilter.length > 0
+    ? { AND: [baseWhere, ...stockFilter] }
     : baseWhere;
   const page = normalizePage(params.page);
   const skip = (page - 1) * PAGE_SIZE;

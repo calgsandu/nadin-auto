@@ -17,6 +17,7 @@ import {
   Layers,
   LogOut,
   PackagePlus,
+  PackageMinus,
   PackageSearch,
   ShieldCheck,
   ShoppingCart,
@@ -40,7 +41,7 @@ import type { AppRole } from "@/generated/prisma/enums";
  * se citesc o singură dată, în layout-ul CRM-ului. Layout-ul supraviețuiește
  * navigării între secțiuni, deci nu costă o interogare la fiecare tab.
  */
-export type NavCounts = Partial<Record<"aprobari" | "de-adus" | "conturi-plata", number>>;
+export type NavCounts = Partial<Record<"aprobari" | "de-adus" | "conturi-plata" | "stoc-mic", number>>;
 
 const NavCountsContext = createContext<NavCounts>({});
 
@@ -368,29 +369,33 @@ export function SectionTabs({ role }: { role: AppRole }) {
 export function HeaderNotifications() {
   const counts = useContext(NavCountsContext);
   const items = [
-    { section: "aprobari", label: "Operațiuni de aprobat", icon: ShieldCheck },
-    { section: "de-adus", label: "Piese de adus în 110A", icon: ClipboardList },
-    { section: "conturi-plata", label: "Proforme neachitate", icon: FileText },
+    { key: "aprobari", label: "Operațiuni de aprobat", icon: ShieldCheck, href: crmSectionHref("aprobari") },
+    { key: "de-adus", label: "Piese de adus în 110A", icon: ClipboardList, href: crmSectionHref("de-adus") },
+    { key: "conturi-plata", label: "Proforme neachitate", icon: FileText, href: crmSectionHref("conturi-plata") },
+    { key: "stoc-mic", label: "Piese aproape terminate", icon: PackageMinus, href: "/crm/produse?stoc=mic" },
   ] as const;
-  const total = items.reduce((sum, item) => sum + countFor(counts, item.section), 0);
+  // „Aproape terminate" e o listă de urmărit, nu o sarcină a zilei: apare în
+  // meniu, dar nu umflă numărul de pe clopoțel.
+  const total = items
+    .filter((item) => item.key !== "stoc-mic")
+    .reduce((sum, item) => sum + countFor(counts, item.key), 0);
+  const visible = items.filter((item) => countFor(counts, item.key) > 0);
 
   return (
     <RowMenu ariaLabel={total > 0 ? `De făcut: ${total}` : "Nimic de făcut"} badge={total} icon={Bell} label="De făcut" size="header">
-      {total === 0 ? (
+      {visible.length === 0 ? (
         <p className="px-2.5 py-2 text-sm text-[#52525b]">Nimic în așteptare.</p>
       ) : (
-        items
-          .filter((item) => countFor(counts, item.section) > 0)
-          .map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link key={item.section} href={crmSectionHref(item.section)} className="text-[#18181b]">
-                <Icon className="size-4 text-[#71717a]" aria-hidden="true" />
-                <span className="flex-1">{item.label}</span>
-                <span className="font-semibold tabular-nums">{countFor(counts, item.section)}</span>
-              </Link>
-            );
-          })
+        visible.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link key={item.key} href={item.href} className="text-[#18181b]">
+              <Icon className="size-4 text-[#71717a]" aria-hidden="true" />
+              <span className="flex-1">{item.label}</span>
+              <span className="font-semibold tabular-nums">{countFor(counts, item.key)}</span>
+            </Link>
+          );
+        })
       )}
     </RowMenu>
   );

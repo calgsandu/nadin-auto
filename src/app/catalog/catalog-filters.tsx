@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
-import { CalendarDays, Car, Layers, LoaderCircle, Search, Tag, X } from "lucide-react";
+import { Boxes, CalendarDays, Car, Layers, LoaderCircle, Search, Tag, X } from "lucide-react";
 import type { Brand, CarModel, ProductType } from "@/generated/prisma/client";
 import { crmCatalogFilterHref } from "@/lib/crm/urls";
 
@@ -152,14 +152,18 @@ export function CatalogFilters({
         icon={<CalendarDays className="size-4 text-[#71717a]" aria-hidden="true" />}
         className="w-28"
       />
-      <label className={`${pill(searchParams.get("stoc") === "1")} cursor-pointer font-medium`}>
-        <input
-          checked={searchParams.get("stoc") === "1"}
-          className="size-4 accent-[#2563eb]"
-          type="checkbox"
-          onChange={(event) => updateParam("stoc", event.currentTarget.checked ? "1" : "")}
-        />
-        Doar în stoc
+      <label className={pill(Boolean(searchParams.get("stoc")))}>
+        <Boxes className="size-4 shrink-0 opacity-70" aria-hidden="true" />
+        <span className="sr-only">Stoc</span>
+        <select
+          className={select}
+          value={searchParams.get("stoc") ?? ""}
+          onChange={(event) => updateParam("stoc", event.target.value)}
+        >
+          <option value="">Orice stoc</option>
+          <option value="1">Doar în stoc</option>
+          <option value="mic">Aproape terminate</option>
+        </select>
       </label>
       {searchParams.toString() ? (
         <button

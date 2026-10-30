@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import { getOperationsData, type OperationsData } from "@/lib/operations/queries";
+import { getOperationsData, getRestockTransferPrefill, type OperationsData } from "@/lib/operations/queries";
+import type { RestockTransferPrefill } from "@/lib/operations/restock";
 import { StockTransferDialog } from "@/app/operations/stock-document-dialog";
 import { RestockCheckbox } from "@/app/operations/restock-checkbox";
 import { canWriteCatalog } from "@/lib/roles";
@@ -35,21 +36,25 @@ async function Loader({
   canModify: boolean;
 }) {
   const operations = await operationsPromise;
-  return <RestockWorkspace canModify={canModify} operations={operations} />;
+  const prefill = canModify ? await getRestockTransferPrefill(operations) : null;
+  return <RestockWorkspace canModify={canModify} operations={operations} prefill={prefill} />;
 }
 
 function RestockWorkspace({
   canModify,
   operations,
+  prefill,
 }: {
   canModify: boolean;
   operations: OperationsData;
+  prefill: RestockTransferPrefill | null;
 }) {
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       {canModify ? (
         <div className="flex justify-end">
-          <StockTransferDialog warehouses={toWarehouseOptions(operations.warehouses)} />
+          {/* Cu poziții de adus, transferul pleacă gata completat spre 110A. */}
+          <StockTransferDialog warehouses={toWarehouseOptions(operations.warehouses)} prefill={prefill ?? undefined} />
         </div>
       ) : null}
       <div className="stat-strip grid sm:grid-cols-3">

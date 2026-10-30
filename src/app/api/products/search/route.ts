@@ -27,6 +27,25 @@ export async function GET(request: NextRequest) {
   // dintr-un prop plimbat prin cele șase dialoguri care folosesc comboboxul.
   const canCreate = canWriteCatalog(user.role);
 
+  // `?code=` = verificarea de cod dublat din fișa produsului (cod sau cod alternativ).
+  const code = request.nextUrl.searchParams.get("code")?.trim();
+  if (code) {
+    const exclude = request.nextUrl.searchParams.get("exclude") ?? undefined;
+    const match = await prisma.product.findFirst({
+      where: {
+        id: exclude ? { not: exclude } : undefined,
+        OR: [
+          { externalCode: { equals: code, mode: "insensitive" } },
+          { alternativeCode: { equals: code, mode: "insensitive" } },
+        ],
+      },
+      include: productLabelInclude,
+    });
+    return Response.json({
+      duplicate: match ? { id: match.id, label: toProductSearchResult(match, includeCosts).label } : null,
+    });
+  }
+
   // `?id=` = un singur produs, pentru „Vinde" din fișa rapidă (pagina Azi).
   const id = request.nextUrl.searchParams.get("id");
   if (id) {

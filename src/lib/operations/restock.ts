@@ -14,6 +14,57 @@ export function aggregateRestockRequests(
   return [...totals].map(([productId, quantity]) => ({ productId, quantity }));
 }
 
+/** Ce trebuie adus în 110A, cu stocul pe depozite — transferul se completează singur. */
+export type RestockTransferPrefill = {
+  sourceWarehouseId: string;
+  destinationWarehouseId: string;
+  items: { productId: string; label: string; quantity: number }[];
+  stocks: { productId: string; warehouseId: string; quantity: number }[];
+};
+
+/**
+ * Depozitul din care se poate aduce cel mai mult din listă — sursa propusă
+ * implicit. La egalitate rămâne primul din ordinea primită.
+ */
+export function bestRestockSource(
+  items: Array<{ productId: string; quantity: number }>,
+  stocks: Array<{ productId: string; warehouseId: string; quantity: number }>,
+  warehouseIds: string[],
+) {
+  let best = warehouseIds[0] ?? "";
+  let bestCovered = -1;
+  for (const warehouseId of warehouseIds) {
+    const covered = items.reduce((sum, item) => {
+      const available =
+        stocks.find((stock) => stock.productId === item.productId && stock.warehouseId === warehouseId)?.quantity ?? 0;
+      return sum + Math.min(item.quantity, available);
+    }, 0);
+    if (covered > bestCovered) {
+      best = warehouseId;
+      bestCovered = covered;
+    }
+  }
+  return best;
+}
+
+/**
+ * Ce poziții „De adus" acoperă un transfer în 110A: cele mai vechi întâi, cât
+ * ajunge cantitatea adusă. O poziție acoperită doar parțial rămâne în listă.
+ */
+export function restockTasksCoveredBy(
+  tasks: Array<{ id: string; quantity: number }>,
+  transferredQuantity: number,
+) {
+  const covered: string[] = [];
+  let left = transferredQuantity;
+  for (const task of tasks) {
+    if (task.quantity > left) break;
+    covered.push(task.id);
+    left -= task.quantity;
+  }
+  return covered;
+}
+
 export function splitRestockTasksByStatus<T extends { status: RestockStatus }>(
   tasks: T[],
 ) {

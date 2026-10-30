@@ -15,6 +15,7 @@ import {
   useDrawerStackChild,
 } from "@/app/components/operation-drawer";
 import { BrandSelect, ModelSelect } from "@/app/admin/admin-dialogs";
+import { ProductCodeField } from "@/app/catalog/product-code-field";
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
 
 /**
@@ -259,11 +260,10 @@ export function ProductFormDialog({
                   />
                 </Field>
                 <Field label="Cod">
-                  <input
+                  <ProductCodeField
                     className={inputClassName}
-                    name="externalCode"
                     defaultValue={product?.externalCode ?? ""}
-                    placeholder="ex. P12013 1"
+                    productId={product?.id}
                   />
                 </Field>
                 <Field label="Cod alternativ">

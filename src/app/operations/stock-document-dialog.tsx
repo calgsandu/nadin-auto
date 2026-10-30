@@ -11,7 +11,6 @@ import {
 import {
   DrawerChoice,
   DrawerField,
-  DrawerSubmit,
   OperationDrawer,
   focusFirstLineSearch,
   handleEnterNavigation,
@@ -24,6 +23,7 @@ import {
 } from "@/app/components/operation-drawer";
 import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
+import { StickerPrintButton, type StickerLine } from "@/app/operations/drawer-line-tools";
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
 import { SupplierPicker } from "@/app/partners/supplier-picker";
 import { PartnerFormDialog } from "@/app/partners/partner-form-dialog";
@@ -31,6 +31,7 @@ import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import { PRICE_CATEGORIES, applyDiscount } from "@/lib/operations/sale-pricing";
 import { DEFAULT_QUANTITY, quantityAfterSelect } from "@/lib/operations/default-quantity";
+import type { RestockTransferPrefill } from "@/lib/operations/restock";
 
 export type WarehouseOption = {
   id: string;
@@ -138,10 +139,18 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
     reset: resetLines,
   });
   const { attachForm } = draft;
+  // Rândurile trimise: după salvare, din ele ies stickerele pentru piesele primite.
+  const submittedLines = useRef<ReceiptLine[]>([]);
+  const [printable, setPrintable] = useState<StickerLine[]>([]);
   const { pending, onSubmit } = useDrawerAction(
     createReceiptAction,
     initialState,
     () => {
+      setPrintable(
+        submittedLines.current
+          .filter((line) => line.productId && Number(line.qty) > 0)
+          .map((line) => ({ productId: line.productId, sticker: true, copies: line.qty })),
+      );
       resetLines();
       draft.clear();
       // Panoul rămâne deschis: cursorul trece direct la următoarea recepție.
@@ -210,10 +219,37 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
           pending={pending}
           submitLabel="Salvează recepția"
           draft={draft.banner}
-          onClose={() => setOpen(false)}
+          onClose={() => {
+            setOpen(false);
+            setPrintable([]);
+          }}
         >
-          <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
+          <form
+            ref={attachForm}
+            onSubmit={(event) => {
+              submittedLines.current = lines;
+              onSubmit(event);
+            }}
+            className={drawerFormClassName}
+            onKeyDown={(event) => handleEnterNavigation(event, addLine)}
+          >
               <input name="idempotencyKey" type="hidden" value={draft.token} />
+              {printable.length > 0 ? (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#f0fdf4] px-3 py-2 text-sm text-[#166534]">
+                  <span>Recepția e salvată. Stickere pentru piesele primite:</span>
+                  <div className="flex items-center gap-2">
+                    <StickerPrintButton lines={printable} />
+                    <button
+                      aria-label="Ascunde"
+                      className="grid size-8 place-items-center rounded-md text-[#166534] hover:bg-[#dcfce7]"
+                      type="button"
+                      onClick={() => setPrintable([])}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ) : null}
               {/* Ca la vânzare: de la cine și unde intră marfa, piesele, apoi totalul.
                   Notițele, rar folosite, stau strânse. */}
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
@@ -353,21 +389,52 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
   );
 }
 
-export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOption[] }) {
+type TransferLine = { id: number; productId: string; label: string; qty: string };
+
+export function StockTransferDialog({
+  warehouses,
+  prefill,
+}: {
+  warehouses: WarehouseOption[];
+  /** Dat = butonul din „De adus": deschide transferul cu piesele deja puse. */
+  prefill?: RestockTransferPrefill;
+}) {
   const [open, setOpen] = useState(false);
   // Panoul rămâne montat după prima deschidere: ciorna nesalvată nu se pierde.
   const [mounted, setMounted] = useState(false);
   const nextLineId = useRef(2);
-  const [lines, setLines] = useState<
-    { id: number; productId: string; label: string; qty: string }[]
-  >([{ id: 1, productId: "", label: "", qty: "" }]);
+  const [lines, setLines] = useState<TransferLine[]>([{ id: 1, productId: "", label: "", qty: "" }]);
+  // Câte piese de adus nu sunt deloc în depozitul sursă ales.
+  const [missingFromSource, setMissingFromSource] = useState(0);
+  // Cu precompletare, sursa e controlată: schimbarea ei recalculează rândurile.
+  const [sourceId, setSourceId] = useState(prefill?.sourceWarehouseId ?? "");
+
+  /** Rândurile din lista „De adus", cât are depozitul sursă (cel mult cât trebuie). */
+  function fillFromRestock(sourceWarehouseId: string) {
+    if (!prefill) return;
+    const filled: TransferLine[] = [];
+    let missing = 0;
+    for (const item of prefill.items) {
+      const available =
+        prefill.stocks.find((stock) => stock.productId === item.productId && stock.warehouseId === sourceWarehouseId)
+          ?.quantity ?? 0;
+      const quantity = Math.min(item.quantity, available);
+      if (quantity <= 0) {
+        missing += 1;
+        continue;
+      }
+      filled.push({ id: nextLineId.current++, productId: item.productId, label: item.label, qty: String(quantity) });
+    }
+    setMissingFromSource(missing);
+    setLines(filled.length > 0 ? filled : [{ id: nextLineId.current++, productId: "", label: "", qty: "" }]);
+  }
   function resetLines() {
     const id = nextLineId.current;
     nextLineId.current += 1;
     setLines([{ id, productId: "", label: "", qty: "" }]);
   }
   const draft = useDrawerDraft({
-    kind: "transfer",
+    kind: prefill ? "restock-transfer" : "transfer",
     lines,
     setLines: (restored) => {
       nextLineId.current = nextIdAfter(restored);
@@ -384,9 +451,11 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
       draft.clear();
     },
   );
-  const defaultSourceWarehouse = warehouses[0]?.id ?? "";
+  const defaultSourceWarehouse = prefill?.sourceWarehouseId ?? warehouses[0]?.id ?? "";
   const defaultDestinationWarehouse =
-    warehouses.find((warehouse) => warehouse.id !== defaultSourceWarehouse)?.id ?? "";
+    prefill?.destinationWarehouseId ??
+    warehouses.find((warehouse) => warehouse.id !== defaultSourceWarehouse)?.id ??
+    "";
   const today = useMemo(() => formatDateInputValue(new Date()), []);
 
   function addLine() {
@@ -415,6 +484,11 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
   }
 
   function openDrawer() {
+    if (prefill) {
+      // Lista „De adus" poate s-o fi schimbat de la ultima deschidere: o luăm de la capăt.
+      setSourceId(prefill.sourceWarehouseId);
+      fillFromRestock(prefill.sourceWarehouseId);
+    }
     setMounted(true);
     setOpen(true);
   }
@@ -426,7 +500,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
         type="button"
         onClick={openDrawer}
       >
-        Adaugă transfer
+        {prefill ? "Adu în 110A" : "Adaugă transfer"}
       </button>
 
       {mounted ? (
@@ -452,9 +526,15 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                 <Field label="Din locația">
                   <select
                     className={inputClassName}
-                    defaultValue={defaultSourceWarehouse}
+                    defaultValue={prefill ? undefined : defaultSourceWarehouse}
                     name="sourceWarehouseId"
                     required
+                    value={prefill ? sourceId : undefined}
+                    onChange={(event) => {
+                      if (!prefill) return;
+                      setSourceId(event.currentTarget.value);
+                      fillFromRestock(event.currentTarget.value);
+                    }}
                   >
                     {warehouses.map((warehouse) => (
                       <option key={warehouse.id} value={warehouse.id}>
@@ -480,34 +560,29 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                 </Field>
               </div>
 
-              <section data-drawer-lines className="overflow-visible rounded-xl border border-[#e4e4e7] bg-white">
-                <div className="flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-3">
-                  <div>
-                    <h3 className="font-semibold text-[#18181b]">Produse transferate</h3>
-                    <p className="text-xs text-[#52525b]">
-                      Toate pozițiile vor fi mutate în aceeași operațiune.
-                    </p>
-                  </div>
-                  <button
-                    className={secondaryButtonClassName}
-                    type="button"
-                    onClick={addLine}
-                  >
-                    <Plus className="size-4" aria-hidden="true" />
-                    Adaugă produs
+              {prefill && missingFromSource > 0 ? (
+                <p className="rounded-md bg-[#fffbeb] px-3 py-2 text-sm text-[#92400e]">
+                  {missingFromSource === 1 ? "O piesă de adus nu e" : `${missingFromSource} piese de adus nu sunt`} în depozitul
+                  ales. Alege alt depozit sus pentru ele.
+                </p>
+              ) : null}
+
+              <section data-drawer-lines className="grid gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-semibold text-[#18181b]">Produse</h3>
+                  <button className={secondaryButtonClassName} type="button" onClick={addLine}>
+                    <Plus className="size-4" aria-hidden="true" /> Produs
                   </button>
                 </div>
 
-                <div className="grid gap-1.5 p-2">
+                <div className="grid gap-1.5">
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
-                      className="motion-line-item grid gap-2 rounded-md border border-[#f0f0f2] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_10rem_2.25rem] md:items-start"
+                      className="motion-line-item grid gap-2 rounded-lg border border-[#e4e4e7] bg-[#ffffff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
                     >
                       <div>
-                        <p className="line-label mb-1 text-xs font-semibold leading-5 text-[#52525b]">
-                          Produs {index + 1}
-                        </p>
+                        <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
                         <ProductSearchCombobox
                           showHint={false}
                           initialProduct={initialProductOf(line)}
@@ -520,7 +595,7 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                           onClear={() => setTransferProduct(line.id, "", "")}
                         />
                       </div>
-                      <Field label="Cantitate">
+                      <Field label="Cant.">
                         <input
                           className={inputClassName}
                           inputMode="numeric"
@@ -554,17 +629,6 @@ export function StockTransferDialog({ warehouses }: { warehouses: WarehouseOptio
                 />
               </Field>
 
-
-              <div className="flex items-center justify-end gap-3 border-t border-[#e4e4e7] pt-5">
-                <button
-                  className={`${secondaryButtonClassName} px-4 py-2.5`}
-                  type="button"
-                  onClick={() => setOpen(false)}
-                >
-                  Anulează
-                </button>
-                <SubmitButton label="Salvează transferul" pending={pending} />
-              </div>
             </form>
         </OperationDrawer>
       ) : null}
@@ -1179,7 +1243,6 @@ function LineControls({
 
 // Aliasuri către shell-ul comun — stilurile drawerelor trăiesc într-un singur loc.
 const Field = DrawerField;
-const SubmitButton = DrawerSubmit;
 const inputClassName = drawerInputClassName;
 const primaryButtonClassName =
   "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]";

@@ -1,10 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { productLabelInclude } from "@/lib/catalog/product-include";
+import { formatProductSearchLabel } from "@/lib/catalog/product-search";
 import { getPartnerBalances } from "@/lib/partners/debt";
 import type { VehicleFitmentInfo } from "@/lib/catalog/vehicle-label";
 import {
   aggregateRestockRequests,
+  bestRestockSource,
   splitRestockTasksByStatus,
+  type RestockTransferPrefill,
 } from "@/lib/operations/restock";
 import {
   INVENTORY_PAGE_SIZE,
@@ -170,6 +173,50 @@ export async function getOperationsData(section: OperationsSection = "receptii")
 }
 
 export type OperationsData = Awaited<ReturnType<typeof getOperationsData>>;
+
+/**
+ * Datele pentru „Adu în 110A": piesele de adus, stocul lor în celelalte
+ * depozite și depozitul din care se poate aduce cel mai mult.
+ */
+export async function getRestockTransferPrefill(
+  operations: Pick<OperationsData, "restockPending" | "warehouses">,
+): Promise<RestockTransferPrefill | null> {
+  const pending = operations.restockPending;
+  const destinationWarehouseId = pending[0]?.warehouseId;
+  if (!destinationWarehouseId) return null;
+
+  const productIds = pending.map((line) => line.productId);
+  // Eticheta ca în căutarea de produs, ca rândurile să arate la fel ca cele alese de mână.
+  const [products, stocks] = await Promise.all([
+    prisma.product.findMany({ where: { id: { in: productIds } }, include: productLabelInclude }),
+    prisma.warehouseStock.findMany({
+      where: {
+        productId: { in: productIds },
+        warehouseId: { not: destinationWarehouseId },
+        quantity: { gt: 0 },
+      },
+      select: { productId: true, warehouseId: true, quantity: true },
+    }),
+  ]);
+  const items = pending.map((line) => {
+    const product = products.find((item) => item.id === line.productId);
+    return {
+      productId: line.productId,
+      label: product ? formatProductSearchLabel(product) : line.product.description,
+      quantity: line.quantity,
+    };
+  });
+  const sources = operations.warehouses
+    .map((warehouse) => warehouse.id)
+    .filter((id) => id !== destinationWarehouseId);
+
+  return {
+    sourceWarehouseId: bestRestockSource(items, stocks, sources),
+    destinationWarehouseId,
+    items,
+    stocks,
+  };
+}
 
 /** Stock rows for one warehouse (inventory check) + inventarele trecute, filtrate pe perioadă. */
 export async function getInventoryData(params: {

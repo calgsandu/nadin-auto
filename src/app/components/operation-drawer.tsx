@@ -525,6 +525,8 @@ export function handleEnterNavigation(
   addLine?: () => void,
 ) {
   if (event.key !== "Enter" || event.defaultPrevented) return;
+  // Ctrl+Enter = salvare (vezi `OperationDrawer`), nu „câmpul următor" sau rând nou.
+  if (event.ctrlKey || event.metaKey) return;
   const target = event.target as HTMLElement;
   // Textarea păstrează Enter pentru rânduri noi; butoanele își fac treaba lor.
   if (target instanceof HTMLTextAreaElement || target instanceof HTMLButtonElement) return;

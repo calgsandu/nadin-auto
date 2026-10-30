@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import {
   aggregateRestockRequests,
+  bestRestockSource,
+  restockTasksCoveredBy,
   splitRestockTasksByStatus,
 } from "@/lib/operations/restock";
 
@@ -47,3 +49,34 @@ assert.deepEqual(
 );
 
 console.log("restock tests passed");
+
+// Transferul în 110A închide pozițiile „De adus", cele mai vechi întâi; o
+// poziție pe care cantitatea adusă n-o acoperă întreagă rămâne deschisă.
+{
+  const tasks = [
+    { id: "a", quantity: 2 },
+    { id: "b", quantity: 1 },
+    { id: "c", quantity: 3 },
+  ];
+  assert.deepEqual(restockTasksCoveredBy(tasks, 3), ["a", "b"]);
+  assert.deepEqual(restockTasksCoveredBy(tasks, 6), ["a", "b", "c"]);
+  assert.deepEqual(restockTasksCoveredBy(tasks, 1), []);
+  assert.deepEqual(restockTasksCoveredBy([], 5), []);
+}
+
+// Sursa propusă pentru „Adu în 110A" = depozitul care acoperă cele mai multe bucăți.
+{
+  const items = [
+    { productId: "p1", quantity: 2 },
+    { productId: "p2", quantity: 3 },
+  ];
+  const stocks = [
+    { productId: "p1", warehouseId: "central", quantity: 5 },
+    { productId: "p2", warehouseId: "central", quantity: 2 },
+    { productId: "p2", warehouseId: "principal", quantity: 1 },
+    { productId: "p1", warehouseId: "principal", quantity: 1 },
+  ];
+  assert.equal(bestRestockSource(items, stocks, ["principal", "central"]), "central");
+  assert.equal(bestRestockSource(items, [], ["principal", "central"]), "principal");
+  assert.equal(bestRestockSource(items, stocks, []), "");
+}
