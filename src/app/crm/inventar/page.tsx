@@ -97,7 +97,6 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
               openFromUrl
               warehouses={warehouseOptions}
               defaultWarehouseId={data.selected?.id}
-              alreadyCounted={data.counted}
             />
           </div>
         ) : null}
@@ -340,7 +339,6 @@ function CountRemainingButton({ data }: { data: InventoryData }) {
     <InventoryDialog
       warehouses={data.warehouses.map((w) => ({ id: w.id, name: w.name }))}
       defaultWarehouseId={data.selected?.id}
-      alreadyCounted={data.counted}
       prefill={prefill}
       triggerLabel={`Numără rămasele (${prefill.length})`}
     />

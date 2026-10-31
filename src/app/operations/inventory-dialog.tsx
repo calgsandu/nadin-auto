@@ -32,6 +32,7 @@ import {
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import type { WarehouseOption } from "@/app/operations/stock-document-dialog";
 import { quantityAfterSelect } from "@/lib/operations/default-quantity";
+import { InventoryHistoryLines, useInventoryHistory } from "@/app/operations/inventory-history";
 
 const initialState: OperationActionState = { ok: false, message: "" };
 
@@ -62,7 +63,6 @@ export function InventoryDialog({
   warehouses,
   defaultWarehouseId,
   openFromUrl,
-  alreadyCounted,
   prefill,
   triggerLabel = "Corectează stocul",
 }: {
@@ -70,8 +70,6 @@ export function InventoryDialog({
   defaultWarehouseId?: string;
   /** true = se deschide singur când adresa are `?nou=1` (vezi `useOpenFromUrl`). */
   openFromUrl?: boolean;
-  /** Ce s-a numărat deja în depozitul implicit: avertisment contra numărării duble. */
-  alreadyCounted?: Record<string, { date: string; counted: number }>;
   /** Dat = rândurile pleacă gata puse (produsele rămase de numărat). */
   prefill?: InventoryPrefillItem[];
   triggerLabel?: string;
@@ -108,6 +106,11 @@ export function InventoryDialog({
     reset: resetLines,
   });
   const { attachForm } = draft;
+  // Mini-istoric pe fiecare rând: ultimele inventare ale piesei în depozitul ales.
+  const history = useInventoryHistory(
+    lines.map((line) => line.productId),
+    warehouseId,
+  );
   const { pending, onSubmit } = useDrawerAction(
     createInventoryAction,
     initialState,
@@ -116,6 +119,7 @@ export function InventoryDialog({
       setMounted(false);
       resetLines();
       draft.clear();
+      history.clear();
     },
   );
   const today = useMemo(() => formatDateInputValue(new Date()), []);
@@ -311,12 +315,9 @@ export function InventoryDialog({
                       onChange={(event) => patchLine(line.id, { counted: event.currentTarget.value })}
                     />
                     <CountDifference system={systemQuantity(line)} counted={line.counted} />
-                    {/* Numărat deja în ultima perioadă: nu-l număra de două ori. */}
-                    {line.productId && warehouseId === defaultWarehouseId && alreadyCounted?.[line.productId] ? (
-                      <span className="text-xs font-medium text-[#b45309]">
-                        numărat deja pe {formatDay(alreadyCounted[line.productId].date)} ({alreadyCounted[line.productId].counted} buc.)
-                      </span>
-                    ) : null}
+                    {/* Inventarele trecute ale piesei aici („era 0 → 1"); cele recente
+                        apar ca avertisment, să nu fie numărată de două ori. */}
+                    {line.productId ? <InventoryHistoryLines entries={history.historyOf(line.productId)} /> : null}
                   </DrawerField>
                   <LabelStickerCell
                     index={index}
@@ -374,7 +375,3 @@ function CountDifference({ system, counted }: { system: number | null; counted: 
 }
 
 /** „2026-10-28" → „28.10". */
-function formatDay(value: string) {
-  const [, month, day] = value.split("-");
-  return `${day}.${month}`;
-}
