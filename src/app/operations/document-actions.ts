@@ -26,7 +26,6 @@ import {
   parseOptionalSalePaymentMethod,
   salePaymentMethodLabel,
 } from "@/lib/operations/sale-payment-method";
-import { mergeLinesByProduct, mergedUnitPrice } from "@/lib/operations/merge-lines";
 
 export type DocumentActionState = { ok: boolean; message: string };
 
@@ -249,7 +248,8 @@ export async function updateDocumentLinesAction(
       throw new Error("Data documentului nu este validă.");
     }
 
-    const parsedLines = productIds.map((productId, i) => {
+    const seenProducts = new Set<string>();
+    const formLines = productIds.map((productId, i) => {
       const quantity = Number(quantities[i]);
       const raw = (prices[i] ?? "").trim().replace(",", ".");
       const price = raw ? Number(raw) : null;
@@ -257,6 +257,9 @@ export async function updateDocumentLinesAction(
       const rawCost = (externalCosts[i] ?? "").trim().replace(",", ".");
       const externalCost = rawCost ? Number(rawCost) : null;
       if (!productId && !externalName) throw new Error(`Produs lipsă pe poziția ${i + 1}.`);
+      if (productId && seenProducts.has(productId)) {
+        throw new Error(`Produsul de pe poziția ${i + 1} este adăugat de mai multe ori.`);
+      }
       // Ajustările (inventar) au diferențe cu semn; restul documentelor doar
       // cantități pozitive — semnul se validează după ce știm tipul (în tranzacție).
       if (!Number.isInteger(quantity) || quantity === 0) {
@@ -268,6 +271,7 @@ export async function updateDocumentLinesAction(
       if (externalCost !== null && (!Number.isFinite(externalCost) || externalCost < 0)) {
         throw new Error(`Cost invalid pe poziția ${i + 1}.`);
       }
+      if (productId) seenProducts.add(productId);
       return {
         productId: productId || null,
         externalName: productId ? null : externalName || null,
@@ -278,14 +282,6 @@ export async function updateDocumentLinesAction(
         price,
       };
     });
-    // Același produs de două ori: un singur rând, cantitățile adunate. La
-    // inventar diferențele au semn, deci se pot anula: rândul rămas pe zero cade.
-    const formLines = mergeLinesByProduct(parsedLines, (line) => line.productId, (kept, duplicate) => ({
-      price: mergedUnitPrice(
-        { quantity: kept.quantity, price: kept.price },
-        { quantity: duplicate.quantity, price: duplicate.price },
-      ),
-    })).filter((line) => line.quantity !== 0);
     if (formLines.length === 0) throw new Error("Documentul trebuie să aibă cel puțin un produs.");
 
     await prisma.$transaction(async (tx) => {

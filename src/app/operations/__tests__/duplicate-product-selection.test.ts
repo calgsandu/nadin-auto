@@ -12,12 +12,10 @@ assert.match(
   /function emptySaleLine\(id: number, external = false\): SaleLineState/,
   "Liniile de vânzare trebuie să rețină produsul selectat.",
 );
-// Produsul deja pus pe alt rând nu se mai ascunde: alegerea lui adună cantitatea
-// pe rândul existent (fără eroare la salvare).
 assert.match(
   saleDialog,
-  /mergeSelectionIntoExisting\(/,
-  "Vânzarea trebuie să adune produsul ales a doua oară pe rândul existent.",
+  /excludedProductIds=\{lines\.filter\(\(item\) => item\.id !== line\.id\)\.map\(\(item\) => item\.productId\)\}/,
+  "Căutarea din vânzare trebuie să excludă produsele selectate pe celelalte linii.",
 );
 assert.match(
   productSearch,

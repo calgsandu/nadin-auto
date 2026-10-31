@@ -36,14 +36,14 @@ assert.throws(
   /Cantitatea de pe poziția 1 trebuie să fie mai mare decât zero/,
 );
 
-// Același produs de două ori: un rând, cantitățile adunate; costul gol nu strică media.
-assert.deepEqual(
-  parseReceiptLines({
-    productIds: ["product-a", "product-a"],
-    quantities: ["1", "2"],
-    unitCostsLei: ["", "30"],
-  }),
-  [{ productId: "product-a", quantity: 3, unitCostLei: 30 }],
+assert.throws(
+  () =>
+    parseReceiptLines({
+      productIds: ["product-a", "product-a"],
+      quantities: ["1", "2"],
+      unitCostsLei: ["", ""],
+    }),
+  /Produsul de pe poziția 2 este adăugat de mai multe ori/,
 );
 
 assert.throws(

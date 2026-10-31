@@ -83,18 +83,14 @@ assert.throws(
   /Adaugă cel puțin un produs în vânzare/,
 );
 
-// Același produs de două ori nu mai e eroare: un rând, cantitățile adunate,
-// prețul mediu ponderat (totalul rămâne cel scris).
-assert.deepEqual(
-  parseSaleLines({
-    productIds: ["product-a", "product-b", "product-a"],
-    quantities: ["1", "1", "3"],
-    unitPricesEuro: ["100", "5", "120"],
-  }).map((line) => [line.productId, line.quantity, line.unitPriceEuro]),
-  [
-    ["product-a", 4, 115],
-    ["product-b", 1, 5],
-  ],
+assert.throws(
+  () =>
+    parseSaleLines({
+      productIds: ["product-a", "product-a"],
+      quantities: ["1", "2"],
+      unitPricesEuro: ["", ""],
+    }),
+  /Produsul de pe poziția 2 este adăugat de mai multe ori/,
 );
 
 console.log("sales tests passed");

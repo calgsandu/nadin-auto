@@ -1,5 +1,3 @@
-import { mergeLinesByProduct } from "@/lib/operations/merge-lines";
-
 export type TransferLine = {
   productId: string;
   quantity: number;
@@ -13,8 +11,9 @@ export function parseTransferLines(input: {
     throw new Error("Adaugă cel puțin un produs în transfer.");
   }
 
+  const seenProducts = new Set<string>();
 
-  const lines = input.productIds.map((rawProductId, index) => {
+  return input.productIds.map((rawProductId, index) => {
     const position = index + 1;
     const productId = rawProductId.trim();
     const quantity = Number(input.quantities[index] ?? "");
@@ -23,6 +22,9 @@ export function parseTransferLines(input: {
       throw new Error(`Alege produsul de pe poziția ${position}.`);
     }
 
+    if (seenProducts.has(productId)) {
+      throw new Error(`Produsul de pe poziția ${position} este adăugat de mai multe ori.`);
+    }
 
     if (!Number.isInteger(quantity) || quantity <= 0) {
       throw new Error(
@@ -30,8 +32,7 @@ export function parseTransferLines(input: {
       );
     }
 
+    seenProducts.add(productId);
     return { productId, quantity };
   });
-  // Același produs de două ori: un singur rând, cantitățile adunate.
-  return mergeLinesByProduct(lines, (line) => line.productId);
 }

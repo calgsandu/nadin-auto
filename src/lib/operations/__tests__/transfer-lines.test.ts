@@ -22,13 +22,13 @@ assert.throws(
   /Cantitatea de pe poziția 1 trebuie să fie mai mare decât zero/,
 );
 
-// Același produs de două ori: un singur rând, cantitățile adunate.
-assert.deepEqual(
-  parseTransferLines({
-    productIds: ["product-a", "product-a"],
-    quantities: ["1", "2"],
-  }),
-  [{ productId: "product-a", quantity: 3 }],
+assert.throws(
+  () =>
+    parseTransferLines({
+      productIds: ["product-a", "product-a"],
+      quantities: ["1", "2"],
+    }),
+  /Produsul de pe poziția 2 este adăugat de mai multe ori/,
 );
 
 assert.throws(

@@ -1,5 +1,3 @@
-import { mergeLinesByProduct, mergedUnitPrice } from "@/lib/operations/merge-lines";
-
 export type ReceiptLine = {
   productId: string;
   quantity: number;
@@ -15,8 +13,9 @@ export function parseReceiptLines(input: {
     throw new Error("Adaugă cel puțin un produs în recepție.");
   }
 
+  const seenProducts = new Set<string>();
 
-  const lines = input.productIds.map((rawProductId, index) => {
+  return input.productIds.map((rawProductId, index) => {
     const position = index + 1;
     const productId = rawProductId.trim();
     const quantity = Number(input.quantities[index] ?? "");
@@ -27,6 +26,9 @@ export function parseReceiptLines(input: {
       throw new Error(`Alege produsul de pe poziția ${position}.`);
     }
 
+    if (seenProducts.has(productId)) {
+      throw new Error(`Produsul de pe poziția ${position} este adăugat de mai multe ori.`);
+    }
 
     if (!Number.isInteger(quantity) || quantity <= 0) {
       throw new Error(
@@ -38,15 +40,9 @@ export function parseReceiptLines(input: {
       throw new Error(`Costul de pe poziția ${position} nu este valid.`);
     }
 
+    seenProducts.add(productId);
     return { productId, quantity, unitCostLei };
   });
-  // Același produs de două ori: un singur rând, cantitățile adunate.
-  return mergeLinesByProduct(lines, (line) => line.productId, (kept, duplicate) => ({
-    unitCostLei: mergedUnitPrice(
-      { quantity: kept.quantity, price: kept.unitCostLei },
-      { quantity: duplicate.quantity, price: duplicate.unitCostLei },
-    ),
-  }));
 }
 
 export function calculateReceiptTotalLei(lines: ReceiptLine[]) {
