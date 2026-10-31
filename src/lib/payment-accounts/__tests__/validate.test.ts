@@ -31,7 +31,10 @@ const duplicate = validForm();
 duplicate.append("productId", "product-1");
 duplicate.append("quantity", "1");
 duplicate.append("unitPriceGross", "100");
-assert.throws(() => parsePaymentAccountForm(duplicate), /mai multe ori/);
+// Același produs de două ori: un rând, cantitățile adunate, prețul mediu ponderat.
+assert.deepEqual(parsePaymentAccountForm(duplicate).lines, [
+  { productId: "product-1", quantity: 3, unitPriceGross: 243.67 },
+]);
 
 const invalidPrice = validForm();
 invalidPrice.set("unitPriceGross", "0");

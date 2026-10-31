@@ -126,20 +126,26 @@ export function InventoryDialog({
     return line.stocks.find((stock) => stock.warehouseId === warehouseId)?.quantity ?? 0;
   }
   // Rezumatul de deasupra listei: verifici diferențele înainte să salvezi.
-  const summary = lines.reduce(
-    (total, line) => {
-      if (!line.productId) return total;
-      total.products += 1;
-      const system = systemQuantity(line);
-      const counted = Number(line.counted);
-      if (system === null || line.counted === "" || !Number.isFinite(counted)) return total;
-      const difference = counted - system;
-      if (difference > 0) total.plus += difference;
-      if (difference < 0) total.minus -= difference;
-      return total;
-    },
-    { products: 0, plus: 0, minus: 0 },
-  );
+  // Aceeași piesă pe mai multe rânduri contează o dată, cu numărul adunat —
+  // exact cum se salvează.
+  const byProduct = new Map<string, { system: number | null; counted: number; filled: boolean }>();
+  for (const line of lines) {
+    if (!line.productId) continue;
+    const entry = byProduct.get(line.productId) ?? { system: systemQuantity(line), counted: 0, filled: false };
+    const counted = Number(line.counted);
+    if (line.counted !== "" && Number.isFinite(counted)) {
+      entry.counted += counted;
+      entry.filled = true;
+    }
+    byProduct.set(line.productId, entry);
+  }
+  const summary = { products: byProduct.size, plus: 0, minus: 0 };
+  for (const entry of byProduct.values()) {
+    if (entry.system === null || !entry.filled) continue;
+    const difference = entry.counted - entry.system;
+    if (difference > 0) summary.plus += difference;
+    if (difference < 0) summary.minus -= difference;
+  }
 
   function addLine() {
     const id = nextLineId.current;
@@ -284,9 +290,6 @@ export function InventoryDialog({
                       initialProduct={
                         line.productId ? { id: line.productId, label: line.label } : null
                       }
-                      excludedProductIds={lines
-                        .filter((item) => item.id !== line.id)
-                        .map((item) => item.productId)}
                       onSelect={(product) =>
                         patchLine(line.id, {
                           productId: product.id,
@@ -311,7 +314,23 @@ export function InventoryDialog({
                       value={line.counted}
                       onChange={(event) => patchLine(line.id, { counted: event.currentTarget.value })}
                     />
-                    <CountDifference system={systemQuantity(line)} counted={line.counted} />
+                    {/* Aceeași piesă pe mai multe rânduri (rafturi): la salvare se adună,
+                        deci diferența se arată pe totalul lor. */}
+                    {(() => {
+                      const twins = line.productId ? lines.filter((item) => item.productId === line.productId) : [];
+                      if (twins.length < 2) {
+                        return <CountDifference system={systemQuantity(line)} counted={line.counted} />;
+                      }
+                      const total = twins.reduce((sum, item) => sum + (Number(item.counted) || 0), 0);
+                      return (
+                        <>
+                          <span className="text-xs font-medium text-[#1d4ed8]">
+                            + încă {twins.length - 1} {twins.length === 2 ? "rând" : "rânduri"} · se adună: {total} buc.
+                          </span>
+                          <CountDifference system={systemQuantity(line)} counted={String(total)} />
+                        </>
+                      );
+                    })()}
                     {/* Numărat deja în ultima perioadă: nu-l număra de două ori. */}
                     {line.productId && warehouseId === defaultWarehouseId && alreadyCounted?.[line.productId] ? (
                       <span className="text-xs font-medium text-[#b45309]">

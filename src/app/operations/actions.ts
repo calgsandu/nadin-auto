@@ -46,6 +46,7 @@ import {
   ensureWarehouseStockRows,
   syncProductAggregateStocks,
 } from "@/lib/operations/stock-mutations";
+import { mergeLinesByProduct } from "@/lib/operations/merge-lines";
 
 export type OperationActionState = {
   ok: boolean;
@@ -383,8 +384,7 @@ export async function createReturnAction(
       throw new Error("Alege vânzarea pentru retur.");
     }
 
-    const selectedProducts = new Set<string>();
-    const lines = productIds.flatMap((rawProductId, index) => {
+    const parsedLines = productIds.flatMap((rawProductId, index) => {
       const productId = rawProductId.trim();
       const rawQuantity = (quantities[index] ?? "").trim();
       const quantity = Number(rawQuantity);
@@ -397,14 +397,10 @@ export async function createReturnAction(
           `Cantitatea de retur de pe poziția ${index + 1} trebuie să fie un număr întreg pozitiv.`,
         );
       }
-      if (selectedProducts.has(productId)) {
-        throw new Error(
-          `Produsul de pe poziția ${index + 1} este adăugat de mai multe ori.`,
-        );
-      }
-      selectedProducts.add(productId);
       return [{ productId, quantity }];
     });
+    // Același produs de două ori: un singur rând, cantitățile adunate.
+    const lines = mergeLinesByProduct(parsedLines, (line) => line.productId);
 
     if (lines.length === 0) {
       throw new Error("Alege cel puțin un produs cu cantitate pentru retur.");
@@ -541,8 +537,10 @@ export async function createInventoryAction(
       throw new Error("Alege depozitul inventariat.");
     }
 
-    const seen = new Set<string>();
-    const lines = productIds.map((rawProductId, index) => {
+    const filledProducts = new Set(
+      productIds.filter((_, index) => (countedValues[index] ?? "").trim() !== "").map((id) => id.trim()),
+    );
+    const parsedLines = productIds.flatMap((rawProductId, index) => {
       const productId = rawProductId.trim();
       const rawCounted = (countedValues[index] ?? "").trim();
       const counted = Number(rawCounted);
@@ -550,18 +548,20 @@ export async function createInventoryAction(
         throw new Error(`Alege produsul de pe poziția ${index + 1}.`);
       }
       // Gol ≠ zero: Number("") ar fi 0 și ar goli stocul unei piese nenumărate.
+      // Un rând gol în plus pentru o piesă numărată pe alt rând doar se ignoră.
       if (rawCounted === "") {
+        if (filledProducts.has(productId)) return [];
         throw new Error(`Scrie cantitatea numărată pe poziția ${index + 1} (sau șterge rândul).`);
-      }
-      if (seen.has(productId)) {
-        throw new Error(`Produsul de pe poziția ${index + 1} este adăugat de mai multe ori.`);
       }
       if (!Number.isInteger(counted) || counted < 0) {
         throw new Error(`Cantitatea numărată de pe poziția ${index + 1} nu este validă.`);
       }
-      seen.add(productId);
-      return { productId, counted };
+      return [{ productId, quantity: counted }];
     });
+    // Aceeași piesă numărată pe două rânduri (două rafturi): se adună.
+    const lines = mergeLinesByProduct(parsedLines, (line) => line.productId).map(
+      ({ productId, quantity }) => ({ productId, counted: quantity }),
+    );
 
     if (lines.length === 0) {
       throw new Error("Adaugă cel puțin un produs numărat.");

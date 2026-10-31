@@ -15,6 +15,7 @@ import {
   DrawerTotal,
   OperationDrawer,
   focusFirstLineSearch,
+  highlightMergedLine,
   handleEnterNavigation,
   useDrawerAction,
   useOpenFromUrl,
@@ -33,6 +34,7 @@ import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
 import { formatDateInputValue } from "@/lib/operations/date-input";
 import { PRICE_CATEGORIES, applyDiscount } from "@/lib/operations/sale-pricing";
 import { DEFAULT_QUANTITY, quantityAfterSelect } from "@/lib/operations/default-quantity";
+import { mergeSelectionIntoExisting } from "@/lib/operations/merge-lines";
 import type { RestockTransferPrefill } from "@/lib/operations/restock";
 
 export type WarehouseOption = {
@@ -179,6 +181,13 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
 
   /** Prețul recepționat pornește de la costul curent și, dacă diferă, îl înlocuiește. */
   function selectReceiptProduct(id: number, productId: string, cost: string, label: string) {
+    // Piesa e deja pe alt rând: cantitatea se adună acolo, rândul ăsta dispare.
+    const merged = mergeSelectionIntoExisting(lines, id, productId, quantityAfterSelect(productId));
+    if (merged) {
+      setLines(merged.lines);
+      highlightMergedLine(merged.mergedInto);
+      return;
+    }
     setLines((current) =>
       current.map((line) =>
         line.id === id
@@ -311,6 +320,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                     return (
                     <div
                       key={line.id}
+                      data-line-id={line.id}
                       className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
                     >
                       <div>
@@ -318,9 +328,6 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                         <ProductSearchCombobox
                           showHint={false}
                           initialProduct={initialProductOf(line)}
-                          excludedProductIds={lines
-                            .filter((item) => item.id !== line.id)
-                            .map((item) => item.productId)}
                           onSelect={(p) =>
                             selectReceiptProduct(line.id, p.id, p.defaultCostLei, p.label)
                           }
@@ -473,6 +480,12 @@ export function StockTransferDialog({
   }
 
   function setTransferProduct(id: number, productId: string, label: string) {
+    const merged = mergeSelectionIntoExisting(lines, id, productId, quantityAfterSelect(productId));
+    if (merged) {
+      setLines(merged.lines);
+      highlightMergedLine(merged.mergedInto);
+      return;
+    }
     setLines((current) =>
       current.map((line) =>
         line.id === id
@@ -588,6 +601,7 @@ export function StockTransferDialog({
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
+                      data-line-id={line.id}
                       className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
                     >
                       <div>
@@ -595,9 +609,6 @@ export function StockTransferDialog({
                         <ProductSearchCombobox
                           showHint={false}
                           initialProduct={initialProductOf(line)}
-                          excludedProductIds={lines
-                            .filter((item) => item.id !== line.id)
-                            .map((item) => item.productId)}
                           onSelect={(product) =>
                             setTransferProduct(line.id, product.id, product.label)
                           }
@@ -797,6 +808,21 @@ export function StockSaleDialog({
     id: number,
     product: Parameters<typeof productFields>[0],
   ) {
+    const merged = mergeSelectionIntoExisting(
+      lines.filter((line) => !line.external),
+      id,
+      product.id,
+      quantityAfterSelect(product.id),
+    );
+    if (merged) {
+      setLines((current) =>
+        current
+          .filter((line) => line.id !== id)
+          .map((line) => merged.lines.find((item) => item.id === line.id) ?? line),
+      );
+      highlightMergedLine(merged.mergedInto);
+      return;
+    }
     setLines((current) =>
       current.map((line) => (line.id === id ? { ...line, ...productFields(product) } : line)),
     );
@@ -812,10 +838,20 @@ export function StockSaleDialog({
     // Rândurile goale (cel cu care se deschide dialogul) dispar.
     const id = nextLineId.current;
     nextLineId.current += 1;
-    setLines((current) => [
-      { ...emptySaleLine(id), ...productFields(product) },
-      ...current.filter((line) => line.external || line.productId),
-    ]);
+    setLines((current) => {
+      // Produsul e deja în vânzare: încă o bucată pe rândul lui, nu rând nou.
+      if (current.some((line) => !line.external && line.productId === product.id)) {
+        return current.map((line) =>
+          !line.external && line.productId === product.id
+            ? { ...line, qty: String((Number(line.qty) || 0) + 1) }
+            : line,
+        );
+      }
+      return [
+        { ...emptySaleLine(id), ...productFields(product) },
+        ...current.filter((line) => line.external || line.productId),
+      ];
+    });
   }
   useOpenFromUrl(openFromUrl, (params) => {
     setMounted(true);
@@ -1094,7 +1130,7 @@ export function StockSaleDialog({
                     const showStock = Boolean(line.productId) && line.stocks.length > 0;
                     const notEnough = showStock && (Number(line.qty) || 0) > stockHere;
                     return (
-                    <div key={line.id} className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
+                    <div key={line.id} data-line-id={line.id} className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
                         <input name="externalName" type="hidden" value="" />
@@ -1102,7 +1138,6 @@ export function StockSaleDialog({
                         <input name="externalSupplierId" type="hidden" value="" />
                         <input name="externalCostLei" type="hidden" value="" />
                         <ProductSearchCombobox
-                          excludedProductIds={lines.filter((item) => item.id !== line.id).map((item) => item.productId)}
                           initialProduct={initialProductOf(line)}
                           showHint={false}
                           onClear={() => clearProduct(line.id)}

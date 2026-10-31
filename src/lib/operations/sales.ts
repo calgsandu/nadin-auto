@@ -1,3 +1,5 @@
+import { mergeLinesByProduct, mergedUnitPrice } from "@/lib/operations/merge-lines";
+
 export type SaleLine = {
   /// null = linie externă: piesă de la furnizor, în afara catalogului propriu.
   productId: string | null;
@@ -22,9 +24,8 @@ export function parseSaleLines(input: {
     throw new Error("Adaugă cel puțin un produs în vânzare.");
   }
 
-  const seenProducts = new Set<string>();
 
-  return input.productIds.map((rawProductId, index) => {
+  const lines: SaleLine[] = input.productIds.map((rawProductId, index) => {
     const position = index + 1;
     const productId = rawProductId.trim();
     const externalName = (input.externalNames?.[index] ?? "").trim();
@@ -38,9 +39,6 @@ export function parseSaleLines(input: {
       throw new Error(`Alege produsul de pe poziția ${position}.`);
     }
 
-    if (productId && seenProducts.has(productId)) {
-      throw new Error(`Produsul de pe poziția ${position} este adăugat de mai multe ori.`);
-    }
 
     if (!Number.isInteger(quantity) || quantity <= 0) {
       throw new Error(
@@ -56,9 +54,6 @@ export function parseSaleLines(input: {
       throw new Error(`Costul de pe poziția ${position} nu este valid.`);
     }
 
-    if (productId) {
-      seenProducts.add(productId);
-    }
     return {
       productId: productId || null,
       externalName: productId ? null : externalName,
@@ -73,6 +68,13 @@ export function parseSaleLines(input: {
       unitPriceEuro,
     };
   });
+  // Același produs de două ori: un singur rând, cantitățile adunate.
+  return mergeLinesByProduct(lines, (line) => line.productId, (kept, duplicate) => ({
+    unitPriceEuro: mergedUnitPrice(
+      { quantity: kept.quantity, price: kept.unitPriceEuro },
+      { quantity: duplicate.quantity, price: duplicate.unitPriceEuro },
+    ),
+  }));
 }
 
 export function calculateSaleTotalEuro(lines: SaleLine[]) {

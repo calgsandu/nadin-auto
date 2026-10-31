@@ -1,3 +1,5 @@
+import { mergeLinesByProduct, mergedUnitPrice } from "@/lib/operations/merge-lines";
+
 export type PaymentAccountInput = {
   warehouseId: string;
   partnerId: string;
@@ -52,17 +54,13 @@ export function parsePaymentAccountForm(formData: FormData): PaymentAccountInput
   const prices = formData.getAll("unitPriceGross").map(String);
   if (productIds.length === 0) throw new Error("Adaugă cel puțin un produs.");
 
-  const seen = new Set<string>();
-  const lines = productIds.map((rawProductId, index) => {
+  const parsedLines = productIds.map((rawProductId, index) => {
     const position = index + 1;
     const productId = rawProductId.trim();
     const quantity = Number(quantities[index] ?? "");
     const unitPriceGross = Number((prices[index] ?? "").trim().replace(",", "."));
 
     if (!productId) throw new Error(`Alege produsul de pe poziția ${position}.`);
-    if (seen.has(productId)) {
-      throw new Error(`Produsul de pe poziția ${position} este adăugat de mai multe ori.`);
-    }
     if (!Number.isInteger(quantity) || quantity <= 0) {
       throw new Error(`Cantitatea de pe poziția ${position} trebuie să fie mai mare decât zero.`);
     }
@@ -70,9 +68,16 @@ export function parsePaymentAccountForm(formData: FormData): PaymentAccountInput
       throw new Error(`Prețul de pe poziția ${position} trebuie să fie mai mare decât zero.`);
     }
 
-    seen.add(productId);
     return { productId, quantity, unitPriceGross };
   });
+  // Același produs de două ori: un singur rând, cantitățile adunate.
+  const lines = mergeLinesByProduct(parsedLines, (line) => line.productId, (kept, duplicate) => ({
+    unitPriceGross:
+      mergedUnitPrice(
+        { quantity: kept.quantity, price: kept.unitPriceGross },
+        { quantity: duplicate.quantity, price: duplicate.unitPriceGross },
+      ) ?? kept.unitPriceGross,
+  }));
 
   return {
     warehouseId,

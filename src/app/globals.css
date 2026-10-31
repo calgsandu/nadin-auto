@@ -386,6 +386,18 @@ a {
   }
 }
 
+/* Rândul în care tocmai s-a adunat o piesă aleasă a doua oară. */
+@keyframes line-merged {
+  from {
+    box-shadow: 0 0 0 2px #2563eb;
+    background-color: #eff6ff;
+  }
+}
+
+.line-merged {
+  animation: line-merged 1.6s ease-out;
+}
+
 /*
  * Pe telefon un rând de produs era o coloană lungă: produs, cantitate, preț,
  * sumă, coș — fiecare pe toată lățimea. Acum produsul stă sus, iar câmpurile

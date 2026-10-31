@@ -559,6 +559,24 @@ export function focusNextField(from: HTMLElement) {
  * Focus pe căutarea primului rând de produs — rândul nou intră mereu sus, deci
  * după „Adaugă produs" operatorul scrie direct, fără drum cu mouse-ul.
  */
+/**
+ * Piesa aleasă era deja pe alt rând și s-a adunat acolo: rândul acela se
+ * aprinde scurt, iar focusul trece pe cantitatea lui (rândul nou a dispărut).
+ */
+export function highlightMergedLine(lineId: number) {
+  requestAnimationFrame(() => {
+    const line = document.querySelector<HTMLElement>(`[data-line-id="${lineId}"]`);
+    if (!line) return;
+    const quantity = line.querySelector<HTMLInputElement>('input[name="quantity"], input[name="countedQuantity"]');
+    quantity?.focus();
+    quantity?.select();
+    line.classList.remove("line-merged");
+    void line.offsetWidth;
+    line.classList.add("line-merged");
+    window.setTimeout(() => line.classList.remove("line-merged"), 1600);
+  });
+}
+
 export function focusFirstLineSearch() {
   requestAnimationFrame(() => {
     document

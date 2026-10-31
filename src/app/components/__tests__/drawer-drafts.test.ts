@@ -95,18 +95,17 @@ for (const file of [
   assert.match(source, /matchesLineFilter\(filter, line\)/, `${file}: filtrul nu ascunde rândurile`);
 }
 
-// Un produs deja pus pe o linie nu mai apare în căutarea celorlalte linii.
-for (const file of [
-  "src/app/operations/inventory-dialog.tsx",
-  "src/app/operations/document-row-actions.tsx",
-  "src/app/operations/stock-document-dialog.tsx",
-]) {
-  assert.match(
-    read(file),
-    /excludedProductIds=\{/,
-    `${file}: produsele deja adăugate trebuie excluse din căutare`,
-  );
-}
+// Același produs ales a doua oară nu mai e ascuns și nu dă eroare: la vânzare,
+// recepție și transfer se adună pe rândul existent; la inventar rămân rândurile
+// (rafturi diferite) și se adună la salvare.
+const stockDialog = read("src/app/operations/stock-document-dialog.tsx");
+assert.doesNotMatch(stockDialog, /excludedProductIds=\{/, "vânzarea/recepția/transferul nu mai ascund produsele adăugate");
+assert.equal(stockDialog.match(/mergeSelectionIntoExisting\(/g)?.length, 3, "vânzare, recepție și transfer adună dublurile");
+const inventoryDialog = read("src/app/operations/inventory-dialog.tsx");
+assert.doesNotMatch(inventoryDialog, /excludedProductIds=\{/, "inventarul nu mai ascunde produsele adăugate");
+assert.match(inventoryDialog, /se adună:/, "inventarul arată că rândurile aceleiași piese se adună");
+// Editarea unui document salvat păstrează excluderea; serverul oricum unește dublurile.
+assert.match(read("src/app/operations/document-row-actions.tsx"), /excludedProductIds=\{/);
 
 const combobox = read("src/app/operations/product-search-combobox.tsx");
 // Lista de rezultate stă într-un portal: drawerul cu overflow-y-auto o tăia.
