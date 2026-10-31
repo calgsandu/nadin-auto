@@ -388,10 +388,7 @@ export async function createReturnAction(
       const productId = rawProductId.trim();
       const rawQuantity = (quantities[index] ?? "").trim();
       const quantity = Number(rawQuantity);
-      if (!rawQuantity || quantity === 0) return [];
-      if (!productId) {
-        throw new Error(`Produs lipsă pe poziția ${index + 1}.`);
-      }
+      if (!rawQuantity || quantity === 0 || !productId) return [];
       if (!Number.isInteger(quantity) || quantity < 0) {
         throw new Error(
           `Cantitatea de retur de pe poziția ${index + 1} trebuie să fie un număr întreg pozitiv.`,
@@ -542,17 +539,13 @@ export async function createInventoryAction(
     }
 
     const seen = new Set<string>();
-    const lines = productIds.map((rawProductId, index) => {
+    const lines = productIds.flatMap((rawProductId, index) => {
       const productId = rawProductId.trim();
       const rawCounted = (countedValues[index] ?? "").trim();
       const counted = Number(rawCounted);
-      if (!productId) {
-        throw new Error(`Alege produsul de pe poziția ${index + 1}.`);
-      }
-      // Gol ≠ zero: Number("") ar fi 0 și ar goli stocul unei piese nenumărate.
-      if (rawCounted === "") {
-        throw new Error(`Scrie cantitatea numărată pe poziția ${index + 1} (sau șterge rândul).`);
-      }
+      // Rând lăsat gol (fără produs sau fără număr): se scoate singur, nu
+      // blochează salvarea. Gol ≠ zero: piesa nenumărată nu-și pierde stocul.
+      if (!productId || rawCounted === "") return [];
       if (seen.has(productId)) {
         throw new Error(`Produsul de pe poziția ${index + 1} este adăugat de mai multe ori.`);
       }
@@ -560,7 +553,7 @@ export async function createInventoryAction(
         throw new Error(`Cantitatea numărată de pe poziția ${index + 1} nu este validă.`);
       }
       seen.add(productId);
-      return { productId, counted };
+      return [{ productId, counted }];
     });
 
     if (lines.length === 0) {

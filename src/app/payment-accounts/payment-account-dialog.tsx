@@ -265,7 +265,7 @@ export function PaymentAccountDialog({
                               className={inputClassName}
                               min={1}
                               name="quantity"
-                              required
+                              required={Boolean(line.productId)}
                               type="number"
                               value={line.quantity}
                               onChange={(event) => updateLine(line.id, { quantity: event.currentTarget.value })}
@@ -276,7 +276,7 @@ export function PaymentAccountDialog({
                               className={inputClassName}
                               min="0.01"
                               name="unitPriceGross"
-                              required
+                              required={Boolean(line.productId)}
                               step="0.01"
                               type="number"
                               value={line.price}

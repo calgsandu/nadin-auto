@@ -31,13 +31,17 @@ assert.throws(
   /Produsul de pe poziția 2 este adăugat de mai multe ori/,
 );
 
+// Rândul adăugat dar lăsat fără produs se scoate singur, nu blochează salvarea.
+assert.deepEqual(
+  parseTransferLines({
+    productIds: ["product-a", ""],
+    quantities: ["1", ""],
+  }),
+  [{ productId: "product-a", quantity: 1 }],
+);
 assert.throws(
-  () =>
-    parseTransferLines({
-      productIds: ["product-a", ""],
-      quantities: ["1", "2"],
-    }),
-  /Alege produsul de pe poziția 2/,
+  () => parseTransferLines({ productIds: [""], quantities: [""] }),
+  /Adaugă cel puțin un produs în transfer/,
 );
 
 console.log("transfer lines tests passed");

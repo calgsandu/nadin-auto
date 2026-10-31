@@ -249,14 +249,15 @@ export async function updateDocumentLinesAction(
     }
 
     const seenProducts = new Set<string>();
-    const formLines = productIds.map((productId, i) => {
+    const formLines = productIds.flatMap((productId, i) => {
       const quantity = Number(quantities[i]);
       const raw = (prices[i] ?? "").trim().replace(",", ".");
       const price = raw ? Number(raw) : null;
       const externalName = externalNames[i] ?? "";
       const rawCost = (externalCosts[i] ?? "").trim().replace(",", ".");
       const externalCost = rawCost ? Number(rawCost) : null;
-      if (!productId && !externalName) throw new Error(`Produs lipsă pe poziția ${i + 1}.`);
+      // Rând adăugat dar lăsat gol: se scoate singur, nu blochează salvarea.
+      if (!productId && !externalName) return [];
       if (productId && seenProducts.has(productId)) {
         throw new Error(`Produsul de pe poziția ${i + 1} este adăugat de mai multe ori.`);
       }
@@ -272,7 +273,7 @@ export async function updateDocumentLinesAction(
         throw new Error(`Cost invalid pe poziția ${i + 1}.`);
       }
       if (productId) seenProducts.add(productId);
-      return {
+      return [{
         productId: productId || null,
         externalName: productId ? null : externalName || null,
         externalCode: productId ? null : externalCodes[i] || null,
@@ -280,7 +281,7 @@ export async function updateDocumentLinesAction(
         externalCost: productId ? null : externalCost,
         quantity,
         price,
-      };
+      }];
     });
     if (formLines.length === 0) throw new Error("Documentul trebuie să aibă cel puțin un produs.");
 

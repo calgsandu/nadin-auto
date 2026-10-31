@@ -333,7 +333,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                           inputMode="numeric"
                           min={1}
                           name="quantity"
-                          required
+                          required={Boolean(line.productId)}
                           type="number"
                           value={line.qty}
                           onChange={(e) => setLineField(line.id, "qty", e.currentTarget.value)}
@@ -610,7 +610,7 @@ export function StockTransferDialog({
                           inputMode="numeric"
                           min={1}
                           name="quantity"
-                          required
+                          required={Boolean(line.productId)}
                           type="number"
                           value={line.qty}
                           onChange={(event) => setTransferQty(line.id, event.currentTarget.value)}
@@ -1015,7 +1015,7 @@ export function StockSaleDialog({
                               className={inputClassName}
                               name="externalName"
                               placeholder="Denumire piesă"
-                              required
+                              required={externalLineFilled(line)}
                               value={line.name}
                               onChange={(e) => setLineField(line.id, "name", e.currentTarget.value)}
                             />
@@ -1024,7 +1024,7 @@ export function StockSaleDialog({
                             <input
                               className={inputClassName}
                               name="externalCode"
-                              required
+                              required={externalLineFilled(line)}
                               value={line.code}
                               onChange={(e) => setLineField(line.id, "code", e.currentTarget.value)}
                             />
@@ -1045,7 +1045,7 @@ export function StockSaleDialog({
                               inputMode="numeric"
                               min={1}
                               name="quantity"
-                              required
+                              required={externalLineFilled(line)}
                               type="number"
                               value={line.qty}
                               onChange={(e) => setLineField(line.id, "qty", e.currentTarget.value)}
@@ -1069,7 +1069,7 @@ export function StockSaleDialog({
                               inputMode="decimal"
                               min={0}
                               name="unitPriceEuro"
-                              required
+                              required={externalLineFilled(line)}
                               step="0.01"
                               type="number"
                               value={line.price}
@@ -1134,7 +1134,7 @@ export function StockSaleDialog({
                           inputMode="numeric"
                           min={1}
                           name="quantity"
-                          required
+                          required={Boolean(line.productId)}
                           type="number"
                           value={line.qty}
                           onChange={(e) => setLineField(line.id, "qty", e.currentTarget.value)}
@@ -1251,3 +1251,8 @@ const primaryButtonClassName =
   "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]";
 const secondaryButtonClassName = drawerSecondaryButton;
 const dangerButtonClassName = drawerDangerButton;
+
+/** Piesă externă începută (s-a scris ceva pe rând): abia atunci câmpurile ei sunt obligatorii. */
+function externalLineFilled(line: { name: string; code: string; cost: string }) {
+  return Boolean(line.name.trim() || line.code.trim() || line.cost.trim());
+}

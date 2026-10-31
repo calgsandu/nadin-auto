@@ -306,7 +306,6 @@ export function InventoryDialog({
                       inputMode="numeric"
                       min={0}
                       name="countedQuantity"
-                      required
                       type="number"
                       value={line.counted}
                       onChange={(event) => patchLine(line.id, { counted: event.currentTarget.value })}

@@ -13,14 +13,13 @@ export function parseTransferLines(input: {
 
   const seenProducts = new Set<string>();
 
-  return input.productIds.map((rawProductId, index) => {
+  const lines = input.productIds.flatMap((rawProductId, index) => {
     const position = index + 1;
     const productId = rawProductId.trim();
     const quantity = Number(input.quantities[index] ?? "");
 
-    if (!productId) {
-      throw new Error(`Alege produsul de pe poziția ${position}.`);
-    }
+    // Rând adăugat dar lăsat gol (fără produs): se scoate singur, nu blochează salvarea.
+    if (!productId) return [];
 
     if (seenProducts.has(productId)) {
       throw new Error(`Produsul de pe poziția ${position} este adăugat de mai multe ori.`);
@@ -33,6 +32,10 @@ export function parseTransferLines(input: {
     }
 
     seenProducts.add(productId);
-    return { productId, quantity };
+    return [{ productId, quantity }];
   });
+  if (lines.length === 0) {
+    throw new Error("Adaugă cel puțin un produs în transfer.");
+  }
+  return lines;
 }

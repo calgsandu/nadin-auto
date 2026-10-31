@@ -75,7 +75,8 @@ assert.throws(
       unitPricesEuro: ["10"],
       externalNames: [""],
     }),
-  /Alege produsul de pe poziția 1/,
+  // Singurul rând e gol: se scoate, deci nu rămâne nimic de vândut.
+  /Adaugă cel puțin un produs în vânzare/,
 );
 
 assert.throws(

@@ -46,14 +46,18 @@ assert.throws(
   /Produsul de pe poziția 2 este adăugat de mai multe ori/,
 );
 
+// Rândul adăugat dar lăsat fără produs se scoate singur, nu blochează salvarea.
+assert.deepEqual(
+  parseReceiptLines({
+    productIds: ["product-a", ""],
+    quantities: ["1", ""],
+    unitCostsLei: ["", ""],
+  }),
+  [{ productId: "product-a", quantity: 1, unitCostLei: null }],
+);
 assert.throws(
-  () =>
-    parseReceiptLines({
-      productIds: ["product-a", ""],
-      quantities: ["1", "2"],
-      unitCostsLei: ["", ""],
-    }),
-  /Alege produsul de pe poziția 2/,
+  () => parseReceiptLines({ productIds: [""], quantities: [""], unitCostsLei: [""] }),
+  /Adaugă cel puțin un produs în recepție/,
 );
 
 console.log("receipt lines tests passed");

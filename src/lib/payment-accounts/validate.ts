@@ -53,13 +53,14 @@ export function parsePaymentAccountForm(formData: FormData): PaymentAccountInput
   if (productIds.length === 0) throw new Error("Adaugă cel puțin un produs.");
 
   const seen = new Set<string>();
-  const lines = productIds.map((rawProductId, index) => {
+  const lines = productIds.flatMap((rawProductId, index) => {
     const position = index + 1;
     const productId = rawProductId.trim();
     const quantity = Number(quantities[index] ?? "");
     const unitPriceGross = Number((prices[index] ?? "").trim().replace(",", "."));
 
-    if (!productId) throw new Error(`Alege produsul de pe poziția ${position}.`);
+    // Rând adăugat dar lăsat gol: se scoate singur, nu blochează salvarea.
+    if (!productId) return [];
     if (seen.has(productId)) {
       throw new Error(`Produsul de pe poziția ${position} este adăugat de mai multe ori.`);
     }
@@ -71,8 +72,9 @@ export function parsePaymentAccountForm(formData: FormData): PaymentAccountInput
     }
 
     seen.add(productId);
-    return { productId, quantity, unitPriceGross };
+    return [{ productId, quantity, unitPriceGross }];
   });
+  if (lines.length === 0) throw new Error("Adaugă cel puțin un produs.");
 
   return {
     warehouseId,

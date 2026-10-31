@@ -15,16 +15,15 @@ export function parseReceiptLines(input: {
 
   const seenProducts = new Set<string>();
 
-  return input.productIds.map((rawProductId, index) => {
+  const lines = input.productIds.flatMap((rawProductId, index) => {
     const position = index + 1;
     const productId = rawProductId.trim();
     const quantity = Number(input.quantities[index] ?? "");
     const rawUnitCost = (input.unitCostsLei[index] ?? "").trim().replace(",", ".");
     const unitCostLei = rawUnitCost ? Number(rawUnitCost) : null;
 
-    if (!productId) {
-      throw new Error(`Alege produsul de pe poziția ${position}.`);
-    }
+    // Rând adăugat dar lăsat gol (fără produs): se scoate singur, nu blochează salvarea.
+    if (!productId) return [];
 
     if (seenProducts.has(productId)) {
       throw new Error(`Produsul de pe poziția ${position} este adăugat de mai multe ori.`);
@@ -41,8 +40,12 @@ export function parseReceiptLines(input: {
     }
 
     seenProducts.add(productId);
-    return { productId, quantity, unitCostLei };
+    return [{ productId, quantity, unitCostLei }];
   });
+  if (lines.length === 0) {
+    throw new Error("Adaugă cel puțin un produs în recepție.");
+  }
+  return lines;
 }
 
 export function calculateReceiptTotalLei(lines: ReceiptLine[]) {

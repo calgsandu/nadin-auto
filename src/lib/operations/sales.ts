@@ -24,7 +24,7 @@ export function parseSaleLines(input: {
 
   const seenProducts = new Set<string>();
 
-  return input.productIds.map((rawProductId, index) => {
+  const lines = input.productIds.flatMap((rawProductId, index): SaleLine[] => {
     const position = index + 1;
     const productId = rawProductId.trim();
     const externalName = (input.externalNames?.[index] ?? "").trim();
@@ -34,9 +34,9 @@ export function parseSaleLines(input: {
     const rawCost = (input.externalCostsLei?.[index] ?? "").trim().replace(",", ".");
     const unitCostLei = rawCost ? Number(rawCost) : null;
 
-    if (!productId && !externalName) {
-      throw new Error(`Alege produsul de pe poziția ${position}.`);
-    }
+    // Rând adăugat dar lăsat gol (nici produs, nici piesă externă): se scoate
+    // singur, nu blochează salvarea.
+    if (!productId && !externalName) return [];
 
     if (productId && seenProducts.has(productId)) {
       throw new Error(`Produsul de pe poziția ${position} este adăugat de mai multe ori.`);
@@ -59,7 +59,7 @@ export function parseSaleLines(input: {
     if (productId) {
       seenProducts.add(productId);
     }
-    return {
+    return [{
       productId: productId || null,
       externalName: productId ? null : externalName,
       externalCode: productId
@@ -71,8 +71,12 @@ export function parseSaleLines(input: {
       unitCostLei: productId ? null : unitCostLei,
       quantity,
       unitPriceEuro,
-    };
+    }];
   });
+  if (lines.length === 0) {
+    throw new Error("Adaugă cel puțin un produs în vânzare.");
+  }
+  return lines;
 }
 
 export function calculateSaleTotalEuro(lines: SaleLine[]) {
