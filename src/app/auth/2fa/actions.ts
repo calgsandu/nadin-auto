@@ -54,7 +54,14 @@ export async function activateTwoFactorEnrollmentAction(
   _previous: TwoFactorFormState,
   formData: FormData,
 ): Promise<TwoFactorFormState> {
-  const primary = await getPrimaryAuthContext();
+  // Un eșec al serviciului de sesiune devine mesaj în formular, nu ecranul
+  // „Ceva n-a mers" (codul tastat rămâne, se poate apăsa din nou).
+  let primary: Awaited<ReturnType<typeof getPrimaryAuthContext>>;
+  try {
+    primary = await getPrimaryAuthContext();
+  } catch (error) {
+    return safeTwoFactorError(error);
+  }
   if (!primary) return { ok: false, message: "Sesiunea a expirat. Autentifică-te din nou." };
 
   try {
@@ -73,7 +80,14 @@ export async function confirmTwoFactorEnrollmentAction(
   _previous: TwoFactorFormState,
   formData: FormData,
 ): Promise<TwoFactorFormState> {
-  const primary = await getPrimaryAuthContext();
+  // Un eșec al serviciului de sesiune devine mesaj în formular, nu ecranul
+  // „Ceva n-a mers" (codul tastat rămâne, se poate apăsa din nou).
+  let primary: Awaited<ReturnType<typeof getPrimaryAuthContext>>;
+  try {
+    primary = await getPrimaryAuthContext();
+  } catch (error) {
+    return safeTwoFactorError(error);
+  }
   if (!primary) return { ok: false, message: "Sesiunea a expirat. Autentifică-te din nou." };
 
   const credentialId = String(formData.get("credentialId") ?? "").trim();
@@ -116,7 +130,14 @@ export async function verifyTwoFactorAction(
   _previous: TwoFactorFormState,
   formData: FormData,
 ): Promise<TwoFactorFormState> {
-  const primary = await getPrimaryAuthContext();
+  // Un eșec al serviciului de sesiune devine mesaj în formular, nu ecranul
+  // „Ceva n-a mers" (codul tastat rămâne, se poate apăsa din nou).
+  let primary: Awaited<ReturnType<typeof getPrimaryAuthContext>>;
+  try {
+    primary = await getPrimaryAuthContext();
+  } catch (error) {
+    return safeTwoFactorError(error);
+  }
   if (!primary) return { ok: false, message: "Sesiunea a expirat. Autentifică-te din nou." };
 
   const credentialId = String(formData.get("credentialId") ?? "").trim();

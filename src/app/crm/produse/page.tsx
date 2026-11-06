@@ -126,7 +126,8 @@ function ProductWorkspace({
                       </TableHead>
                     ) : null}
                     <TableHead className="max-sm:hidden">Cod</TableHead>
-                    <TableHead className="sm:min-w-[18rem]">Mașină și piesă</TableHead>
+                    <TableHead className="sm:min-w-[16rem]">Piesă</TableHead>
+                    <TableHead className="max-sm:hidden">Mașină și ani</TableHead>
                     <TableHead align="right" className="max-sm:hidden">Preț vânzare</TableHead>
                     <TableHead align="right" className="max-sm:hidden">Stoc</TableHead>
                     {canModify ? <TableHead align="right" secondary>Cost aducere</TableHead> : null}
@@ -172,7 +173,11 @@ function ProductWorkspace({
   );
 }
 
-/** Stocul ca etichetă cu punct: verde în stoc, galben aproape terminat, roșu lipsă. */
+/**
+ * Stocul ca etichetă cu punct: verde în stoc, albastru aproape terminat, roșu
+ * lipsă. Albastru, nu galben: pe monitorul din magazin galbenul-portocaliu și
+ * roșul se confundau.
+ */
 function StockCount({ stock, minStock }: { stock: number | null; minStock: number | null }) {
   const value = stock ?? 0;
   // Același prag ca filtrul „aproape terminate": minStock, implicit 3.
@@ -180,7 +185,7 @@ function StockCount({ stock, minStock }: { stock: number | null; minStock: numbe
     value <= 0
       ? "bg-[#fef2f2] text-[#b91c1c] ring-[#fecaca]"
       : value <= (minStock ?? 3)
-        ? "bg-[#fffbeb] text-[#b45309] ring-[#fde68a]"
+        ? "bg-[#eff6ff] text-[#1d4ed8] ring-[#bfdbfe]"
         : "bg-[#f0fdf4] text-[#166534] ring-[#bbf7d0]";
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[13px] font-semibold tabular-nums ring-1 ring-inset ${tone}`}>
@@ -215,6 +220,14 @@ function ProductRow({
       yearOpenEnded: fitment.yearOpenEnded,
     })),
   );
+  // TOATE mașinile, fiecare pe rândul ei — un „+1" ascundea gemenii
+  // (Sprinter ↔ Crafter) și părea că s-au șters. Cea căutată vine prima.
+  // Cu filtrul de marcă pus, marca nu se mai repetă pe fiecare rând.
+  const filteredBrand = catalog.brands.find((brand) => brand.id === catalog.params.brand)?.name;
+  const cars = matchingFirst(compatibilities, catalog.params.q).map((compatibility) => ({
+    ...compatibility,
+    title: withoutBrand(compatibility.title, filteredBrand),
+  }));
 
   return (
     <tr className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
@@ -246,39 +259,32 @@ function ProductRow({
         ) : null}
       </TableCell>
       <TableCell>
-        {/* Pe telefon coloanele Cod / Preț / Stoc nu încap: codul vine deasupra,
-            prețul și stocul dedesubt, totul într-un singur bloc. */}
+        {/* Pe telefon coloanele Cod / Mașină / Preț / Stoc nu încap: codul vine
+            deasupra, mașinile, prețul și stocul dedesubt, totul într-un bloc. */}
         {product.externalCode ? (
           <CopyCode code={product.externalCode} className="mb-1 font-mono text-[15px] font-bold text-[#18181b] sm:hidden" />
         ) : null}
-        {/* Întâi mașina (după ea întreabă clientul), apoi piesa. Click: fișa cu
+        {/* Piesa e ce se citește întâi (ca în 1C): „Panou lateral L" mare, nu
+            pierdut sub „MERCEDES-BENZ …" repetat pe fiecare rând. Click: fișa cu
             stocul pe fiecare depozit și toate mașinile. */}
         <ProductPreview product={toPreview(product, catalog, compatibilities)} canModify={canModify} canSell={canSell}>
-          {/* TOATE mașinile, fiecare pe rândul ei — un „+1" ascundea gemenii
-              (Sprinter ↔ Crafter) și părea că s-au șters. Cea căutată vine prima. */}
-          {(compatibilities.length > 0
-            ? matchingFirst(compatibilities, catalog.params.q)
-            : [{ title: "—", years: "" }]
-          ).map((compatibility, index) => (
-            <span
-              key={`${compatibility.title}:${compatibility.years}:${index}`}
-              className="flex items-center gap-1.5 font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline"
-            >
-              <Car className="size-3.5 shrink-0 text-[#a1a1aa]" aria-hidden="true" />
-              {compatibility.title} {compatibility.years}
-            </span>
-          ))}
-          <span className="mt-0.5 block pl-5 text-[#3f3f46]">
+          <span className="block text-[15px] font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
           </span>
         </ProductPreview>
-        <div className="mt-1.5 flex items-center gap-2 pl-5 sm:hidden">
+        <div className="mt-1 sm:hidden">
+          <CarLines lines={cars} />
+        </div>
+        <div className="mt-1.5 flex items-center gap-2 sm:hidden">
           <span className="text-[15px] font-semibold tabular-nums text-[#18181b]">
             {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
           </span>
           <StockCount stock={product.stock} minStock={product.minStock} />
         </div>
+      </TableCell>
+      <TableCell className="max-sm:hidden">
+        <CarLines lines={cars} />
       </TableCell>
       <TableCell align="right" className="text-[15px] max-sm:hidden font-semibold tabular-nums text-[#18181b]">
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
@@ -322,6 +328,31 @@ function ProductRow({
   );
 }
 
+
+/** Mașina și anii, câte una pe rând, mai mici decât piesa. */
+function CarLines({ lines }: { lines: { title: string; years: string }[] }) {
+  if (lines.length === 0) return <span className="text-[#a1a1aa]">—</span>;
+  return (
+    <ul className="space-y-0.5 text-[13px] text-[#52525b]">
+      {lines.map((line, index) => (
+        <li key={`${line.title}:${line.years}:${index}`} className="flex items-center gap-1.5">
+          <Car className="size-3.5 shrink-0 text-[#a1a1aa]" aria-hidden="true" />
+          <span>{line.title}</span>
+          <span className="whitespace-nowrap tabular-nums text-[#71717a]">{line.years}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** „MERCEDES-BENZ SPRINTER 906" → „SPRINTER 906" când marca e deja filtrată. */
+function withoutBrand(title: string, brandName: string | undefined) {
+  if (!brandName) return title;
+  const prefix = `${brandName} `;
+  return title.toLocaleLowerCase("ro").startsWith(prefix.toLocaleLowerCase("ro"))
+    ? title.slice(prefix.length)
+    : title;
+}
 
 /** Mașinile care se potrivesc cu căutarea întâi (caut „crafter" → Crafter sus). */
 function matchingFirst<T extends { title: string }>(lines: T[], query: string | undefined) {

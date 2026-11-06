@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { auth } from "@/lib/auth/server";
 import { findActiveAppUser } from "@/lib/users";
+import { getSessionWithRetry } from "./session-retry";
 import type { PrimaryAuthContext } from "./types";
 
 export type PrimaryAuthResult =
@@ -9,7 +10,7 @@ export type PrimaryAuthResult =
 
 /** `cache` = o singură verificare de sesiune per cerere, oricâți o cer. */
 export const readPrimaryAuthResult = cache(async (): Promise<PrimaryAuthResult> => {
-  const { data, error } = await auth.getSession();
+  const { data, error } = await getSessionWithRetry(() => auth.getSession());
   if (error) {
     // Cauza era aruncată la gunoi, deci un esec de sesiune (Neon Auth pornit
     // la rece, retea cazuta) ajungea pe ecran ca o eroare fara explicatie si
