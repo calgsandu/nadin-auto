@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Car, Printer } from "lucide-react";
+import { Car, ChevronRight, Printer } from "lucide-react";
 import { CopyCode } from "@/app/components/copy-code";
 import { LocalBadge } from "@/app/components/local-badge";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
@@ -59,10 +59,78 @@ export default async function ProductsPage({
         ) : null}
       </CrmHeader>
 
-      <Suspense key={key} fallback={<WorkspaceSkeleton filters={5} rows={8} />}>
-        <ProductWorkspaceLoader catalogPromise={catalogPromise} canModify={canModify} canSell={canSell} />
-      </Suspense>
+      {/* Desktop: arborele Marcă → Model în stânga, ca în 1C. Suspense fără
+          cheie: la un click pe model panoul rămâne pe loc, doar lista se reîncarcă. */}
+      <div className="lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start">
+        <Suspense fallback={<div className="max-lg:hidden" />}>
+          <BrandTreeLoader catalogPromise={catalogPromise} />
+        </Suspense>
+        <div className="min-w-0">
+          <Suspense key={key} fallback={<WorkspaceSkeleton filters={5} rows={8} />}>
+            <ProductWorkspaceLoader catalogPromise={catalogPromise} canModify={canModify} canSell={canSell} />
+          </Suspense>
+        </div>
+      </div>
     </>
+  );
+}
+
+async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<CatalogData> }) {
+  const catalog = await catalogPromise;
+  const { params } = catalog;
+  const href = (brand?: string, model?: string) =>
+    crmCatalogPageHref({ ...params, brand, model, page: undefined });
+  const row = (active: boolean) =>
+    `flex items-center gap-1 rounded-md px-2 py-1 text-[13px] ${
+      active ? "bg-[#eff6ff] font-semibold text-[#1d4ed8]" : "text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+    }`;
+
+  return (
+    <nav
+      aria-label="Mărci și modele"
+      className="sticky top-0 max-h-[100dvh] overflow-y-auto border-r border-[#e4e4e7] py-4 pl-3 pr-2 max-lg:hidden"
+    >
+      <Link href={href()} className={row(!params.brand)} aria-current={!params.brand ? "page" : undefined}>
+        Toate mărcile
+      </Link>
+      <ul className="mt-1 grid gap-px">
+        {catalog.brands.map((brand) => {
+          const open = brand.id === params.brand;
+          return (
+            <li key={brand.id}>
+              {/* Click pe marca deschisă o închide (înapoi la toate). */}
+              <Link
+                href={open ? href() : href(brand.id)}
+                className={row(open && !params.model)}
+                aria-expanded={open}
+                aria-current={open && !params.model ? "page" : undefined}
+              >
+                <ChevronRight
+                  className={`size-3.5 shrink-0 text-[#a1a1aa] transition-transform ${open ? "rotate-90" : ""}`}
+                  aria-hidden="true"
+                />
+                <span className="truncate">{brand.name}</span>
+              </Link>
+              {open ? (
+                <ul className="mb-1 ml-[1.1rem] grid gap-px border-l border-[#e4e4e7] pl-1.5">
+                  {catalog.models.map((model) => (
+                    <li key={model.id}>
+                      <Link
+                        href={href(brand.id, model.id)}
+                        className={row(model.id === params.model)}
+                        aria-current={model.id === params.model ? "page" : undefined}
+                      >
+                        <span className="truncate">{model.name}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }
 

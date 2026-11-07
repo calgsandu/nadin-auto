@@ -98,7 +98,7 @@ export function CatalogFilters({
         </kbd>
       </div>
       <MobileFilters active={activeFilters}>
-      <label className={pill(Boolean(searchParams.get("brand")))}>
+      <label className={`${pill(Boolean(searchParams.get("brand")))} lg:hidden`}>
         <Tag className="size-4 shrink-0 opacity-70" aria-hidden="true" />
         <span className="sr-only">Brand</span>
         <select
@@ -114,7 +114,7 @@ export function CatalogFilters({
           ))}
         </select>
       </label>
-      <label className={pill(Boolean(searchParams.get("model")))}>
+      <label className={`${pill(Boolean(searchParams.get("model")))} lg:hidden`}>
         <Car className="size-4 shrink-0 opacity-70" aria-hidden="true" />
         <span className="sr-only">Model</span>
         <select
