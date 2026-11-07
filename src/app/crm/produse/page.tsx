@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Car, ChevronRight, Printer } from "lucide-react";
+import { Car, Printer } from "lucide-react";
 import { CopyCode } from "@/app/components/copy-code";
 import { LocalBadge } from "@/app/components/local-badge";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
@@ -59,11 +59,11 @@ export default async function ProductsPage({
         ) : null}
       </CrmHeader>
 
-      {/* Desktop: arborele Marcă → Model în stânga, ca în 1C. Suspense fără
-          cheie: la un click pe model panoul rămâne pe loc, doar lista se reîncarcă. */}
+      {/* Desktop: tipurile de piese în stânga. Suspense fără cheie: la un click
+          panoul rămâne pe loc, doar lista se reîncarcă. */}
       <div className="lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start">
         <Suspense fallback={<div className="max-lg:hidden" />}>
-          <BrandTreeLoader catalogPromise={catalogPromise} />
+          <TypeTreeLoader catalogPromise={catalogPromise} />
         </Suspense>
         <div className="min-w-0">
           <Suspense key={key} fallback={<WorkspaceSkeleton filters={5} rows={8} />}>
@@ -75,57 +75,46 @@ export default async function ProductsPage({
   );
 }
 
-async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<CatalogData> }) {
+/**
+ * Ca la Polcar: mașina se alege sus, iar în stânga stau tipurile de piese care
+ * există pentru ea, cu câte bucăți are fiecare. Click pe tipul ales îl scoate.
+ */
+async function TypeTreeLoader({ catalogPromise }: { catalogPromise: Promise<CatalogData> }) {
   const catalog = await catalogPromise;
-  const { params } = catalog;
-  const href = (brand?: string, model?: string) =>
-    crmCatalogPageHref({ ...params, brand, model, page: undefined });
+  const { params, typeCounts } = catalog;
+  const href = (type?: string) => crmCatalogPageHref({ ...params, type, page: undefined });
+  const types = catalog.types.filter((type) => (typeCounts.get(type.id) ?? 0) > 0);
+  const total = [...typeCounts.values()].reduce((sum, count) => sum + count, 0);
   const row = (active: boolean) =>
-    `flex items-center gap-1 rounded-md px-2 py-1 text-[13px] ${
+    `flex items-center justify-between gap-2 rounded-md px-2 py-1 text-[13px] ${
       active ? "bg-[#eff6ff] font-semibold text-[#1d4ed8]" : "text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#18181b]"
     }`;
+  const count = (value: number) => (
+    <span className="tabular-nums text-xs font-normal text-[#a1a1aa]">{formatNumber(value)}</span>
+  );
 
   return (
     <nav
-      aria-label="Mărci și modele"
+      aria-label="Tipuri de piese"
       className="sticky top-0 max-h-[100dvh] overflow-y-auto border-r border-[#e4e4e7] py-4 pl-3 pr-2 max-lg:hidden"
     >
-      <Link href={href()} className={row(!params.brand)} aria-current={!params.brand ? "page" : undefined}>
-        Toate mărcile
+      <Link href={href()} className={row(!params.type)} aria-current={!params.type ? "page" : undefined}>
+        <span>Toate piesele</span>
+        {count(total)}
       </Link>
       <ul className="mt-1 grid gap-px">
-        {catalog.brands.map((brand) => {
-          const open = brand.id === params.brand;
+        {types.map((type) => {
+          const active = type.id === params.type;
           return (
-            <li key={brand.id}>
-              {/* Click pe marca deschisă o închide (înapoi la toate). */}
+            <li key={type.id}>
               <Link
-                href={open ? href() : href(brand.id)}
-                className={row(open && !params.model)}
-                aria-expanded={open}
-                aria-current={open && !params.model ? "page" : undefined}
+                href={active ? href() : href(type.id)}
+                className={row(active)}
+                aria-current={active ? "page" : undefined}
               >
-                <ChevronRight
-                  className={`size-3.5 shrink-0 text-[#a1a1aa] transition-transform ${open ? "rotate-90" : ""}`}
-                  aria-hidden="true"
-                />
-                <span className="truncate">{brand.name}</span>
+                <span className="truncate">{type.name}</span>
+                {count(typeCounts.get(type.id) ?? 0)}
               </Link>
-              {open ? (
-                <ul className="mb-1 ml-[1.1rem] grid gap-px border-l border-[#e4e4e7] pl-1.5">
-                  {catalog.models.map((model) => (
-                    <li key={model.id}>
-                      <Link
-                        href={href(brand.id, model.id)}
-                        className={row(model.id === params.model)}
-                        aria-current={model.id === params.model ? "page" : undefined}
-                      >
-                        <span className="truncate">{model.name}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
             </li>
           );
         })}

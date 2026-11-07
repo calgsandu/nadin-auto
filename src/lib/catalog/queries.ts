@@ -42,13 +42,15 @@ export async function getCatalogData(
 ) {
   const query = params.q?.trim() ?? "";
   const matchedIds = query ? await findMatchingProductIds(query) : null;
-  const baseWhere = buildProductWhere(params, matchedIds);
   const stockFilter: Prisma.ProductWhereInput[] = [];
   if (options.onlyInStock || params.stoc === "1") stockFilter.push({ stock: { gt: 0 } });
   if (params.stoc === "mic") stockFilter.push(lowStockWhere);
-  const where: Prisma.ProductWhereInput = stockFilter.length > 0
-    ? { AND: [baseWhere, ...stockFilter] }
-    : baseWhere;
+  const withStock = (base: Prisma.ProductWhereInput): Prisma.ProductWhereInput =>
+    stockFilter.length > 0 ? { AND: [base, ...stockFilter] } : base;
+  const where = withStock(buildProductWhere(params, matchedIds));
+  // Panoul de tipuri numără piesele mașinii alese, fără filtrul de tip: altfel
+  // după un click ar rămâne un singur tip în listă.
+  const whereAnyType = withStock(buildProductWhere({ ...params, type: undefined }, matchedIds));
   const page = normalizePage(params.page);
   const skip = (page - 1) * PAGE_SIZE;
 
@@ -59,6 +61,7 @@ export async function getCatalogData(
     models,
     types,
     warehouses,
+    typeCounts,
   ] = await Promise.all([
     prisma.product.findMany({
       where,
@@ -107,6 +110,7 @@ export async function getCatalogData(
       select: { id: true, name: true, isDefault: true },
       orderBy: [{ isDefault: "desc" }, { name: "asc" }],
     }),
+    prisma.product.groupBy({ by: ["typeId"], where: whereAnyType, _count: { _all: true } }),
   ]);
 
   return {
@@ -129,6 +133,7 @@ export async function getCatalogData(
     models,
     types,
     warehouses,
+    typeCounts: new Map(typeCounts.map((row) => [row.typeId, row._count._all])),
   };
 }
 
