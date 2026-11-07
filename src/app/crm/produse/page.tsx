@@ -46,7 +46,7 @@ export default async function ProductsPage({
   });
   // Fără `q`: căutarea filtrează pe măsură ce scrii, iar o cheie nouă ar
   // remonta câmpul (pierde focusul) și ar arăta scheletul la fiecare literă.
-  const key = [params.brand, params.model, params.type, params.year, params.stoc, params.page].join(":");
+  const key = [params.brand, params.model, params.fitment, params.type, params.year, params.stoc, params.page].join(":");
 
   return (
     <>
@@ -169,7 +169,12 @@ function ProductWorkspace({
 
   return (
     <>
-      <CatalogFilters brands={catalog.brands} models={catalog.models} types={catalog.types} />
+      <CatalogFilters
+        brands={catalog.brands}
+        models={catalog.models}
+        fitments={catalog.fitments}
+        types={catalog.types}
+      />
       <section className="motion-page grid grid-cols-1 gap-4 p-3 lg:px-6 lg:py-4">
         <LabelPicker>
           <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
@@ -279,11 +284,14 @@ function ProductRow({
   );
   // TOATE mașinile, fiecare pe rândul ei — un „+1" ascundea gemenii
   // (Sprinter ↔ Crafter) și părea că s-au șters. Cea căutată vine prima.
-  // Cu filtrul de marcă pus, marca nu se mai repetă pe fiecare rând.
+  // Ce e ales sus nu se mai repetă pe fiecare rând: cu marca aleasă dispare
+  // marca, cu modelul ales rămân doar anii.
   const filteredBrand = catalog.brands.find((brand) => brand.id === catalog.params.brand)?.name;
+  const filteredModel = catalog.models.find((model) => model.id === catalog.params.model)?.name;
+  const prefix = filteredBrand && filteredModel ? `${filteredBrand} ${filteredModel}` : filteredBrand;
   const cars = matchingFirst(compatibilities, catalog.params.q).map((compatibility) => ({
     ...compatibility,
-    title: withoutBrand(compatibility.title, filteredBrand),
+    title: withoutPrefix(compatibility.title, prefix),
   }));
 
   return (
@@ -394,7 +402,7 @@ function CarLines({ lines }: { lines: { title: string; years: string }[] }) {
       {lines.map((line, index) => (
         <li key={`${line.title}:${line.years}:${index}`} className="flex items-center gap-1.5">
           <Car className="size-3.5 shrink-0 text-[#a1a1aa]" aria-hidden="true" />
-          <span>{line.title}</span>
+          {line.title ? <span>{line.title}</span> : null}
           <span className="whitespace-nowrap tabular-nums text-[#71717a]">{line.years}</span>
         </li>
       ))}
@@ -402,13 +410,16 @@ function CarLines({ lines }: { lines: { title: string; years: string }[] }) {
   );
 }
 
-/** „MERCEDES-BENZ SPRINTER 906" → „SPRINTER 906" când marca e deja filtrată. */
-function withoutBrand(title: string, brandName: string | undefined) {
-  if (!brandName) return title;
-  const prefix = `${brandName} `;
-  return title.toLocaleLowerCase("ro").startsWith(prefix.toLocaleLowerCase("ro"))
-    ? title.slice(prefix.length)
-    : title;
+/**
+ * „MERCEDES-BENZ SPRINTER 906" → „SPRINTER 906" cu marca aleasă sus; cu și
+ * modelul ales, titlul rămâne gol și se văd doar anii.
+ */
+function withoutPrefix(title: string, prefix: string | undefined) {
+  if (!prefix) return title;
+  const lower = title.toLocaleLowerCase("ro");
+  const wanted = prefix.toLocaleLowerCase("ro");
+  if (lower === wanted) return "";
+  return lower.startsWith(`${wanted} `) ? title.slice(wanted.length + 1) : title;
 }
 
 /** Mașinile care se potrivesc cu căutarea întâi (caut „crafter" → Crafter sus). */

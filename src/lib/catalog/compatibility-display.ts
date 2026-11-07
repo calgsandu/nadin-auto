@@ -38,7 +38,9 @@ export function buildCompatibilityLines(
     }));
 }
 
-function formatCompatibilityYears(compatibility: CompatibilityInput) {
+export function formatCompatibilityYears(
+  compatibility: Pick<CompatibilityInput, "yearStart" | "yearEnd" | "yearOpenEnded">,
+) {
   if (compatibility.yearStart == null) return "—";
   if (compatibility.yearOpenEnded) return `${compatibility.yearStart}–prezent`;
   if (compatibility.yearEnd != null) return `${compatibility.yearStart}–${compatibility.yearEnd}`;

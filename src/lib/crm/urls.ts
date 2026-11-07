@@ -33,6 +33,7 @@ export function crmCatalogPageHref(values: {
   q?: string;
   brand?: string;
   model?: string;
+  fitment?: string;
   type?: string;
   year?: string;
   stoc?: string;
@@ -42,6 +43,7 @@ export function crmCatalogPageHref(values: {
     q: values.q,
     brand: values.brand,
     model: values.model,
+    fitment: values.fitment,
     type: values.type,
     year: values.year,
     stoc: values.stoc,
@@ -54,6 +56,7 @@ export function crmCatalogFilterHref(params: URLSearchParams) {
     q: params.get("q"),
     brand: params.get("brand"),
     model: params.get("model"),
+    fitment: params.get("fitment"),
     type: params.get("type"),
     year: params.get("year"),
     stoc: params.get("stoc"),

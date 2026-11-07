@@ -3,19 +3,23 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { Boxes, CalendarDays, Car, Layers, LoaderCircle, Search, Tag, X } from "lucide-react";
-import type { Brand, CarModel, ProductType } from "@/generated/prisma/client";
+import type { Brand, CarModel, ProductType, VehicleFitment } from "@/generated/prisma/client";
+import { formatCompatibilityYears } from "@/lib/catalog/compatibility-display";
 import { crmCatalogFilterHref } from "@/lib/crm/urls";
 import { MobileFilters } from "@/app/crm/_components/mobile-filters";
 
 type CatalogFiltersProps = {
   brands: Brand[];
   models: CarModel[];
+  /** Variantele (anii) modelului ales; goală până se alege un model. */
+  fitments: VehicleFitment[];
   types: ProductType[];
 };
 
 export function CatalogFilters({
   brands,
   models,
+  fitments,
   types,
 }: CatalogFiltersProps) {
   const router = useRouter();
@@ -55,10 +59,14 @@ export function CatalogFilters({
       next.delete("model");
     }
 
+    if (key === "brand" || key === "model") {
+      next.delete("fitment");
+    }
+
     router.push(crmCatalogFilterHref(next));
   }
 
-  const activeFilters = ["brand", "model", "type", "year", "stoc"].filter((key) => searchParams.get(key)).length;
+  const activeFilters = ["brand", "model", "fitment", "type", "year", "stoc"].filter((key) => searchParams.get(key)).length;
 
   const pill = (active: boolean) =>
     `field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
@@ -130,6 +138,24 @@ export function CatalogFilters({
           ))}
         </select>
       </label>
+      {searchParams.get("model") && fitments.length > 0 ? (
+        <label className={pill(Boolean(searchParams.get("fitment")))}>
+          <CalendarDays className="size-4 shrink-0 opacity-70" aria-hidden="true" />
+          <span className="sr-only">Anii modelului</span>
+          <select
+            className={select}
+            value={searchParams.get("fitment") ?? ""}
+            onChange={(event) => updateParam("fitment", event.target.value)}
+          >
+            <option value="">Toți anii</option>
+            {fitments.map((fitment) => (
+              <option key={fitment.id} value={fitment.id}>
+                {formatCompatibilityYears(fitment)}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <label className={`${pill(Boolean(searchParams.get("type")))} lg:hidden`}>
         <Layers className="size-4 shrink-0 opacity-70" aria-hidden="true" />
         <span className="sr-only">Tip produs</span>

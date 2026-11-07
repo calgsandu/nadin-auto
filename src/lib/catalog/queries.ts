@@ -10,6 +10,8 @@ export type CatalogSearchParams = {
   q?: string;
   brand?: string;
   model?: string;
+  /** Varianta modelului (anii), ca pasul 3 de la Polcar. */
+  fitment?: string;
   type?: string;
   year?: string;
   /** "1" = doar produsele cu stoc; "mic" = aproape terminate (de comandat). */
@@ -62,6 +64,7 @@ export async function getCatalogData(
     types,
     warehouses,
     typeCounts,
+    fitments,
   ] = await Promise.all([
     prisma.product.findMany({
       where,
@@ -111,6 +114,15 @@ export async function getCatalogData(
       orderBy: [{ isDefault: "desc" }, { name: "asc" }],
     }),
     prisma.product.groupBy({ by: ["typeId"], where: whereAnyType, _count: { _all: true } }),
+    params.model
+      ? prisma.vehicleFitment.findMany({
+          where: {
+            carModelId: params.model,
+            OR: [{ products: { some: {} } }, { productFitments: { some: {} } }],
+          },
+          orderBy: [{ yearStart: "asc" }, { yearEnd: "asc" }],
+        })
+      : [],
   ]);
 
   return {
@@ -125,6 +137,7 @@ export async function getCatalogData(
       q: params.q,
       brand: params.brand,
       model: params.model,
+      fitment: params.fitment,
       type: params.type,
       year: params.year,
       stoc: params.stoc,
@@ -133,6 +146,7 @@ export async function getCatalogData(
     models,
     types,
     warehouses,
+    fitments,
     typeCounts: new Map(typeCounts.map((row) => [row.typeId, row._count._all])),
   };
 }
@@ -168,6 +182,10 @@ export function buildProductWhere(
 
   if (params.model) {
     filters.push(compatibleFitmentFilter({ carModelId: params.model }));
+  }
+
+  if (params.fitment) {
+    filters.push(compatibleFitmentFilter({ id: params.fitment }));
   }
 
   if (params.type) {
