@@ -156,7 +156,7 @@ export function CatalogFilters({
           </select>
         </label>
       ) : null}
-      <label className={`${pill(Boolean(searchParams.get("type")))} lg:hidden`}>
+      <label className={`${pill(Boolean(searchParams.get("type")))} xl:hidden`}>
         <Layers className="size-4 shrink-0 opacity-70" aria-hidden="true" />
         <span className="sr-only">Tip produs</span>
         <select

@@ -56,7 +56,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full bg-[#f6f6f4] text-[#1b1a17]">
         <Script id="crm-sidebar-state" strategy="beforeInteractive">
-          {`try{if(localStorage.getItem("nadin-crm-collapsed")==="1")document.documentElement.setAttribute("data-crm-collapsed","")}catch(e){}`}
+          {`try{var c=localStorage.getItem("nadin-crm-collapsed");if(c==="1"||(c===null&&innerWidth<1440))document.documentElement.setAttribute("data-crm-collapsed","")}catch(e){}`}
         </Script>
         {children}
         <Toaster />

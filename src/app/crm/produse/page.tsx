@@ -61,8 +61,8 @@ export default async function ProductsPage({
 
       {/* Desktop: tipurile de piese în stânga. Suspense fără cheie: la un click
           panoul rămâne pe loc, doar lista se reîncarcă. */}
-      <div className="lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start">
-        <Suspense fallback={<div className="max-lg:hidden" />}>
+      <div className="xl:grid xl:grid-cols-[12rem_minmax(0,1fr)] xl:items-start">
+        <Suspense fallback={<div className="max-xl:hidden" />}>
           <TypeTreeLoader catalogPromise={catalogPromise} />
         </Suspense>
         <div className="min-w-0">
@@ -96,7 +96,7 @@ async function TypeTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cata
   return (
     <nav
       aria-label="Tipuri de piese"
-      className="sticky top-0 max-h-[100dvh] overflow-y-auto border-r border-[#e4e4e7] py-4 pl-3 pr-2 max-lg:hidden"
+      className="sticky top-0 max-h-[100dvh] overflow-y-auto border-r border-[#e4e4e7] py-4 pl-3 pr-2 max-xl:hidden"
     >
       <Link href={href()} className={row(!params.type)} aria-current={!params.type ? "page" : undefined}>
         <span>Toate piesele</span>
@@ -315,9 +315,9 @@ function ProductRow({
       <TableCell className="whitespace-nowrap max-sm:hidden">
         {/* Codul e cheia piesei: după el se caută și se comandă. */}
         {product.externalCode ? (
-          <CopyCode code={product.externalCode} className="font-mono text-[15px] font-bold text-[#18181b]" />
+          <CopyCode code={product.externalCode} className="font-mono text-sm font-bold text-[#18181b] xl:text-[15px]" />
         ) : (
-          <p className="font-mono text-[15px] font-bold text-[#18181b]">—</p>
+          <p className="font-mono text-sm font-bold text-[#18181b] xl:text-[15px]">—</p>
         )}
         {product.alternativeCode ? (
           <p className="mt-0.5 font-mono text-xs text-[#71717a]">{product.alternativeCode}</p>
@@ -333,7 +333,7 @@ function ProductRow({
             pierdut sub „MERCEDES-BENZ …" repetat pe fiecare rând. Click: fișa cu
             stocul pe fiecare depozit și toate mașinile. */}
         <ProductPreview product={toPreview(product, catalog, compatibilities)} canModify={canModify} canSell={canSell}>
-          <span className="block text-[15px] font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline">
+          <span className="block text-[15px] font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline lg:text-sm xl:text-[15px]">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
           </span>
@@ -351,7 +351,7 @@ function ProductRow({
       <TableCell className="max-sm:hidden">
         <CarLines lines={cars} />
       </TableCell>
-      <TableCell align="right" className="text-[15px] max-sm:hidden font-semibold tabular-nums text-[#18181b]">
+      <TableCell align="right" className="whitespace-nowrap text-sm max-sm:hidden font-semibold tabular-nums text-[#18181b] xl:text-[15px]">
         {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums max-sm:hidden">
