@@ -90,7 +90,9 @@ async function TypeTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cata
       active ? "bg-[#eff6ff] font-semibold text-[#1d4ed8]" : "text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#18181b]"
     }`;
   const count = (value: number) => (
-    <span className="tabular-nums text-xs font-normal text-[#a1a1aa]">{formatNumber(value)}</span>
+    <span className="rounded-full bg-[#f4f4f5] px-1.5 text-xs font-medium tabular-nums text-[#52525b]">
+      {formatNumber(value)}
+    </span>
   );
 
   return (
@@ -98,6 +100,7 @@ async function TypeTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cata
       aria-label="Tipuri de piese"
       className="sticky top-0 max-h-[100dvh] overflow-y-auto border-r border-[#e4e4e7] py-4 pl-3 pr-2 max-xl:hidden"
     >
+      <p className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#a1a1aa]">Tip piesă</p>
       <Link href={href()} className={row(!params.type)} aria-current={!params.type ? "page" : undefined}>
         <span>Toate piesele</span>
         {count(total)}
@@ -180,7 +183,7 @@ function ProductWorkspace({
           <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
             <div className="overflow-x-auto">
               <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[720px]">
-                <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
+                <thead className="border-b border-[#e2e8f0] bg-[#f8fafc]">
                   <tr>
                     {canModify ? (
                       <TableHead className="max-sm:hidden">
@@ -295,7 +298,7 @@ function ProductRow({
   }));
 
   return (
-    <tr className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
+    <tr className="motion-table-row border-t border-[#f0f0f2] even:bg-[#fafafa] hover:bg-[#f4f4f5]">
       {canModify ? (
         <TableCell className="max-sm:hidden">
           <input
@@ -315,7 +318,7 @@ function ProductRow({
       <TableCell className="whitespace-nowrap max-sm:hidden">
         {/* Codul e cheia piesei: după el se caută și se comandă. */}
         {product.externalCode ? (
-          <CopyCode code={product.externalCode} className="font-mono text-sm font-bold text-[#18181b] xl:text-[15px]" />
+          <CopyCode code={product.externalCode} className="bg-[#f1f5f9] px-1.5 py-0.5 font-mono text-sm font-bold text-[#0f172a] ring-1 ring-inset ring-[#e2e8f0] xl:text-[15px]" />
         ) : (
           <p className="font-mono text-sm font-bold text-[#18181b] xl:text-[15px]">—</p>
         )}
@@ -343,7 +346,7 @@ function ProductRow({
         </div>
         <div className="mt-1.5 flex items-center gap-2 sm:hidden">
           <span className="text-[15px] font-semibold tabular-nums text-[#18181b]">
-            {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
+            {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : "—"}
           </span>
           <StockCount stock={product.stock} minStock={product.minStock} />
         </div>
@@ -352,14 +355,14 @@ function ProductRow({
         <CarLines lines={cars} />
       </TableCell>
       <TableCell align="right" className="whitespace-nowrap text-sm max-sm:hidden font-semibold tabular-nums text-[#18181b] xl:text-[15px]">
-        {product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : "—"}
+        {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : "—"}
       </TableCell>
       <TableCell align="right" className="font-semibold tabular-nums max-sm:hidden">
         <StockCount stock={product.stock} minStock={product.minStock} />
       </TableCell>
       {canModify ? (
         <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
-          {formatMoney(product.costLei)} lei
+          <Lei value={product.costLei} />
         </TableCell>
       ) : null}
       {canModify ? (
@@ -394,6 +397,15 @@ function ProductRow({
 }
 
 
+/** Suma în față, „lei" estompat: ochiul citește cifra, nu moneda repetată. */
+function Lei({ value }: { value: Parameters<typeof formatMoney>[0] }) {
+  return (
+    <>
+      {formatMoney(value)} <span className="text-[0.85em] font-normal text-[#a1a1aa]">lei</span>
+    </>
+  );
+}
+
 /** Mașina și anii, câte una pe rând, mai mici decât piesa. */
 function CarLines({ lines }: { lines: { title: string; years: string }[] }) {
   if (lines.length === 0) return <span className="text-[#a1a1aa]">—</span>;
@@ -401,9 +413,11 @@ function CarLines({ lines }: { lines: { title: string; years: string }[] }) {
     <ul className="space-y-0.5 text-[13px] text-[#52525b]">
       {lines.map((line, index) => (
         <li key={`${line.title}:${line.years}:${index}`} className="flex items-center gap-1.5">
-          <Car className="size-3.5 shrink-0 text-[#a1a1aa]" aria-hidden="true" />
-          {line.title ? <span>{line.title}</span> : null}
-          <span className="whitespace-nowrap tabular-nums text-[#71717a]">{line.years}</span>
+          <Car className="size-3.5 shrink-0 text-[#a78bfa]" aria-hidden="true" />
+          {line.title ? <span className="font-medium text-[#3f3f46]">{line.title}</span> : null}
+          <span className="whitespace-nowrap rounded bg-[#f5f3ff] px-1.5 text-xs font-medium tabular-nums text-[#6d28d9]">
+            {line.years}
+          </span>
         </li>
       ))}
     </ul>
