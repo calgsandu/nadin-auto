@@ -67,7 +67,13 @@ export async function GET(request: NextRequest) {
   const products = await prisma.product.findMany({
     where: matchedIds ? { id: { in: matchedIds } } : undefined,
     include: searchInclude,
-    orderBy: [{ fitment: { carModel: { brand: { name: "asc" } } } }, { sourceRow: "asc" }],
+    orderBy: [
+      { fitment: { carModel: { brand: { name: "asc" } } } },
+      { fitment: { carModel: { name: "asc" } } },
+      { fitment: { yearStart: "asc" } },
+      { description: "asc" },
+      { id: "asc" },
+    ],
     take: matchedIds ? undefined : PRODUCT_SEARCH_LIMIT,
   });
 

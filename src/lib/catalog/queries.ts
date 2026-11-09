@@ -97,7 +97,18 @@ export async function getCatalogData(
           orderBy: { warehouse: { name: "asc" } },
         },
       },
-      orderBy: [{ fitment: { carModel: { brand: { name: "asc" } } } }, { sourceRow: "asc" }],
+      // Alfabetic în mașină: marcă → model → anii → denumire. Ordinea din pricelist
+      // (sourceRow) punea „Panou spate colț" înaintea „Arca față".
+      // ponytail: collation C a bazei; singurele descrieri care nu încep cu A–Z sunt
+      // „Ș…" (toate pe modelul ȘTERGĂTOARE), deci nu e nevoie de collation ICU.
+      orderBy: [
+        { fitment: { carModel: { brand: { name: "asc" } } } },
+        { fitment: { carModel: { name: "asc" } } },
+        { fitment: { yearStart: "asc" } },
+        { fitment: { label: "asc" } },
+        { description: "asc" },
+        { id: "asc" },
+      ],
       skip,
       take: PAGE_SIZE,
     }),

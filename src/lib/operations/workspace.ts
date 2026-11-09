@@ -32,25 +32,47 @@ type WorkspaceSection = {
   description: string;
 };
 
+/** Fiecare secțiune și fiecare grup are iconița lui — nicio iconiță nu se repetă în meniu. */
+export type MenuIconName =
+  | "ArrowRightLeft"
+  | "BadgeCheck"
+  | "BarChart3"
+  | "Boxes"
+  | "CalendarCheck"
+  | "CalendarRange"
+  | "Car"
+  | "ClipboardCheck"
+  | "ClipboardList"
+  | "Factory"
+  | "Files"
+  | "Handshake"
+  | "History"
+  | "Layers"
+  | "MapPin"
+  | "PackagePlus"
+  | "PackageSearch"
+  | "PackageX"
+  | "Percent"
+  | "PieChart"
+  | "Receipt"
+  | "ScrollText"
+  | "Shapes"
+  | "ShieldCheck"
+  | "ShoppingCart"
+  | "Tag"
+  | "TrendingUp"
+  | "Truck"
+  | "Undo2"
+  | "UserCog"
+  | "Users"
+  | "Wallet"
+  | "Warehouse";
+
 type NavigationEntry = {
   section: WorkspaceSectionId;
   label: string;
   description: string;
-  icon:
-    | "PackageSearch"
-    | "PackagePlus"
-    | "ArrowRightLeft"
-    | "ShoppingCart"
-    | "ClipboardList"
-    | "Warehouse"
-    | "Handshake"
-    | "Users"
-    | "Tag"
-    | "Car"
-    | "Layers"
-    | "CalendarRange"
-    | "FileText"
-    | "BarChart3";
+  icon: MenuIconName;
   /** When true, the nav entry is only shown to ADMIN users. */
   adminOnly?: boolean;
 };
@@ -218,19 +240,19 @@ export const navigationEntries: NavigationEntry[] = [
     section: "la-comanda",
     label: "Comenzi la furnizori",
     description: "Piese aduse de la furnizori parteneri",
-    icon: "PackagePlus",
+    icon: "Truck",
   },
   {
     section: "conturi-plata",
     label: "Proforme",
     description: "Proforme și achitări",
-    icon: "FileText",
+    icon: "Receipt",
   },
   {
     section: "retururi",
     label: "Retururi",
     description: "Produse returnate",
-    icon: "ArrowRightLeft",
+    icon: "Undo2",
   },
   {
     section: "de-adus",
@@ -242,25 +264,25 @@ export const navigationEntries: NavigationEntry[] = [
     section: "fara-stoc",
     label: "Fără stoc 110A",
     description: "Indisponibile",
-    icon: "ClipboardList",
+    icon: "PackageX",
   },
   {
     section: "inventar",
     label: "Inventar",
     description: "Stoc fizic vs. sistem",
-    icon: "ClipboardList",
+    icon: "ClipboardCheck",
   },
   {
     section: "depozite",
     label: "Depozite",
     description: "Locații de stoc",
-    icon: "Warehouse",
+    icon: "MapPin",
   },
   {
     section: "furnizori",
     label: "Furnizori",
     description: "Furnizori de aprovizionare",
-    icon: "Handshake",
+    icon: "Factory",
   },
   {
     section: "clienti",
@@ -272,7 +294,7 @@ export const navigationEntries: NavigationEntry[] = [
     section: "personal",
     label: "Personal",
     description: "Utilizatori și roluri",
-    icon: "Users",
+    icon: "UserCog",
     adminOnly: true,
   },
   {
@@ -291,7 +313,7 @@ export const navigationEntries: NavigationEntry[] = [
     section: "tipuri",
     label: "Tipuri produs",
     description: "Categorii produse",
-    icon: "Layers",
+    icon: "Shapes",
   },
   {
     section: "compatibilitati",
@@ -303,25 +325,25 @@ export const navigationEntries: NavigationEntry[] = [
     section: "documente",
     label: "Documente stoc",
     description: "Istoric mișcări",
-    icon: "FileText",
+    icon: "Files",
   },
   {
     section: "aprobari",
     label: "Aprobări",
     description: "Operațiuni de confirmat",
-    icon: "ClipboardList",
+    icon: "BadgeCheck",
   },
   {
     section: "istoric",
     label: "Istoric modificări",
     description: "Jurnal audit",
-    icon: "FileText",
+    icon: "History",
   },
   {
     section: "rapoarte",
     label: "Rapoarte",
     description: "Situații & vânzări",
-    icon: "BarChart3",
+    icon: "ScrollText",
   },
   {
     section: "statistici",
@@ -333,30 +355,23 @@ export const navigationEntries: NavigationEntry[] = [
     section: "inchidere-zi",
     label: "Închidere de zi",
     description: "Încasări pe zi",
-    icon: "CalendarRange",
+    icon: "CalendarCheck",
   },
   {
     section: "tva",
     label: "Registrul TVA",
     description: "TVA pe luni",
-    icon: "FileText",
+    icon: "Percent",
   },
   {
     section: "preturi",
     label: "Istoric prețuri",
     description: "Schimbări de cost și preț",
-    icon: "Tag",
+    icon: "TrendingUp",
   },
 ];
 
-type NavGroupIcon =
-  | "ShoppingCart"
-  | "Boxes"
-  | "Layers"
-  | "Handshake"
-  | "ShieldCheck"
-  | "BarChart3"
-  | "ArrowRightLeft";
+type NavGroupIcon = MenuIconName;
 
 export type NavGroup = {
   id: string;
@@ -396,7 +411,7 @@ export const navigationGroups: NavGroup[] = [
     id: "zi",
     label: "Zi de zi",
     description: "Vânzări, proforme, comenzi, retururi",
-    icon: "ShoppingCart",
+    icon: "Wallet",
     sections: ["vanzari", "conturi-plata", "la-comanda", "retururi"],
     display: "list",
   },
@@ -404,7 +419,7 @@ export const navigationGroups: NavGroup[] = [
     id: "miscari",
     label: "Stoc",
     description: "Recepții, transferuri, inventar, documente",
-    icon: "ArrowRightLeft",
+    icon: "Warehouse",
     sections: ["receptii", "transferuri", "inventar", "de-adus", "fara-stoc", "documente"],
     display: "tabs",
   },
@@ -420,7 +435,7 @@ export const navigationGroups: NavGroup[] = [
     id: "rapoarte",
     label: "Rapoarte",
     description: "Situații & vânzări",
-    icon: "BarChart3",
+    icon: "PieChart",
     sections: ["rapoarte", "statistici", "inchidere-zi", "tva", "preturi"],
     display: "tabs",
     rare: true,

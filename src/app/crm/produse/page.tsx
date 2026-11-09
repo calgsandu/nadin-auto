@@ -100,7 +100,7 @@ async function TypeTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cata
       aria-label="Tipuri de piese"
       className="sticky top-0 max-h-[100dvh] overflow-y-auto border-r border-[#e4e4e7] py-4 pl-3 pr-2 max-xl:hidden"
     >
-      <p className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#a1a1aa]">Tip piesă</p>
+      <p className="px-2 pb-1.5 text-[13px] font-medium text-[#71717a]">Tip piesă</p>
       <Link href={href()} className={row(!params.type)} aria-current={!params.type ? "page" : undefined}>
         <span>Toate piesele</span>
         {count(total)}

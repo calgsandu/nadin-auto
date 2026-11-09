@@ -19,9 +19,9 @@ import { ChangePasswordDialog } from "@/app/account/change-password-dialog";
 import { TrustedDeviceControl } from "@/app/account/trusted-device-control";
 import { SidebarCollapseButton } from "../sidebar-collapse";
 import { crmSectionHref, sectionFromPathname } from "@/lib/crm/urls";
-import { groupForSection, navigationEntries, navigationGroups, sectionLabel } from "@/lib/operations/workspace";
+import { groupForSection, navigationGroups, sectionLabel } from "@/lib/operations/workspace";
 import { canViewSection } from "@/lib/roles";
-import { menuIcons } from "./section-icons";
+import { menuIcons, sectionIcon } from "./section-icons";
 import type { AppRole } from "@/generated/prisma/enums";
 
 /**
@@ -136,7 +136,7 @@ export function Sidebar({
                     active={section === activeSectionId}
                     badge={countFor(counts, section)}
                     href={crmSectionHref(section)}
-                    icon={menuIcons[navigationEntries.find((entry) => entry.section === section)?.icon ?? "FileText"]}
+                    icon={sectionIcon(section)}
                     label={sectionLabel(section)}
                   />
                 ))
