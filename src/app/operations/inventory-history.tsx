@@ -9,6 +9,11 @@ const RECENT_DAYS = 30;
 
 type HistoryCache = Record<string, InventoryHistoryEntry[]>;
 
+/** Același array gol de fiecare dată: rândurile de inventar sunt `memo`. */
+const NONE: InventoryHistoryEntry[] = [];
+/** Sub plafonul rutei (200) și sub lungimea maximă a unui URL. */
+const CHUNK = 100;
+
 /**
  * Mini-istoricul pieselor de pe rânduri: ultimele inventare din depozitul ales.
  * Se cer toate deodată (un inventar poate avea 100 de rânduri), doar cele încă
@@ -24,10 +29,20 @@ export function useInventoryHistory(productIds: string[], warehouseId: string) {
     let alive = true;
     const timer = window.setTimeout(async () => {
       try {
-        const params = new URLSearchParams({ warehouseId, productIds: missingKey });
-        const response = await fetch(`/api/inventory/history?${params}`);
-        if (!response.ok) return;
-        const data = (await response.json()) as { history: Record<string, InventoryHistoryEntry[]> };
+        // „Numără rămasele" pune sute de rânduri: o singură cerere cu toate
+        // id-urile depășea plafonul rutei și lungimea URL-ului.
+        const ids = missingKey.split(",");
+        const chunks: string[][] = [];
+        for (let start = 0; start < ids.length; start += CHUNK) chunks.push(ids.slice(start, start + CHUNK));
+        const parts = await Promise.all(
+          chunks.map(async (chunk) => {
+            const params = new URLSearchParams({ warehouseId, productIds: chunk.join(",") });
+            const response = await fetch(`/api/inventory/history?${params}`);
+            if (!response.ok) return {};
+            return ((await response.json()) as { history: Record<string, InventoryHistoryEntry[]> }).history;
+          }),
+        );
+        const data = { history: Object.assign({}, ...parts) as Record<string, InventoryHistoryEntry[]> };
         if (!alive) return;
         setCache((current) => {
           const next = { ...current };
@@ -45,7 +60,7 @@ export function useInventoryHistory(productIds: string[], warehouseId: string) {
   }, [missingKey, warehouseId]);
 
   return {
-    historyOf: (productId: string) => cache[`${warehouseId}:${productId}`] ?? [],
+    historyOf: (productId: string) => cache[`${warehouseId}:${productId}`] ?? NONE,
     /** După salvare: istoricul s-a schimbat, se cere din nou data viitoare. */
     clear: () => setCache({}),
   };

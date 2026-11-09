@@ -1,7 +1,7 @@
 "use client";
 
 import { ClipboardCheck, FileText, ListChecks, Plus, Trash2 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { memo, useMemo, useRef, useState } from "react";
 import {
   createInventoryAction,
   type OperationActionState,
@@ -33,6 +33,7 @@ import { formatDateInputValue } from "@/lib/operations/date-input";
 import type { WarehouseOption } from "@/app/operations/stock-document-dialog";
 import { quantityAfterSelect } from "@/lib/operations/default-quantity";
 import { InventoryHistoryLines, useInventoryHistory } from "@/app/operations/inventory-history";
+import type { InventoryHistoryEntry } from "@/lib/operations/inventory-progress";
 
 const initialState: OperationActionState = { ok: false, message: "" };
 
@@ -193,6 +194,11 @@ export function InventoryDialog({
   function patchLine(id: number, patch: Partial<InventoryLine>) {
     setLines((current) => current.map((line) => (line.id === id ? { ...line, ...patch } : line)));
   }
+  // Produsele deja puse pe rânduri, ca să nu fie alese de două ori. Lista se
+  // schimbă doar când se schimbă setul de produse, nu la fiecare cifră tastată —
+  // altfel toate rândurile (sute, la „Numără rămasele") se redesenează la fiecare tastă.
+  const selectedKey = lines.map((line) => line.productId).join(",");
+  const selectedProductIds = useMemo(() => selectedKey.split(",").filter(Boolean), [selectedKey]);
 
   return (
     <>
@@ -276,65 +282,18 @@ export function InventoryDialog({
               }
             >
               {lines.map((line, index) => (
-                <div
+                <InventoryLineRow
                   key={line.id}
-                  className={`${drawerLineClassName} line-phone-row md:grid-cols-[minmax(0,1fr)_11rem_11rem_2.25rem]`}
-                  style={matchesLineFilter(filter, line) ? undefined : { display: "none" }}
-                >
-                  <div>
-                    <p className="line-label mb-1 text-[13px] font-medium leading-5 text-[#52525b]">Produs</p>
-                    <ProductSearchCombobox
-                      showHint={false}
-                      initialProduct={
-                        line.productId ? { id: line.productId, label: line.label } : null
-                      }
-                      excludedProductIds={lines
-                        .filter((item) => item.id !== line.id)
-                        .map((item) => item.productId)}
-                      onSelect={(product) =>
-                        patchLine(line.id, {
-                          productId: product.id,
-                          label: product.label,
-                          counted: quantityAfterSelect(product.id),
-                          stocks: product.stocks ?? [],
-                        })
-                      }
-                      onClear={() =>
-                        patchLine(line.id, { productId: "", label: "", counted: "", stocks: undefined })
-                      }
-                    />
-                  </div>
-                  <DrawerField label="Numărat (buc)">
-                    <input
-                      className={drawerInputClassName}
-                      inputMode="numeric"
-                      min={0}
-                      name="countedQuantity"
-                      type="number"
-                      value={line.counted}
-                      onChange={(event) => patchLine(line.id, { counted: event.currentTarget.value })}
-                    />
-                    <CountDifference system={systemQuantity(line)} counted={line.counted} />
-                    {/* Inventarele trecute ale piesei aici („era 0 → 1"); cele recente
-                        apar ca avertisment, să nu fie numărată de două ori. */}
-                    {line.productId ? <InventoryHistoryLines entries={history.historyOf(line.productId)} /> : null}
-                  </DrawerField>
-                  <LabelStickerCell
-                    index={index}
-                    defaultCopies={line.counted}
-                    line={line}
-                    onChange={(patch) => patchLine(line.id, patch)}
-                  />
-                  <button
-                    aria-label={`Șterge produsul ${index + 1}`}
-                    className={drawerDangerButton}
-                    disabled={lines.length === 1}
-                    type="button"
-                    onClick={() => removeLine(line.id)}
-                  >
-                    <Trash2 className="size-4" aria-hidden="true" />
-                  </button>
-                </div>
+                  line={line}
+                  index={index}
+                  hidden={!matchesLineFilter(filter, line)}
+                  system={systemQuantity(line)}
+                  history={line.productId ? history.historyOf(line.productId) : NO_HISTORY}
+                  selectedProductIds={selectedProductIds}
+                  canRemove={lines.length > 1}
+                  onPatch={patchLine}
+                  onRemove={removeLine}
+                />
               ))}
             </DrawerSection>
 
@@ -355,6 +314,92 @@ export function InventoryDialog({
     </>
   );
 }
+
+const NO_HISTORY: InventoryHistoryEntry[] = [];
+
+/**
+ * Un rând de inventar. E `memo`: la un inventar de sute de rânduri, o cifră
+ * tastată redesena tot panoul de două ori (tasta + salvarea ciornei) — 0,5 s
+ * de blocaj pe tastă la ~950 de rânduri. Acum se redesenează doar rândul atins.
+ */
+const InventoryLineRow = memo(function InventoryLineRow({
+  line,
+  index,
+  hidden,
+  system,
+  history,
+  selectedProductIds,
+  canRemove,
+  onPatch,
+  onRemove,
+}: {
+  line: InventoryLine;
+  index: number;
+  hidden: boolean;
+  system: number | null;
+  history: InventoryHistoryEntry[];
+  selectedProductIds: string[];
+  canRemove: boolean;
+  onPatch: (id: number, patch: Partial<InventoryLine>) => void;
+  onRemove: (id: number) => void;
+}) {
+  return (
+    <div
+      className={`${drawerLineClassName} line-phone-row md:grid-cols-[minmax(0,1fr)_11rem_11rem_2.25rem]`}
+      style={hidden ? { display: "none" } : undefined}
+    >
+      <div>
+        <p className="line-label mb-1 text-[13px] font-medium leading-5 text-[#52525b]">Produs</p>
+        <ProductSearchCombobox
+          showHint={false}
+          initialProduct={line.productId ? { id: line.productId, label: line.label } : null}
+          // ponytail: include și produsul rândului; nu contează, căutarea nu
+          // rulează cât rândul are produs, iar „șterge" îl scoate din listă.
+          excludedProductIds={selectedProductIds}
+          onSelect={(product) =>
+            onPatch(line.id, {
+              productId: product.id,
+              label: product.label,
+              counted: quantityAfterSelect(product.id),
+              stocks: product.stocks ?? [],
+            })
+          }
+          onClear={() => onPatch(line.id, { productId: "", label: "", counted: "", stocks: undefined })}
+        />
+      </div>
+      <DrawerField label="Numărat (buc)">
+        <input
+          className={drawerInputClassName}
+          inputMode="numeric"
+          min={0}
+          name="countedQuantity"
+          type="number"
+          value={line.counted}
+          onChange={(event) => onPatch(line.id, { counted: event.currentTarget.value })}
+        />
+        <CountDifference system={system} counted={line.counted} />
+        {/* Inventarele trecute ale piesei aici („era 0 → 1"); cele recente
+            apar ca avertisment, să nu fie numărată de două ori. */}
+        {line.productId ? <InventoryHistoryLines entries={history} /> : null}
+      </DrawerField>
+      <LabelStickerCell
+        index={index}
+        defaultCopies={line.counted}
+        line={line}
+        onChange={(patch) => onPatch(line.id, patch)}
+      />
+      <button
+        aria-label={`Șterge produsul ${index + 1}`}
+        className={drawerDangerButton}
+        disabled={!canRemove}
+        type="button"
+        onClick={() => onRemove(line.id)}
+      >
+        <Trash2 className="size-4" aria-hidden="true" />
+      </button>
+    </div>
+  );
+});
 
 /** Sub cantitatea numărată: cât era în sistem și diferența, colorată. */
 function CountDifference({ system, counted }: { system: number | null; counted: string }) {
