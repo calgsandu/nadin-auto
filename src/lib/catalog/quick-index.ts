@@ -28,10 +28,33 @@ export type QuickProduct = {
   price: number | null;
 };
 
+export type QuickCustomer = { id: string; name: string; phone: string | null };
+
 export type QuickIndex = {
   warehouses: string[];
   products: QuickProduct[];
+  /** Gol pentru rolurile care n-au secțiunea Clienți. */
+  customers: QuickCustomer[];
 };
+
+/** Cifrele telefonului fără prefix: „069 123…" și „+373 69 123…" sunt același număr. */
+const phoneKey = (value: string) => value.replace(/\D/g, "").replace(/^(373|0)/, "");
+
+/** Clienții după nume (fără diacritice) sau după cifrele din telefon. */
+export function searchQuickCustomers(customers: QuickCustomer[], query: string, limit = 4) {
+  const terms = searchTerms(query);
+  if (terms.length === 0) return [];
+  const digits = phoneKey(query);
+  return customers
+    .filter((customer) => {
+      const name = normalizeText(customer.name);
+      return (
+        terms.every((term) => name.includes(term)) ||
+        (digits.length >= 4 && phoneKey(customer.phone ?? "").includes(digits))
+      );
+    })
+    .slice(0, limit);
+}
 
 type Prepared = {
   product: QuickProduct;

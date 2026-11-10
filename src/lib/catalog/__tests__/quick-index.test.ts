@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
-import { prepareQuickIndex, searchQuickIndex, type QuickProduct } from "@/lib/catalog/quick-index";
+import {
+  prepareQuickIndex,
+  searchQuickCustomers,
+  searchQuickIndex,
+  type QuickProduct,
+} from "@/lib/catalog/quick-index";
 
 const product = (over: Partial<QuickProduct> & { id: string }): QuickProduct => ({
   code: null,
@@ -42,5 +47,16 @@ assert.deepEqual(ids("aripa 1982"), ["aripa"]);
 // Toți termenii trebuie să apară.
 assert.deepEqual(ids("prag sprinter"), []);
 assert.deepEqual(ids("   "), []);
+
+// Clienți: nume fără diacritice sau cifre din telefon (cu orice formatare).
+const customers = [
+  { id: "c1", name: "Ștefan Rusu", phone: "+373 69 123 456" },
+  { id: "c2", name: "Auto Service SRL", phone: null },
+];
+assert.deepEqual(searchQuickCustomers(customers, "stefan").map((c) => c.id), ["c1"]);
+assert.deepEqual(searchQuickCustomers(customers, "069 123").map((c) => c.id), ["c1"], "formatul local găsește numărul salvat cu +373");
+assert.deepEqual(searchQuickCustomers(customers, "69123456").map((c) => c.id), ["c1"]);
+assert.deepEqual(searchQuickCustomers(customers, "service auto").map((c) => c.id), ["c2"]);
+assert.deepEqual(searchQuickCustomers(customers, "123").map((c) => c.id), [], "trei cifre sunt prea puține pentru telefon");
 
 console.log("quick-index: ok");

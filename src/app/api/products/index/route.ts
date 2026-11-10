@@ -3,6 +3,7 @@ import { getCurrentAppUser } from "@/lib/auth/access";
 import { productLabelInclude } from "@/lib/catalog/product-include";
 import { vehicleLabels } from "@/lib/catalog/vehicle-label";
 import type { QuickIndex } from "@/lib/catalog/quick-index";
+import { canViewSection } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export async function GET() {
   const user = await getCurrentAppUser();
   if (!user) return new Response("Neautentificat", { status: 401 });
 
-  const [warehouses, products] = await Promise.all([
+  const [warehouses, products, customers] = await Promise.all([
     prisma.warehouse.findMany({
       where: { active: true },
       select: { id: true, name: true },
@@ -36,6 +37,13 @@ export async function GET() {
         warehouseStocks: { select: { warehouseId: true, quantity: true } },
       },
     }),
+    canViewSection(user.role, "clienti")
+      ? prisma.partner.findMany({
+          where: { kind: { in: ["CUSTOMER", "BOTH"] } },
+          select: { id: true, name: true, phone: true },
+          orderBy: { name: "asc" },
+        })
+      : [],
   ]);
 
   const index: QuickIndex = {
@@ -54,10 +62,10 @@ export async function GET() {
       ),
       price: product.salePriceLei == null ? null : Number(product.salePriceLei),
     })),
+    customers,
   };
 
-  return Response.json(index, {
-    // Paleta îl reîmprospătează singură; un minut de cache acoperă deschiderile repetate.
-    headers: { "Cache-Control": "private, max-age=60" },
-  });
+  // Fără cache HTTP: paleta ține indexul în memorie un minut și îl cere iar
+  // singură — două cache-uri puse cap la cap ar arăta stocul vechi de două ori mai mult.
+  return Response.json(index, { headers: { "Cache-Control": "no-store" } });
 }

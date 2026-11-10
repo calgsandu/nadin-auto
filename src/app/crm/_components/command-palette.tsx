@@ -9,17 +9,20 @@ import {
   PackagePlus,
   Search,
   ShoppingCart,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import {
   prepareQuickIndex,
+  searchQuickCustomers,
   searchQuickIndex,
+  type QuickCustomer,
   type QuickIndex,
   type QuickProduct,
 } from "@/lib/catalog/quick-index";
 import { normalizeText } from "@/lib/catalog/search-text";
-import { crmCatalogPageHref, crmSectionHref } from "@/lib/crm/urls";
+import { crmCatalogPageHref, crmCustomersHref, crmSectionHref } from "@/lib/crm/urls";
 import { navigationGroups, sectionLabel, type WorkspaceSectionId } from "@/lib/operations/workspace";
 import { canViewSection } from "@/lib/roles";
 import type { AppRole } from "@/generated/prisma/enums";
@@ -33,7 +36,7 @@ export function openCommandPalette() {
   window.dispatchEvent(new Event(OPEN_EVENT));
 }
 
-type LinkItem = { kind: "link"; key: string; label: string; href: string; icon: LucideIcon };
+type LinkItem = { kind: "link"; key: string; label: string; hint?: string; href: string; icon: LucideIcon };
 type ProductItem = { kind: "product"; key: string; product: QuickProduct };
 type Item = LinkItem | ProductItem;
 type Group = { label: string; items: Item[] };
@@ -50,7 +53,12 @@ const ACTIONS: Array<{ section: WorkspaceSectionId; label: string; href: string;
  * Indexul trăiește la nivel de modul: layout-ul CRM supraviețuiește navigării,
  * deci catalogul se descarcă o dată și rămâne în memorie între deschideri.
  */
-type Loaded = { at: number; warehouses: string[]; prepared: ReturnType<typeof prepareQuickIndex> };
+type Loaded = {
+  at: number;
+  warehouses: string[];
+  prepared: ReturnType<typeof prepareQuickIndex>;
+  customers: QuickCustomer[];
+};
 let cache: Loaded | null = null;
 let pending: Promise<Loaded | null> | null = null;
 const MAX_AGE = 60_000;
@@ -59,7 +67,14 @@ function loadIndex() {
   pending ??= fetch("/api/products/index")
     .then((response) => (response.ok ? (response.json() as Promise<QuickIndex>) : null))
     .then((index) => {
-      if (index) cache = { at: Date.now(), warehouses: index.warehouses, prepared: prepareQuickIndex(index.products) };
+      if (index) {
+        cache = {
+          at: Date.now(),
+          warehouses: index.warehouses,
+          prepared: prepareQuickIndex(index.products),
+          customers: index.customers,
+        };
+      }
       return cache;
     })
     .catch(() => cache)
@@ -67,6 +82,28 @@ function loadIndex() {
       pending = null;
     });
   return pending;
+}
+
+/** Ultimele piese deschise din paletă: clientul pleacă, se întoarce, întreabă iar. */
+const RECENT_KEY = "nadin-palette-recent";
+const RECENT_MAX = 5;
+
+function readRecent(): string[] {
+  try {
+    const stored: unknown = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
+    return Array.isArray(stored) ? stored.filter((id) => typeof id === "string").slice(0, RECENT_MAX) : [];
+  } catch {
+    return [];
+  }
+}
+
+function rememberRecent(id: string) {
+  try {
+    const next = [id, ...readRecent().filter((other) => other !== id)].slice(0, RECENT_MAX);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+  } catch {
+    // Fără localStorage (mod privat): paleta merge și fără „Recente".
+  }
 }
 
 /**
@@ -82,6 +119,7 @@ export function CommandPalette({ role }: { role: AppRole }) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [index, setIndex] = useState<Loaded | null>(cache);
+  const [recent, setRecent] = useState<string[]>([]);
   const activeRef = useRef<HTMLLIElement>(null);
   const restoreFocus = useRef<HTMLElement | null>(null);
 
@@ -96,6 +134,7 @@ export function CommandPalette({ role }: { role: AppRole }) {
       restoreFocus.current = document.activeElement as HTMLElement | null;
       setQuery("");
       setActive(0);
+      setRecent(readRecent());
       setOpen(true);
       if (!cache || Date.now() - cache.at > MAX_AGE) void loadIndex().then(setIndex);
     };
@@ -138,6 +177,23 @@ export function CommandPalette({ role }: { role: AppRole }) {
       wanted && index
         ? searchQuickIndex(index.prepared, query).map((product) => ({ kind: "product", key: product.id, product }))
         : [];
+    const recents: Item[] =
+      !wanted && index
+        ? recent.flatMap((id) => {
+            const product = index.prepared.find((entry) => entry.product.id === id)?.product;
+            return product ? [{ kind: "product" as const, key: product.id, product }] : [];
+          })
+        : [];
+    const customers: Item[] = index
+      ? searchQuickCustomers(index.customers, query).map((customer) => ({
+          kind: "link",
+          key: `client-${customer.id}`,
+          label: customer.name,
+          hint: customer.phone ?? undefined,
+          href: crmCustomersHref(customer.id),
+          icon: Users,
+        }))
+      : [];
     // Indexul ține primele potriviri; lista întreagă, cu filtre, e în Produse.
     const more: Item[] = wanted
       ? [
@@ -153,11 +209,13 @@ export function CommandPalette({ role }: { role: AppRole }) {
 
     return [
       { label: "Produse", items: products },
+      { label: "Clienți", items: customers },
+      { label: "Recente", items: recents },
       { label: "Operațiuni", items: actions },
       { label: "Mergi la", items: sections },
       { label: "", items: more },
     ].filter((group) => group.items.length > 0);
-  }, [index, query, role]);
+  }, [index, query, recent, role]);
 
   const items = groups.flatMap((group) => group.items);
   const current = items[Math.min(active, items.length - 1)];
@@ -179,6 +237,7 @@ export function CommandPalette({ role }: { role: AppRole }) {
   const run = (item: Item | undefined, sell = false) => {
     if (!item) return;
     if (item.kind === "link") return go(item.href);
+    rememberRecent(item.product.id);
     if (sell) return go(`/crm/vanzari?nou=1&produs=${item.product.id}`);
     go(crmCatalogPageHref({ q: item.product.code ?? item.product.description }));
   };
@@ -284,7 +343,11 @@ export function CommandPalette({ role }: { role: AppRole }) {
             ) : null}
           </ul>
 
-          <div className="flex items-center justify-between gap-4 border-t border-[#e4e4e7] bg-[#fafafa] px-4 py-2 text-xs text-[#52525b]">
+          <div
+            className={`flex items-center justify-between gap-4 border-t border-[#e4e4e7] bg-[#fafafa] px-4 py-2 text-xs text-[#52525b] ${
+              stocksLine ? "" : "max-sm:hidden"
+            }`}
+          >
             <span className="min-w-0 truncate">{stocksLine}</span>
             <span className="flex shrink-0 gap-3 max-sm:hidden">
               <span>↵ deschide</span>
@@ -303,6 +366,7 @@ function LinkOption({ item }: { item: LinkItem }) {
     <>
       <Icon className="size-4 shrink-0 text-[#71717a]" aria-hidden="true" />
       <span className="min-w-0 truncate font-medium text-[#18181b]">{item.label}</span>
+      {item.hint ? <span className="ml-auto shrink-0 tabular-nums text-[#71717a]">{item.hint}</span> : null}
     </>
   );
 }
