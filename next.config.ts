@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  experimental: {
+    // Editarea Inventarului #1 (955 linii) trimite ~830 KB; limita implicită de
+    // 1 MB l-ar fi blocat pe la ~1.150 de linii. Vercel acceptă până la 4,5 MB.
+    serverActions: { bodySizeLimit: "4mb" },
+  },
   async headers() {
     return [
       {

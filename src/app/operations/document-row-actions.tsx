@@ -195,6 +195,31 @@ function EditPanel({
         : [{ id: 1, productId: "", label: "", quantity: "", price: "" }],
     [lines, isInventory],
   );
+  // Versiunea documentului de la care pornește editarea. Se trimite la salvare:
+  // serverul aplică doar ce s-a schimbat față de ea, deci un tab vechi nu mai
+  // șterge ce a salvat altcineva între timp. Rămâne fixă cât panoul e deschis,
+  // chiar dacă pagina se reîmprospătează sub el (liniile din state pornesc tot de aici).
+  const currentBase = useMemo(
+    () =>
+      JSON.stringify({
+        lines: lines.map((line) => ({
+          productId: line.productId,
+          quantity: line.quantity,
+          price: line.price,
+          externalName: line.externalName ?? "",
+          externalCode: line.externalCode ?? "",
+          externalSupplierId: line.externalSupplierId ?? "",
+          externalCost: line.externalCost ?? "",
+        })),
+        documentDate,
+        notes,
+        warehouseId,
+        partnerId,
+        partnerName,
+      }),
+    [lines, documentDate, notes, warehouseId, partnerId, partnerName],
+  );
+  const [base, setBase] = useState(currentBase);
   const [editableLines, setEditableLines] = useState<EditableLine[]>(savedLines);
   const [nextLineId, setNextLineId] = useState(editableLines.length + 1);
   const [filter, setFilter] = useState("");
@@ -217,10 +242,13 @@ function EditPanel({
     kind: draftKind,
     lines: editableLines,
     setLines: (restored) => {
+      // Ciorna e legată de versiunea curentă a documentului (cheia o conține).
+      setBase(currentBase);
       setEditableLines(restored.map((line, index) => ({ ...line, id: nextLineId + index })));
       setNextLineId(nextLineId + restored.length);
     },
     reset: () => {
+      setBase(currentBase);
       setEditableLines(savedLines);
       setNextLineId(savedLines.length + 1);
       setFilter("");
@@ -274,6 +302,7 @@ function EditPanel({
     >
       <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event, addLine)}>
         <input type="hidden" name="id" value={id} />
+        <input type="hidden" name="documentBase" value={base} />
         <div className="grid gap-4 md:grid-cols-2">
           <DrawerField label={isInventory ? "Data inventarului" : "Data documentului"}>
             <input className={drawerInputClassName} name="documentDate" type="date" defaultValue={documentDate} />

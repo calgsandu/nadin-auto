@@ -19,6 +19,7 @@ formData.append("warehouseId", "wh-1");
 formData.append("quantity", "3");
 formData.append("quantity", "5");
 formData.append("idempotencyKey", "nu-trebuie-salvat");
+formData.append("documentBase", '{"lines":[]}');
 
 const draft = serializeDraft(formData, [{ id: 1, productId: "p-1" }], "token-1", NOW);
 assert.deepEqual(draft.fields, {
@@ -28,6 +29,8 @@ assert.deepEqual(draft.fields, {
 });
 // Token-ul se ține separat, nu printre câmpuri.
 assert.equal(Object.keys(draft.fields).includes("idempotencyKey"), false);
+// Baza documentului (versiunea serverului) nu se copiază în ciornă.
+assert.equal(Object.keys(draft.fields).includes("documentBase"), false);
 assert.equal(draft.token, "token-1");
 
 const restored = parseDraft(JSON.stringify(draft), NOW);

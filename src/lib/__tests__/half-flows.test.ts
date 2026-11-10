@@ -64,7 +64,7 @@ assert.doesNotMatch(
   "acțiunea fără apelant trebuie ștearsă, nu conectată",
 );
 // Ce făcea ea (dată, observații, partener) face deja acțiunea folosită.
-for (const field of [/documentDate,/, /notes,/, /partnerId \}/]) {
+for (const field of [/documentDate,/, /notes[,:]/, /partnerId \}/]) {
   assert.match(documentActions, field, "editarea documentului scrie și antetul");
 }
 

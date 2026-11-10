@@ -16,6 +16,14 @@ import {
 import { applyReceiptCost } from "@/lib/operations/receipt-cost";
 import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
 import {
+  mergeDocumentHeader,
+  mergeDocumentLines,
+  mergeLineFromDb,
+  parseDocumentBase,
+  type LineConflict,
+  type MergeHeader,
+} from "@/lib/operations/document-merge";
+import {
   applyWarehouseStockDeltas,
   ensureWarehouseStockRows,
   sumDeltasByProduct,
@@ -243,9 +251,14 @@ export async function updateDocumentLinesAction(
     const partnerName = readString(formData, "partnerName");
     const requestedWarehouseId = readString(formData, "warehouseId");
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
-    const documentDate = dateRaw ? new Date(`${dateRaw}T12:00:00`) : undefined;
-    if (documentDate && Number.isNaN(documentDate.getTime())) {
+    if (dateRaw && Number.isNaN(new Date(`${dateRaw}T12:00:00`).getTime())) {
       throw new Error("Data documentului nu este validă.");
+    }
+    // Versiunea documentului de la care a pornit editarea. Fără ea nu se poate
+    // ști ce a schimbat operatorul și ce a salvat altcineva între timp.
+    const baseRaw = readString(formData, "documentBase");
+    if (!baseRaw) {
+      throw new Error("Pagina este veche. Reîncarcă pagina și editează din nou.");
     }
 
     const seenProducts = new Set<string>();
@@ -285,7 +298,13 @@ export async function updateDocumentLinesAction(
     });
     if (formLines.length === 0) throw new Error("Documentul trebuie să aibă cel puțin un produs.");
 
+    let conflicts: LineConflict[] = [];
+    let mergedWithOthers = false;
+
     await prisma.$transaction(async (tx) => {
+      // Două salvări simultane ale aceluiași document se așteaptă una pe alta;
+      // a doua citește liniile scrise de prima și se îmbină peste ele.
+      await tx.$queryRaw`SELECT id FROM "StockDocument" WHERE id = ${id} FOR UPDATE`;
       const doc = await tx.stockDocument.findUnique({
         where: { id },
         include: {
@@ -295,6 +314,61 @@ export async function updateDocumentLinesAction(
         },
       });
       if (!doc) throw new Error("Document inexistent.");
+
+      const base = parseDocumentBase(baseRaw, doc.type !== "ADJUSTMENT");
+      if (!base) throw new Error("Pagina este veche. Reîncarcă pagina și editează din nou.");
+
+      // Se aplică doar ce a schimbat operatorul față de versiunea lui; ce a
+      // salvat altcineva între timp rămâne (înainte: tabul vechi ștergea tot).
+      const labels = new Map(
+        doc.lines.map((line) => [
+          line.productId ?? "",
+          line.product
+            ? [line.product.externalCode, line.product.description].filter(Boolean).join(" ")
+            : line.externalName ?? "",
+        ]),
+      );
+      const mergedLines = mergeDocumentLines(
+        base.lines,
+        formLines.map((line) => ({
+          ...line,
+          // Inventarul nu are preț pe formular; returul îl ia oricum din vânzare.
+          price: doc.type === "ADJUSTMENT" ? null : line.price,
+        })),
+        doc.lines.map((line) => mergeLineFromDb(line, doc.type)),
+        (line) => (line.productId ? labels.get(line.productId) || line.productId : line.externalName ?? "piesă externă"),
+      );
+      const theirsHeader: MergeHeader = {
+        documentDate: doc.documentDate.toISOString().slice(0, 10),
+        notes: doc.notes?.trim() ?? "",
+        warehouseId: doc.warehouseId,
+        partnerId: doc.partnerId ?? "",
+        partnerName: doc.partner?.name ?? "",
+      };
+      const mergedHeader = mergeDocumentHeader(
+        base.header,
+        {
+          // Câmp lipsă din formular = neatins.
+          documentDate: dateRaw || base.header.documentDate,
+          notes: notes ?? "",
+          warehouseId: requestedWarehouseId || base.header.warehouseId,
+          partnerId: doc.type === "RECEIPT" ? (selectedPartnerId ?? "") : base.header.partnerId,
+          partnerName: doc.type !== "RECEIPT" && partnerName ? partnerName : base.header.partnerName,
+        },
+        theirsHeader,
+      );
+      conflicts = mergedLines.conflicts;
+      mergedWithOthers = mergedLines.theirsChanged || mergedHeader.theirsChanged;
+      const lines = mergedLines.lines;
+      if (lines.length === 0) throw new Error("Documentul trebuie să aibă cel puțin un produs.");
+      const header = mergedHeader.header;
+      const documentDate =
+        header.documentDate && header.documentDate !== theirsHeader.documentDate
+          ? new Date(`${header.documentDate}T12:00:00`)
+          : undefined;
+      if (documentDate && Number.isNaN(documentDate.getTime())) {
+        throw new Error("Data documentului nu este validă.");
+      }
 
       // Jumătățile de transfer nu se editează pe linii — ar desincroniza
       // cealaltă jumătate. Se șterge transferul și se creează din nou.
@@ -312,14 +386,14 @@ export async function updateDocumentLinesAction(
       // acolo atârnă coada „De adus 110A" și legătura cu vânzarea sursă.
       let targetWarehouseId = doc.warehouseId;
       let movedTo: string | null = null;
-      if (requestedWarehouseId && requestedWarehouseId !== doc.warehouseId) {
+      if (header.warehouseId && header.warehouseId !== doc.warehouseId) {
         if (doc.type !== "RECEIPT" && doc.type !== "ADJUSTMENT") {
           throw new Error(
             "Doar recepțiile și inventarele pot fi mutate în alt depozit. Șterge documentul și creează-l din nou.",
           );
         }
         const target = await tx.warehouse.findFirst({
-          where: { id: requestedWarehouseId, active: true },
+          where: { id: header.warehouseId, active: true },
           select: { id: true, name: true },
         });
         if (!target) throw new Error("Depozitul ales nu există sau este dezactivat.");
@@ -328,7 +402,7 @@ export async function updateDocumentLinesAction(
       }
 
       // Doar ajustările pot avea linii negative (minus la inventar).
-      if (doc.type !== "ADJUSTMENT" && formLines.some((line) => line.quantity < 0)) {
+      if (doc.type !== "ADJUSTMENT" && lines.some((line) => line.quantity < 0)) {
         throw new Error("Cantitățile nu pot fi negative pe acest tip de document.");
       }
 
@@ -384,7 +458,7 @@ export async function updateDocumentLinesAction(
         const soldByProduct = new Map(
           sourceSale.lines.map((line) => [line.productId, line]),
         );
-        for (const line of formLines) {
+        for (const line of lines) {
           const sold = line.productId ? soldByProduct.get(line.productId) : null;
           if (!sold || !line.productId) {
             throw new Error(
@@ -420,7 +494,7 @@ export async function updateDocumentLinesAction(
           );
         }
         for (const [productId, returned] of returnedByProduct) {
-          const newQuantity = formLines.find((l) => l.productId === productId)?.quantity ?? 0;
+          const newQuantity = lines.find((l) => l.productId === productId)?.quantity ?? 0;
           if (newQuantity < returned) {
             throw new Error(
               `Un produs are deja ${returned} bucăți returnate — cantitatea vândută nu poate scădea sub atât. Șterge întâi returul.`,
@@ -433,7 +507,7 @@ export async function updateDocumentLinesAction(
       const priceField = isSale || doc.type === "RETURN" ? "unitPriceEuro" : "unitCostLei";
       // Ajustările (ex. inventar) au semne mixte pe linii — formularul trimite
       // diferența cu semn, așa cum e stocată. Restul documentelor sunt pozitive.
-      const newLines = formLines.map((line) => ({
+      const newLines = lines.map((line) => ({
         ...line,
         price:
           doc.type === "RETURN"
@@ -509,22 +583,23 @@ export async function updateDocumentLinesAction(
       // 5. Header + total (lei).
       let partnerId: string | null | undefined = undefined;
       if (doc.type === "RECEIPT") {
-        const partner = selectedPartnerId
+        const mergedPartnerId = header.partnerId || null;
+        const partner = mergedPartnerId
           ? await tx.partner.findUnique({
-              where: { id: selectedPartnerId },
+              where: { id: mergedPartnerId },
               select: { id: true, kind: true },
             })
           : null;
-        partnerId = ensureSupplierPartner(partner, selectedPartnerId);
-      } else if (partnerName) {
-        const partner = await tx.partner.upsert({ where: { name: partnerName }, create: { name: partnerName }, update: {} });
+        partnerId = ensureSupplierPartner(partner, mergedPartnerId);
+      } else if (header.partnerName && header.partnerName !== theirsHeader.partnerName) {
+        const partner = await tx.partner.upsert({ where: { name: header.partnerName }, create: { name: header.partnerName }, update: {} });
         partnerId = partner.id;
       }
       await tx.stockDocument.update({
         where: { id },
         data: {
           documentDate,
-          notes,
+          notes: header.notes || null,
           totalLei: total,
           totalEuro: null,
           warehouseId: targetWarehouseId,
@@ -574,7 +649,13 @@ export async function updateDocumentLinesAction(
           entity: "StockDocument",
           entityId: id,
           summary: `${TYPE_LABEL[doc.type] ?? doc.type} #${doc.number} editată (linii + antet)${movedTo ? `, mutată din ${doc.warehouse.name} în ${movedTo}` : ""}`,
-          details: { before: beforeSnapshot, after: documentSnapshot(updated) },
+          details: {
+            before: beforeSnapshot,
+            after: documentSnapshot(updated),
+            ...(mergedWithOthers
+              ? { merged: { conflicts: conflicts.map((conflict) => conflict.label) } }
+              : {}),
+          },
         });
       }
     // Fiecare linie face un tur spre Neon la reversare și la re-aplicare:
@@ -582,7 +663,18 @@ export async function updateDocumentLinesAction(
     }, DOCUMENT_TX_OPTIONS);
 
     revalidatePath("/crm", "layout");
-    return { ok: true, message: "Document actualizat (linii + stoc)." };
+    if (!mergedWithOthers) return { ok: true, message: "Document actualizat (linii + stoc)." };
+    const overwritten =
+      conflicts.length > 0
+        ? ` La ${conflicts.length} ${conflicts.length === 1 ? "poziție ai" : "poziții ai"} suprascris valoarea celuilalt: ${conflicts
+            .slice(0, 5)
+            .map((conflict) => conflict.label)
+            .join(", ")}${conflicts.length > 5 ? "…" : ""}.`
+        : "";
+    return {
+      ok: true,
+      message: `Document actualizat. Între timp l-a salvat și altcineva: modificările celuilalt au rămas, s-au aplicat doar ale tale.${overwritten}`,
+    };
   } catch (error) {
     return fail(error);
   }

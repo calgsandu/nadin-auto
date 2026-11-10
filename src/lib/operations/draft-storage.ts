@@ -47,7 +47,7 @@ export function newToken() {
 }
 
 /**
- * `FormData` → perechi nume/valori. Cheia de idempotență NU intră: ea se ține
+ * `FormData` → perechi nume/valori. Cheia de idempotență și baza documentului NU intră: cheia se ține
  * separat, ca reîncercarea aceleiași ciorne să trimită mereu același token.
  */
 export function serializeDraft(
@@ -58,7 +58,9 @@ export function serializeDraft(
 ): OperationDraft {
   const fields: Record<string, string[]> = {};
   for (const [name, value] of formData.entries()) {
-    if (name === "idempotencyKey" || typeof value !== "string") continue;
+    // `documentBase` = versiunea serverului (sute de KB la un inventar mare);
+    // ciorna e oricum legată de versiune prin cheie, nu are ce căuta în ea.
+    if (name === "idempotencyKey" || name === "documentBase" || typeof value !== "string") continue;
     (fields[name] ??= []).push(value);
   }
   return { token, savedAt: now, fields, lines };
