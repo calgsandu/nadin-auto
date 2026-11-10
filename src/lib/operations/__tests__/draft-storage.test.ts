@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import {
+  draftContent,
+  textHash,
   DRAFT_MAX_AGE_MS,
   draftKey,
   parseDraft,
@@ -47,5 +49,16 @@ assert.equal(parseDraft(JSON.stringify({ ...draft, fields: { a: [1] } }), NOW), 
 
 // Liniile sunt opace: se întorc exact cum au intrat.
 assert.deepEqual(restored?.lines, [{ id: 1, productId: "p-1" }]);
+
+// „Nimic schimbat": aceeași formă la altă oră și cu alt token are același conținut.
+assert.equal(
+  draftContent(draft),
+  draftContent({ ...draft, token: "token-2", savedAt: NOW + 5000 }),
+);
+assert.notEqual(draftContent(draft), draftContent({ ...draft, lines: [{ id: 1, productId: "p-2" }] }));
+
+// Versiunea documentului din cheia ciornei: alt conținut pe server = altă cheie.
+assert.equal(textHash("inventar #1, 953 linii"), textHash("inventar #1, 953 linii"));
+assert.notEqual(textHash("inventar #1, 953 linii"), textHash("inventar #1, 954 linii"));
 
 console.log("draft storage test passed");

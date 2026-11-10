@@ -1,7 +1,7 @@
 "use client";
 
 import { ClipboardCheck, Package, Pencil, Plus, Trash2 } from "lucide-react";
-import { useActionState, useMemo, useState } from "react";
+import { memo, useActionState, useCallback, useEffect, useMemo, useState } from "react";
 import { ActionFeedback } from "@/app/components/action-feedback";
 import {
   DrawerField,
@@ -17,7 +17,8 @@ import {
   drawerLineClassName,
   drawerSecondaryButton,
 } from "@/app/components/operation-drawer";
-import { useDrawerDraft } from "@/app/components/use-drawer-draft";
+import { pruneDrafts, useDrawerDraft } from "@/app/components/use-drawer-draft";
+import { textHash } from "@/lib/operations/draft-storage";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
 import { SupplierPicker } from "@/app/partners/supplier-picker";
 import {
@@ -199,8 +200,21 @@ function EditPanel({
   const [filter, setFilter] = useState("");
   // Ciorna e per document: modificările neterminate la #12 nu au ce căuta la #13.
   // Rândurile primesc id-uri noi la recuperare, ca fișele de produs să se refacă.
+  // Ciorna ține de versiunea documentului de pe server: dacă între timp l-a
+  // salvat altcineva (alt calculator), ciorna veche nu se mai recuperează —
+  // altfel la „Salvează" ar șterge tăcut modificările celuilalt.
+  const version = useMemo(
+    () => textHash(JSON.stringify([lines, documentDate, notes, warehouseId, partnerId, partnerName])),
+    [lines, documentDate, notes, warehouseId, partnerId, partnerName],
+  );
+  const draftKind = `doc-edit:${id}:${version}`;
+  useEffect(() => {
+    // Ciornele versiunilor vechi ale documentului: sute de KB fiecare la un
+    // inventar mare, și nu mai pot fi recuperate oricum.
+    pruneDrafts(`doc-edit:${id}`, draftKind);
+  }, [id, draftKind]);
   const draft = useDrawerDraft({
-    kind: `doc-edit:${id}`,
+    kind: draftKind,
     lines: editableLines,
     setLines: (restored) => {
       setEditableLines(restored.map((line, index) => ({ ...line, id: nextLineId + index })));
@@ -233,25 +247,21 @@ function EditPanel({
     focusFirstLineSearch();
   }
 
-  function removeLine(id: number) {
+  const removeLine = useCallback((id: number) => {
     setEditableLines((current) => current.filter((line) => line.id !== id));
-  }
+  }, []);
 
-  function patchLine(id: number, patch: Partial<EditableLine>) {
+  const patchLine = useCallback((id: number, patch: Partial<EditableLine>) => {
     setEditableLines((current) =>
       current.map((line) => (line.id === id ? { ...line, ...patch } : line)),
     );
-  }
+  }, []);
 
-  function setLineField(
-    id: number,
-    field: "quantity" | "price" | "externalName" | "externalCode" | "externalCost",
-    value: string,
-  ) {
-    setEditableLines((current) =>
-      current.map((line) => (line.id === id ? { ...line, [field]: value } : line)),
-    );
-  }
+  // Produsele deja puse pe rânduri (să nu fie alese de două ori). Se schimbă doar
+  // când se schimbă setul de produse, nu la fiecare cifră: altfel toate rândurile
+  // se redesenează la fiecare tastă (Inventar #1 are ~950).
+  const selectedKey = editableLines.map((line) => line.productId).join(",");
+  const selectedProductIds = useMemo(() => selectedKey.split(",").filter(Boolean), [selectedKey]);
 
   return (
     <OperationDrawer
@@ -315,134 +325,19 @@ function EditPanel({
             </div>
           }
         >
-          {editableLines.map((line, index) => {
-            const isExternal = !line.productId && Boolean(line.externalName);
-            return (
-              <div
-                key={line.id}
-                className={`${drawerLineClassName} ${
-                  isExternal
-                    ? "line-keep-labels border-[#dbeafe] md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.25rem]"
-                    : isInventory
-                      ? "md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.25rem]"
-                      : "md:grid-cols-[minmax(0,1fr)_7rem_8rem_11rem_2.25rem]"
-                }`}
-                style={matchesLineFilter(filter, line) ? undefined : { display: "none" }}
-              >
-                <div>
-                  <p className={`line-label mb-1 text-xs font-semibold leading-5 ${isExternal ? "text-[#1d4ed8]" : "text-[#52525b]"}`}>
-                    {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : `Produs ${index + 1}`}
-                  </p>
-                  {isExternal ? (
-                    <>
-                      <input name="lineProductId" type="hidden" value="" />
-                      <input name="lineExternalSupplierId" type="hidden" value={line.externalSupplierId ?? ""} />
-                      <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_8rem]">
-                        <input
-                          className={drawerInputClassName}
-                          name="lineExternalName"
-                          required
-                          value={line.externalName ?? ""}
-                          onChange={(event) => setLineField(line.id, "externalName", event.currentTarget.value)}
-                        />
-                        <input
-                          className={drawerInputClassName}
-                          name="lineExternalCode"
-                          placeholder="cod piesă"
-                          value={line.externalCode ?? ""}
-                          onChange={(event) => setLineField(line.id, "externalCode", event.currentTarget.value)}
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <input name="lineExternalName" type="hidden" value="" />
-                      <input name="lineExternalCode" type="hidden" value="" />
-                      <input name="lineExternalSupplierId" type="hidden" value="" />
-                      <input name="lineExternalCostLei" type="hidden" value="" />
-                      <ProductSearchCombobox
-                        name="lineProductId"
-                        showHint={false}
-                        initialProduct={
-                          line.productId ? { id: line.productId, label: line.label } : null
-                        }
-                        excludedProductIds={editableLines
-                          .filter((item) => item.id !== line.id)
-                          .map((item) => item.productId)}
-                        onSelect={(product) =>
-                          patchLine(line.id, {
-                            productId: product.id,
-                            label: product.label,
-                            quantity: quantityAfterSelect(product.id),
-                          })
-                        }
-                        onClear={() =>
-                          patchLine(line.id, { productId: "", label: "", quantity: "" })
-                        }
-                      />
-                    </>
-                  )}
-                </div>
-                <DrawerField label={isInventory ? "Diferență (buc)" : "Cantitate"}>
-                  <input
-                    className={drawerInputClassName}
-                    name="lineQuantity"
-                    type="number"
-                    {...(isInventory ? {} : { min: 1 })}
-                    value={line.quantity}
-                    onChange={(event) => setLineField(line.id, "quantity", event.currentTarget.value)}
-                  />
-                </DrawerField>
-                {isExternal ? (
-                  <DrawerField label="Cost lei">
-                    <input
-                      className={drawerInputClassName}
-                      name="lineExternalCostLei"
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      value={line.externalCost ?? ""}
-                      placeholder="achiziție"
-                      onChange={(event) => setLineField(line.id, "externalCost", event.currentTarget.value)}
-                    />
-                  </DrawerField>
-                ) : null}
-                {isInventory ? (
-                  <input name="linePrice" type="hidden" value="" />
-                ) : (
-                  <DrawerField label="Preț lei">
-                    <input
-                      className={drawerInputClassName}
-                      name="linePrice"
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      value={line.price}
-                      placeholder="preț"
-                      onChange={(event) => setLineField(line.id, "price", event.currentTarget.value)}
-                    />
-                  </DrawerField>
-                )}
-                {isExternal ? null : (
-                  <LabelStickerCell
-                    index={index}
-                    defaultCopies={line.quantity.replace("-", "")}
-                    line={line}
-                    onChange={(patch) => patchLine(line.id, patch)}
-                  />
-                )}
-                <button
-                  aria-label={`Șterge produsul ${index + 1}`}
-                  className={drawerDangerButton}
-                  disabled={editableLines.length === 1}
-                  type="button"
-                  onClick={() => removeLine(line.id)}
-                >
-                  <Trash2 className="size-4" aria-hidden="true" />
-                </button>
-              </div>
-            );
-          })}
+          {editableLines.map((line, index) => (
+            <EditLineRow
+              key={line.id}
+              line={line}
+              index={index}
+              isInventory={isInventory}
+              hidden={!matchesLineFilter(filter, line)}
+              selectedProductIds={selectedProductIds}
+              canRemove={editableLines.length > 1}
+              onPatch={patchLine}
+              onRemove={removeLine}
+            />
+          ))}
           {editableLines.length === 0 ? (
             <div className="rounded-md border border-dashed border-[#e4e4e7] px-3 py-6 text-center text-sm text-[#52525b]">
               Adaugă cel puțin un produs.
@@ -463,6 +358,153 @@ function EditPanel({
     </OperationDrawer>
   );
 }
+
+/**
+ * Un rând din editarea unui document. E `memo`: Inventar #1 are ~950 de rânduri,
+ * iar fără el fiecare tastă redesena tot panoul (și calcula pentru fiecare rând
+ * lista celorlalte 949 de produse) — secunde de blocaj la o singură cifră.
+ */
+const EditLineRow = memo(function EditLineRow({
+  line,
+  index,
+  isInventory,
+  hidden,
+  selectedProductIds,
+  canRemove,
+  onPatch,
+  onRemove,
+}: {
+  line: EditableLine;
+  index: number;
+  isInventory: boolean;
+  hidden: boolean;
+  selectedProductIds: string[];
+  canRemove: boolean;
+  onPatch: (id: number, patch: Partial<EditableLine>) => void;
+  onRemove: (id: number) => void;
+}) {
+  const isExternal = !line.productId && Boolean(line.externalName);
+  return (
+    <div
+      className={`${drawerLineClassName} ${
+        isExternal
+          ? "line-keep-labels border-[#dbeafe] md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.25rem]"
+          : isInventory
+            ? "md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.25rem]"
+            : "md:grid-cols-[minmax(0,1fr)_7rem_8rem_11rem_2.25rem]"
+      }`}
+      style={hidden ? { display: "none" } : undefined}
+    >
+      <div>
+        <p className={`line-label mb-1 text-xs font-semibold leading-5 ${isExternal ? "text-[#1d4ed8]" : "text-[#52525b]"}`}>
+          {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : `Produs ${index + 1}`}
+        </p>
+        {isExternal ? (
+          <>
+            <input name="lineProductId" type="hidden" value="" />
+            <input name="lineExternalSupplierId" type="hidden" value={line.externalSupplierId ?? ""} />
+            <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_8rem]">
+              <input
+                className={drawerInputClassName}
+                name="lineExternalName"
+                required
+                value={line.externalName ?? ""}
+                onChange={(event) => onPatch(line.id, { externalName: event.currentTarget.value })}
+              />
+              <input
+                className={drawerInputClassName}
+                name="lineExternalCode"
+                placeholder="cod piesă"
+                value={line.externalCode ?? ""}
+                onChange={(event) => onPatch(line.id, { externalCode: event.currentTarget.value })}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <input name="lineExternalName" type="hidden" value="" />
+            <input name="lineExternalCode" type="hidden" value="" />
+            <input name="lineExternalSupplierId" type="hidden" value="" />
+            <input name="lineExternalCostLei" type="hidden" value="" />
+            <ProductSearchCombobox
+              name="lineProductId"
+              showHint={false}
+              initialProduct={line.productId ? { id: line.productId, label: line.label } : null}
+              // ponytail: include și produsul rândului; căutarea nu rulează cât
+              // rândul are produs, iar „șterge" îl scoate din listă.
+              excludedProductIds={selectedProductIds}
+              onSelect={(product) =>
+                onPatch(line.id, {
+                  productId: product.id,
+                  label: product.label,
+                  quantity: quantityAfterSelect(product.id),
+                })
+              }
+              onClear={() => onPatch(line.id, { productId: "", label: "", quantity: "" })}
+            />
+          </>
+        )}
+      </div>
+      <DrawerField label={isInventory ? "Diferență (buc)" : "Cantitate"}>
+        <input
+          className={drawerInputClassName}
+          name="lineQuantity"
+          type="number"
+          {...(isInventory ? {} : { min: 1 })}
+          value={line.quantity}
+          onChange={(event) => onPatch(line.id, { quantity: event.currentTarget.value })}
+        />
+      </DrawerField>
+      {isExternal ? (
+        <DrawerField label="Cost lei">
+          <input
+            className={drawerInputClassName}
+            name="lineExternalCostLei"
+            type="number"
+            min={0}
+            step="0.01"
+            value={line.externalCost ?? ""}
+            placeholder="achiziție"
+            onChange={(event) => onPatch(line.id, { externalCost: event.currentTarget.value })}
+          />
+        </DrawerField>
+      ) : null}
+      {isInventory ? (
+        <input name="linePrice" type="hidden" value="" />
+      ) : (
+        <DrawerField label="Preț lei">
+          <input
+            className={drawerInputClassName}
+            name="linePrice"
+            type="number"
+            min={0}
+            step="0.01"
+            value={line.price}
+            placeholder="preț"
+            onChange={(event) => onPatch(line.id, { price: event.currentTarget.value })}
+          />
+        </DrawerField>
+      )}
+      {isExternal ? null : (
+        <LabelStickerCell
+          index={index}
+          defaultCopies={line.quantity.replace("-", "")}
+          line={line}
+          onChange={(patch) => onPatch(line.id, patch)}
+        />
+      )}
+      <button
+        aria-label={`Șterge produsul ${index + 1}`}
+        className={drawerDangerButton}
+        disabled={!canRemove}
+        type="button"
+        onClick={() => onRemove(line.id)}
+      >
+        <Trash2 className="size-4" aria-hidden="true" />
+      </button>
+    </div>
+  );
+});
 
 function DeleteForm({ id, title }: { id: string; title: string }) {
   const [state, formAction] = useActionState(deleteDocumentAction, initial);

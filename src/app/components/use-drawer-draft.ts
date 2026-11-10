@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  draftContent,
   draftKey,
   newToken,
   parseDraft,
@@ -53,6 +54,8 @@ export function useDrawerDraft<L>({
   const [restoredAt, setRestoredAt] = useState<number | null>(null);
   const [form, setForm] = useState<HTMLFormElement | null>(null);
   const pendingFields = useRef<Record<string, string[]> | null>(null);
+  /** Ciornă recuperată = formularul diferă deja de cel curat, deci nu are „formă de pornire". */
+  const restored = useRef(false);
   // Datele și callback-urile se schimbă la fiecare randare; salvarea debounce-uită
   // are nevoie de cele curente, nu de cele din randarea în care a pornit.
   const linesRef = useRef(lines);
@@ -75,6 +78,7 @@ export function useDrawerDraft<L>({
       draft = null;
     }
     setToken(draft?.token ?? newToken());
+    restored.current = Boolean(draft);
     if (!draft) return;
     pendingFields.current = draft.fields;
     setSavedAt(draft.savedAt);
@@ -95,8 +99,24 @@ export function useDrawerDraft<L>({
   useEffect(() => {
     if (!form || !token) return;
     let timer = 0;
+    // Forma de pornire a formularului. Cât timp operatorul n-a schimbat nimic
+    // (a deschis, a dat un click, a închis), nu se scrie nicio ciornă: altfel la
+    // următoarea deschidere apărea „ciornă recuperată" fără să fi lucrat nimeni,
+    // iar la editarea unui document conținutul vechi îl acoperea pe cel de pe server.
+    const pristine = restored.current
+      ? null
+      : draftContent(serializeDraft(new FormData(form), linesRef.current, token));
     const write = () => {
       const draft = serializeDraft(new FormData(form), linesRef.current, token);
+      if (pristine !== null && draftContent(draft) === pristine) {
+        try {
+          window.localStorage.removeItem(key);
+        } catch {
+          // Fără localStorage nu era nimic de șters.
+        }
+        setSavedAt(null);
+        return;
+      }
       try {
         window.localStorage.setItem(key, JSON.stringify(draft));
       } catch {
@@ -122,6 +142,7 @@ export function useDrawerDraft<L>({
     } catch {
       // Fără localStorage nu era nimic de șters oricum.
     }
+    restored.current = false;
     setToken(newToken());
     setSavedAt(null);
     setRestoredAt(null);
@@ -141,6 +162,24 @@ export function useDrawerDraft<L>({
     banner: { savedAt, restoredAt, onDiscard: discard } satisfies DrawerDraftBanner,
     clear,
   };
+}
+
+/**
+ * Șterge ciornele rămase de la alte versiuni ale aceluiași document
+ * (`doc-edit:<id>` și `doc-edit:<id>:<versiune veche>`), păstrând-o pe cea curentă.
+ */
+export function pruneDrafts(kindPrefix: string, keepKind: string) {
+  try {
+    const base = draftKey(kindPrefix);
+    const keep = draftKey(keepKind);
+    for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
+      const name = window.localStorage.key(index);
+      if (!name || name === keep) continue;
+      if (name === base || name.startsWith(`${base}:`)) window.localStorage.removeItem(name);
+    }
+  } catch {
+    // Fără localStorage nu sunt ciorne de curățat.
+  }
 }
 
 /**

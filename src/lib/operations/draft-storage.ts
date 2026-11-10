@@ -28,6 +28,20 @@ export function draftKey(kind: string) {
   return `nadin-draft:${DRAFT_VERSION}:${kind}`;
 }
 
+/** Amprentă scurtă a unui text (djb2) — destul cât să deosebească două versiuni ale unui document. */
+export function textHash(text: string) {
+  let hash = 5381;
+  for (let index = 0; index < text.length; index += 1) {
+    hash = ((hash << 5) + hash + text.charCodeAt(index)) | 0;
+  }
+  return (hash >>> 0).toString(36);
+}
+
+/** Ce s-ar scrie în ciornă, fără token și oră: două forme egale = nimic schimbat. */
+export function draftContent(draft: OperationDraft) {
+  return JSON.stringify([draft.fields, draft.lines]);
+}
+
 export function newToken() {
   return crypto.randomUUID();
 }
