@@ -428,7 +428,9 @@ async function main() {
         externalCode: r.code,
         description: r.desc,
         notes: cleanNotes(parsed.notes),
-        stock: r.stock ?? 0,
+        // Stocul din pricelist NU e stocul nostru: după resetul din 2026-08-07 stocul vine
+        // doar din inventar/recepții. Coloana din foaie băga bucăți fantomă în Depozit principal.
+        stock: 0,
         priceEuro: r.priceEuro,
         costLei: r.costLei,
         isLocal: r.isLocal,
@@ -436,7 +438,7 @@ async function main() {
         typeId: types.get(parsed.typeName)!,
         productFitments: { create: [{ fitmentId: r.fitment.id }] },
         warehouseStocks: {
-          create: [{ warehouseId: defaultWarehouse.id, quantity: r.stock ?? 0 }],
+          create: [{ warehouseId: defaultWarehouse.id, quantity: 0 }],
         },
       },
     });

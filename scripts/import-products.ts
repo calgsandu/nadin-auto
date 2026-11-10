@@ -213,7 +213,9 @@ async function main() {
         externalCode: row.externalCode,
         description: row.description,
         notes: row.notes,
-        stock: row.stock,
+        // Stocul vine doar din documente (inventar/recepții), nu din pricelist —
+        // altfel Product.stock apare fără rând în WarehouseStock (stoc fantomă).
+        stock: 0,
         priceEuro: row.priceEuro,
         costLei: row.costLei,
         fitmentId: fitment.id,
