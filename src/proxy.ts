@@ -56,6 +56,7 @@ export const config = {
     // `opengraph-image` trebuie să rămână public: cardul de link e cerut de
     // WhatsApp/Facebook fără cookie, iar în spatele gardei primeau un 307 spre
     // sign-in și linkul apărea fără imagine.
-    "/((?!$|api/auth|auth|catalog|ru/catalog|robots.txt|sitemap.xml|opengraph-image|twitter-image|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    // `manifest.webmanifest` la fel: browserul îl cere fără cookie.
+    "/((?!$|api/auth|auth|catalog|ru/catalog|robots.txt|sitemap.xml|manifest.webmanifest|opengraph-image|twitter-image|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
