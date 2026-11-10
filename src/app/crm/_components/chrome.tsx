@@ -10,6 +10,7 @@ import {
   FileText,
   LogOut,
   PackageMinus,
+  Search,
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -22,6 +23,7 @@ import { crmSectionHref, sectionFromPathname } from "@/lib/crm/urls";
 import { groupForSection, navigationGroups, sectionLabel } from "@/lib/operations/workspace";
 import { canViewSection } from "@/lib/roles";
 import { menuIcons, sectionIcon } from "./section-icons";
+import { CommandPalette, openCommandPalette } from "./command-palette";
 import type { AppRole } from "@/generated/prisma/enums";
 
 /**
@@ -35,12 +37,19 @@ const NavCountsContext = createContext<NavCounts>({});
 
 export function CrmChrome({
   counts,
+  role,
   children,
 }: {
   counts: NavCounts;
+  role: AppRole;
   children: ReactNode;
 }) {
-  return <NavCountsContext value={counts}>{children}</NavCountsContext>;
+  return (
+    <NavCountsContext value={counts}>
+      {children}
+      <CommandPalette role={role} />
+    </NavCountsContext>
+  );
 }
 
 function countFor(counts: NavCounts, section: string) {
@@ -100,6 +109,15 @@ export function Sidebar({
           <SidebarCollapseButton />
         </div>
         <div className="flex shrink-0 items-center gap-2 lg:hidden">
+          <button
+            type="button"
+            aria-label="Caută piese și comenzi"
+            title="Caută"
+            className="button-secondary inline-flex size-8 items-center justify-center rounded-lg border border-[#e4e4e7] bg-white text-[#52525b] hover:border-[#d4d4d8] hover:text-[#18181b]"
+            onClick={openCommandPalette}
+          >
+            <Search className="size-4" aria-hidden="true" />
+          </button>
           <ChangePasswordDialog compact />
           <TrustedDeviceControl compact />
           <LogoutButton compact />
@@ -124,6 +142,17 @@ export function Sidebar({
           ocupă un singur rând; cele folosite rar stau sub o linie. */}
       <div className="hidden min-h-0 flex-1 overflow-y-auto pt-1 lg:block">
         <div className="grid gap-px">
+          {/* Paleta de comenzi: piesa, prețul și stocul din orice ecran. */}
+          <button
+            type="button"
+            title="Caută (Ctrl K)"
+            className="motion-nav-link mb-1 flex items-center gap-2.5 rounded-lg border border-[#e4e4e7] bg-white px-2.5 py-1.5 text-left text-sm font-medium text-[#71717a] hover:border-[#d4d4d8] hover:text-[#18181b] lg:py-[0.3125rem]"
+            onClick={openCommandPalette}
+          >
+            <Search className="size-4 shrink-0" aria-hidden="true" />
+            <span className="crm-nav-label truncate">Caută</span>
+            <kbd className="crm-nav-badge ml-auto font-sans text-xs text-[#a1a1aa]">Ctrl K</kbd>
+          </button>
           {visibleGroups.map((group, index) => (
             <Fragment key={group.id}>
               {group.rare && !visibleGroups[index - 1]?.rare ? (
@@ -223,12 +252,9 @@ function NavLink({
 }
 
 /**
- * Căutarea de piese, mereu la îndemână: duce în Produse cu termenul scris.
- * Ctrl+K (sau ⌘K) o focusează de oriunde din CRM.
- */
-/**
- * Ctrl+K (sau „/" când nu scrii într-un câmp) duce în căutarea din Produse, de
- * oriunde din CRM. Cu un panou deschis nu face nimic: ar pierde ciorna din ochi.
+ * „/" (când nu scrii într-un câmp) duce în căutarea din Produse, de oriunde din
+ * CRM. Cu un panou deschis nu face nimic: ar pierde ciorna din ochi.
+ * Ctrl+K deschide paleta de comenzi (vezi `CommandPalette`).
  */
 function useSearchShortcut() {
   const router = useRouter();
@@ -248,9 +274,7 @@ function useSearchShortcut() {
         target instanceof HTMLTextAreaElement ||
         target instanceof HTMLSelectElement ||
         target.isContentEditable;
-      const shortcut =
-        ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") ||
-        (event.key === "/" && !typing && !event.ctrlKey && !event.metaKey && !event.altKey);
+      const shortcut = event.key === "/" && !typing && !event.ctrlKey && !event.metaKey && !event.altKey;
       if (!shortcut) return;
       const drawerOpen = Array.from(document.querySelectorAll<HTMLElement>(".motion-drawer-backdrop")).some(
         (backdrop) => backdrop.style.display !== "none",

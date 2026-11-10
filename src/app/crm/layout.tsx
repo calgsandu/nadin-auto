@@ -41,7 +41,7 @@ export default async function CrmLayout({
   ]);
 
   return (
-    <CrmChrome counts={{ aprobari, "de-adus": deAdus, "conturi-plata": proforme, "stoc-mic": stocMic }}>
+    <CrmChrome role={role} counts={{ aprobari, "de-adus": deAdus, "conturi-plata": proforme, "stoc-mic": stocMic }}>
       <main className="crm-main min-h-[100dvh] bg-[#f4f4f5] lg:grid lg:grid-cols-[14rem_minmax(0,1fr)]">
         <aside className="crm-aside sticky top-0 z-40 border-b border-[#e4e4e7] bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-[14rem] lg:border-b-0 lg:bg-transparent">
           <Sidebar
