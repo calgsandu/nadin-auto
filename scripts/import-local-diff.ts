@@ -6,52 +6,41 @@ import {
   normalizeText,
   parseProductDescription,
 } from "@/lib/catalog/parse-product";
+import { canon, fixTypos, stripMarkers } from "@/lib/catalog/pricelist-text";
 
-// ponytail: one-off diff-import pentru PRAIS-LIST 29.08.2025 + marcare piese LOCAL.
-// Dry-run implicit; scrie doar cu --apply.
+// ponytail: diff-import pentru un pricelist nou + marcare piese LOCAL. Dry-run
+// implicit; scrie doar cu --apply. `--key=` dă prefixul de importKey al rulării
+// (pl2508 = 29.08.2025, pl2601 = 26.01.2026).
+//
+// ATENȚIE la fiecare pricelist nou: dacă „Produse noi pe MODEL nou" sare la sute,
+// aproape sigur ALIASES de mai jos e vechi față de numele modelelor din DB, nu are
+// furnizorul modele noi. Verifică înainte de --apply, altfel dublezi catalogul.
 
 const args = process.argv.slice(2).filter((a) => a !== "--");
 const workbookPath = args.find((a) => !a.startsWith("--"));
 const APPLY = args.includes("--apply");
-if (!workbookPath) throw new Error("Usage: tsx scripts/import-local-diff.ts <file.xlsx> [--apply]");
+const KEY_PREFIX = args.find((a) => a.startsWith("--key="))?.slice("--key=".length) ?? "pl2601";
+if (!workbookPath)
+  throw new Error("Usage: tsx scripts/import-local-diff.ts <file.xlsx> [--key=pl2601] [--apply]");
 
-const LOCAL_RE = /\/\s*local\s*\/?/gi;
-
-function stripMarkers(raw: string) {
-  let d = raw.replace(/ZZZ/g, " ");
-  const isLocal = LOCAL_RE.test(d);
-  d = d.replace(LOCAL_RE, " ");
-  d = d.replace(/\s+/g, " ").trim();
-  return { desc: d, isLocal };
-}
-
-function canon(s: string) {
-  return s.toUpperCase().replace(/[^A-Z0-9ĂÂÎȘȚ]+/g, "");
-}
+// Secțiunile de final n-au vehicul: intră sub marca UNIVERSAL, pe modelul lor.
+const UNIVERSAL_BRAND = "UNIVERSAL";
+const UNIVERSAL_SECTIONS: Array<[string, string]> = [
+  ["ȘTERGĂTOARE", "ȘTERGĂTOARE"],
+  ["LUBRIFIANTI", "LUBRIFIANȚI"],
+];
 
 const BRAND_PREFIXES = [
   "MERCEDES-BENZ", "MERCEDES", "MB", "VOLKSWAGEN", "VW", "FORD", "FIAT",
   "RENAULT", "OPEL", "TOYOTA", "HONDA", "HYUNDAI", "NISSAN", "MAZDA",
   "PEUGEOT", "CITROEN", "SKODA", "SEAT", "SUZUKI", "SUBARU", "MITSUBISHI",
   "KIA", "DACIA", "DAEWOO", "CHEVROLET", "DODGE", "IVECO", "BMW", "AUDI",
-  "VOLVO", "ROVER", "LAND ROVER",
+  "VOLVO", "ROVER", "LAND ROVER", "VAZ", "MOSKVICI",
 ];
 
-const TYPO_FIXES: Array<[RegExp, string]> = [
-  [/Mîiner/g, "Mâner"],
-  [/mîiner/g, "mâner"],
-  [/Mecanizm/g, "Mecanism"],
-  [/mecanizm/g, "mecanism"],
-  [/Diuză/g, "Duză"],
-  [/diuză/g, "duză"],
-  [/Stîlp/g, "Stâlp"],
-  [/stîlp/g, "stâlp"],
-  [/Jgheag/g, "Jgheab"],
-  [/jgheag/g, "jgheab"],
-];
-
-function fixTypos(s: string) {
-  return TYPO_FIXES.reduce((acc, [re, to]) => acc.replace(re, to), s);
+function titleCaseRo(value: string) {
+  const lower = value.toLocaleLowerCase("ro");
+  return lower.charAt(0).toLocaleUpperCase("ro") + lower.slice(1);
 }
 
 // curăță celula de model: dash-uri multiple/agățate, spații
@@ -64,11 +53,22 @@ function cleanModelCell(cell: string) {
     .trim();
 }
 
+// scoate tokenurile de ani de la final (`/94-06/`, `/06+`, ` 96-14 `), oricâte ar fi:
+// unele celule le lipesc („MB DELFIN /06-18/ /18+").
+const YEAR_TOKEN = /\s*\/\s*\d{2,4}(?:\s*-\s*\d{2,4})?\s*\+?\s*\/?\s*$/;
+function stripYearTokens(input: string) {
+  let s = input.trim();
+  for (let guard = 0; guard < 5 && YEAR_TOKEN.test(s); guard += 1) {
+    s = s.replace(YEAR_TOKEN, "").trim();
+  }
+  return s;
+}
+
 // model-cell → cheie model (fără brand, fără anii finali)
 function modelKeyFromCell(cell: string) {
   let s = cleanModelCell(cell).toUpperCase();
   // scoate DOAR tokenul de ani de la final, prefixat cu slash: /94-06/, /06+, / 96-14 /
-  s = s.replace(/\s*\/\s*\d{2,4}(?:\s*-\s*\d{2,4})?\s*\+?\s*\/?\s*$/, "").trim();
+  s = stripYearTokens(s);
   for (const b of BRAND_PREFIXES) {
     if (s.startsWith(b + " ") || s.startsWith(b + "-") || s === b) {
       s = s.slice(b.length).replace(/^-/, "").trim();
@@ -84,12 +84,16 @@ function modelKeyFromCell(cell: string) {
     COROLLAE14: "COROLLAE14E15",
     E15: "COROLLAE14E15",
     ROVERFREELANDER: "FREELANDER",
-    // nomenclatura nouă a furnizorului → modelele existente în DB
-    SPRINTER906: "DELFIN",
-    SPRINTER906907: "DELFIN",
-    SPRINTER907: "DELFIN907",
+    // nomenclatura furnizorului → modelele din DB (redenumite la auditul din 07.2026)
+    DELFIN: "SPRINTER906DELFIN",
+    SPRINTER906: "SPRINTER906DELFIN",
+    SPRINTER906907: "SPRINTER906DELFIN",
+    DELFIN907: "SPRINTER907DELFIN",
+    SPRINTER907: "SPRINTER907DELFIN",
+    REX: "VARIOREX",
+    VARIO: "VARIOREX",
+    REXVARIO: "VARIOREX",
     VITOVIANO: "VITOW639",
-    REXVARIO: "REX",
     GOLFIIJETTA: "GOLFII",
     GOLFIIJETTAII: "GOLFII",
     GOLFIIIVENTO: "GOLFIII",
@@ -106,7 +110,7 @@ function modelKeyFromCell(cell: string) {
 // pentru modele complet noi: brand + nume model din celulă
 function newModelFromCell(cell: string): { brand: string; model: string } | null {
   let s = cleanModelCell(cell);
-  s = s.replace(/\s*\/\s*\d{2,4}(?:\s*-\s*\d{2,4})?\s*\+?\s*\/?\s*$/, "").trim();
+  s = stripYearTokens(s);
   const upper = s.toUpperCase();
   const SHORT: Record<string, string> = { MB: "MERCEDES-BENZ", MERCEDES: "MERCEDES-BENZ", VW: "VOLKSWAGEN" };
   for (const b of BRAND_PREFIXES) {
@@ -160,10 +164,18 @@ async function main() {
     if (!modelFitments.has(key)) modelFitments.set(key, []);
     modelFitments.get(key)!.push(f);
   }
+  // orderBy fix: pricelistul are grupuri de produse cu descriere identică pe același
+  // fitment, iar harta de descrieri păstrează ultimul scris — fără ordine stabilă,
+  // două rulări aleg gemeni diferiți.
   const products = await prisma.product.findMany({
-    select: { id: true, externalCode: true, description: true, fitmentId: true, isLocal: true, notes: true },
+    select: { id: true, externalCode: true, description: true, fitmentId: true, isLocal: true, notes: true, sourceRow: true },
+    orderBy: { id: "asc" },
   });
-  const byFitment = new Map<string, { codes: Map<string, string>; descs: Map<string, string> }>();
+  const alreadyLocal = new Set(products.filter((p) => p.isLocal).map((p) => p.id));
+  const byFitment = new Map<string, { codes: Map<string, string[]>; descs: Map<string, string[]> }>();
+  const codeOf = new Map(products.map((p) => [p.id, p.externalCode]));
+  const descOf = new Map(products.map((p) => [p.id, canon(stripMarkers(p.description).desc)]));
+  const rowOf = new Map(products.map((p) => [p.id, p.sourceRow]));
   const pf = await prisma.productFitment.findMany();
   const productFitmentIds = new Map<string, string[]>();
   for (const link of pf) {
@@ -176,9 +188,69 @@ async function main() {
     for (const fid of fits) {
       if (!byFitment.has(fid)) byFitment.set(fid, { codes: new Map(), descs: new Map() });
       const bucket = byFitment.get(fid)!;
-      if (p.externalCode) bucket.codes.set(canon(p.externalCode), p.id);
-      bucket.descs.set(canon(cleaned), p.id);
+      if (p.externalCode) {
+        const codeKey = canon(p.externalCode);
+        if (!bucket.codes.has(codeKey)) bucket.codes.set(codeKey, []);
+        bucket.codes.get(codeKey)!.push(p.id);
+      }
+      const descKey = canon(cleaned);
+      if (!bucket.descs.has(descKey)) bucket.descs.set(descKey, []);
+      bucket.descs.get(descKey)!.push(p.id);
     }
+  }
+
+  // Un cod nou pe o descriere care există deja NU e aceeași piesă: pricelistul are
+  // zeci de piese cu descriere identică și coduri diferite (stânga/dreapta, variante
+  // de bază). Cădem pe descriere doar când rândul vine fără cod, sau când produsul
+  // din DB n-are încă niciun cod — atunci pricelistul doar i-l completează.
+  const claimed = new Set<string>();
+  const accounted = new Set<number>();
+  const dropped: string[] = [];
+  const codeChanges: Array<{ id: string; from: string | null; to: string; desc: string }> = [];
+  type Bucket = { codes: Map<string, string[]>; descs: Map<string, string[]> };
+
+  // Potrivire pe CONSUM, nu pe „există sau nu": pricelistul repetă aceeași descriere
+  // pe zeci de piese diferite, iar importul inițial a făcut un produs per rând. Fără
+  // consum, două rânduri distincte se potrivesc cu același produs din DB și al doilea
+  // se pierde tăcut. Fiecare produs din DB poate fi revendicat o singură dată.
+  function take(ids: string[] | undefined) {
+    const hit = ids?.find((id) => !claimed.has(id));
+    if (hit) claimed.add(hit);
+    return hit ?? null;
+  }
+  function resolveExisting(
+    bucket: Bucket | undefined,
+    code: string | null,
+    desc: string,
+    sheetRow: number,
+  ) {
+    if (!bucket) return null;
+    const descKey = canon(desc);
+    if (!code) return take(bucket.descs.get(descKey));
+
+    // `canon` scoate spațiile și liniuțele, deci „P22802 1" și „P22802-1" cad pe
+    // aceeași cheie deși sunt piese diferite — preferă candidatul a cărui descriere
+    // se potrivește, ca să nu se lege perechi greșite.
+    const sameCode = bucket.codes.get(canon(code)) ?? [];
+    const byCode = take(sameCode.filter((id) => descOf.get(id) === descKey)) ?? take(sameCode);
+    if (byCode) return byCode;
+
+    const sameDesc = bucket.descs.get(descKey) ?? [];
+    // Produs din DB fără cod: pricelistul doar i-l completează.
+    const uncoded = take(sameDesc.filter((id) => !codeOf.get(id)));
+    if (uncoded) return uncoded;
+
+    // Același rând-sursă + aceeași descriere + același model, dar alt cod = furnizorul
+    // a schimbat codul între versiuni de pricelist, nu e piesă nouă. Fără regula asta
+    // ar intra un duplicat lângă produsul cu codul vechi.
+    const renamed = take(sameDesc.filter((id) => rowOf.get(id) === sheetRow));
+    if (renamed) {
+      codeChanges.push({ id: renamed, from: codeOf.get(renamed) ?? null, to: code, desc });
+      return renamed;
+    }
+
+    // Cod nou pe o descriere existentă, pe alt rând = piesă nouă.
+    return null;
   }
 
   type NewRow = {
@@ -205,10 +277,12 @@ async function main() {
     BaseRow & { sibling: (typeof fitments)[number]; years: ReturnType<typeof parseYears> }
   > = [];
   const newModelRows: Array<BaseRow & { modelCell: string }> = [];
+  const universalRows: Array<BaseRow & { line: string; model: string }> = [];
   const toMarkLocal = new Set<string>();
   const unmatchedModels = new Map<string, number>();
   let matched = 0;
   let sectionLocal = false;
+  let universal: string | null = null;
   const stopped = false;
 
   const num = (v: unknown) => {
@@ -221,18 +295,50 @@ async function main() {
     const [itemV, codeV, modelV, descV] = row;
     const first = normalizeText(itemV);
 
-    if (first.toUpperCase().includes("CARENAJE RUSSIA")) break; // secțiuni speciale, ca importerul
-
     if (first && !codeV && !modelV && !descV) {
+      const upper = first.toUpperCase();
+      // Secțiunile fără vehicul (ștergătoare, lubrifianți) merg pe altă ramură:
+      // coloana C ține linia de produs, nu un model auto.
+      universal = UNIVERSAL_SECTIONS.find(([marker]) => upper.includes(marker))?.[1] ?? null;
       sectionLocal = /\/\s*LOCAL\s*\//i.test(first);
       continue;
     }
-    if (!modelV || !descV) continue;
+    if (!modelV) continue;
+    accounted.add(i + 1);
+
+    if (universal) {
+      // C = linia de produs (ALCA SUPER FLAT, MASTICA 2kg), D = descrierea (poate lipsi).
+      // „ALCA SPECIAL / START" → „ALCA SPECIAL/START", altfel parseNotes citește
+      // linia ca a doua notă între slash-uri.
+      const line = normalizeText(modelV).replace(/\s*\/\s*/g, "/");
+      const body = normalizeText(descV).replace(/см/gi, "cm");
+      const label = body ? `${body} ${line}` : titleCaseRo(line);
+      universalRows.push({
+        sourceRow: i + 1,
+        model: universal,
+        line,
+        code: normalizeCode(codeV),
+        desc: fixTypos(label),
+        isLocal: sectionLocal,
+        stock: num(row[stockIdx]),
+        priceEuro: num(row[priceIdx]),
+        costLei: num(row[costIdx]),
+      });
+      continue;
+    }
+
+    if (!descV) {
+      accounted.delete(i + 1); // rând de umplutură: doar modelul e tras în jos
+      continue;
+    }
 
     const modelCell = normalizeText(modelV);
     const { desc: rawDesc, isLocal: rowLocal } = stripMarkers(normalizeText(descV));
     const desc = fixTypos(rawDesc);
-    if (!desc) continue;
+    if (!desc) {
+      dropped.push(`${i + 1} | descriere goală după curățarea markerelor: ${normalizeText(descV)}`);
+      continue;
+    }
     const isLocal = rowLocal || sectionLocal;
     const code = normalizeCode(codeV);
 
@@ -259,6 +365,17 @@ async function main() {
       null;
 
     if (!fitment) {
+      // Celulele care lipesc două intervale („MB DELFIN /06-18/ /18+") cad aici deși
+      // piesa există deja pe alt interval al aceluiași model — o căutăm pe toate
+      // fitmenturile modelului înainte s-o declarăm fitment nou.
+      const onSiblings = candidates
+        .map((f) => resolveExisting(byFitment.get(f.id), code, desc, i + 1))
+        .find(Boolean);
+      if (onSiblings) {
+        matched++;
+        if (isLocal && !alreadyLocal.has(onSiblings)) toMarkLocal.add(onSiblings);
+        continue;
+      }
       // fitment nou (interval de ani nou) pe model existent
       newFitmentRows.push({
         sourceRow: i + 1,
@@ -275,12 +392,11 @@ async function main() {
     }
 
     const bucket = byFitment.get(fitment.id);
-    const existingId =
-      (code ? bucket?.codes.get(canon(code)) : undefined) ?? bucket?.descs.get(canon(desc));
+    const existingId = resolveExisting(bucket, code, desc, i + 1);
 
     if (existingId) {
       matched++;
-      if (isLocal) toMarkLocal.add(existingId);
+      if (isLocal && !alreadyLocal.has(existingId)) toMarkLocal.add(existingId);
       continue;
     }
     toInsert.push({
@@ -295,17 +411,50 @@ async function main() {
     });
   }
 
+  // rulare repetată: universalele intrate deja stau pe fitmenturile mărcii UNIVERSAL
+  const universalFitmentIds = new Set(
+    fitments.filter((f) => f.carModel.brand.name === UNIVERSAL_BRAND).map((f) => f.id),
+  );
+  const universalSeen = new Set<string>();
+  for (const fid of universalFitmentIds) {
+    const bucket = byFitment.get(fid);
+    for (const key of bucket?.codes.keys() ?? []) universalSeen.add(`c:${key}`);
+    for (const key of bucket?.descs.keys() ?? []) universalSeen.add(`d:${key}`);
+  }
+  const universalNew = universalRows.filter(
+    (r) => !universalSeen.has(`d:${canon(r.desc)}`) && !(r.code && universalSeen.has(`c:${canon(r.code)}`)),
+  );
+
   // produse din DB cu markere rămase în text
   const dirty = products.filter(
-    (p) => /ZZZ/.test(p.description) || LOCAL_RE.test(p.description) || /(^|;\s*)local(\s*;|$)/i.test(p.notes ?? ""),
+    (p) =>
+      stripMarkers(p.description).desc !== p.description ||
+      /(^|;\s*)local(\s*;|$)/i.test(p.notes ?? ""),
   );
 
   console.log(`Rânduri potrivite cu DB: ${matched}`);
   console.log(`Produse noi de inserat (fitment existent): ${toInsert.length}`);
   console.log(`Produse noi pe FITMENT nou (model existent): ${newFitmentRows.length}`);
   console.log(`Produse noi pe MODEL nou: ${newModelRows.length}`);
+  console.log(`Produse universale noi (ștergătoare/lubrifianți): ${universalNew.length} din ${universalRows.length}`);
+  const classified =
+    matched + toInsert.length + newFitmentRows.length + newModelRows.length + universalRows.length;
+  if (classified !== accounted.size)
+    dropped.push(`clasificate ${classified} vs rânduri de produs ${accounted.size}`);
+  console.log(`Rânduri de produs neclasificate: ${dropped.length}`);
+  for (const d of dropped) console.log(`   ${d}`);
+  console.log(`Coduri schimbate de furnizor: ${codeChanges.length}`);
+  for (const c of codeChanges) console.log(`   ${c.from ?? "∅"} → ${c.to} | ${c.desc}`);
   console.log(`Produse existente de marcat LOCAL: ${toMarkLocal.size}`);
+  if (process.env.DEBUG_LOCAL)
+    for (const id of toMarkLocal)
+      console.log("   LOCAL:", products.find((p) => p.id === id)?.description);
   console.log(`Produse DB cu markere ZZZ//local/ de curățat: ${dirty.length}`);
+  if (universalNew.length) {
+    console.log(`\nUniversale noi:`);
+    for (const r of universalNew)
+      console.log(`  ${r.model} | ${r.code ?? "∅"} | ${r.desc} | stoc ${r.stock ?? 0} | lei ${r.costLei ?? "∅"}`);
+  }
   if (newFitmentRows.length) {
     console.log(`\nFitmenturi noi:`);
     for (const r of newFitmentRows)
@@ -408,6 +557,31 @@ async function main() {
     toInsert.push({ ...r, fitment });
   }
 
+  // universale: marca UNIVERSAL, câte un model per secțiune, un singur fitment fără ani
+  if (universalNew.length) {
+    const brand = await prisma.brand.upsert({
+      where: { name: UNIVERSAL_BRAND },
+      create: { name: UNIVERSAL_BRAND },
+      update: {},
+    });
+    for (const modelName of new Set(universalNew.map((r) => r.model))) {
+      const model = await prisma.carModel.upsert({
+        where: { brandId_name: { brandId: brand.id, name: modelName } },
+        create: { brandId: brand.id, name: modelName },
+        update: {},
+      });
+      const fitment = (await prisma.vehicleFitment.upsert({
+        where: { carModelId_label: { carModelId: model.id, label: modelName } },
+        create: { carModelId: model.id, label: modelName },
+        update: {},
+        include: { carModel: { include: { brand: true } } },
+      })) as (typeof fitments)[number];
+      for (const r of universalNew.filter((row) => row.model === modelName)) {
+        toInsert.push({ ...r, fitment });
+      }
+    }
+  }
+
   const typeNames = new Set(toInsert.map((r) => parseProductDescription(r.desc).typeName));
   await prisma.productType.createMany({
     data: [...typeNames].map((name) => ({ name })),
@@ -422,7 +596,7 @@ async function main() {
     const parsed = parseProductDescription(r.desc);
     const product = await prisma.product.create({
       data: {
-        importKey: `pl2508:${r.sourceRow}`,
+        importKey: `${KEY_PREFIX}:${r.sourceRow}`,
         source: "EXCEL",
         sourceRow: r.sourceRow,
         externalCode: r.code,
@@ -446,6 +620,10 @@ async function main() {
     if (r.isLocal) toMarkLocal.delete(product.id);
   }
 
+  for (const c of codeChanges) {
+    await prisma.product.update({ where: { id: c.id }, data: { externalCode: c.to } });
+  }
+
   if (toMarkLocal.size) {
     await prisma.product.updateMany({
       where: { id: { in: [...toMarkLocal] } },
@@ -466,7 +644,9 @@ async function main() {
     });
   }
 
-  console.log(`\nAplicat: ${inserted} inserate, ${toMarkLocal.size} marcate LOCAL, ${dirty.length} curățate.`);
+  console.log(
+    `\nAplicat: ${inserted} inserate, ${codeChanges.length} coduri actualizate, ${toMarkLocal.size} marcate LOCAL, ${dirty.length} curățate.`,
+  );
 }
 
 main().finally(() => prisma.$disconnect());
