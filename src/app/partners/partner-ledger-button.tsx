@@ -8,7 +8,7 @@ import {
   deletePartnerPaymentAction,
   type PartnerActionState,
 } from "@/app/partners/actions";
-import type { PartnerLedgerEntry } from "@/lib/partners/debt";
+import type { PartnerLedgerEntry, PartnerLedgerSide } from "@/lib/partners/debt";
 
 const initialState: PartnerActionState = { ok: false, message: "" };
 const money = new Intl.NumberFormat("ro-MD", {
@@ -33,10 +33,13 @@ export function PartnerLedgerButton({
   partnerId,
   partnerName,
   balanceLei,
+  side = "CUSTOMER",
 }: {
   partnerId: string;
   partnerName: string;
   balanceLei: number;
+  /** CUSTOMER = ce ne datorează, SUPPLIER = ce îi datorăm. */
+  side?: PartnerLedgerSide;
 }) {
   const [open, setOpen] = useState(false);
   const [entries, setEntries] = useState<LedgerEntry[] | null>(null);
@@ -45,7 +48,7 @@ export function PartnerLedgerButton({
   useEffect(() => {
     if (!open) return;
     let alive = true;
-    fetch(`/api/partners/${partnerId}/ledger`)
+    fetch(`/api/partners/${partnerId}/ledger?side=${side}`)
       .then((response) => {
         if (!response.ok) throw new Error(String(response.status));
         return response.json() as Promise<{ entries: LedgerEntry[] }>;
@@ -59,7 +62,7 @@ export function PartnerLedgerButton({
     return () => {
       alive = false;
     };
-  }, [open, partnerId]);
+  }, [open, partnerId, side]);
 
   return (
     <>
@@ -83,7 +86,9 @@ export function PartnerLedgerButton({
         >
           <div className="grid gap-4 px-5 py-4">
             <div className="flex items-baseline justify-between gap-4 rounded-md border border-[#e4e4e7] bg-white px-4 py-3">
-              <span className="text-sm font-medium text-[#3f3f46]">Sold curent</span>
+              <span className="text-sm font-medium text-[#3f3f46]">
+                {side === "SUPPLIER" ? "De plătit" : "Sold curent"}
+              </span>
               <span
                 className={`font-mono text-lg font-semibold ${
                   balanceLei > 0 ? "text-[#b91c1c]" : "text-[#166534]"
@@ -99,7 +104,9 @@ export function PartnerLedgerButton({
               <p className="text-sm text-[#52525b]">Se încarcă...</p>
             ) : entries.length === 0 ? (
               <p className="text-sm text-[#52525b]">
-                Nicio mișcare: partenerul n-are vânzări neîncasate și nici încasări.
+                {side === "SUPPLIER"
+                  ? "Nicio mișcare: nu există recepții sau plăți pentru acest furnizor."
+                  : "Nicio mișcare: partenerul n-are vânzări neîncasate și nici încasări."}
               </p>
             ) : (
               <ul className="grid gap-2">

@@ -29,6 +29,7 @@ import { calculatePaymentTotals } from "@/lib/payment-accounts/totals";
 import { parsePaymentAccountForm } from "@/lib/payment-accounts/validate";
 import { postUnsignedInvoice } from "@/lib/e-factura/client";
 import { buildPaymentAccountEFacturaXml } from "@/lib/e-factura/payment-account";
+import { assertPaymentAccountPeriodOpen, assertPeriodOpen } from "@/lib/finance/period-lock";
 
 export type PaymentAccountActionState = {
   ok: boolean;
@@ -52,6 +53,7 @@ export async function createPaymentAccountAction(
       return { ok: true, message: `Contul de plată #${alreadySaved.number} era deja emis.` };
     }
     const input = parsePaymentAccountForm(formData);
+    await assertPeriodOpen(input.issueDate);
 
     const created = await prisma.$transaction(async (tx) => {
       const [warehouse, partner, products] = await Promise.all([
@@ -173,6 +175,7 @@ export async function markPaymentAccountPaidAction(
   try {
     const user = await requirePaymentAccountWrite();
     const id = readId(formData);
+    await assertPaymentAccountPeriodOpen(id);
     const account = await prisma.paymentAccount.findUnique({
       where: { id },
       select: {
@@ -247,6 +250,7 @@ export async function updatePaymentAccountAction(
   try {
     const user = await requirePaymentAccountWrite();
     const id = readId(formData);
+    await assertPaymentAccountPeriodOpen(id);
     const account = await prisma.paymentAccount.findUnique({
       where: { id },
       select: {
@@ -325,6 +329,7 @@ export async function cancelPaymentAccountAction(
   try {
     const user = await requirePaymentAccountWrite();
     const id = readId(formData);
+    await assertPaymentAccountPeriodOpen(id);
     // Operatorul confirmă în interfață că banii se dau înapoi.
     const refunded = formData.get("refund") === "1";
     const account = await prisma.paymentAccount.findUnique({
@@ -402,6 +407,7 @@ export async function fulfillPaymentAccountAction(
   try {
     const user = await requirePaymentAccountWrite();
     const id = readId(formData);
+    await assertPaymentAccountPeriodOpen(id);
     if (shouldQueueStockOperation(user.role)) {
       const account = await validatePaymentFulfillmentRequest(prisma, id);
       await enqueuePaymentFulfillmentRequest(

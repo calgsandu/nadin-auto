@@ -11,6 +11,7 @@ import {
   reconcileSaleRestockTasks,
 } from "@/lib/operations/restock";
 import type { StockDocumentType } from "@/generated/prisma/enums";
+import { assertPeriodOpen } from "@/lib/finance/period-lock";
 
 export type RestoreActionState = { ok: boolean; message: string };
 
@@ -69,6 +70,9 @@ export async function restoreDocumentAction(
       if (details?.restoredDocumentId) {
         throw new Error("Documentul a fost deja restaurat din această intrare.");
       }
+      // Restaurarea readuce documentul cu data lui originală: dacă luna aceea
+      // e închisă, registrul deja depus s-ar schimba în urmă.
+      await assertPeriodOpen(new Date(`${snapshot.documentDate}T12:00:00`));
       // Jumătățile de transfer nu se restaurează individual — ar dezechilibra stocul.
       if (
         snapshot.transferGroupId ||

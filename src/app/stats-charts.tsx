@@ -43,7 +43,7 @@ const tooltipStyle = {
   fontSize: 12,
 } as const;
 
-/** Venit (bare) + Profit (linie) pe zile — cronologic vechi→nou. */
+/** Venit (bare) + profit net (linie, adaos − cheltuieli) pe zile — vechi→nou. */
 export function DailyChart({
   rows,
   canModify,
@@ -56,11 +56,11 @@ export function DailyChart({
     .map((row) => ({
       name: row.label.slice(0, 5), // "18.06"
       Venit: Math.round(row.revenueLei),
-      Profit: Math.round(row.profitLei),
+      "Profit net": Math.round(row.netProfitLei),
     }));
 
   return (
-    <ChartCard title="Venit pe zile (ultimele 14 cu vânzări)">
+    <ChartCard title="Venit pe zile (ultimele 14 cu mișcare)">
       <ResponsiveContainer width="100%" height={220}>
         <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid stroke={GRID} vertical={false} />
@@ -76,7 +76,7 @@ export function DailyChart({
           <Bar dataKey="Venit" fill={BLUE} radius={[4, 4, 0, 0]} maxBarSize={34} />
           {canModify ? (
             <Line
-              dataKey="Profit"
+              dataKey="Profit net"
               type="monotone"
               stroke={GREEN}
               strokeWidth={2}
@@ -90,7 +90,7 @@ export function DailyChart({
   );
 }
 
-/** Venit (bare) + Profit (linie) pe luni — trend anual. */
+/** Venit (bare) + profit net (linie) pe luni — trend anual. */
 export function MonthlyChart({
   rows,
   canModify,
@@ -103,7 +103,7 @@ export function MonthlyChart({
   const data = [...rows].reverse().map((row) => ({
     name: row.label,
     Venit: Math.round(row.revenueLei),
-    Profit: Math.round(row.profitLei),
+    "Profit net": Math.round(row.netProfitLei),
   }));
 
   return (
@@ -123,7 +123,7 @@ export function MonthlyChart({
           <Bar dataKey="Venit" fill="#8ec5fc" radius={[4, 4, 0, 0]} maxBarSize={40} />
           {canModify ? (
             <Line
-              dataKey="Profit"
+              dataKey="Profit net"
               type="monotone"
               stroke={GREEN}
               strokeWidth={2}

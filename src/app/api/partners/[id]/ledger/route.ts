@@ -1,6 +1,6 @@
 import { getCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
-import { getPartnerLedger } from "@/lib/partners/debt";
+import { getPartnerLedger, type PartnerLedgerSide } from "@/lib/partners/debt";
 
 /**
  * Fișa unui partener, cerută la deschiderea drawerului.
@@ -9,7 +9,7 @@ import { getPartnerLedger } from "@/lib/partners/debt";
  * pentru fiecare rând, deși se deschide una singură.
  */
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getCurrentAppUser();
@@ -19,5 +19,7 @@ export async function GET(
   }
 
   const { id } = await params;
-  return Response.json(await getPartnerLedger(id));
+  const side: PartnerLedgerSide =
+    new URL(request.url).searchParams.get("side") === "SUPPLIER" ? "SUPPLIER" : "CUSTOMER";
+  return Response.json(await getPartnerLedger(id, side));
 }

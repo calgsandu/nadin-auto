@@ -39,6 +39,10 @@ const expectedSections = [
   "inchidere-zi",
   "tva",
   "preturi",
+  "cheltuieli",
+  "de-platit",
+  "casa",
+  "inchidere-luna",
 ];
 
 assert.deepEqual(
@@ -69,6 +73,10 @@ assert.equal(getSection("personal").title, "Personal");
 assert.equal(getSection("inchidere-zi").title, "Închidere de zi");
 assert.equal(getSection("tva").title, "Registrul TVA");
 assert.equal(getSection("preturi").title, "Istoric prețuri");
+assert.equal(getSection("cheltuieli").title, "Cheltuieli");
+assert.equal(getSection("de-platit").title, "De plătit furnizorilor");
+assert.equal(getSection("casa").title, "Casă și bancă");
+assert.equal(getSection("inchidere-luna").title, "Închidere de lună");
 assert.equal(resolveSection("furnizori"), "furnizori");
 assert.equal(resolveSection("personal"), "personal");
 

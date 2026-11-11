@@ -404,6 +404,7 @@ model Partner {
   externalOrders ExternalOrder[]
   externalLines StockDocumentLine[] @relation("ExternalLineSupplier")
   payments  PartnerPayment[]
+  expenses  Expense[]
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 }
@@ -471,6 +472,8 @@ model StockDocument {
   paymentMethod SalePaymentMethod?
   /// Seria și numărul facturii externe (furnizor/client), ex. „AA 0123456".
   externalNumber String?
+  /// RECEIPT: scadența facturii furnizorului — „ce trebuie plătit săptămâna asta".
+  dueDate     DateTime?
   /// Discount aplicat pe document, în procente (prețurile liniilor sunt deja nete).
   discountPercent Decimal?         @db.Decimal(5, 2)
   /// Cheia de idempotență a formularului: reîncercarea aceleiași ciorne nu poate
@@ -503,6 +506,11 @@ model PartnerPayment {
   amount    Decimal  @db.Decimal(10, 2)
   paidAt    DateTime @default(now())
   notes     String?
+  /// IN = am încasat de la client, OUT = am plătit furnizorului.
+  direction PaymentDirection @default(IN)
+  /// Casa sau contul prin care au trecut banii. Null pe încasările vechi.
+  accountId String?
+  account   MoneyAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
   /// Vezi StockDocument.idempotencyKey.
   idempotencyKey String? @unique
   partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
@@ -511,6 +519,7 @@ model PartnerPayment {
 
   @@index([partnerId])
   @@index([paidAt])
+  @@index([direction, paidAt])
 }
 
 model PaymentAccount {
@@ -650,4 +659,143 @@ model PriceChange {
 
   @@index([productId, createdAt])
   @@index([createdAt])
+}
+
+// ─────────────────────────────── Bani ───────────────────────────────
+
+/// Sensul banilor față de firmă: `IN` = încasare de la client, `OUT` = plată
+/// către furnizor. Rândurile de dinaintea câmpului sunt toate încasări, deci
+/// `IN` e implicitul corect.
+enum PaymentDirection {
+  IN
+  OUT
+}
+
+/// Locul în care stau banii: casa de bani a magazinului sau un cont bancar.
+enum MoneyAccountKind {
+  CASH
+  BANK
+}
+
+/// Casa sau contul din care s-a plătit / în care a intrat suma.
+model MoneyAccount {
+  id                String           @id @default(cuid())
+  name              String           @unique
+  kind              MoneyAccountKind
+  iban              String?
+  /// Soldul de la care pornește numărătoarea. Mișcările dinaintea
+  /// `openingDate` nu se adună — altfel ai socoti de două ori banii care
+  /// erau deja în casă când a început evidența.
+  openingBalanceLei Decimal          @default(0) @db.Decimal(12, 2)
+  openingDate       DateTime
+  active            Boolean          @default(true)
+  expenses          Expense[]
+  payments          PartnerPayment[]
+  movements         MoneyMovement[]  @relation("MoneyMovementAccount")
+  counterMovements  MoneyMovement[]  @relation("MoneyMovementCounterAccount")
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+/// Mișcările de bani care NU sunt deja scrise în altă parte. Vânzările,
+/// încasările, plățile și cheltuielile își au tabelele lor — dublarea lor aici
+/// ar însemna două adevăruri care se pot contrazice.
+enum MoneyMovementKind {
+  DEPUNERE
+  RETRAGERE
+  TRANSFER
+  ALTA_INCASARE
+  ALTA_PLATA
+}
+
+enum ExpenseCategory {
+  CHIRIE
+  SALARII
+  UTILITATI
+  COMBUSTIBIL
+  TRANSPORT
+  AMBALAJE
+  COMISION_CARD
+  TAXE
+  SERVICII
+  ALTELE
+}
+
+/// Bani ieșiți din firmă pentru altceva decât marfă. Fără ele „profitul" e
+/// doar adaos comercial: vezi cât ai câștigat pe piese, nu cât ți-a rămas.
+model Expense {
+  id          String          @id @default(cuid())
+  number      Int             @unique
+  date        DateTime
+  category    ExpenseCategory
+  amountLei   Decimal         @db.Decimal(10, 2)
+  description String
+  partnerId   String?
+  accountId   String
+  notes       String?
+  /// Vezi StockDocument.idempotencyKey.
+  idempotencyKey String?      @unique
+  createdById   String?
+  createdByName String?
+
+  partner Partner?     @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  account MoneyAccount @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@index([category, date])
+  @@index([accountId, date])
+  @@index([partnerId])
+}
+
+/// O mișcare de bani fără alt document în spate: depunere, retragere, transfer
+/// între casă și bancă, sau o intrare/ieșire care nu e nici vânzare, nici
+/// cheltuială. Semnul stă în `amountLei`: minus = ies bani din cont.
+model MoneyMovement {
+  id               String            @id @default(cuid())
+  accountId        String
+  date             DateTime
+  amountLei        Decimal           @db.Decimal(12, 2)
+  kind             MoneyMovementKind
+  /// TRANSFER: contul din capătul celălalt. Transferul se scrie ca DOUĂ rânduri
+  /// (minus la sursă, plus la destinație) legate prin `transferGroupId`.
+  counterAccountId String?
+  transferGroupId  String?
+  notes            String?
+  /// Vezi StockDocument.idempotencyKey.
+  idempotencyKey   String?           @unique
+  createdById      String?
+  createdByName    String?
+
+  account        MoneyAccount  @relation("MoneyMovementAccount", fields: [accountId], references: [id], onDelete: Restrict)
+  counterAccount MoneyAccount? @relation("MoneyMovementCounterAccount", fields: [counterAccountId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([accountId, date])
+  @@index([transferGroupId])
+}
+
+/// O lună închisă contabil. Cât timp există un rând APROBAT pentru luna unui
+/// document, documentul nu se mai poate crea, edita sau șterge — altfel
+/// registrul TVA deja depus s-ar schimba în urmă.
+model AccountingPeriod {
+  id            String    @id @default(cuid())
+  /// „YYYY-MM".
+  month         String    @unique
+  closedAt      DateTime  @default(now())
+  closedById    String?
+  closedByName  String?
+  note          String?
+  /// Setat la redeschidere; un rând cu `reopenedAt` NU mai blochează nimic.
+  reopenedAt    DateTime?
+  reopenedById  String?
+  reopenedByName String?
+  reopenNote    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

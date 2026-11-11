@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { parsePartnerForm } from "@/lib/partners/validate";
 import { logAudit } from "@/lib/audit";
 import { isDuplicateKeyError, readToken } from "@/lib/operations/idempotency";
+import { assertPeriodOpen } from "@/lib/finance/period-lock";
 
 export type PartnerActionState = {
   ok: boolean;
@@ -121,7 +122,10 @@ export async function deletePartnerAction(
   }
 }
 
-/** Încasare de la client — scade din datoria lui. */
+/**
+ * O mișcare de bani cu un partener: încasare de la client (`IN`, implicit) sau
+ * plată către furnizor (`OUT`). Amândouă scad soldul laturii lor.
+ */
 export async function registerPartnerPaymentAction(
   _state: PartnerActionState,
   formData: FormData,
@@ -139,7 +143,7 @@ export async function registerPartnerPaymentAction(
         select: { amount: true },
       });
       if (already) {
-        return { ok: true, message: `Încasarea de ${Number(already.amount)} lei era deja înregistrată.` };
+        return { ok: true, message: `Mișcarea de ${Number(already.amount)} lei era deja înregistrată.` };
       }
     }
 
@@ -148,13 +152,17 @@ export async function registerPartnerPaymentAction(
     const amount = Number(raw);
     const notes = readString(formData, "notes") || null;
     const paidAtRaw = readString(formData, "paidAt");
+    const direction = readString(formData, "direction") === "OUT" ? "OUT" : "IN";
+    const accountId = readString(formData, "accountId") || null;
+    const word = direction === "OUT" ? "plătită" : "încasată";
 
     if (!partnerId) throw new Error("Partener lipsă.");
     if (!Number.isFinite(amount) || amount <= 0) {
-      throw new Error("Suma încasată trebuie să fie mai mare decât zero.");
+      throw new Error(`Suma ${word} trebuie să fie mai mare decât zero.`);
     }
     const paidAt = paidAtRaw ? new Date(`${paidAtRaw}T12:00:00`) : new Date();
-    if (Number.isNaN(paidAt.getTime())) throw new Error("Data încasării nu este validă.");
+    if (Number.isNaN(paidAt.getTime())) throw new Error("Data nu este validă.");
+    await assertPeriodOpen(paidAt);
 
     const partner = await prisma.partner.findUnique({
       where: { id: partnerId },
@@ -163,18 +171,27 @@ export async function registerPartnerPaymentAction(
     if (!partner) throw new Error("Partenerul nu există.");
 
     const payment = await prisma.partnerPayment.create({
-      data: { partnerId, amount, paidAt, notes, idempotencyKey: token },
+      data: { partnerId, amount, paidAt, notes, direction, accountId, idempotencyKey: token },
     });
     await logAudit(prisma, user, {
       action: "CREATE",
       entity: "PartnerPayment",
       entityId: payment.id,
-      summary: `Încasare ${amount} lei de la ${partner.name}`,
-      details: { partnerId, amount, paidAt: paidAt.toISOString(), notes },
+      summary:
+        direction === "OUT"
+          ? `Plată ${amount} lei către ${partner.name}`
+          : `Încasare ${amount} lei de la ${partner.name}`,
+      details: { partnerId, amount, paidAt: paidAt.toISOString(), notes, direction, accountId },
     });
 
     revalidatePath("/crm", "layout");
-    return { ok: true, message: `Încasare de ${amount} lei înregistrată.` };
+    return {
+      ok: true,
+      message:
+        direction === "OUT"
+          ? `Plată de ${amount} lei înregistrată.`
+          : `Încasare de ${amount} lei înregistrată.`,
+    };
   } catch (error) {
     return toActionError(error);
   }
@@ -210,11 +227,13 @@ export async function deletePartnerPaymentAction(
         amount: true,
         paidAt: true,
         notes: true,
+        direction: true,
         idempotencyKey: true,
         partner: { select: { id: true, name: true } },
       },
     });
     if (!payment) throw new Error("Încasarea nu există.");
+    await assertPeriodOpen(payment.paidAt);
     if (payment.idempotencyKey?.startsWith("payment-account")) {
       throw new Error(
         "Mișcarea vine dintr-un cont de plată. Corectează contul, nu încasarea.",
@@ -226,17 +245,24 @@ export async function deletePartnerPaymentAction(
       action: "DELETE",
       entity: "PartnerPayment",
       entityId: id,
-      summary: `Încasare de ${Number(payment.amount)} lei ștearsă de la ${payment.partner.name}`,
+      summary:
+        payment.direction === "OUT"
+          ? `Plată de ${Number(payment.amount)} lei ștearsă către ${payment.partner.name}`
+          : `Încasare de ${Number(payment.amount)} lei ștearsă de la ${payment.partner.name}`,
       details: {
         partnerId: payment.partner.id,
         amount: Number(payment.amount),
         paidAt: payment.paidAt.toISOString(),
         notes: payment.notes,
+        direction: payment.direction,
       },
     });
 
     revalidatePath("/crm", "layout");
-    return { ok: true, message: "Încasarea a fost ștearsă." };
+    return {
+      ok: true,
+      message: payment.direction === "OUT" ? "Plata a fost ștearsă." : "Încasarea a fost ștearsă.",
+    };
   } catch (error) {
     return toActionError(error);
   }
@@ -250,7 +276,7 @@ function readString(formData: FormData, key: string) {
 function toActionError(error: unknown): PartnerActionState {
   // Aceeași încasare trimisă de două ori în paralel: baza a respins-o pe a doua.
   if (isDuplicateKeyError(error)) {
-    return { ok: true, message: "Încasarea era deja înregistrată." };
+    return { ok: true, message: "Mișcarea era deja înregistrată." };
   }
   if (error instanceof Error) {
     return { ok: false, message: error.message };

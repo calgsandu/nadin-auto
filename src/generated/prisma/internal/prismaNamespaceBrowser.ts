@@ -76,7 +76,11 @@ export const ModelName = {
   PaymentAccountLine: 'PaymentAccountLine',
   StockDocumentLine: 'StockDocumentLine',
   RestockTask: 'RestockTask',
-  PriceChange: 'PriceChange'
+  PriceChange: 'PriceChange',
+  MoneyAccount: 'MoneyAccount',
+  Expense: 'Expense',
+  MoneyMovement: 'MoneyMovement',
+  AccountingPeriod: 'AccountingPeriod'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -410,6 +414,7 @@ export const StockDocumentScalarFieldEnum = {
   cashRegistered: 'cashRegistered',
   paymentMethod: 'paymentMethod',
   externalNumber: 'externalNumber',
+  dueDate: 'dueDate',
   discountPercent: 'discountPercent',
   idempotencyKey: 'idempotencyKey',
   createdAt: 'createdAt',
@@ -425,6 +430,8 @@ export const PartnerPaymentScalarFieldEnum = {
   amount: 'amount',
   paidAt: 'paidAt',
   notes: 'notes',
+  direction: 'direction',
+  accountId: 'accountId',
   idempotencyKey: 'idempotencyKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -539,6 +546,78 @@ export const PriceChangeScalarFieldEnum = {
 } as const
 
 export type PriceChangeScalarFieldEnum = (typeof PriceChangeScalarFieldEnum)[keyof typeof PriceChangeScalarFieldEnum]
+
+
+export const MoneyAccountScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  kind: 'kind',
+  iban: 'iban',
+  openingBalanceLei: 'openingBalanceLei',
+  openingDate: 'openingDate',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MoneyAccountScalarFieldEnum = (typeof MoneyAccountScalarFieldEnum)[keyof typeof MoneyAccountScalarFieldEnum]
+
+
+export const ExpenseScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  date: 'date',
+  category: 'category',
+  amountLei: 'amountLei',
+  description: 'description',
+  partnerId: 'partnerId',
+  accountId: 'accountId',
+  notes: 'notes',
+  idempotencyKey: 'idempotencyKey',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
+
+
+export const MoneyMovementScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  date: 'date',
+  amountLei: 'amountLei',
+  kind: 'kind',
+  counterAccountId: 'counterAccountId',
+  transferGroupId: 'transferGroupId',
+  notes: 'notes',
+  idempotencyKey: 'idempotencyKey',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MoneyMovementScalarFieldEnum = (typeof MoneyMovementScalarFieldEnum)[keyof typeof MoneyMovementScalarFieldEnum]
+
+
+export const AccountingPeriodScalarFieldEnum = {
+  id: 'id',
+  month: 'month',
+  closedAt: 'closedAt',
+  closedById: 'closedById',
+  closedByName: 'closedByName',
+  note: 'note',
+  reopenedAt: 'reopenedAt',
+  reopenedById: 'reopenedById',
+  reopenedByName: 'reopenedByName',
+  reopenNote: 'reopenNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AccountingPeriodScalarFieldEnum = (typeof AccountingPeriodScalarFieldEnum)[keyof typeof AccountingPeriodScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { productLabelInclude } from "@/lib/catalog/product-include";
 import { getPartnerBalances } from "@/lib/partners/debt";
+import { listMoneyAccounts } from "@/lib/finance/expenses";
 
 /** Câte vânzări arată fișa clientului. Restul se caută în Documente. */
 const PURCHASES_LIMIT = 30;
@@ -41,7 +42,7 @@ async function getCustomerTotals(): Promise<Map<string, TotalsRow>> {
 
 /** Lista clienților cu totalurile lor. `paidLei` = cumpărat − datorie. */
 export async function getCustomersData() {
-  const [customers, balances, totals] = await Promise.all([
+  const [customers, balances, totals, accounts] = await Promise.all([
     prisma.partner.findMany({
       where: { kind: { in: [...CUSTOMER_KINDS] } },
       orderBy: { name: "asc" },
@@ -63,9 +64,11 @@ export async function getCustomersData() {
     }),
     getPartnerBalances(),
     getCustomerTotals(),
+    listMoneyAccounts(),
   ]);
 
   return {
+    accounts,
     customers: customers.map((customer) => {
       const row = totals.get(customer.id);
       const boughtLei = round(row?.boughtLei ?? 0);

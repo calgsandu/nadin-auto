@@ -143,3 +143,46 @@ export const ExternalOrderStatus = {
 } as const
 
 export type ExternalOrderStatus = (typeof ExternalOrderStatus)[keyof typeof ExternalOrderStatus]
+
+
+export const PaymentDirection = {
+  IN: 'IN',
+  OUT: 'OUT'
+} as const
+
+export type PaymentDirection = (typeof PaymentDirection)[keyof typeof PaymentDirection]
+
+
+export const MoneyAccountKind = {
+  CASH: 'CASH',
+  BANK: 'BANK'
+} as const
+
+export type MoneyAccountKind = (typeof MoneyAccountKind)[keyof typeof MoneyAccountKind]
+
+
+export const MoneyMovementKind = {
+  DEPUNERE: 'DEPUNERE',
+  RETRAGERE: 'RETRAGERE',
+  TRANSFER: 'TRANSFER',
+  ALTA_INCASARE: 'ALTA_INCASARE',
+  ALTA_PLATA: 'ALTA_PLATA'
+} as const
+
+export type MoneyMovementKind = (typeof MoneyMovementKind)[keyof typeof MoneyMovementKind]
+
+
+export const ExpenseCategory = {
+  CHIRIE: 'CHIRIE',
+  SALARII: 'SALARII',
+  UTILITATI: 'UTILITATI',
+  COMBUSTIBIL: 'COMBUSTIBIL',
+  TRANSPORT: 'TRANSPORT',
+  AMBALAJE: 'AMBALAJE',
+  COMISION_CARD: 'COMISION_CARD',
+  TAXE: 'TAXE',
+  SERVICII: 'SERVICII',
+  ALTELE: 'ALTELE'
+} as const
+
+export type ExpenseCategory = (typeof ExpenseCategory)[keyof typeof ExpenseCategory]
