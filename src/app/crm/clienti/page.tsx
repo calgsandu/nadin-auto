@@ -152,6 +152,7 @@ async function Loader({
                     <TableCell align="right">
                       <div className="flex justify-end gap-1.5">
                         <PartnerPaymentDialog
+                          accounts={data.accounts}
                           partnerId={customer.id}
                           partnerName={customer.name}
                           balanceLei={customer.debtLei}

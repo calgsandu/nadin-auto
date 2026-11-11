@@ -23,6 +23,12 @@ type TopProductRow = {
   revenue_lei: number;
 };
 
+type ExpenseRow = {
+  period: StatsPeriod;
+  key: string;
+  expenses_lei: number;
+};
+
 type Kpi30Row = {
   sales_count: number;
   quantity: number;
@@ -31,14 +37,11 @@ type Kpi30Row = {
 };
 
 /**
- * Costul unei linii: produsele de catalog îl iau din fișa produsului, liniile
- * externe și-l poartă pe linie. Aceeași regulă ca la vânzare.
+ * Costul unei linii, în ordinea în care e de încredere: costul înghețat pe
+ * linie la vânzare, apoi (doar pentru vânzările de dinaintea înghețării) costul
+ * curent din fișa produsului. Liniile externe au dintotdeauna cost pe linie.
  */
-const LINE_COST = Prisma.sql`
-  CASE
-    WHEN l."productId" IS NOT NULL THEN COALESCE(p."costLei", 0)
-    ELSE COALESCE(l."unitCostLei", 0)
-  END`;
+const LINE_COST = Prisma.sql`COALESCE(l."unitCostLei", p."costLei", 0)`;
 
 /**
  * Eticheta din „Top produse": codul extern + denumirea pentru produsele proprii,
@@ -82,7 +85,8 @@ export async function getStatsData() {
     LEFT JOIN "Product" p ON p.id = l."productId"
     WHERE d.type = 'SALE' AND d."documentDate" >= ${from}`;
 
-  const [periods, topProductRows, kpiRows, returns] = await Promise.all([
+  const [periods, topProductRows, kpiRows, returns, expensePeriods, expenses30] =
+    await Promise.all([
     prisma.$queryRaw<PeriodRow[]>`
       WITH sale_lines AS (${saleLines(since)}),
       buckets AS (
@@ -129,7 +133,33 @@ export async function getStatsData() {
       _count: true,
       _sum: { totalLei: true },
     }),
+
+    // Cheltuielile se agregă separat, pe aceleași chei de perioadă: ele nu
+    // atârnă de nicio vânzare, deci un JOIN le-ar înmulți cu numărul de linii.
+    prisma.$queryRaw<ExpenseRow[]>`
+      WITH e AS (
+        SELECT "date", "amountLei" FROM "Expense" WHERE "date" >= ${since}
+      )
+      SELECT 'day' AS period, to_char("date", 'YYYY-MM-DD') AS key,
+             COALESCE(SUM("amountLei"), 0)::float8 AS expenses_lei
+        FROM e GROUP BY key
+      UNION ALL
+      SELECT 'week', to_char("date", 'IYYY-"W"IW'),
+             COALESCE(SUM("amountLei"), 0)::float8 FROM e GROUP BY 2
+      UNION ALL
+      SELECT 'month', to_char("date", 'YYYY-MM'),
+             COALESCE(SUM("amountLei"), 0)::float8 FROM e GROUP BY 2`,
+
+    prisma.expense.aggregate({
+      where: { date: { gte: last30 } },
+      _sum: { amountLei: true },
+    }),
   ]);
+
+  const expensesByKey = new Map(
+    expensePeriods.map((row) => [`${row.period}:${row.key}`, row.expenses_lei]),
+  );
+  const expenses30Lei = Number(expenses30._sum.amountLei ?? 0);
 
   const kpi = kpiRows[0] ?? {
     sales_count: 0,
@@ -146,9 +176,9 @@ export async function getStatsData() {
   }));
 
   return {
-    daily: bucketsFor(periods, "day", 14),
-    weekly: bucketsFor(periods, "week", 8),
-    monthly: bucketsFor(periods, "month", 12),
+    daily: bucketsFor(periods, "day", 14, expensesByKey),
+    weekly: bucketsFor(periods, "week", 8, expensesByKey),
+    monthly: bucketsFor(periods, "month", 12, expensesByKey),
     topProducts,
     returnsCount: returns._count,
     returnsLei: Number(returns._sum.totalLei ?? 0),
@@ -157,25 +187,62 @@ export async function getStatsData() {
       quantity: kpi.quantity,
       revenueLei: kpi.revenue_lei,
       profitLei: kpi.profit_lei,
+      expensesLei: expenses30Lei,
+      netProfitLei: kpi.profit_lei - expenses30Lei,
       avgSaleLei: kpi.sales_count > 0 ? kpi.revenue_lei / kpi.sales_count : 0,
     },
   };
 }
 
-/** Rândurile unei granularități, cele mai recente întâi. */
-function bucketsFor(rows: PeriodRow[], period: StatsPeriod, limit: number): PeriodTotals[] {
-  return rows
-    .filter((row) => row.period === period)
+/**
+ * Rândurile unei granularități, cele mai recente întâi.
+ *
+ * Cheile vin din DOUĂ surse: perioadele cu vânzări și cele cu cheltuieli. O
+ * lună în care s-a plătit chiria dar nu s-a vândut nimic trebuie să apară cu
+ * profit negativ, nu să lipsească din tabel.
+ */
+function bucketsFor(
+  rows: PeriodRow[],
+  period: StatsPeriod,
+  limit: number,
+  expensesByKey: Map<string, number>,
+): PeriodTotals[] {
+  const sales = new Map(
+    rows.filter((row) => row.period === period).map((row) => [row.key, row]),
+  );
+  const keys = new Set(sales.keys());
+  for (const composite of expensesByKey.keys()) {
+    const [rowPeriod, key] = splitExpenseKey(composite);
+    if (rowPeriod === period) keys.add(key);
+  }
+
+  return [...keys]
+    .sort((a, b) => b.localeCompare(a))
     .slice(0, limit)
-    .map((row) => ({
-      key: row.key,
-      label: periodLabelFromKey(row.key, period),
-      salesCount: row.sales_count,
-      quantity: row.quantity,
-      revenueLei: row.revenue_lei,
-      costLei: row.cost_lei,
-      profitLei: row.revenue_lei - row.cost_lei,
-    }));
+    .map((key) => {
+      const row = sales.get(key);
+      const revenueLei = row?.revenue_lei ?? 0;
+      const costLei = row?.cost_lei ?? 0;
+      const expensesLei = expensesByKey.get(`${period}:${key}`) ?? 0;
+      const profitLei = revenueLei - costLei;
+      return {
+        key,
+        label: periodLabelFromKey(key, period),
+        salesCount: row?.sales_count ?? 0,
+        quantity: row?.quantity ?? 0,
+        revenueLei,
+        costLei,
+        profitLei,
+        expensesLei,
+        netProfitLei: profitLei - expensesLei,
+      };
+    });
+}
+
+/** `"month:2026-08"` → `["month", "2026-08"]`; cheia poate conține „-", prefixul nu. */
+function splitExpenseKey(composite: string): [string, string] {
+  const separator = composite.indexOf(":");
+  return [composite.slice(0, separator), composite.slice(separator + 1)];
 }
 
 export type StatsData = Awaited<ReturnType<typeof getStatsData>>;

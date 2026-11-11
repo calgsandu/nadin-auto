@@ -21,6 +21,7 @@ import { parseSaleLines } from "@/lib/operations/sales";
 import { parseRequiredSalePaymentMethod } from "@/lib/operations/sale-payment-method";
 import { reconcileSaleRestockTasks, restockTasksCoveredBy } from "@/lib/operations/restock";
 import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
+import { assertPeriodOpen } from "@/lib/finance/period-lock";
 import {
   findByToken,
   isDuplicateKeyError,
@@ -70,6 +71,7 @@ export async function createReceiptAction(
     }
     const warehouseId = readString(formData, "warehouseId");
     const documentDate = readDate(formData, "documentDate");
+    await assertPeriodOpen(documentDate);
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
     const notes = readString(formData, "notes");
     const lines = parseReceiptLines({
@@ -100,6 +102,7 @@ export async function createReceiptAction(
           partnerId,
           notes,
           externalNumber: readString(formData, "externalNumber") || null,
+          dueDate: readOptionalDate(formData, "dueDate"),
           idempotencyKey: token,
           totalLei: calculateReceiptTotalLei(lines),
           lines: {
@@ -121,8 +124,13 @@ export async function createReceiptAction(
           kind: "RECEIPT",
         });
         await syncProductAggregateStock(tx, line.productId);
-        // Prețul recepționat devine costul produsului.
-        const costUpdate = await applyReceiptCost(tx, line.productId, line.unitCostLei);
+        // Prețul recepționat trage costul produsului spre media ponderată.
+        const costUpdate = await applyReceiptCost(
+          tx,
+          line.productId,
+          line.unitCostLei,
+          line.quantity,
+        );
         if (costUpdate) costUpdates.push(costUpdate);
       }
 
@@ -163,6 +171,7 @@ export async function createTransferAction(
     const sourceWarehouseId = readString(formData, "sourceWarehouseId");
     const destinationWarehouseId = readString(formData, "destinationWarehouseId");
     const documentDate = readDate(formData, "documentDate");
+    await assertPeriodOpen(documentDate);
     const notes = readString(formData, "notes");
     const lines = parseTransferLines({
       productIds: readStrings(formData, "productId"),
@@ -291,6 +300,7 @@ export async function createSaleAction(
     }
     const warehouseId = readString(formData, "warehouseId");
     const documentDate = readDate(formData, "documentDate");
+    await assertPeriodOpen(documentDate);
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
     const newCustomerName = readString(formData, "newCustomerName");
     const notes = readString(formData, "notes");
@@ -335,7 +345,7 @@ export async function createSaleAction(
     const payload = parsed.payload;
 
     if (shouldQueueStockOperation(user.role)) {
-      const warehouse = await validateSaleRequest(prisma, payload);
+      const { warehouse } = await validateSaleRequest(prisma, payload);
       await enqueueSaleRequest(
         user,
         payload,
@@ -375,6 +385,7 @@ export async function createReturnAction(
     }
     const saleDocumentId = readString(formData, "saleDocumentId");
     const documentDate = readDate(formData, "documentDate");
+    await assertPeriodOpen(documentDate);
     const notes = readString(formData, "notes");
     const productIds = readStrings(formData, "productId");
     const quantities = readStrings(formData, "quantity");
@@ -530,6 +541,7 @@ export async function createInventoryAction(
     }
     const warehouseId = readString(formData, "warehouseId");
     const documentDate = readDate(formData, "documentDate");
+    await assertPeriodOpen(documentDate);
     const notes = readString(formData, "notes");
     const productIds = readStrings(formData, "productId");
     const countedValues = readStrings(formData, "countedQuantity");
@@ -828,6 +840,18 @@ function readStrings(formData: FormData, key: string) {
   return formData
     .getAll(key)
     .map((value) => (typeof value === "string" ? value : ""));
+}
+
+/** Data opțională: câmpul gol înseamnă „fără scadență", nu „azi". */
+function readOptionalDate(formData: FormData, key: string) {
+  const value = readString(formData, key);
+  if (!value) return null;
+
+  const parsed = new Date(`${value}T12:00:00`);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error("Data scadenței nu este validă.");
+  }
+  return parsed;
 }
 
 function readDate(formData: FormData, key: string) {

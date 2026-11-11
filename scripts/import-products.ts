@@ -13,7 +13,18 @@ import { groupImportRowsByKey } from "@/lib/catalog/import-compatibilities";
 
 type SheetRow = unknown[];
 
-const workbookPath = process.argv.slice(2).find((argument) => argument !== "--");
+const args = process.argv.slice(2).filter((argument) => argument !== "--");
+const workbookPath = args.find((argument) => !argument.startsWith("--"));
+const rowsFlag = args.find((argument) => argument.startsWith("--rows="));
+const rowRange = rowsFlag
+  ? (() => {
+      const [from, to] = rowsFlag.slice("--rows=".length).split("-").map(Number);
+      if (!Number.isInteger(from) || !Number.isInteger(to) || from > to) {
+        throw new Error("Usage: --rows=2317-2336");
+      }
+      return { from, to };
+    })()
+  : null;
 
 if (!workbookPath) {
   throw new Error("Usage: pnpm import:products -- /absolute/path/to/file.xlsx");
@@ -62,7 +73,10 @@ async function main() {
     const firstCell = normalizeText(sourceItemValue);
 
     if (firstCell.toUpperCase().includes("CARENAJE RUSSIA")) {
-      break;
+      // Secțiune fără antet de vehicul: fiecare rând își poartă marca în coloana C
+      // (VAZ, MOSKVICI). Golim antetul precedent ca să nu se scurgă peste ele.
+      currentHeaderVehicles = [];
+      continue;
     }
 
     if (firstCell && !codeValue && !modelValue && !descriptionValue) {
@@ -74,6 +88,10 @@ async function main() {
 
     if (!modelValue || !descriptionValue) {
       skipped += 1;
+      continue;
+    }
+
+    if (rowRange && (sourceRow < rowRange.from || sourceRow > rowRange.to)) {
       continue;
     }
 
@@ -185,12 +203,21 @@ async function main() {
   const sourceRows = parsedRows.map((row) => row.sourceRow);
   const productRows = groupImportRowsByKey(parsedRows).map(({ rows }) => rows[0]!);
 
+  // La import parțial ștergem strict cheile pe care le rescriem: `sourceRow` se
+  // repetă între versiuni de pricelist (un `pl2508:2332` viu stă pe același rând),
+  // iar filtrarea după rând l-ar mătura fără să apară în diff.
   await prisma.product.deleteMany({
-    where: {
-      source: "EXCEL",
-      manuallyEdited: false,
-      sourceRow: { in: sourceRows },
-    },
+    where: rowRange
+      ? {
+          source: "EXCEL",
+          manuallyEdited: false,
+          importKey: { in: productRows.map((row) => row.importKey) },
+        }
+      : {
+          source: "EXCEL",
+          manuallyEdited: false,
+          sourceRow: { in: sourceRows },
+        },
   });
 
   await prisma.product.createMany({
@@ -260,7 +287,7 @@ async function main() {
         imported: productRows.length,
         fitmentsLinked: productFitments.length,
         skipped,
-        cutoff: "CARENAJE RUSSIA",
+        rows: rowRange ? `${rowRange.from}-${rowRange.to}` : "toate",
       },
       null,
       2,

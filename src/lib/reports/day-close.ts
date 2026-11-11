@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getAccountBalances } from "@/lib/finance/balances";
 import { COMPANY, vatFromGross } from "@/lib/company";
 import type { SalePaymentMethodStatus } from "@/lib/operations/sale-payment-method";
 
@@ -54,7 +55,8 @@ function dayKeyOf(date: Date) {
 export async function getDayCloseData(dayParam?: string) {
   const { start, end } = dayBounds(dayParam);
 
-  const [byMethod, byCashRegister, returns, partnerPayments, sales] = await Promise.all([
+  const [byMethod, byCashRegister, returns, partnerPayments, sales, expensesToday, balances] =
+    await Promise.all([
     prisma.$queryRaw<MethodRow[]>`
       SELECT "paymentMethod"::text AS method,
              COUNT(*)::int AS cnt,
@@ -79,7 +81,13 @@ export async function getDayCloseData(dayParam?: string) {
 
     prisma.partnerPayment.findMany({
       where: { paidAt: { gte: start, lt: end } },
-      select: { id: true, amount: true, notes: true, partner: { select: { name: true } } },
+      select: {
+        id: true,
+        amount: true,
+        notes: true,
+        direction: true,
+        partner: { select: { name: true } },
+      },
       orderBy: { paidAt: "asc" },
     }),
 
@@ -97,6 +105,15 @@ export async function getDayCloseData(dayParam?: string) {
       },
       orderBy: [{ documentDate: "asc" }, { number: "asc" }],
     }),
+
+    prisma.expense.aggregate({
+      where: { date: { gte: start, lt: end } },
+      _sum: { amountLei: true },
+      _count: true,
+    }),
+
+    // Soldurile la sfârșitul zilei: cifra cu care se compară banii numărați.
+    getAccountBalances(end),
   ]);
 
   const method = (name: string) => byMethod.find((row) => row.method === name);
@@ -113,10 +130,15 @@ export async function getDayCloseData(dayParam?: string) {
   const registered = byCashRegister.find((row) => row.cash_registered === true);
   const notRegistered = byCashRegister.find((row) => row.cash_registered === false);
   const undeclared = byCashRegister.find((row) => row.cash_registered === null);
-  const collectedFromPartners = partnerPayments.reduce(
-    (sum, payment) => sum + Number(payment.amount),
-    0,
-  );
+  // Încasările și plățile trebuie despărțite: de când există plăți către
+  // furnizori, o sumă ieșită din casă ar fi crescut „bani intrați azi".
+  const collectedFromPartners = partnerPayments
+    .filter((payment) => payment.direction === "IN")
+    .reduce((sum, payment) => sum + Number(payment.amount), 0);
+  const paidToPartners = partnerPayments
+    .filter((payment) => payment.direction === "OUT")
+    .reduce((sum, payment) => sum + Number(payment.amount), 0);
+  const expensesLei = Number(expensesToday._sum.amountLei ?? 0);
   const returnsTotal = returns[0]?.total_lei ?? 0;
 
   // Bani intrați efectiv azi: numerarul din vânzări + încasările înregistrate
@@ -143,13 +165,24 @@ export async function getDayCloseData(dayParam?: string) {
     returnsCount: returns[0]?.cnt ?? 0,
     returnsLei: returnsTotal,
     collectedFromPartners,
+    paidToPartners,
+    expensesCount: expensesToday._count,
+    expensesLei,
     cashInHand,
+    /// Soldurile calculate la sfârșitul zilei, pentru reconcilierea cu casa.
+    accounts: balances.map((account) => ({
+      id: account.id,
+      name: account.name,
+      kind: account.kind,
+      balanceLei: account.balanceLei,
+    })),
     netLei: salesTotal - returnsTotal,
     vat: COMPANY.vatPayer ? vatFromGross(salesTotal - returnsTotal) : null,
     partnerPayments: partnerPayments.map((payment) => ({
       id: payment.id,
       partnerName: payment.partner.name,
       amountLei: Number(payment.amount),
+      direction: payment.direction,
       notes: payment.notes,
     })),
     sales: sales.map((sale): DayCloseSale => ({

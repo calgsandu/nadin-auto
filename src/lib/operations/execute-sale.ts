@@ -60,6 +60,7 @@ export async function validateSaleRequest(
       select: {
         id: true,
         stock: true,
+        costLei: true,
         externalCode: true,
         description: true,
         warehouseStocks: {
@@ -100,7 +101,17 @@ export async function validateSaleRequest(
     );
   }
 
-  return warehouse;
+  return { warehouse, productById };
+}
+
+/** Costul din fișa produsului, în clipa vânzării. Null pentru liniile externe. */
+function costOf(
+  productById: Map<string, { costLei: Prisma.Decimal | null }>,
+  productId: string | null | undefined,
+) {
+  if (!productId) return null;
+  const cost = productById.get(productId)?.costLei;
+  return cost == null ? null : Number(cost);
 }
 
 export async function executeSale(
@@ -110,7 +121,7 @@ export async function executeSale(
   /** Cheia formularului: aceeași vânzare retrimisă nu poate intra de două ori. */
   idempotencyKey: string | null = null,
 ) {
-  const warehouse = await validateSaleRequest(tx, payload);
+  const { warehouse, productById } = await validateSaleRequest(tx, payload);
   const partnerId = await resolveCustomer(tx, payload);
   const documentDate = new Date(`${payload.documentDate}T12:00:00`);
   const lines = payload.lines.map((line) => ({
@@ -118,7 +129,10 @@ export async function executeSale(
     externalName: line.externalName ?? null,
     externalCode: line.externalCode ?? null,
     externalSupplierId: line.externalSupplierId ?? null,
-    unitCostLei: line.unitCostLei ?? null,
+    // Costul se ÎNGHEAȚĂ pe linie, la valoarea din fișa produsului în clipa
+    // vânzării. Citit mai târziu din `Product.costLei`, profitul unei vânzări
+    // din iunie s-ar recalcula la fiecare recepție nouă din septembrie.
+    unitCostLei: line.unitCostLei ?? costOf(productById, line.productId),
     quantity: line.quantity,
     unitPriceEuro: line.unitPriceLei,
   }));

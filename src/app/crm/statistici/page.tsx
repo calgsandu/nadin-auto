@@ -69,12 +69,14 @@ function StatsWorkspace({
         />
         {canModify ? (
           <DailyMetric icon={PiggyBank}
-            label="Profit (30 zile)"
-            value={`${formatMoney(data.last30.profitLei)} lei`}
+            label="Profit net (30 zile)"
+            value={`${formatMoney(data.last30.netProfitLei)} lei`}
             hint={
-              data.last30.revenueLei > 0
-                ? `marjă ${Math.round((data.last30.profitLei / data.last30.revenueLei) * 100)}%`
-                : undefined
+              data.last30.expensesLei > 0
+                ? `adaos ${formatMoney(data.last30.profitLei)} lei, cheltuieli ${formatMoney(data.last30.expensesLei)} lei`
+                : data.last30.revenueLei > 0
+                  ? `marjă ${Math.round((data.last30.profitLei / data.last30.revenueLei) * 100)}%`
+                  : undefined
             }
           />
         ) : null}
@@ -100,7 +102,7 @@ function StatsWorkspace({
         <PeriodStatsTable title="Pe luni (ultimele 12)" rows={data.monthly} canModify={canModify} />
       </div>
 
-      <PeriodStatsTable title="Pe zile (ultimele 14 cu vânzări)" rows={data.daily} canModify={canModify} />
+      <PeriodStatsTable title="Pe zile (ultimele 14 cu mișcare)" rows={data.daily} canModify={canModify} />
 
       <TopProductsChart rows={data.topProducts} />
 
@@ -171,7 +173,7 @@ function PeriodStatsTable({
         <h2 className="text-sm font-semibold text-[#18181b]">{title}</h2>
       </div>
       <div className="overflow-x-auto">
-        <table className="crm-table w-full min-w-[620px] border-collapse text-left text-sm">
+        <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
           <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
             <tr>
               <TableHead>Perioadă</TableHead>
@@ -179,7 +181,9 @@ function PeriodStatsTable({
               <TableHead align="right" secondary>Buc.</TableHead>
               <TableHead align="right">Venit</TableHead>
               {canModify ? <TableHead align="right" secondary>Cost</TableHead> : null}
-              {canModify ? <TableHead align="right">Profit</TableHead> : null}
+              {canModify ? <TableHead align="right" secondary>Adaos</TableHead> : null}
+              {canModify ? <TableHead align="right" secondary>Cheltuieli</TableHead> : null}
+              {canModify ? <TableHead align="right">Profit net</TableHead> : null}
             </tr>
           </thead>
           <tbody>
@@ -202,18 +206,26 @@ function PeriodStatsTable({
                     <TableCell align="right" secondary className="tabular-nums text-[#52525b]">{formatMoney(row.costLei)} lei</TableCell>
                   ) : null}
                   {canModify ? (
+                    <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">{formatMoney(row.profitLei)} lei</TableCell>
+                  ) : null}
+                  {canModify ? (
+                    <TableCell align="right" secondary className="tabular-nums text-[#6f6b63]">
+                      {row.expensesLei > 0 ? `${formatMoney(row.expensesLei)} lei` : "—"}
+                    </TableCell>
+                  ) : null}
+                  {canModify ? (
                     <TableCell
                       align="right"
-                      className={`font-mono font-semibold ${row.profitLei < 0 ? "text-[#b91c1c]" : "text-[#15803d]"}`}
+                      className={`font-mono font-semibold ${row.netProfitLei < 0 ? "text-[#b91c1c]" : "text-[#15803d]"}`}
                     >
-                      {formatMoney(row.profitLei)} lei
+                      {formatMoney(row.netProfitLei)} lei
                     </TableCell>
                   ) : null}
                 </tr>
               ))
             ) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#52525b]" colSpan={canModify ? 6 : 4}>
+                <td className="px-3 py-10 text-center text-[#52525b]" colSpan={canModify ? 8 : 4}>
                   Nu există date pentru această perioadă.
                 </td>
               </tr>

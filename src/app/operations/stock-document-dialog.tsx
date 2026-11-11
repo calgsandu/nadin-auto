@@ -290,6 +290,10 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                 <Field label="Nr. factură">
                   <input className={inputClassName} name="externalNumber" placeholder="ex. AA 0123456" />
                 </Field>
+                {/* Scadența intră în „De plătit": ce trebuie achitat săptămâna asta. */}
+                <Field label="Scadența plății">
+                  <input className={inputClassName} name="dueDate" type="date" />
+                </Field>
               </div>
               </DrawerCard>
 

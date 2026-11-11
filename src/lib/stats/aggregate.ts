@@ -6,6 +6,10 @@ export type PeriodTotals = {
   revenueLei: number;
   costLei: number;
   profitLei: number;
+  /** Cheltuielile firmei din aceeași perioadă (chirie, salarii, ...). */
+  expensesLei: number;
+  /** Ce rămâne efectiv: adaosul minus cheltuieli. */
+  netProfitLei: number;
 };
 
 export type StatsPeriod = "day" | "week" | "month";

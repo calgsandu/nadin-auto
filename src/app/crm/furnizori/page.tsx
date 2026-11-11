@@ -41,18 +41,33 @@ async function Loader({
   canModify: boolean;
 }) {
   const data = await dataPromise;
-  return <PartnersWorkspace canModify={canModify} partners={data.partners} />;
+  return (
+    <PartnersWorkspace canModify={canModify} partners={data.partners} accounts={data.accounts} />
+  );
 }
 
 function PartnersWorkspace({
   canModify,
   partners,
+  accounts,
 }: {
   canModify: boolean;
   partners: PartnerRow[];
+  accounts: PartnersData["accounts"];
 }) {
+  const totalToPay = partners.reduce(
+    (sum, partner) => sum + Math.max(partner.supplierBalanceLei, 0),
+    0,
+  );
+
   return (
-    <section className="motion-page p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid gap-3 p-4 lg:px-6 lg:py-5">
+      {totalToPay > 0 ? (
+        <p className="text-sm text-[#52525b]">
+          De plătit furnizorilor în total:{" "}
+          <span className="font-semibold tabular-nums text-[#18181b]">{formatMoney(totalToPay)} lei</span>
+        </p>
+      ) : null}
       <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
@@ -63,7 +78,7 @@ function PartnersWorkspace({
                 <TableHead secondary>IDNO / TVA</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead secondary>Adresă</TableHead>
-                <TableHead align="right">Datorie</TableHead>
+                <TableHead align="right">De plătit</TableHead>
                 <TableHead align="right" secondary>Documente</TableHead>
                 {canModify ? <TableHead align="right">Acțiuni</TableHead> : null}
               </tr>
@@ -97,11 +112,18 @@ function PartnersWorkspace({
                   <TableCell align="right">
                     <span
                       className={`font-mono font-semibold ${
-                        partner.balanceLei > 0 ? "text-[#b91c1c]" : "text-[#52525b]"
+                        partner.supplierBalanceLei > 0 ? "text-[#b91c1c]" : "text-[#52525b]"
                       }`}
                     >
-                      {partner.balanceLei !== 0 ? `${formatMoney(partner.balanceLei)} lei` : "—"}
+                      {partner.supplierBalanceLei !== 0
+                        ? `${formatMoney(partner.supplierBalanceLei)} lei`
+                        : "—"}
                     </span>
+                    {partner.balanceLei !== 0 ? (
+                      <span className="mt-0.5 block text-xs text-[#98948b]">
+                        ne datorează {formatMoney(partner.balanceLei)} lei
+                      </span>
+                    ) : null}
                   </TableCell>
                   <TableCell align="right" secondary>
                     <span className="font-semibold tabular-nums text-[#18181b]">
@@ -115,15 +137,18 @@ function PartnersWorkspace({
                     <TableCell align="right">
                       <div className="flex justify-end gap-1.5">
                         <PartnerLedgerButton
-                          balanceLei={partner.balanceLei}
+                          balanceLei={partner.supplierBalanceLei}
                           partnerId={partner.id}
                           partnerName={partner.name}
+                          side="SUPPLIER"
                         />
                         <RowMenu label={partner.name}>
                           <PartnerPaymentDialog
+                            accounts={accounts}
                             partnerId={partner.id}
                             partnerName={partner.name}
-                            balanceLei={partner.balanceLei}
+                            balanceLei={partner.supplierBalanceLei}
+                            direction="OUT"
                           />
                           <PartnerFormDialog
                             partner={toPartnerFormValue(partner)}

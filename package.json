@@ -17,7 +17,8 @@
     "staff:bootstrap": "tsx scripts/bootstrap-staff-accounts.ts",
     "staff:reset-2fa": "tsx --env-file=.env scripts/reset-staff-2fa.ts",
     "2fa:backfill-bootstrap": "tsx --env-file=.env scripts/backfill-2fa-bootstrap-state.ts",
-    "import:products": "tsx scripts/import-products.ts"
+    "import:products": "tsx scripts/import-products.ts",
+    "audit:coduri": "tsx scripts/audit-pricelist-codes.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

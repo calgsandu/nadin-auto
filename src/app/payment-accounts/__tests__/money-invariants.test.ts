@@ -74,11 +74,30 @@ assert.match(
   "soldul trebuie să numere și transferurile",
 );
 assert.doesNotMatch(debt, /"paymentMethod" = 'CREDIT'/, "nu mai există filtru doar pe CREDIT");
+// Cele două datorii sunt separate: un partener BOTH ne poate datora bani și în
+// același timp să aibă de primit. O singură cifră le-ar ascunde pe amândouă.
+assert.match(debt, /export async function getSupplierBalances/, "datoria către furnizori trebuie calculată");
+assert.match(
+  debt,
+  /WHERE p\.direction = 'OUT'/,
+  "soldul furnizorului scade doar cu plățile trimise",
+);
+assert.match(
+  debt,
+  /SELECT p\."partnerId", -p\.amount FROM "PartnerPayment" p WHERE p\.direction = 'IN'/,
+  "datoria clientului se stinge doar cu încasările, nu și cu plățile către furnizori",
+);
+assert.match(
+  read("src/app/crm/furnizori/page.tsx"),
+  /partner\.supplierBalanceLei/,
+  "lista de furnizori arată ce le datorăm, nu soldul lor de client",
+);
+
 // Fișa partenerului avea funcția scrisă și niciun apelant.
 assert.match(debt, /export async function getPartnerLedger/, "fișa partenerului rămâne expusă");
 assert.match(
   read("src/app/api/partners/[id]/ledger/route.ts"),
-  /getPartnerLedger\(id\)/,
+  /getPartnerLedger\(id, side\)/,
   "fișa trebuie să aibă un apelant",
 );
 assert.match(

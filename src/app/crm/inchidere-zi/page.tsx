@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Banknote, Download, FileText, Scale, ShoppingCart, Undo2 } from "lucide-react";
+import { Banknote, Download, FileText, HandCoins, Landmark, Scale, ShoppingCart, Truck, Undo2 } from "lucide-react";
 import { getDayCloseData, type DayCloseData } from "@/lib/reports/day-close";
 import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
 import { COMPANY } from "@/lib/company";
@@ -97,6 +97,36 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
         />
       </div>
 
+      {/* Banii zilei dincolo de vânzări: soldurile, cheltuielile, plățile către furnizori. */}
+      {data.accounts.length > 0 || data.expensesLei > 0 || data.paidToPartners > 0 ? (
+        <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
+          {data.accounts.map((account) => (
+            <DailyMetric
+              key={account.id}
+              icon={Landmark}
+              label={`Sold ${account.name}`}
+              value={`${formatMoney(account.balanceLei)} lei`}
+              hint="la sfârșitul zilei"
+            />
+          ))}
+          {data.expensesLei > 0 ? (
+            <DailyMetric
+              icon={HandCoins}
+              label="Cheltuieli"
+              value={`${formatMoney(data.expensesLei)} lei`}
+              hint={`${formatNumber(data.expensesCount)} documente`}
+            />
+          ) : null}
+          {data.paidToPartners > 0 ? (
+            <DailyMetric
+              icon={Truck}
+              label="Plătit furnizorilor"
+              value={`${formatMoney(data.paidToPartners)} lei`}
+            />
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="grid gap-4">
         <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
           <div className="border-b border-[#f0f0f2] px-4 py-3 font-semibold text-[#18181b]">
@@ -143,8 +173,14 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
         <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
           <div className="border-b border-[#e4e4e7] px-4 py-2.5">
             <h2 className="text-sm font-semibold text-[#18181b]">
-              Încasări pe datorii vechi ·{" "}
+              Mișcări cu partenerii, încasat{" "}
               <span className="tabular-nums">{formatMoney(data.collectedFromPartners)} lei</span>
+              {data.paidToPartners > 0 ? (
+                <>
+                  , plătit{" "}
+                  <span className="tabular-nums">{formatMoney(data.paidToPartners)} lei</span>
+                </>
+              ) : null}
             </h2>
           </div>
           <table className="crm-table w-full min-w-[520px] border-collapse text-left text-sm">
@@ -152,8 +188,16 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
               {data.partnerPayments.map((payment) => (
                 <tr key={payment.id} className="border-t border-[#f0f0f2]">
                   <TableCell className="font-medium">{payment.partnerName}</TableCell>
-                  <TableCell secondary className="text-[#52525b]">{payment.notes ?? "—"}</TableCell>
-                  <TableCell align="right" className="font-semibold tabular-nums">
+                  <TableCell secondary className="text-[#52525b]">
+                    {payment.direction === "OUT" ? "Plată către furnizor" : payment.notes ?? "—"}
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    className={`font-semibold tabular-nums ${
+                      payment.direction === "OUT" ? "text-[#b91c1c]" : "text-[#18181b]"
+                    }`}
+                  >
+                    {payment.direction === "OUT" ? "−" : ""}
                     {formatMoney(payment.amountLei)} lei
                   </TableCell>
                 </tr>

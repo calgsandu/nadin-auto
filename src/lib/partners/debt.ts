@@ -26,7 +26,7 @@ export async function getPartnerBalances(): Promise<Map<string, number>> {
         JOIN "StockDocument" s ON s.id = r."sourceDocumentId"
        WHERE r.type = 'RETURN' AND s."paymentMethod"::text = ANY(${[...OPEN_METHODS]}) AND s."partnerId" IS NOT NULL
       UNION ALL
-      SELECT p."partnerId", -p.amount FROM "PartnerPayment" p
+      SELECT p."partnerId", -p.amount FROM "PartnerPayment" p WHERE p.direction = 'IN'
     ) ledger
     GROUP BY partner_id
   `;
@@ -36,10 +36,39 @@ export async function getPartnerBalances(): Promise<Map<string, number>> {
   );
 }
 
+/**
+ * Cât îi datorăm noi unui furnizor: recepțiile primite minus plățile trimise.
+ *
+ * Ținut separat de soldul clientului: un partener `BOTH` ne poate datora bani
+ * și în același timp să aibă de primit, iar o singură cifră ar ascunde ambele.
+ * Recepțiile fără total (cele vechi, ținute doar pe cantitate) nu produc
+ * datorie — nu au preț de plătit.
+ */
+export async function getSupplierBalances(): Promise<Map<string, number>> {
+  const rows = await prisma.$queryRaw<Array<{ partnerId: string; balance: number | string }>>`
+    SELECT partner_id AS "partnerId", SUM(amount)::float8 AS balance
+    FROM (
+      SELECT d."partnerId" AS partner_id, COALESCE(d."totalLei", 0) AS amount
+        FROM "StockDocument" d
+       WHERE d.type = 'RECEIPT' AND d."partnerId" IS NOT NULL
+      UNION ALL
+      SELECT p."partnerId", -p.amount FROM "PartnerPayment" p WHERE p.direction = 'OUT'
+    ) ledger
+    GROUP BY partner_id
+  `;
+
+  return new Map(
+    rows.map((row) => [row.partnerId, Math.round(Number(row.balance) * 100) / 100]),
+  );
+}
+
+/** Latura fișei: ce ne datorează clientul, sau ce datorăm furnizorului. */
+export type PartnerLedgerSide = "CUSTOMER" | "SUPPLIER";
+
 /** O mișcare din fișa partenerului. `+` crește datoria, `−` o scade. */
 export type PartnerLedgerEntry = {
   id: string;
-  kind: "SALE" | "RETURN" | "PAYMENT";
+  kind: "SALE" | "RETURN" | "PAYMENT" | "RECEIPT";
   date: Date;
   label: string;
   amountLei: number;
@@ -58,10 +87,57 @@ type ReturnRow = {
 /**
  * Mișcările care compun soldul unui partener, pentru fișa lui.
  *
- * Până acum funcția n-avea niciun apelant: vedeai soldul, dar nu și din ce e
- * făcut, deci o cifră care nu-ți convenea nu putea fi urmărită nicăieri.
+ * `side` alege latura: ce ne datorează ca CLIENT (vânzări pe credit minus
+ * retururi și încasări) sau ce îi datorăm ca FURNIZOR (recepții minus plăți).
+ * Un partener `BOTH` are amândouă, iar amestecarea lor într-o singură listă ar
+ * da un total care nu înseamnă nimic.
  */
-export async function getPartnerLedger(partnerId: string) {
+export async function getPartnerLedger(
+  partnerId: string,
+  side: PartnerLedgerSide = "CUSTOMER",
+) {
+  return side === "SUPPLIER"
+    ? { entries: await supplierEntries(partnerId) }
+    : { entries: await customerEntries(partnerId) };
+}
+
+async function supplierEntries(partnerId: string): Promise<PartnerLedgerEntry[]> {
+  const [receipts, payments] = await Promise.all([
+    prisma.stockDocument.findMany({
+      where: { type: "RECEIPT", partnerId },
+      select: { id: true, number: true, documentDate: true, totalLei: true, externalNumber: true },
+      orderBy: { documentDate: "desc" },
+      take: LEDGER_LIMIT,
+    }),
+    prisma.partnerPayment.findMany({
+      where: { partnerId, direction: "OUT" },
+      select: { id: true, amount: true, paidAt: true, notes: true },
+      orderBy: { paidAt: "desc" },
+      take: LEDGER_LIMIT,
+    }),
+  ]);
+
+  return [
+    ...receipts.map((receipt) => ({
+      id: receipt.id,
+      kind: "RECEIPT" as const,
+      date: receipt.documentDate,
+      label: receipt.externalNumber
+        ? `Recepție #${receipt.number}, factura ${receipt.externalNumber}`
+        : `Recepție #${receipt.number}`,
+      amountLei: Number(receipt.totalLei ?? 0),
+    })),
+    ...payments.map((payment) => ({
+      id: payment.id,
+      kind: "PAYMENT" as const,
+      date: payment.paidAt,
+      label: payment.notes?.trim() || "Plată către furnizor",
+      amountLei: -Number(payment.amount),
+    })),
+  ].sort((a, b) => b.date.getTime() - a.date.getTime());
+}
+
+async function customerEntries(partnerId: string): Promise<PartnerLedgerEntry[]> {
   const [openSales, returns, payments] = await Promise.all([
     prisma.stockDocument.findMany({
       where: { type: "SALE", paymentMethod: { in: [...OPEN_METHODS] }, partnerId },
@@ -83,7 +159,7 @@ export async function getPartnerLedger(partnerId: string) {
        ORDER BY r."documentDate" DESC
        LIMIT ${LEDGER_LIMIT}`,
     prisma.partnerPayment.findMany({
-      where: { partnerId },
+      where: { partnerId, direction: "IN" },
       select: { id: true, amount: true, paidAt: true, notes: true },
       orderBy: { paidAt: "desc" },
       take: LEDGER_LIMIT,
@@ -95,7 +171,7 @@ export async function getPartnerLedger(partnerId: string) {
       id: sale.id,
       kind: "SALE" as const,
       date: sale.documentDate,
-      label: `Vânzare #${sale.number} · ${salePaymentMethodLabel(sale.paymentMethod)}`,
+      label: `Vânzare #${sale.number}, ${salePaymentMethodLabel(sale.paymentMethod).toLowerCase()}`,
       amountLei: Number(sale.totalLei ?? 0),
     })),
     ...returns.map((entry) => ({
@@ -114,5 +190,5 @@ export async function getPartnerLedger(partnerId: string) {
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  return { entries };
+  return entries;
 }

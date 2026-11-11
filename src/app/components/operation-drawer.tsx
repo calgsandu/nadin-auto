@@ -12,6 +12,7 @@ import {
   useTransition,
   type ReactNode,
 } from "react";
+import { useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import type { LucideIcon } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
@@ -69,16 +70,22 @@ export function useOpenFromUrl(enabled: boolean | undefined, open: (params: URLS
   useEffect(() => {
     openRef.current = open;
   });
+  // Și la navigarea din aplicație (paleta Ctrl+K → „Vânzare nouă" când ești
+  // deja în Vânzări): dialogul e montat, deci doar adresa se schimbă.
+  const wanted = useSearchParams().get("nou") === "1";
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !wanted) return;
     const url = new URL(window.location.href);
     if (url.searchParams.get("nou") !== "1") return;
     const params = new URLSearchParams(url.searchParams);
     url.searchParams.delete("nou");
     url.searchParams.delete("produs");
-    window.history.replaceState(window.history.state, "", url);
+    // `null`, nu `history.state`: cu starea internă a lui Next pusă înapoi,
+    // routerul ia apelul drept al lui și nu-și actualizează adresa — iar
+    // `useSearchParams` ar rămâne pe `nou=1`, deci a doua deschidere n-ar porni.
+    window.history.replaceState(null, "", url);
     openRef.current(params);
-  }, [enabled]);
+  }, [enabled, wanted]);
 }
 
 /**

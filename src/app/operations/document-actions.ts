@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireCurrentAppUser } from "@/lib/auth/access";
 import { canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
-import { documentSnapshot, logAuditRequired } from "@/lib/audit";
+import { documentSnapshot, logAudit, logAuditRequired } from "@/lib/audit";
 import {
   aggregateRestockRequests,
   reconcileSaleRestockTasks,
@@ -15,6 +15,7 @@ import {
 } from "@/lib/operations/supplier-selection";
 import { applyReceiptCost } from "@/lib/operations/receipt-cost";
 import { DOCUMENT_TX_OPTIONS } from "@/lib/operations/transaction-limits";
+import { assertDocumentPeriodOpen } from "@/lib/finance/period-lock";
 import {
   mergeDocumentHeader,
   mergeDocumentLines,
@@ -73,6 +74,7 @@ export async function updateSalePaymentMethodAction(
     const user = await requireWrite();
     const id = readString(formData, "id");
     if (!id) throw new Error("Document lipsă.");
+    await assertDocumentPeriodOpen(id);
     const paymentMethod = parseOptionalSalePaymentMethod(
       readString(formData, "paymentMethod"),
     );
@@ -129,6 +131,7 @@ export async function deleteDocumentAction(
     const user = await requireWrite();
     const id = readString(formData, "id");
     if (!id) throw new Error("Document lipsă.");
+    await assertDocumentPeriodOpen(id);
 
     let message = "Document șters și stoc reversat.";
     await prisma.$transaction(async (tx) => {
@@ -237,6 +240,7 @@ export async function updateDocumentLinesAction(
     const user = await requireWrite();
     const id = readString(formData, "id");
     if (!id) throw new Error("Document lipsă.");
+    await assertDocumentPeriodOpen(id);
 
     const productIds = formData.getAll("lineProductId").map((v) => String(v).trim());
     const quantities = formData.getAll("lineQuantity").map((v) => String(v));
@@ -251,9 +255,12 @@ export async function updateDocumentLinesAction(
     const partnerName = readString(formData, "partnerName");
     const requestedWarehouseId = readString(formData, "warehouseId");
     const selectedPartnerId = normalizeOptionalPartnerId(readString(formData, "partnerId"));
-    if (dateRaw && Number.isNaN(new Date(`${dateRaw}T12:00:00`).getTime())) {
+    const documentDate = dateRaw ? new Date(`${dateRaw}T12:00:00`) : undefined;
+    if (documentDate && Number.isNaN(documentDate.getTime())) {
       throw new Error("Data documentului nu este validă.");
     }
+    // A doua verificare: data nouă nu poate muta documentul într-o lună închisă.
+    await assertDocumentPeriodOpen(id, documentDate);
     // Versiunea documentului de la care a pornit editarea. Fără ea nu se poate
     // ști ce a schimbat operatorul și ce a salvat altcineva între timp.
     const baseRaw = readString(formData, "documentBase");
@@ -568,12 +575,12 @@ export async function updateDocumentLinesAction(
         await applyWarehouseStockDeltas(tx, targetWarehouseId, applications);
       }
 
-      // 3. Recepția editată rescrie costul produsului, ca la creare.
+      // 3. Recepția editată recalculează media ponderată, ca la creare.
       // ponytail: rămâne linie cu linie — prețul se scrie per produs, cu reguli
       // proprii. Recepțiile de sute de linii cer întâi batching aici.
       if (doc.type === "RECEIPT") {
         for (const nl of newLines) {
-          if (nl.productId) await applyReceiptCost(tx, nl.productId, nl.price);
+          if (nl.productId) await applyReceiptCost(tx, nl.productId, nl.price, nl.quantity);
         }
       }
 
@@ -675,6 +682,62 @@ export async function updateDocumentLinesAction(
       ok: true,
       message: `Document actualizat. Între timp l-a salvat și altcineva: modificările celuilalt au rămas, s-au aplicat doar ale tale.${overwritten}`,
     };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+/**
+ * Scadența unei recepții, pusă sau schimbată din secțiunea „De plătit".
+ *
+ * Fără ea, o factură recepționată fără dată nu mai putea primi una niciodată:
+ * câmpul există doar în dialogul de creare, iar editarea antetului nu-l atinge.
+ */
+export async function setReceiptDueDateAction(
+  _state: DocumentActionState,
+  formData: FormData,
+): Promise<DocumentActionState> {
+  try {
+    const user = await requireCurrentAppUser();
+    if (!canWriteCatalog(user.role)) {
+      throw new Error("Nu ai drepturi pentru modificarea documentelor.");
+    }
+
+    const documentId = readString(formData, "documentId");
+    if (!documentId) throw new Error("Lipsește documentul.");
+    await assertDocumentPeriodOpen(documentId);
+
+    const raw = readString(formData, "dueDate");
+    const dueDate = raw ? new Date(`${raw}T12:00:00`) : null;
+    if (dueDate && Number.isNaN(dueDate.getTime())) {
+      throw new Error("Data scadenței nu este validă.");
+    }
+
+    const document = await prisma.stockDocument.findUnique({
+      where: { id: documentId },
+      select: { type: true, number: true, dueDate: true },
+    });
+    if (!document) throw new Error("Documentul nu există.");
+    if (document.type !== "RECEIPT") {
+      throw new Error("Scadența se pune doar pe recepții.");
+    }
+
+    await prisma.stockDocument.update({ where: { id: documentId }, data: { dueDate } });
+    await logAudit(prisma, user, {
+      action: "UPDATE",
+      entity: "StockDocument",
+      entityId: documentId,
+      summary: dueDate
+        ? `Scadența recepției #${document.number}: ${dueDate.toLocaleDateString("ro-MD")}`
+        : `Scadența recepției #${document.number} a fost ștearsă`,
+      details: {
+        before: document.dueDate?.toISOString() ?? null,
+        after: dueDate?.toISOString() ?? null,
+      },
+    });
+
+    revalidatePath("/crm", "layout");
+    return { ok: true, message: "Scadența a fost salvată." };
   } catch (error) {
     return fail(error);
   }

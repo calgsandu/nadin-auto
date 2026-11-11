@@ -93,6 +93,26 @@ export function crmInventoryHref(values: {
   });
 }
 
+export function crmExpensesHref(values: {
+  month?: string;
+  category?: string;
+  epage?: number;
+}) {
+  return crmHref("cheltuieli", {
+    month: values.month,
+    category: values.category,
+    epage: values.epage && values.epage > 1 ? values.epage : undefined,
+  });
+}
+
+export function crmCashHref(values: { acc?: string; from?: string; to?: string }) {
+  return crmHref("casa", { acc: values.acc, from: values.from, to: values.to });
+}
+
+export function crmMonthCloseHref(values: { month?: string }) {
+  return crmHref("inchidere-luna", { month: values.month });
+}
+
 export function crmAuditHref(values: { act?: string; doc?: string }) {
   return crmHref("istoric", values);
 }

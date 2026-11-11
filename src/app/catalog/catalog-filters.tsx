@@ -24,7 +24,20 @@ export function CatalogFilters({
 }: CatalogFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const urlQuery = searchParams.get("q") ?? "";
+  const [query, setQuery] = useState(urlQuery);
+  // Ce a trimis câmpul însuși spre adresă. Dacă adresa arată altceva, a
+  // schimbat-o altcineva (paleta Ctrl+K, „Înapoi") și câmpul o urmează; un
+  // răspuns întârziat la propria tastare nu are voie să șteargă literele noi.
+  const [sent, setSent] = useState(urlQuery);
+  const [seen, setSeen] = useState(urlQuery);
+  if (urlQuery !== seen) {
+    setSeen(urlQuery);
+    if (urlQuery !== sent) {
+      setSent(urlQuery);
+      setQuery(urlQuery);
+    }
+  }
   const [searching, startSearch] = useTransition();
   const timer = useRef<number | undefined>(undefined);
 
@@ -35,6 +48,7 @@ export function CatalogFilters({
     setQuery(value);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => {
+      setSent(value.trim());
       const next = new URLSearchParams(searchParams);
       if (value.trim()) next.set("q", value.trim());
       else next.delete("q");
@@ -87,7 +101,7 @@ export function CatalogFilters({
         <input
           aria-label="Caută cod, mașină, piesă"
           autoComplete="off"
-          className="field-control h-9 w-full rounded-lg border border-[#e4e4e7] bg-white pl-8 pr-12 text-sm outline-none placeholder:text-[#71717a]"
+          className="field-control h-9 w-full rounded-lg border border-[#e4e4e7] bg-white pl-8 pr-8 text-sm outline-none placeholder:text-[#71717a]"
           data-catalog-search
           enterKeyHint="search"
           placeholder="Cod, mașină, piesă"
@@ -100,9 +114,9 @@ export function CatalogFilters({
             }
           }}
         />
-        {/* Scurtătura de la tastatură, ca s-o vadă lumea (vezi Sidebar). */}
+        {/* Scurtătura de la tastatură, ca s-o vadă lumea (vezi Sidebar). Ctrl K e paleta. */}
         <kbd className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-[#e4e4e7] bg-white px-1 font-sans text-xs text-[#71717a] sm:block">
-          Ctrl K
+          /
         </kbd>
       </div>
       <MobileFilters active={activeFilters}>

@@ -174,3 +174,28 @@ export type RestockTask = Prisma.RestockTaskModel
  * schimbat, ca să se poată răspunde la „de când s-a scumpit și cu cât".
  */
 export type PriceChange = Prisma.PriceChangeModel
+/**
+ * Model MoneyAccount
+ * Casa sau contul din care s-a plătit / în care a intrat suma.
+ */
+export type MoneyAccount = Prisma.MoneyAccountModel
+/**
+ * Model Expense
+ * Bani ieșiți din firmă pentru altceva decât marfă. Fără ele „profitul" e
+ * doar adaos comercial: vezi cât ai câștigat pe piese, nu cât ți-a rămas.
+ */
+export type Expense = Prisma.ExpenseModel
+/**
+ * Model MoneyMovement
+ * O mișcare de bani fără alt document în spate: depunere, retragere, transfer
+ * între casă și bancă, sau o intrare/ieșire care nu e nici vânzare, nici
+ * cheltuială. Semnul stă în `amountLei`: minus = ies bani din cont.
+ */
+export type MoneyMovement = Prisma.MoneyMovementModel
+/**
+ * Model AccountingPeriod
+ * O lună închisă contabil. Cât timp există un rând APROBAT pentru luna unui
+ * document, documentul nu se mai poate crea, edita sau șterge — altfel
+ * registrul TVA deja depus s-ar schimba în urmă.
+ */
+export type AccountingPeriod = Prisma.AccountingPeriodModel

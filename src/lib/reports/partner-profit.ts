@@ -37,10 +37,9 @@ export async function getPartnerProfitData(months = 12, limit = 30) {
            COUNT(DISTINCT d.id)::int AS sales_count,
            COALESCE(SUM(l.quantity), 0)::int AS quantity,
            COALESCE(SUM(l.quantity * COALESCE(l."unitPriceEuro", 0)), 0)::float8 AS revenue_lei,
-           COALESCE(SUM(l.quantity * CASE
-             WHEN l."productId" IS NOT NULL THEN COALESCE(p."costLei", 0)
-             ELSE COALESCE(l."unitCostLei", 0)
-           END), 0)::float8 AS cost_lei,
+           -- Costul înghețat pe linie la vânzare; fișa produsului rămâne
+           -- rezervă doar pentru vânzările de dinaintea înghețării.
+           COALESCE(SUM(l.quantity * COALESCE(l."unitCostLei", p."costLei", 0)), 0)::float8 AS cost_lei,
            MAX(d."documentDate") AS last_sale
     FROM "StockDocument" d
     LEFT JOIN "StockDocumentLine" l ON l."documentId" = d.id

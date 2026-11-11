@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/vitrina/slug";
 import {
@@ -27,7 +28,27 @@ export type ShowroomData = {
   types: ShowroomType[];
 };
 
-export const getShowroomData = cache(async (locale: CatalogLocale = "ro"): Promise<ShowroomData> => {
+// Layout-ul vitrinei citește `headers()` (limba), deci paginile se randează la
+// fiecare cerere și `revalidate = 3600` din pagini nu se aplică. Fără cache aici,
+// fiecare vizită (inclusiv crawlerele pe tot sitemap-ul) lovea Neon și ținea
+// compute-ul treaz non-stop. Cache-uim datele în Data Cache, pe argumente.
+// ponytail: TTL fix de o oră (stocul „în stoc/lipsă" poate întârzia până la 1h);
+// pune revalidateTag("vitrina") în acțiunile CRM dacă trebuie instant.
+const CATALOG_TTL_SECONDS = 3600;
+
+function catalogCache<A extends unknown[], R>(
+  name: string,
+  fn: (...args: A) => Promise<R>,
+) {
+  return cache(
+    unstable_cache(fn, ["vitrina", name], {
+      revalidate: CATALOG_TTL_SECONDS,
+      tags: ["vitrina"],
+    }),
+  );
+}
+
+export const getShowroomData = catalogCache("showroom", async (locale: CatalogLocale = "ro"): Promise<ShowroomData> => {
   const [brandRows, typeRows, productCount, modelCount] = await Promise.all([
     prisma.$queryRaw<
       { id: string; name: string; models: bigint; products: bigint }[]
@@ -88,7 +109,7 @@ export type BrandModel = {
   years: string | null;
 };
 
-export const getBrandData = cache(async (brandSlug: string, locale: CatalogLocale = "ro") => {
+export const getBrandData = catalogCache("brand", async (brandSlug: string, locale: CatalogLocale = "ro") => {
   const brands = await prisma.brand.findMany({ select: { id: true, name: true } });
   const brand = brands.find((entry) => slugify(entry.name) === brandSlug);
   if (!brand) return null;
@@ -170,7 +191,8 @@ export function localizePublicProduct(
 
 export type ModelTypeGroup = { type: string; slug: string; products: PublicProduct[] };
 
-export const getModelData = cache(
+export const getModelData = catalogCache(
+  "model",
   async (brandSlug: string, modelSlug: string, locale: CatalogLocale = "ro") => {
     const brand = await getBrandData(brandSlug, locale);
     if (!brand) return null;
@@ -232,7 +254,8 @@ export type ProductDetails = {
   related: (PublicProduct & { type: string })[];
 };
 
-export const getProductDetails = cache(
+export const getProductDetails = catalogCache(
+  "product",
   async (id: string, locale: CatalogLocale = "ro"): Promise<ProductDetails | null> => {
     const product = await prisma.product.findUnique({
       where: { id },
@@ -318,10 +341,10 @@ export type SearchHit = PublicProduct & {
   modelSlug: string;
 };
 
-export async function searchPublicProducts(
+export const searchPublicProducts = catalogCache("search", async (
   query: string,
   locale: CatalogLocale = "ro",
-): Promise<SearchHit[]> {
+): Promise<SearchHit[]> => {
   const terms = query.trim().split(/\s+/).filter((term) => term.length >= 2);
   if (terms.length === 0) return [];
   const products = await prisma.product.findMany({
@@ -382,4 +405,4 @@ export async function searchPublicProducts(
     model: product.fitment.carModel.name,
     modelSlug: slugify(product.fitment.carModel.name),
   }));
-}
+});

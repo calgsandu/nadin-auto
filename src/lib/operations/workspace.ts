@@ -24,7 +24,11 @@ export type WorkspaceSectionId =
   | "statistici"
   | "inchidere-zi"
   | "tva"
-  | "preturi";
+  | "preturi"
+  | "cheltuieli"
+  | "de-platit"
+  | "casa"
+  | "inchidere-luna";
 
 type WorkspaceSection = {
   id: WorkspaceSectionId;
@@ -36,18 +40,23 @@ type WorkspaceSection = {
 export type MenuIconName =
   | "ArrowRightLeft"
   | "BadgeCheck"
+  | "Banknote"
   | "BarChart3"
   | "Boxes"
   | "CalendarCheck"
+  | "CalendarClock"
   | "CalendarRange"
   | "Car"
   | "ClipboardCheck"
   | "ClipboardList"
   | "Factory"
   | "Files"
+  | "HandCoins"
   | "Handshake"
   | "History"
+  | "Landmark"
   | "Layers"
+  | "Lock"
   | "MapPin"
   | "PackagePlus"
   | "PackageSearch"
@@ -209,6 +218,26 @@ export const workspaceSections: WorkspaceSection[] = [
     title: "Istoric prețuri",
     description: "Când și cu cât s-a schimbat costul sau prețul de vânzare.",
   },
+  {
+    id: "cheltuieli",
+    title: "Cheltuieli",
+    description: "Banii ieșiți pe altceva decât marfă: chirie, salarii, utilități.",
+  },
+  {
+    id: "de-platit",
+    title: "De plătit furnizorilor",
+    description: "Recepțiile neachitate, cu scadența cea mai apropiată prima.",
+  },
+  {
+    id: "casa",
+    title: "Casă și bancă",
+    description: "Cât ai în casă și în cont, și din ce mișcări s-a strâns.",
+  },
+  {
+    id: "inchidere-luna",
+    title: "Închidere de lună",
+    description: "Bilanțul lunii și blocarea ei, ca cifrele depuse să nu se mai schimbe.",
+  },
 ];
 
 export const navigationEntries: NavigationEntry[] = [
@@ -369,6 +398,30 @@ export const navigationEntries: NavigationEntry[] = [
     description: "Schimbări de cost și preț",
     icon: "TrendingUp",
   },
+  {
+    section: "cheltuieli",
+    label: "Cheltuieli",
+    description: "Chirie, salarii, utilități",
+    icon: "HandCoins",
+  },
+  {
+    section: "de-platit",
+    label: "De plătit",
+    description: "Datorii către furnizori",
+    icon: "CalendarClock",
+  },
+  {
+    section: "casa",
+    label: "Casă și bancă",
+    description: "Solduri și registru",
+    icon: "Landmark",
+  },
+  {
+    section: "inchidere-luna",
+    label: "Închidere de lună",
+    description: "Bilanț și blocare",
+    icon: "Lock",
+  },
 ];
 
 type NavGroupIcon = MenuIconName;
@@ -429,6 +482,14 @@ export const navigationGroups: NavGroup[] = [
     description: "Clienți și furnizori",
     icon: "Handshake",
     sections: ["clienti", "furnizori"],
+    display: "tabs",
+  },
+  {
+    id: "finante",
+    label: "Bani",
+    description: "Casă, cheltuieli, datorii la furnizori",
+    icon: "Banknote",
+    sections: ["casa", "cheltuieli", "de-platit", "inchidere-luna"],
     display: "tabs",
   },
   {

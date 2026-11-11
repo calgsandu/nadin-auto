@@ -41,6 +41,8 @@ export type PartnerPaymentMinAggregateOutputType = {
   amount: runtime.Decimal | null
   paidAt: Date | null
   notes: string | null
+  direction: $Enums.PaymentDirection | null
+  accountId: string | null
   idempotencyKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -52,6 +54,8 @@ export type PartnerPaymentMaxAggregateOutputType = {
   amount: runtime.Decimal | null
   paidAt: Date | null
   notes: string | null
+  direction: $Enums.PaymentDirection | null
+  accountId: string | null
   idempotencyKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -63,6 +67,8 @@ export type PartnerPaymentCountAggregateOutputType = {
   amount: number
   paidAt: number
   notes: number
+  direction: number
+  accountId: number
   idempotencyKey: number
   createdAt: number
   updatedAt: number
@@ -84,6 +90,8 @@ export type PartnerPaymentMinAggregateInputType = {
   amount?: true
   paidAt?: true
   notes?: true
+  direction?: true
+  accountId?: true
   idempotencyKey?: true
   createdAt?: true
   updatedAt?: true
@@ -95,6 +103,8 @@ export type PartnerPaymentMaxAggregateInputType = {
   amount?: true
   paidAt?: true
   notes?: true
+  direction?: true
+  accountId?: true
   idempotencyKey?: true
   createdAt?: true
   updatedAt?: true
@@ -106,6 +116,8 @@ export type PartnerPaymentCountAggregateInputType = {
   amount?: true
   paidAt?: true
   notes?: true
+  direction?: true
+  accountId?: true
   idempotencyKey?: true
   createdAt?: true
   updatedAt?: true
@@ -204,6 +216,8 @@ export type PartnerPaymentGroupByOutputType = {
   amount: runtime.Decimal
   paidAt: Date
   notes: string | null
+  direction: $Enums.PaymentDirection
+  accountId: string | null
   idempotencyKey: string | null
   createdAt: Date
   updatedAt: Date
@@ -238,9 +252,12 @@ export type PartnerPaymentWhereInput = {
   amount?: Prisma.DecimalFilter<"PartnerPayment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFilter<"PartnerPayment"> | Date | string
   notes?: Prisma.StringNullableFilter<"PartnerPayment"> | string | null
+  direction?: Prisma.EnumPaymentDirectionFilter<"PartnerPayment"> | $Enums.PaymentDirection
+  accountId?: Prisma.StringNullableFilter<"PartnerPayment"> | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"PartnerPayment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PartnerPayment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PartnerPayment"> | Date | string
+  account?: Prisma.XOR<Prisma.MoneyAccountNullableScalarRelationFilter, Prisma.MoneyAccountWhereInput> | null
   partner?: Prisma.XOR<Prisma.PartnerScalarRelationFilter, Prisma.PartnerWhereInput>
 }
 
@@ -250,9 +267,12 @@ export type PartnerPaymentOrderByWithRelationInput = {
   amount?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  account?: Prisma.MoneyAccountOrderByWithRelationInput
   partner?: Prisma.PartnerOrderByWithRelationInput
 }
 
@@ -266,8 +286,11 @@ export type PartnerPaymentWhereUniqueInput = Prisma.AtLeast<{
   amount?: Prisma.DecimalFilter<"PartnerPayment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFilter<"PartnerPayment"> | Date | string
   notes?: Prisma.StringNullableFilter<"PartnerPayment"> | string | null
+  direction?: Prisma.EnumPaymentDirectionFilter<"PartnerPayment"> | $Enums.PaymentDirection
+  accountId?: Prisma.StringNullableFilter<"PartnerPayment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PartnerPayment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PartnerPayment"> | Date | string
+  account?: Prisma.XOR<Prisma.MoneyAccountNullableScalarRelationFilter, Prisma.MoneyAccountWhereInput> | null
   partner?: Prisma.XOR<Prisma.PartnerScalarRelationFilter, Prisma.PartnerWhereInput>
 }, "id" | "idempotencyKey">
 
@@ -277,6 +300,8 @@ export type PartnerPaymentOrderByWithAggregationInput = {
   amount?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -296,6 +321,8 @@ export type PartnerPaymentScalarWhereWithAggregatesInput = {
   amount?: Prisma.DecimalWithAggregatesFilter<"PartnerPayment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeWithAggregatesFilter<"PartnerPayment"> | Date | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"PartnerPayment"> | string | null
+  direction?: Prisma.EnumPaymentDirectionWithAggregatesFilter<"PartnerPayment"> | $Enums.PaymentDirection
+  accountId?: Prisma.StringNullableWithAggregatesFilter<"PartnerPayment"> | string | null
   idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"PartnerPayment"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PartnerPayment"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PartnerPayment"> | Date | string
@@ -306,9 +333,11 @@ export type PartnerPaymentCreateInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Date | string
   notes?: string | null
+  direction?: $Enums.PaymentDirection
   idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  account?: Prisma.MoneyAccountCreateNestedOneWithoutPaymentsInput
   partner: Prisma.PartnerCreateNestedOneWithoutPaymentsInput
 }
 
@@ -318,6 +347,8 @@ export type PartnerPaymentUncheckedCreateInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Date | string
   notes?: string | null
+  direction?: $Enums.PaymentDirection
+  accountId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -328,9 +359,11 @@ export type PartnerPaymentUpdateInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  account?: Prisma.MoneyAccountUpdateOneWithoutPaymentsNestedInput
   partner?: Prisma.PartnerUpdateOneRequiredWithoutPaymentsNestedInput
 }
 
@@ -340,6 +373,8 @@ export type PartnerPaymentUncheckedUpdateInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
+  accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -351,6 +386,8 @@ export type PartnerPaymentCreateManyInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Date | string
   notes?: string | null
+  direction?: $Enums.PaymentDirection
+  accountId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -361,6 +398,7 @@ export type PartnerPaymentUpdateManyMutationInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,6 +410,8 @@ export type PartnerPaymentUncheckedUpdateManyInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
+  accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -393,6 +433,8 @@ export type PartnerPaymentCountOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  accountId?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -408,6 +450,8 @@ export type PartnerPaymentMaxOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  accountId?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -419,6 +463,8 @@ export type PartnerPaymentMinOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  accountId?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -478,14 +524,62 @@ export type DecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
+export type EnumPaymentDirectionFieldUpdateOperationsInput = {
+  set?: $Enums.PaymentDirection
+}
+
+export type PartnerPaymentCreateNestedManyWithoutAccountInput = {
+  create?: Prisma.XOR<Prisma.PartnerPaymentCreateWithoutAccountInput, Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput> | Prisma.PartnerPaymentCreateWithoutAccountInput[] | Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.PartnerPaymentCreateOrConnectWithoutAccountInput | Prisma.PartnerPaymentCreateOrConnectWithoutAccountInput[]
+  createMany?: Prisma.PartnerPaymentCreateManyAccountInputEnvelope
+  connect?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+}
+
+export type PartnerPaymentUncheckedCreateNestedManyWithoutAccountInput = {
+  create?: Prisma.XOR<Prisma.PartnerPaymentCreateWithoutAccountInput, Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput> | Prisma.PartnerPaymentCreateWithoutAccountInput[] | Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.PartnerPaymentCreateOrConnectWithoutAccountInput | Prisma.PartnerPaymentCreateOrConnectWithoutAccountInput[]
+  createMany?: Prisma.PartnerPaymentCreateManyAccountInputEnvelope
+  connect?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+}
+
+export type PartnerPaymentUpdateManyWithoutAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.PartnerPaymentCreateWithoutAccountInput, Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput> | Prisma.PartnerPaymentCreateWithoutAccountInput[] | Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.PartnerPaymentCreateOrConnectWithoutAccountInput | Prisma.PartnerPaymentCreateOrConnectWithoutAccountInput[]
+  upsert?: Prisma.PartnerPaymentUpsertWithWhereUniqueWithoutAccountInput | Prisma.PartnerPaymentUpsertWithWhereUniqueWithoutAccountInput[]
+  createMany?: Prisma.PartnerPaymentCreateManyAccountInputEnvelope
+  set?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+  disconnect?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+  delete?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+  connect?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+  update?: Prisma.PartnerPaymentUpdateWithWhereUniqueWithoutAccountInput | Prisma.PartnerPaymentUpdateWithWhereUniqueWithoutAccountInput[]
+  updateMany?: Prisma.PartnerPaymentUpdateManyWithWhereWithoutAccountInput | Prisma.PartnerPaymentUpdateManyWithWhereWithoutAccountInput[]
+  deleteMany?: Prisma.PartnerPaymentScalarWhereInput | Prisma.PartnerPaymentScalarWhereInput[]
+}
+
+export type PartnerPaymentUncheckedUpdateManyWithoutAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.PartnerPaymentCreateWithoutAccountInput, Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput> | Prisma.PartnerPaymentCreateWithoutAccountInput[] | Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.PartnerPaymentCreateOrConnectWithoutAccountInput | Prisma.PartnerPaymentCreateOrConnectWithoutAccountInput[]
+  upsert?: Prisma.PartnerPaymentUpsertWithWhereUniqueWithoutAccountInput | Prisma.PartnerPaymentUpsertWithWhereUniqueWithoutAccountInput[]
+  createMany?: Prisma.PartnerPaymentCreateManyAccountInputEnvelope
+  set?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+  disconnect?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+  delete?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+  connect?: Prisma.PartnerPaymentWhereUniqueInput | Prisma.PartnerPaymentWhereUniqueInput[]
+  update?: Prisma.PartnerPaymentUpdateWithWhereUniqueWithoutAccountInput | Prisma.PartnerPaymentUpdateWithWhereUniqueWithoutAccountInput[]
+  updateMany?: Prisma.PartnerPaymentUpdateManyWithWhereWithoutAccountInput | Prisma.PartnerPaymentUpdateManyWithWhereWithoutAccountInput[]
+  deleteMany?: Prisma.PartnerPaymentScalarWhereInput | Prisma.PartnerPaymentScalarWhereInput[]
+}
+
 export type PartnerPaymentCreateWithoutPartnerInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Date | string
   notes?: string | null
+  direction?: $Enums.PaymentDirection
   idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  account?: Prisma.MoneyAccountCreateNestedOneWithoutPaymentsInput
 }
 
 export type PartnerPaymentUncheckedCreateWithoutPartnerInput = {
@@ -493,6 +587,8 @@ export type PartnerPaymentUncheckedCreateWithoutPartnerInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Date | string
   notes?: string | null
+  direction?: $Enums.PaymentDirection
+  accountId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -533,9 +629,61 @@ export type PartnerPaymentScalarWhereInput = {
   amount?: Prisma.DecimalFilter<"PartnerPayment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFilter<"PartnerPayment"> | Date | string
   notes?: Prisma.StringNullableFilter<"PartnerPayment"> | string | null
+  direction?: Prisma.EnumPaymentDirectionFilter<"PartnerPayment"> | $Enums.PaymentDirection
+  accountId?: Prisma.StringNullableFilter<"PartnerPayment"> | string | null
   idempotencyKey?: Prisma.StringNullableFilter<"PartnerPayment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PartnerPayment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PartnerPayment"> | Date | string
+}
+
+export type PartnerPaymentCreateWithoutAccountInput = {
+  id?: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAt?: Date | string
+  notes?: string | null
+  direction?: $Enums.PaymentDirection
+  idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  partner: Prisma.PartnerCreateNestedOneWithoutPaymentsInput
+}
+
+export type PartnerPaymentUncheckedCreateWithoutAccountInput = {
+  id?: string
+  partnerId: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAt?: Date | string
+  notes?: string | null
+  direction?: $Enums.PaymentDirection
+  idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PartnerPaymentCreateOrConnectWithoutAccountInput = {
+  where: Prisma.PartnerPaymentWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartnerPaymentCreateWithoutAccountInput, Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput>
+}
+
+export type PartnerPaymentCreateManyAccountInputEnvelope = {
+  data: Prisma.PartnerPaymentCreateManyAccountInput | Prisma.PartnerPaymentCreateManyAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type PartnerPaymentUpsertWithWhereUniqueWithoutAccountInput = {
+  where: Prisma.PartnerPaymentWhereUniqueInput
+  update: Prisma.XOR<Prisma.PartnerPaymentUpdateWithoutAccountInput, Prisma.PartnerPaymentUncheckedUpdateWithoutAccountInput>
+  create: Prisma.XOR<Prisma.PartnerPaymentCreateWithoutAccountInput, Prisma.PartnerPaymentUncheckedCreateWithoutAccountInput>
+}
+
+export type PartnerPaymentUpdateWithWhereUniqueWithoutAccountInput = {
+  where: Prisma.PartnerPaymentWhereUniqueInput
+  data: Prisma.XOR<Prisma.PartnerPaymentUpdateWithoutAccountInput, Prisma.PartnerPaymentUncheckedUpdateWithoutAccountInput>
+}
+
+export type PartnerPaymentUpdateManyWithWhereWithoutAccountInput = {
+  where: Prisma.PartnerPaymentScalarWhereInput
+  data: Prisma.XOR<Prisma.PartnerPaymentUpdateManyMutationInput, Prisma.PartnerPaymentUncheckedUpdateManyWithoutAccountInput>
 }
 
 export type PartnerPaymentCreateManyPartnerInput = {
@@ -543,6 +691,8 @@ export type PartnerPaymentCreateManyPartnerInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Date | string
   notes?: string | null
+  direction?: $Enums.PaymentDirection
+  accountId?: string | null
   idempotencyKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -553,9 +703,11 @@ export type PartnerPaymentUpdateWithoutPartnerInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  account?: Prisma.MoneyAccountUpdateOneWithoutPaymentsNestedInput
 }
 
 export type PartnerPaymentUncheckedUpdateWithoutPartnerInput = {
@@ -563,6 +715,8 @@ export type PartnerPaymentUncheckedUpdateWithoutPartnerInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
+  accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -573,6 +727,56 @@ export type PartnerPaymentUncheckedUpdateManyWithoutPartnerInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
+  accountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PartnerPaymentCreateManyAccountInput = {
+  id?: string
+  partnerId: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAt?: Date | string
+  notes?: string | null
+  direction?: $Enums.PaymentDirection
+  idempotencyKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PartnerPaymentUpdateWithoutAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  partner?: Prisma.PartnerUpdateOneRequiredWithoutPaymentsNestedInput
+}
+
+export type PartnerPaymentUncheckedUpdateWithoutAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PartnerPaymentUncheckedUpdateManyWithoutAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direction?: Prisma.EnumPaymentDirectionFieldUpdateOperationsInput | $Enums.PaymentDirection
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -586,9 +790,12 @@ export type PartnerPaymentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   amount?: boolean
   paidAt?: boolean
   notes?: boolean
+  direction?: boolean
+  accountId?: boolean
   idempotencyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  account?: boolean | Prisma.PartnerPayment$accountArgs<ExtArgs>
   partner?: boolean | Prisma.PartnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["partnerPayment"]>
 
@@ -598,9 +805,12 @@ export type PartnerPaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   amount?: boolean
   paidAt?: boolean
   notes?: boolean
+  direction?: boolean
+  accountId?: boolean
   idempotencyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  account?: boolean | Prisma.PartnerPayment$accountArgs<ExtArgs>
   partner?: boolean | Prisma.PartnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["partnerPayment"]>
 
@@ -610,9 +820,12 @@ export type PartnerPaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   amount?: boolean
   paidAt?: boolean
   notes?: boolean
+  direction?: boolean
+  accountId?: boolean
   idempotencyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  account?: boolean | Prisma.PartnerPayment$accountArgs<ExtArgs>
   partner?: boolean | Prisma.PartnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["partnerPayment"]>
 
@@ -622,25 +835,31 @@ export type PartnerPaymentSelectScalar = {
   amount?: boolean
   paidAt?: boolean
   notes?: boolean
+  direction?: boolean
+  accountId?: boolean
   idempotencyKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PartnerPaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "partnerId" | "amount" | "paidAt" | "notes" | "idempotencyKey" | "createdAt" | "updatedAt", ExtArgs["result"]["partnerPayment"]>
+export type PartnerPaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "partnerId" | "amount" | "paidAt" | "notes" | "direction" | "accountId" | "idempotencyKey" | "createdAt" | "updatedAt", ExtArgs["result"]["partnerPayment"]>
 export type PartnerPaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  account?: boolean | Prisma.PartnerPayment$accountArgs<ExtArgs>
   partner?: boolean | Prisma.PartnerDefaultArgs<ExtArgs>
 }
 export type PartnerPaymentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  account?: boolean | Prisma.PartnerPayment$accountArgs<ExtArgs>
   partner?: boolean | Prisma.PartnerDefaultArgs<ExtArgs>
 }
 export type PartnerPaymentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  account?: boolean | Prisma.PartnerPayment$accountArgs<ExtArgs>
   partner?: boolean | Prisma.PartnerDefaultArgs<ExtArgs>
 }
 
 export type $PartnerPaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PartnerPayment"
   objects: {
+    account: Prisma.$MoneyAccountPayload<ExtArgs> | null
     partner: Prisma.$PartnerPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -649,6 +868,14 @@ export type $PartnerPaymentPayload<ExtArgs extends runtime.Types.Extensions.Inte
     amount: runtime.Decimal
     paidAt: Date
     notes: string | null
+    /**
+     * IN = am încasat de la client, OUT = am plătit furnizorului.
+     */
+    direction: $Enums.PaymentDirection
+    /**
+     * Casa sau contul prin care au trecut banii. Null pe încasările vechi.
+     */
+    accountId: string | null
     /**
      * Vezi StockDocument.idempotencyKey.
      */
@@ -1049,6 +1276,7 @@ readonly fields: PartnerPaymentFieldRefs;
  */
 export interface Prisma__PartnerPaymentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  account<T extends Prisma.PartnerPayment$accountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PartnerPayment$accountArgs<ExtArgs>>): Prisma.Prisma__MoneyAccountClient<runtime.Types.Result.GetResult<Prisma.$MoneyAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   partner<T extends Prisma.PartnerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PartnerDefaultArgs<ExtArgs>>): Prisma.Prisma__PartnerClient<runtime.Types.Result.GetResult<Prisma.$PartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1084,6 +1312,8 @@ export interface PartnerPaymentFieldRefs {
   readonly amount: Prisma.FieldRef<"PartnerPayment", 'Decimal'>
   readonly paidAt: Prisma.FieldRef<"PartnerPayment", 'DateTime'>
   readonly notes: Prisma.FieldRef<"PartnerPayment", 'String'>
+  readonly direction: Prisma.FieldRef<"PartnerPayment", 'PaymentDirection'>
+  readonly accountId: Prisma.FieldRef<"PartnerPayment", 'String'>
   readonly idempotencyKey: Prisma.FieldRef<"PartnerPayment", 'String'>
   readonly createdAt: Prisma.FieldRef<"PartnerPayment", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PartnerPayment", 'DateTime'>
@@ -1494,6 +1724,25 @@ export type PartnerPaymentDeleteManyArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many PartnerPayments to delete.
    */
   limit?: number
+}
+
+/**
+ * PartnerPayment.account
+ */
+export type PartnerPayment$accountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MoneyAccount
+   */
+  select?: Prisma.MoneyAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MoneyAccount
+   */
+  omit?: Prisma.MoneyAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MoneyAccountInclude<ExtArgs> | null
+  where?: Prisma.MoneyAccountWhereInput
 }
 
 /**

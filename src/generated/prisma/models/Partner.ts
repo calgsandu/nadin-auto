@@ -301,6 +301,7 @@ export type PartnerWhereInput = {
   externalOrders?: Prisma.ExternalOrderListRelationFilter
   externalLines?: Prisma.StockDocumentLineListRelationFilter
   payments?: Prisma.PartnerPaymentListRelationFilter
+  expenses?: Prisma.ExpenseListRelationFilter
 }
 
 export type PartnerOrderByWithRelationInput = {
@@ -324,6 +325,7 @@ export type PartnerOrderByWithRelationInput = {
   externalOrders?: Prisma.ExternalOrderOrderByRelationAggregateInput
   externalLines?: Prisma.StockDocumentLineOrderByRelationAggregateInput
   payments?: Prisma.PartnerPaymentOrderByRelationAggregateInput
+  expenses?: Prisma.ExpenseOrderByRelationAggregateInput
 }
 
 export type PartnerWhereUniqueInput = Prisma.AtLeast<{
@@ -350,6 +352,7 @@ export type PartnerWhereUniqueInput = Prisma.AtLeast<{
   externalOrders?: Prisma.ExternalOrderListRelationFilter
   externalLines?: Prisma.StockDocumentLineListRelationFilter
   payments?: Prisma.PartnerPaymentListRelationFilter
+  expenses?: Prisma.ExpenseListRelationFilter
 }, "id" | "name">
 
 export type PartnerOrderByWithAggregationInput = {
@@ -417,6 +420,7 @@ export type PartnerCreateInput = {
   externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
   externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
   payments?: Prisma.PartnerPaymentCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUncheckedCreateInput = {
@@ -440,6 +444,7 @@ export type PartnerUncheckedCreateInput = {
   externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
   externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
   payments?: Prisma.PartnerPaymentUncheckedCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUpdateInput = {
@@ -463,6 +468,7 @@ export type PartnerUpdateInput = {
   externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
   externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
   payments?: Prisma.PartnerPaymentUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerUncheckedUpdateInput = {
@@ -486,6 +492,7 @@ export type PartnerUncheckedUpdateInput = {
   externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
   externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
   payments?: Prisma.PartnerPaymentUncheckedUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerCreateManyInput = {
@@ -694,6 +701,22 @@ export type PartnerUpdateOneWithoutExternalLinesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PartnerUpdateToOneWithWhereWithoutExternalLinesInput, Prisma.PartnerUpdateWithoutExternalLinesInput>, Prisma.PartnerUncheckedUpdateWithoutExternalLinesInput>
 }
 
+export type PartnerCreateNestedOneWithoutExpensesInput = {
+  create?: Prisma.XOR<Prisma.PartnerCreateWithoutExpensesInput, Prisma.PartnerUncheckedCreateWithoutExpensesInput>
+  connectOrCreate?: Prisma.PartnerCreateOrConnectWithoutExpensesInput
+  connect?: Prisma.PartnerWhereUniqueInput
+}
+
+export type PartnerUpdateOneWithoutExpensesNestedInput = {
+  create?: Prisma.XOR<Prisma.PartnerCreateWithoutExpensesInput, Prisma.PartnerUncheckedCreateWithoutExpensesInput>
+  connectOrCreate?: Prisma.PartnerCreateOrConnectWithoutExpensesInput
+  upsert?: Prisma.PartnerUpsertWithoutExpensesInput
+  disconnect?: Prisma.PartnerWhereInput | boolean
+  delete?: Prisma.PartnerWhereInput | boolean
+  connect?: Prisma.PartnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PartnerUpdateToOneWithWhereWithoutExpensesInput, Prisma.PartnerUpdateWithoutExpensesInput>, Prisma.PartnerUncheckedUpdateWithoutExpensesInput>
+}
+
 export type PartnerCreateWithoutExternalOrdersInput = {
   id?: string
   name: string
@@ -714,6 +737,7 @@ export type PartnerCreateWithoutExternalOrdersInput = {
   paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
   externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
   payments?: Prisma.PartnerPaymentCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUncheckedCreateWithoutExternalOrdersInput = {
@@ -736,6 +760,7 @@ export type PartnerUncheckedCreateWithoutExternalOrdersInput = {
   paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
   externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
   payments?: Prisma.PartnerPaymentUncheckedCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerCreateOrConnectWithoutExternalOrdersInput = {
@@ -774,6 +799,7 @@ export type PartnerUpdateWithoutExternalOrdersInput = {
   paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
   externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
   payments?: Prisma.PartnerPaymentUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerUncheckedUpdateWithoutExternalOrdersInput = {
@@ -796,6 +822,7 @@ export type PartnerUncheckedUpdateWithoutExternalOrdersInput = {
   paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
   externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
   payments?: Prisma.PartnerPaymentUncheckedUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerCreateWithoutDocumentsInput = {
@@ -818,6 +845,7 @@ export type PartnerCreateWithoutDocumentsInput = {
   externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
   externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
   payments?: Prisma.PartnerPaymentCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUncheckedCreateWithoutDocumentsInput = {
@@ -840,6 +868,7 @@ export type PartnerUncheckedCreateWithoutDocumentsInput = {
   externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
   externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
   payments?: Prisma.PartnerPaymentUncheckedCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerCreateOrConnectWithoutDocumentsInput = {
@@ -878,6 +907,7 @@ export type PartnerUpdateWithoutDocumentsInput = {
   externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
   externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
   payments?: Prisma.PartnerPaymentUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerUncheckedUpdateWithoutDocumentsInput = {
@@ -900,6 +930,7 @@ export type PartnerUncheckedUpdateWithoutDocumentsInput = {
   externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
   externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
   payments?: Prisma.PartnerPaymentUncheckedUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerCreateWithoutPaymentsInput = {
@@ -922,6 +953,7 @@ export type PartnerCreateWithoutPaymentsInput = {
   paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
   externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
   externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUncheckedCreateWithoutPaymentsInput = {
@@ -944,6 +976,7 @@ export type PartnerUncheckedCreateWithoutPaymentsInput = {
   paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
   externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
   externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerCreateOrConnectWithoutPaymentsInput = {
@@ -982,6 +1015,7 @@ export type PartnerUpdateWithoutPaymentsInput = {
   paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
   externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
   externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerUncheckedUpdateWithoutPaymentsInput = {
@@ -1004,6 +1038,7 @@ export type PartnerUncheckedUpdateWithoutPaymentsInput = {
   paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
   externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
   externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerCreateWithoutPaymentAccountsInput = {
@@ -1026,6 +1061,7 @@ export type PartnerCreateWithoutPaymentAccountsInput = {
   externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
   externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
   payments?: Prisma.PartnerPaymentCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUncheckedCreateWithoutPaymentAccountsInput = {
@@ -1048,6 +1084,7 @@ export type PartnerUncheckedCreateWithoutPaymentAccountsInput = {
   externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
   externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
   payments?: Prisma.PartnerPaymentUncheckedCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerCreateOrConnectWithoutPaymentAccountsInput = {
@@ -1086,6 +1123,7 @@ export type PartnerUpdateWithoutPaymentAccountsInput = {
   externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
   externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
   payments?: Prisma.PartnerPaymentUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerUncheckedUpdateWithoutPaymentAccountsInput = {
@@ -1108,6 +1146,7 @@ export type PartnerUncheckedUpdateWithoutPaymentAccountsInput = {
   externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
   externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
   payments?: Prisma.PartnerPaymentUncheckedUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerCreateWithoutExternalLinesInput = {
@@ -1130,6 +1169,7 @@ export type PartnerCreateWithoutExternalLinesInput = {
   paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
   externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
   payments?: Prisma.PartnerPaymentCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerUncheckedCreateWithoutExternalLinesInput = {
@@ -1152,6 +1192,7 @@ export type PartnerUncheckedCreateWithoutExternalLinesInput = {
   paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
   externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
   payments?: Prisma.PartnerPaymentUncheckedCreateNestedManyWithoutPartnerInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutPartnerInput
 }
 
 export type PartnerCreateOrConnectWithoutExternalLinesInput = {
@@ -1190,6 +1231,7 @@ export type PartnerUpdateWithoutExternalLinesInput = {
   paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
   externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
   payments?: Prisma.PartnerPaymentUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutPartnerNestedInput
 }
 
 export type PartnerUncheckedUpdateWithoutExternalLinesInput = {
@@ -1212,6 +1254,115 @@ export type PartnerUncheckedUpdateWithoutExternalLinesInput = {
   paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
   externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
   payments?: Prisma.PartnerPaymentUncheckedUpdateManyWithoutPartnerNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutPartnerNestedInput
+}
+
+export type PartnerCreateWithoutExpensesInput = {
+  id?: string
+  name: string
+  kind?: $Enums.PartnerKind
+  phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.StockDocumentCreateNestedManyWithoutPartnerInput
+  paymentAccounts?: Prisma.PaymentAccountCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderCreateNestedManyWithoutSupplierInput
+  externalLines?: Prisma.StockDocumentLineCreateNestedManyWithoutExternalSupplierInput
+  payments?: Prisma.PartnerPaymentCreateNestedManyWithoutPartnerInput
+}
+
+export type PartnerUncheckedCreateWithoutExpensesInput = {
+  id?: string
+  name: string
+  kind?: $Enums.PartnerKind
+  phone?: string | null
+  email?: string | null
+  address?: string | null
+  idno?: string | null
+  vatCode?: string | null
+  iban?: string | null
+  bankName?: string | null
+  bankCode?: string | null
+  notes?: string | null
+  discountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.StockDocumentUncheckedCreateNestedManyWithoutPartnerInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedCreateNestedManyWithoutPartnerInput
+  externalOrders?: Prisma.ExternalOrderUncheckedCreateNestedManyWithoutSupplierInput
+  externalLines?: Prisma.StockDocumentLineUncheckedCreateNestedManyWithoutExternalSupplierInput
+  payments?: Prisma.PartnerPaymentUncheckedCreateNestedManyWithoutPartnerInput
+}
+
+export type PartnerCreateOrConnectWithoutExpensesInput = {
+  where: Prisma.PartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.PartnerCreateWithoutExpensesInput, Prisma.PartnerUncheckedCreateWithoutExpensesInput>
+}
+
+export type PartnerUpsertWithoutExpensesInput = {
+  update: Prisma.XOR<Prisma.PartnerUpdateWithoutExpensesInput, Prisma.PartnerUncheckedUpdateWithoutExpensesInput>
+  create: Prisma.XOR<Prisma.PartnerCreateWithoutExpensesInput, Prisma.PartnerUncheckedCreateWithoutExpensesInput>
+  where?: Prisma.PartnerWhereInput
+}
+
+export type PartnerUpdateToOneWithWhereWithoutExpensesInput = {
+  where?: Prisma.PartnerWhereInput
+  data: Prisma.XOR<Prisma.PartnerUpdateWithoutExpensesInput, Prisma.PartnerUncheckedUpdateWithoutExpensesInput>
+}
+
+export type PartnerUpdateWithoutExpensesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.StockDocumentUpdateManyWithoutPartnerNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUpdateManyWithoutSupplierNestedInput
+  externalLines?: Prisma.StockDocumentLineUpdateManyWithoutExternalSupplierNestedInput
+  payments?: Prisma.PartnerPaymentUpdateManyWithoutPartnerNestedInput
+}
+
+export type PartnerUncheckedUpdateWithoutExpensesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumPartnerKindFieldUpdateOperationsInput | $Enums.PartnerKind
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idno?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iban?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.StockDocumentUncheckedUpdateManyWithoutPartnerNestedInput
+  paymentAccounts?: Prisma.PaymentAccountUncheckedUpdateManyWithoutPartnerNestedInput
+  externalOrders?: Prisma.ExternalOrderUncheckedUpdateManyWithoutSupplierNestedInput
+  externalLines?: Prisma.StockDocumentLineUncheckedUpdateManyWithoutExternalSupplierNestedInput
+  payments?: Prisma.PartnerPaymentUncheckedUpdateManyWithoutPartnerNestedInput
 }
 
 
@@ -1225,6 +1376,7 @@ export type PartnerCountOutputType = {
   externalOrders: number
   externalLines: number
   payments: number
+  expenses: number
 }
 
 export type PartnerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1233,6 +1385,7 @@ export type PartnerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   externalOrders?: boolean | PartnerCountOutputTypeCountExternalOrdersArgs
   externalLines?: boolean | PartnerCountOutputTypeCountExternalLinesArgs
   payments?: boolean | PartnerCountOutputTypeCountPaymentsArgs
+  expenses?: boolean | PartnerCountOutputTypeCountExpensesArgs
 }
 
 /**
@@ -1280,6 +1433,13 @@ export type PartnerCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Type
   where?: Prisma.PartnerPaymentWhereInput
 }
 
+/**
+ * PartnerCountOutputType without action
+ */
+export type PartnerCountOutputTypeCountExpensesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExpenseWhereInput
+}
+
 
 export type PartnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1302,6 +1462,7 @@ export type PartnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   externalOrders?: boolean | Prisma.Partner$externalOrdersArgs<ExtArgs>
   externalLines?: boolean | Prisma.Partner$externalLinesArgs<ExtArgs>
   payments?: boolean | Prisma.Partner$paymentsArgs<ExtArgs>
+  expenses?: boolean | Prisma.Partner$expensesArgs<ExtArgs>
   _count?: boolean | Prisma.PartnerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["partner"]>
 
@@ -1366,6 +1527,7 @@ export type PartnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   externalOrders?: boolean | Prisma.Partner$externalOrdersArgs<ExtArgs>
   externalLines?: boolean | Prisma.Partner$externalLinesArgs<ExtArgs>
   payments?: boolean | Prisma.Partner$paymentsArgs<ExtArgs>
+  expenses?: boolean | Prisma.Partner$expensesArgs<ExtArgs>
   _count?: boolean | Prisma.PartnerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PartnerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1379,6 +1541,7 @@ export type $PartnerPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     externalOrders: Prisma.$ExternalOrderPayload<ExtArgs>[]
     externalLines: Prisma.$StockDocumentLinePayload<ExtArgs>[]
     payments: Prisma.$PartnerPaymentPayload<ExtArgs>[]
+    expenses: Prisma.$ExpensePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1802,6 +1965,7 @@ export interface Prisma__PartnerClient<T, Null = never, ExtArgs extends runtime.
   externalOrders<T extends Prisma.Partner$externalOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$externalOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExternalOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   externalLines<T extends Prisma.Partner$externalLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$externalLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockDocumentLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payments<T extends Prisma.Partner$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PartnerPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  expenses<T extends Prisma.Partner$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Partner$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2365,6 +2529,30 @@ export type Partner$paymentsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.PartnerPaymentScalarFieldEnum | Prisma.PartnerPaymentScalarFieldEnum[]
+}
+
+/**
+ * Partner.expenses
+ */
+export type Partner$expensesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Expense
+   */
+  select?: Prisma.ExpenseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Expense
+   */
+  omit?: Prisma.ExpenseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExpenseInclude<ExtArgs> | null
+  where?: Prisma.ExpenseWhereInput
+  orderBy?: Prisma.ExpenseOrderByWithRelationInput | Prisma.ExpenseOrderByWithRelationInput[]
+  cursor?: Prisma.ExpenseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExpenseScalarFieldEnum | Prisma.ExpenseScalarFieldEnum[]
 }
 
 /**
