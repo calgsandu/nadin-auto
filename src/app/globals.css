@@ -429,9 +429,13 @@ a {
  * Etichetele ascunse (`sr-only`, poziție absolută) din tabelele care se derulează
  * pe orizontală ieșeau din zona derulată: pe telefon pagina devenea mai lată
  * decât ecranul și browserul o micșora toată. Derulatorul le ține acum în el.
+ * În `@layer base`: fără layer bătea și `fixed`/`absolute` — lista de căutare
+ * produs (portal `fixed overflow-auto`) cădea în josul paginii, sub tot.
  */
-:is(.overflow-x-auto, .overflow-auto, .overflow-x-scroll) {
-  position: relative;
+@layer base {
+  :is(.overflow-x-auto, .overflow-auto, .overflow-x-scroll) {
+    position: relative;
+  }
 }
 
 /*
