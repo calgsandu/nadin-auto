@@ -17,6 +17,27 @@ const searchInclude = {
 } as const;
 
 export async function GET(request: NextRequest) {
+  const params = request.nextUrl.searchParams;
+  const code = params.get("code")?.trim();
+  const id = params.get("id");
+
+  // Căutarea obișnuită nu mai stă după verificarea sesiunii: pornesc împreună.
+  // Fără cont rezultatul se aruncă (iar proxy.ts respinge oricum cererea înainte).
+  if (!code && !id) {
+    const [user, products] = await Promise.all([
+      getCurrentAppUser(),
+      searchProducts(normalizeProductSearchQuery(params.get("q") ?? "")),
+    ]);
+    if (!user) {
+      return new Response("Neautentificat", { status: 401 });
+    }
+    const canWrite = canWriteCatalog(user.role);
+    return Response.json({
+      canCreate: canWrite,
+      products: products.map((product) => toProductSearchResult(product, canWrite)),
+    });
+  }
+
   const user = await getCurrentAppUser();
   if (!user) {
     return new Response("Neautentificat", { status: 401 });
@@ -28,9 +49,8 @@ export async function GET(request: NextRequest) {
   const canCreate = canWriteCatalog(user.role);
 
   // `?code=` = verificarea de cod dublat din fișa produsului (cod sau cod alternativ).
-  const code = request.nextUrl.searchParams.get("code")?.trim();
   if (code) {
-    const exclude = request.nextUrl.searchParams.get("exclude") ?? undefined;
+    const exclude = params.get("exclude") ?? undefined;
     const match = await prisma.product.findFirst({
       where: {
         id: exclude ? { not: exclude } : undefined,
@@ -47,7 +67,6 @@ export async function GET(request: NextRequest) {
   }
 
   // `?id=` = un singur produs, pentru „Vinde" din fișa rapidă (pagina Azi).
-  const id = request.nextUrl.searchParams.get("id");
   if (id) {
     const product = await prisma.product.findUnique({ where: { id }, include: searchInclude });
     return Response.json({
@@ -56,13 +75,15 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const query = normalizeProductSearchQuery(
-    request.nextUrl.searchParams.get("q") ?? "",
-  );
-  const matchedIds = query ? await findMatchingProductIds(query) : null;
-  if (matchedIds && matchedIds.length === 0) {
-    return Response.json({ products: [], canCreate });
-  }
+  return Response.json({ canCreate, products: [] });
+}
+
+/** Primele PRODUCT_SEARCH_LIMIT produse, în ordinea relevanței (fără căutare: alfabetic). */
+async function searchProducts(query: string) {
+  // Potrivirea întoarce direct cât se afișează: înainte aducea 200 de produse
+  // cu toate compatibilitățile, ca ruta să păstreze doar 20.
+  const matchedIds = query ? await findMatchingProductIds(query, PRODUCT_SEARCH_LIMIT) : null;
+  if (matchedIds && matchedIds.length === 0) return [];
 
   const products = await prisma.product.findMany({
     where: matchedIds ? { id: { in: matchedIds } } : undefined,
@@ -76,19 +97,10 @@ export async function GET(request: NextRequest) {
     ],
     take: matchedIds ? undefined : PRODUCT_SEARCH_LIMIT,
   });
+  if (!matchedIds) return products;
 
   // Ordinea vine din scorul de relevanță, nu alfabetic după marcă: altfel primele
   // 20 de rezultate erau pur și simplu mărcile de la începutul alfabetului.
-  const ranked = matchedIds
-    ? matchedIds
-        .map((id) => products.find((product) => product.id === id))
-        .filter((product) => product !== undefined)
-    : products;
-
-  return Response.json({
-    canCreate,
-    products: ranked
-      .slice(0, PRODUCT_SEARCH_LIMIT)
-      .map((product) => toProductSearchResult(product, includeCosts)),
-  });
+  const byId = new Map(products.map((product) => [product.id, product]));
+  return matchedIds.map((id) => byId.get(id)).filter((product) => product !== undefined);
 }

@@ -12,6 +12,15 @@ import {
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
 import { placeDropdown, type DropdownBox } from "@/lib/operations/dropdown-position";
 
+type SearchResponse = { products?: ProductSearchResult[]; canCreate?: boolean };
+
+/**
+ * Răspunsurile recente, pe text căutat, comune tuturor rândurilor. Stocul se
+ * schimbă la fiecare vânzare, deci țin doar câteva secunde.
+ */
+const SEARCH_CACHE_MS = 20_000;
+const searchCache = new Map<string, { at: number; data: SearchResponse }>();
+
 export function ProductSearchCombobox({
   name = "productId",
   showHint = true,
@@ -87,30 +96,46 @@ export function ProductSearchCombobox({
 
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
+
+    function show(data: SearchResponse) {
+      setCanCreate(data.canCreate ?? false);
+      setResults(data.products ?? []);
+      setActiveIndex(0);
+      setOpen(true);
+      setLoading(false);
+    }
+
+    // Aceeași căutare de acum câteva secunde (ștergi o literă și o scrii la
+    // loc, sau rândul următor caută același cod): lista apare pe loc.
+    const cached = searchCache.get(normalized);
+    if (cached && Date.now() - cached.at < SEARCH_CACHE_MS) {
+      show(cached.data);
+      return;
+    }
+
+    const controller = new AbortController();
     const timeout = window.setTimeout(async () => {
       try {
         const response = await fetch(
           `/api/products/search?q=${encodeURIComponent(normalized)}`,
+          { signal: controller.signal },
         );
-        const data = (await response.json()) as {
-          products?: ProductSearchResult[];
-          canCreate?: boolean;
-        };
-
-        if (requestIdRef.current === requestId) {
-          setCanCreate(data.canCreate ?? false);
-          setResults(data.products ?? []);
-          setActiveIndex(0);
-          setOpen(true);
-        }
-      } finally {
-        if (requestIdRef.current === requestId) {
-          setLoading(false);
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = (await response.json()) as SearchResponse;
+        if (searchCache.size > 200) searchCache.clear(); // ponytail: o zi de lucru, fără LRU
+        searchCache.set(normalized, { at: Date.now(), data });
+        if (requestIdRef.current === requestId) show(data);
+      } catch {
+        // Cerere anulată de tasta următoare sau picată: rămâne ce era afișat.
+        if (requestIdRef.current === requestId) setLoading(false);
       }
-    }, 180);
+    }, 120);
 
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearTimeout(timeout);
+      // Tasta următoare face cererea asta inutilă: nu mai ocupă rețeaua și serverul.
+      controller.abort();
+    };
   }, [query, selected]);
 
   useEffect(() => {
@@ -229,14 +254,14 @@ export function ProductSearchCombobox({
       ) : null}
       <div className={`relative ${showCard ? "hidden" : ""}`}>
         <Search
-          className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-[#52525b]"
+          className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-[#475569]"
           aria-hidden="true"
         />
         <input
           aria-autocomplete="list"
           aria-controls={`${id}-results`}
           aria-expanded={open}
-          className="field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white pl-8 pr-3 text-sm outline-none placeholder:text-[#71717a]"
+          className="field-control h-9 w-full rounded-md border border-[#e5e9f0] bg-white pl-8 pr-3 text-sm outline-none placeholder:text-[#64748b]"
           // Ascuns sub fișă: navigarea cu Enter trebuie să sară peste el.
           data-enter-skip={showCard ? "" : undefined}
           placeholder="Caută cod, brand, model sau descriere"
@@ -276,7 +301,7 @@ export function ProductSearchCombobox({
       {open && box
         ? createPortal(
         <div
-          className="motion-popover fixed z-[60] overflow-auto rounded-md border border-[#e4e4e7] bg-white shadow-lg"
+          className="motion-popover fixed z-[60] overflow-auto rounded-md border border-[#e5e9f0] bg-white shadow-lg"
           id={`${id}-results`}
           role="listbox"
           style={{
@@ -289,7 +314,7 @@ export function ProductSearchCombobox({
         >
           {loading && visibleResults.length > 0 ? (
             // Rezultatele afișate sunt încă cele de la tasta anterioară.
-            <div className="sticky top-0 border-b border-[#f0f0f2] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#52525b]">
+            <div className="sticky top-0 border-b border-[#edf0f5] bg-[#f8fafc] px-3 py-1.5 text-xs font-semibold text-[#475569]">
               Se caută...
             </div>
           ) : null}
@@ -299,8 +324,8 @@ export function ProductSearchCombobox({
                 key={product.id}
                 ref={index === activeIndex ? activeItemRef : null}
                 aria-selected={index === activeIndex}
-                className={`button-secondary flex w-full items-baseline gap-3 border-b border-[#f0f0f2] px-3 py-1.5 text-left text-sm text-[#18181b] ${
-                  index === activeIndex ? "bg-[#dbeafe]" : "hover:bg-[#f4f4f5]"
+                className={`button-secondary flex w-full items-baseline gap-3 border-b border-[#edf0f5] px-3 py-1.5 text-left text-sm text-[#0f172a] ${
+                  index === activeIndex ? "bg-[#dbeafe]" : "hover:bg-[#f1f4f9]"
                 }`}
                 role="option"
                 type="button"
@@ -311,7 +336,7 @@ export function ProductSearchCombobox({
                 {/* Un singur rând: codul îngroșat, restul etichetei, stocul și prețul la dreapta. */}
                 <span className="min-w-0 flex-1 leading-5">
                   <span className="font-mono font-semibold">{productCode(product.label)}</span>
-                  <span className="ml-1.5 text-[#3f3f46]">
+                  <span className="ml-1.5 text-[#334155]">
                     {product.label.split(" · ").slice(1).join(" · ")}
                   </span>
                 </span>
@@ -323,14 +348,14 @@ export function ProductSearchCombobox({
                   >
                     Stoc: {product.stock}
                   </span>
-                  <span className="w-16 text-right text-[#52525b]">
+                  <span className="w-16 text-right text-[#475569]">
                     {product.salePriceLei ? `${product.salePriceLei} lei` : "fără preț"}
                   </span>
                 </span>
               </button>
             ))
           ) : (
-            <div className="px-3 py-3 text-sm font-medium text-[#52525b]">
+            <div className="px-3 py-3 text-sm font-medium text-[#475569]">
               {loading ? (
                 "Se caută..."
               ) : onlyExcludedResults ? (
@@ -342,7 +367,7 @@ export function ProductSearchCombobox({
                     // „Adaugă produs" e deja luat în inventar, unde înseamnă
                     // „adaugă un rând": aici se spune explicit unde intră piesa.
                     <button
-                      className="button-secondary mt-2 block w-full break-words rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-left text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+                      className="button-secondary mt-2 block w-full break-words rounded-md border border-[#e5e9f0] bg-white px-3 py-2 text-left text-sm font-semibold text-[#0f172a] hover:bg-[#f1f4f9]"
                       type="button"
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => {
@@ -363,7 +388,7 @@ export function ProductSearchCombobox({
         : null}
 
       {showHint && !showCard ? (
-        <p className="mt-1 text-xs font-medium text-[#52525b]">
+        <p className="mt-1 text-xs font-medium text-[#475569]">
           Scrie cel puțin 3 caractere. ↑↓ alegi, Enter treci la cantitate.
         </p>
       ) : null}
@@ -399,7 +424,7 @@ function ProductCard({ label, onEdit }: { label: string; onEdit: () => void }) {
 
   return (
     <div
-      className="min-h-9 cursor-text rounded-md border border-[#e4e4e7] bg-white px-2.5 py-1.5 text-sm leading-5"
+      className="min-h-9 cursor-text rounded-md border border-[#e5e9f0] bg-white px-2.5 py-1.5 text-sm leading-5"
       role="button"
       tabIndex={0}
       title="Dublu-click ca să schimbi produsul"
@@ -411,9 +436,9 @@ function ProductCard({ label, onEdit }: { label: string; onEdit: () => void }) {
         }
       }}
     >
-      <span className="font-mono font-semibold text-[#18181b]">{code}</span>
+      <span className="font-mono font-semibold text-[#0f172a]">{code}</span>
       {rest.length > 0 ? (
-        <span className="ml-2 text-[#3f3f46]">{rest.join(", ")}</span>
+        <span className="ml-2 text-[#334155]">{rest.join(", ")}</span>
       ) : null}
     </div>
   );
