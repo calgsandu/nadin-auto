@@ -140,7 +140,7 @@ export async function createReceiptAction(
     revalidatePath("/crm", "layout");
     return {
       ok: true,
-      message: `Recepția a fost salvată cu ${lines.length} produse.`,
+      message: `Recepția a fost salvată cu ${productCount(lines.length)}.`,
     };
   } catch (error) {
     return toActionError(error);
@@ -270,7 +270,7 @@ export async function createTransferAction(
     return {
       ok: true,
       message:
-        `Transferul a fost salvat cu ${lines.length} produse.` +
+        `Transferul a fost salvat cu ${productCount(lines.length)}.` +
         (restockDelivered > 0 ? ` ${restockDelivered} poziții din „De adus” s-au bifat ca aduse.` : ""),
     };
   } catch (error) {
@@ -355,7 +355,7 @@ export async function createSaleAction(
     revalidatePath("/crm", "layout");
     return {
       ok: true,
-      message: `Vânzarea #${sale.number} a fost salvată cu ${lines.length} produse.`,
+      message: `Vânzarea #${sale.number} a fost salvată cu ${productCount(lines.length)}.`,
     };
   } catch (error) {
     return toActionError(error);
@@ -510,7 +510,7 @@ export async function createReturnAction(
     revalidatePath("/crm", "layout");
     return {
       ok: true,
-      message: `Returul a fost salvat cu ${lines.length} produse.`,
+      message: `Returul a fost salvat cu ${productCount(lines.length)}.`,
     };
   } catch (error) {
     return toActionError(error);
@@ -828,6 +828,13 @@ function readStrings(formData: FormData, key: string) {
   return formData
     .getAll(key)
     .map((value) => (typeof value === "string" ? value : ""));
+}
+
+/** „1 produs", „5 produse", „20 de produse" — acordul numeralului în română. */
+function productCount(count: number) {
+  if (count === 1) return "1 produs";
+  const rest = count % 100;
+  return rest === 0 || rest >= 20 ? `${count} de produse` : `${count} produse`;
 }
 
 function readDate(formData: FormData, key: string) {

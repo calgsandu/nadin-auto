@@ -837,6 +837,11 @@ export function StockSaleDialog({
     );
   }
 
+  function changeWarehouse(id: string) {
+    setWarehouseId(id);
+    rememberWarehouse("sale", id);
+  }
+
   /** Clientul ales își aduce discountul din fișă; operatorul îl poate schimba. */
   function selectCustomer(id: string, discountPercent?: number | null) {
     setCustomerId(id);
@@ -939,10 +944,7 @@ export function StockSaleDialog({
                     name="warehouseId"
                     required
                     value={warehouseId}
-                    onChange={(event) => {
-                      setWarehouseId(event.currentTarget.value);
-                      rememberWarehouse("sale", event.currentTarget.value);
-                    }}
+                    onChange={(event) => changeWarehouse(event.currentTarget.value)}
                   >
                     {warehouses.map((warehouse) => (
                       <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
@@ -1095,6 +1097,14 @@ export function StockSaleDialog({
                     const stockElsewhere = line.stocks.reduce((sum, stock) => sum + stock.quantity, 0) - stockHere;
                     const showStock = Boolean(line.productId) && line.stocks.length > 0;
                     const notEnough = showStock && (Number(line.qty) || 0) > stockHere;
+                    // Piesa stă în alt depozit: un click mută vânzarea acolo, în loc
+                    // de drumul prin lista „Din locația” de sus.
+                    const betterStock = notEnough
+                      ? line.stocks
+                          .filter((stock) => stock.warehouseId !== warehouseId && stock.quantity >= (Number(line.qty) || 1))
+                          .sort((a, b) => b.quantity - a.quantity)[0]
+                      : undefined;
+                    const betterWarehouse = warehouses.find((warehouse) => warehouse.id === betterStock?.warehouseId);
                     return (
                     <div key={line.id} className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#e9edf3] bg-[#f8fafc] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
                       <div>
@@ -1116,7 +1126,17 @@ export function StockSaleDialog({
                               notEnough ? (
                                 <span className="font-medium text-[#b91c1c]">
                                   {stockHere > 0 ? `doar ${stockHere} în ${warehouseName}` : `nu e în ${warehouseName}`}
-                                  {stockElsewhere > 0 ? ` · ${stockElsewhere} în alte depozite` : ""}
+                                  {stockElsewhere > 0 && !betterWarehouse ? `, ${stockElsewhere} în alte depozite` : ""}
+                                  {betterWarehouse ? " " : null}
+                                  {betterWarehouse ? (
+                                    <button
+                                      className="font-semibold text-[#2563eb] underline underline-offset-2 hover:text-[#1d4ed8]"
+                                      type="button"
+                                      onClick={() => changeWarehouse(betterWarehouse.id)}
+                                    >
+                                      Vinde din {betterWarehouse.name} ({betterStock?.quantity})
+                                    </button>
+                                  ) : null}
                                 </span>
                               ) : (
                                 <span>{stockHere} în stoc aici</span>
