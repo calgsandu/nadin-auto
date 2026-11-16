@@ -14,7 +14,7 @@ import { CloseIconButton, SaveButton } from "@/app/components/icon-buttons";
 
 const initialState: PasswordChangeState = { ok: false, message: "" };
 
-export function ChangePasswordDialog({ compact = false }: { compact?: boolean }) {
+export function ChangePasswordDialog() {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -22,11 +22,11 @@ export function ChangePasswordDialog({ compact = false }: { compact?: boolean })
         type="button"
         title="Schimbă parola"
         aria-label="Schimbă parola"
-        className={`button-secondary inline-flex items-center justify-center rounded-lg border border-[#e5e9f0] bg-white font-semibold text-[#475569] hover:text-[#0f172a] ${compact ? "size-8" : "gap-2 px-3 py-2 text-sm"}`}
+        className="button-secondary inline-flex items-center justify-center gap-2 rounded-lg border border-[#e5e9f0] bg-white px-3 py-2 text-sm font-semibold text-[#475569] hover:text-[#0f172a]"
         onClick={() => setOpen(true)}
       >
         <KeyRound className="size-4" aria-hidden="true" />
-        {compact ? null : "Schimbă parola"}
+        Schimbă parola
       </button>
       {open ? <PasswordDrawer onClose={() => setOpen(false)} /> : null}
     </>

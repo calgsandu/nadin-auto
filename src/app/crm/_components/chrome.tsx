@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, Fragment, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, Fragment, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Bell,
   ChevronDown,
@@ -10,8 +10,10 @@ import {
   ClipboardList,
   FileText,
   LogOut,
+  Menu,
   PackageMinus,
   ShieldCheck,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { logoutAction } from "@/app/auth/actions";
@@ -100,25 +102,13 @@ export function Sidebar({
             Nadin Auto
           </span>
         </Link>
-        <div className="flex shrink-0 items-center gap-2 lg:hidden">
-          <ChangePasswordDialog compact />
-          <TrustedDeviceControl compact />
-          <LogoutButton compact />
-        </div>
-      </div>
-
-      {/* Telefon: un rând de grupuri; secțiunile fiecărui grup apar ca tab-uri sus. */}
-      <div className="mobile-nav-scroll -mx-3 flex gap-1 overflow-x-auto px-3 pb-1 lg:hidden">
-        {visibleGroups.map((group) => (
-          <NavLink
-            key={group.id}
-            active={group.sections.includes(activeSectionId)}
-            badge={group.sections.reduce((sum, section) => sum + countFor(counts, section), 0)}
-            href={crmSectionHref(group.sections[0])}
-            icon={menuIcons[group.icon]}
-            label={group.label}
-          />
-        ))}
+        <MobileMenu
+          groups={visibleGroups}
+          activeSectionId={activeSectionId}
+          counts={counts}
+          userLabel={userLabel}
+          roleLabel={roleLabels[role]}
+        />
       </div>
 
       {/* Desktop: ce se face zilnic e la vedere; grupurile își deschid
@@ -228,6 +218,114 @@ export function Sidebar({
         <SidebarCollapseButton />
       </div>
     </nav>
+  );
+}
+
+/**
+ * Telefon: un singur buton „Meniu" în locul rândului de grupuri derulat
+ * lateral. Deschide tot meniul (grupuri și secțiuni, ca pe desktop) plus
+ * contul. `<dialog>` nativ: Escape, focus și fundalul blocat vin gratis.
+ */
+function MobileMenu({
+  groups,
+  activeSectionId,
+  counts,
+  userLabel,
+  roleLabel,
+}: {
+  groups: { id: string; label: string; icon: keyof typeof menuIcons; display?: string; sections: WorkspaceSectionId[] }[];
+  activeSectionId: WorkspaceSectionId;
+  counts: NavCounts;
+  userLabel: string;
+  roleLabel: string;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const total = groups.reduce(
+    (sum, group) => sum + group.sections.reduce((inner, section) => inner + countFor(counts, section), 0),
+    0,
+  );
+
+  return (
+    <div className="lg:hidden">
+      <button
+        type="button"
+        className="button-secondary relative inline-flex h-9 items-center gap-2 rounded-lg border border-[#e5e9f0] bg-white px-3 text-sm font-semibold text-[#0f172a]"
+        onClick={() => dialog.current?.showModal()}
+      >
+        <Menu className="size-4" aria-hidden="true" />
+        Meniu
+        {total > 0 ? (
+          <span className="rounded-md bg-[#2563eb] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
+            {total}
+          </span>
+        ) : null}
+      </button>
+      <dialog
+        ref={dialog}
+        aria-label="Meniu"
+        className="crm-mobile-menu m-0 h-dvh max-h-none w-full max-w-none bg-white p-0 backdrop:bg-black/30"
+        // Orice alegere (secțiune, parolă, ieșire) închide meniul. Dialogul de
+        // parolă se deschide prin portal și ar rămâne sub un <dialog> modal.
+        onClick={(event) => {
+          if ((event.target as HTMLElement).closest("a, button")) dialog.current?.close();
+        }}
+      >
+        <div className="sticky top-0 flex items-center justify-between border-b border-[#e5e9f0] bg-white px-4 py-3">
+          <span className="text-[1.0625rem] font-semibold tracking-tight text-[#0f172a]">Meniu</span>
+          <button
+            type="button"
+            aria-label="Închide meniul"
+            className="grid size-9 place-items-center rounded-lg border border-[#e5e9f0] text-[#475569]"
+          >
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        </div>
+        <nav aria-label="Secțiuni" className="grid gap-4 px-3 py-4">
+          {groups.map((group) =>
+            group.display === "list" || group.sections.length === 1 ? (
+              <div key={group.id} className="grid gap-0.5">
+                {group.sections.map((section) => (
+                  <NavLink
+                    key={section}
+                    active={section === activeSectionId}
+                    badge={countFor(counts, section)}
+                    href={crmSectionHref(section)}
+                    icon={sectionIcon(section)}
+                    label={sectionLabel(section)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div key={group.id}>
+                <p className="flex items-center gap-3 px-3 pb-1 text-sm font-semibold text-[#0f172a]">
+                  {(() => {
+                    const Icon = menuIcons[group.icon];
+                    return <Icon className="size-[1.125rem] text-[#94a3b8]" aria-hidden="true" />;
+                  })()}
+                  {group.label}
+                </p>
+                <div className="ml-[1.375rem] grid gap-0.5 border-l border-[#e5e9f0] pl-2.5">
+                  {group.sections.map((section) => (
+                    <SubLink key={section} section={section} active={section === activeSectionId} count={countFor(counts, section)} />
+                  ))}
+                </div>
+              </div>
+            ),
+          )}
+        </nav>
+        <div className="grid gap-2 border-t border-[#e5e9f0] px-4 py-4">
+          <p className="text-sm">
+            <span className="font-semibold text-[#0f172a]">{userLabel}</span>
+            <span className="text-[#64748b]"> {roleLabel}</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <ChangePasswordDialog />
+            <TrustedDeviceControl />
+            <LogoutButton />
+          </div>
+        </div>
+      </dialog>
+    </div>
   );
 }
 
@@ -424,19 +522,17 @@ function useSearchShortcut() {
   }, [router]);
 }
 
-function LogoutButton({ compact = false }: { compact?: boolean }) {
+function LogoutButton() {
   return (
     <form action={logoutAction}>
       <button
         type="submit"
         aria-label="Ieșire din cont"
         title="Ieșire din cont"
-        className={`button-secondary inline-flex items-center justify-center rounded-lg border border-[#e5e9f0] bg-white text-sm font-semibold text-[#475569] hover:border-[#cbd5e1] hover:text-[#0f172a] ${
-          compact ? "size-8" : "w-full gap-2 px-3 py-2"
-        }`}
+        className="button-secondary inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#e5e9f0] bg-white px-3 py-2 text-sm font-semibold text-[#475569] hover:border-[#cbd5e1] hover:text-[#0f172a]"
       >
         <LogOut className="size-4" aria-hidden="true" />
-        {compact ? null : <span>Ieșire</span>}
+        <span>Ieșire</span>
       </button>
     </form>
   );

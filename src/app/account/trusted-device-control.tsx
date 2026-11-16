@@ -4,7 +4,7 @@ import { MonitorX } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { forgetCurrentTrustedDeviceAction } from "@/app/auth/actions";
 
-export function TrustedDeviceControl({ compact = false }: { compact?: boolean }) {
+export function TrustedDeviceControl() {
   return (
     <form
       action={forgetCurrentTrustedDeviceAction}
@@ -18,12 +18,12 @@ export function TrustedDeviceControl({ compact = false }: { compact?: boolean })
         }
       }}
     >
-      <ForgetDeviceButton compact={compact} />
+      <ForgetDeviceButton />
     </form>
   );
 }
 
-function ForgetDeviceButton({ compact }: { compact: boolean }) {
+function ForgetDeviceButton() {
   const { pending } = useFormStatus();
   const label = "Uită acest dispozitiv";
 
@@ -33,12 +33,10 @@ function ForgetDeviceButton({ compact }: { compact: boolean }) {
       title={label}
       aria-label={label}
       disabled={pending}
-      className={`button-secondary inline-flex items-center justify-center rounded-lg border border-[#e5e9f0] bg-white font-semibold text-[#475569] hover:text-[#0f172a] disabled:opacity-60 ${
-        compact ? "size-8" : "gap-2 px-3 py-2 text-sm"
-      }`}
+      className="button-secondary inline-flex items-center justify-center gap-2 rounded-lg border border-[#e5e9f0] bg-white px-3 py-2 text-sm font-semibold text-[#475569] hover:text-[#0f172a] disabled:opacity-60"
     >
       {pending ? "…" : <MonitorX className="size-4" aria-hidden="true" />}
-      {compact ? null : label}
+      {label}
     </button>
   );
 }
