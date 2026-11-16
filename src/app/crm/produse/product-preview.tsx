@@ -30,11 +30,14 @@ export function ProductPreview({
   product,
   canSell,
   canModify,
+  editButton,
   children,
 }: {
   product: ProductPreviewValue;
   canSell: boolean;
   canModify: boolean;
+  /** Dialogul de editare (randat de server, cu listele lui); după salvare fișa se reîmprospătează singură. */
+  editButton?: React.ReactNode;
   /** Conținutul butonului (rândul de rezultat întreg e clicabil). */
   children: React.ReactNode;
 }) {
@@ -93,6 +96,7 @@ export function ProductPreview({
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    {canModify ? editButton : null}
                     {canModify ? (
                       <a
                         className="button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-[#e5e9f0] bg-white px-3 text-sm font-medium text-[#0f172a] hover:bg-[#f1f4f9]"

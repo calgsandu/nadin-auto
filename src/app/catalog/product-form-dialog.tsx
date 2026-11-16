@@ -60,7 +60,7 @@ type ProductFormDialogProps = CatalogFormOptions & {
   product?: ProductFormValue;
   /** Ignorat în modul controlat (butonul îl randează cel care deschide dialogul). */
   triggerLabel?: string;
-  triggerKind?: "primary" | "row";
+  triggerKind?: "primary" | "row" | "secondary";
   /**
    * Dat = mod controlat: dialogul nu-și mai randează butonul, iar deschiderea
    * o decide părintele (dialogul din care s-a plecat).
@@ -262,7 +262,9 @@ export function ProductFormDialog({
           className={
             triggerKind === "row"
               ? rowIconButtonCls
-              : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+              : triggerKind === "secondary"
+                ? "button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-[#e5e9f0] bg-white px-3 text-sm font-medium text-[#0f172a] hover:bg-[#f1f4f9]"
+                : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
           }
           title={triggerKind === "row" ? triggerLabel : undefined}
           type="button"
@@ -272,6 +274,10 @@ export function ProductFormDialog({
             <>
               <Pencil aria-hidden="true" />
               <IconLabel>{triggerLabel ?? "Editează"}</IconLabel>
+            </>
+          ) : triggerKind === "secondary" ? (
+            <>
+              <Pencil className="size-4" aria-hidden="true" /> {triggerLabel ?? "Editează"}
             </>
           ) : (
             triggerLabel

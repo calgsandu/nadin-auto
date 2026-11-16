@@ -564,7 +564,7 @@ html[data-crm-expanding] .crm-sidebar-nav :is(.crm-nav-label, .crm-nav-badge, .c
 
 /* În Produse, lista de mărci este o a doua navigare laterală. Când meniul
    principal e restrâns, o ascundem și lăsăm tabelul să folosească lățimea
-   câștigată. Marca se poate alege în continuare din filtrele de sus. */
+   câștigată; în locul ei apar sus selectoarele Marcă/Model. */
 @media (min-width: 1280px) {
   html[data-crm-collapsed] .products-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -572,6 +572,10 @@ html[data-crm-expanding] .crm-sidebar-nav :is(.crm-nav-label, .crm-nav-badge, .c
 
   html[data-crm-collapsed] .products-brand-tree {
     display: none;
+  }
+
+  html[data-crm-collapsed] .catalog-car-select {
+    display: inline-flex;
   }
 }
 

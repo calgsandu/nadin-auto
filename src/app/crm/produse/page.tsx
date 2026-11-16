@@ -47,7 +47,7 @@ export default async function ProductsPage({
   });
   // Fără `q`: căutarea filtrează pe măsură ce scrii, iar o cheie nouă ar
   // remonta câmpul (pierde focusul) și ar arăta scheletul la fiecare literă.
-  const key = [params.brand, params.model, params.fitment, params.type, params.year, params.stoc, params.page].join(":");
+  const key = [params.brand, params.model, params.fitment, params.type, params.year, params.stoc, params.pret, params.page].join(":");
 
   return (
     <>
@@ -210,7 +210,7 @@ function ProductWorkspace({
           />
           <div className="overflow-x-auto">
             <table className="crm-table w-full table-fixed border-collapse text-left text-sm lg:table-auto lg:min-w-[720px]">
-              <thead className="border-y border-[#e5e9f0] bg-[#f8fafc]">
+              <thead className="border-y border-[#e5e9f0] bg-[#f8fafc] max-lg:hidden">
                 <tr>
                   {canModify ? (
                     <TableHead className="max-lg:hidden">
@@ -218,9 +218,8 @@ function ProductWorkspace({
                     </TableHead>
                   ) : null}
                   <TableHead className="max-lg:hidden">Cod</TableHead>
-                  <TableHead className="lg:min-w-[16rem]">
-                    <span className="lg:hidden">Cod produs și piesă</span>
-                    <span className="hidden lg:inline">Piesă</span>
+                  <TableHead className="lg:min-w-[12rem]">
+                    Piesă
                   </TableHead>
                   <TableHead className="max-lg:hidden">Mașină și ani</TableHead>
                   <TableHead align="right" className="max-lg:hidden">Stoc</TableHead>
@@ -273,7 +272,16 @@ function ProductWorkspace({
  * Albastru, nu galben: pe monitorul din magazin galbenul-portocaliu și roșul
  * se confundau.
  */
-function StockCount({ stock, minStock }: { stock: number | null; minStock: number | null }) {
+function StockCount({
+  stock,
+  minStock,
+  unit = false,
+}: {
+  stock: number | null;
+  minStock: number | null;
+  /** Pe telefon nu există hover pe insignă: „buc." spune ce e cifra. */
+  unit?: boolean;
+}) {
   const value = stock ?? 0;
   // Același prag ca filtrul „aproape terminate": minStock, implicit 3.
   const [tone, label] =
@@ -285,9 +293,10 @@ function StockCount({ stock, minStock }: { stock: number | null; minStock: numbe
   return (
     <span
       title={label}
-      className={`inline-grid min-w-9 place-items-center rounded-lg px-2 py-1 text-sm font-semibold leading-none tabular-nums ${tone}`}
+      className={`inline-flex min-w-9 items-baseline justify-center rounded-lg px-2 py-1 text-sm font-semibold leading-none tabular-nums ${tone}`}
     >
       {formatNumber(value)}
+      {unit ? <span className="ml-0.5 text-xs font-medium opacity-70">buc.</span> : null}
     </span>
   );
 }
@@ -361,25 +370,45 @@ function ProductRow({
         ) : null}
       </TableCell>
       <TableCell>
-        {/* Pe telefon codul rămâne primul, urmat de denumire, mașini și preț. */}
-        {product.externalCode ? (
-          <CopyCode code={product.externalCode} className="mb-1 block font-mono text-lg font-bold text-[#1e293b] lg:hidden" />
-        ) : null}
+        {/* Pe telefon: codul, cu prețul și stocul pe același rând; dedesubt
+            denumirea și mașinile. Un rând în minus = mai multe piese pe ecran. */}
+        <div className="mb-0.5 flex items-center justify-between gap-3 lg:hidden">
+          {product.externalCode ? (
+            <CopyCode code={product.externalCode} className="min-w-0 truncate font-mono text-lg font-bold text-[#1e293b]" />
+          ) : (
+            <span className="text-sm text-[#94a3b8]">fără cod</span>
+          )}
+          <span className="flex shrink-0 items-center gap-2">
+            <span className="text-[0.9375rem] font-semibold tabular-nums text-[#0f172a]">
+              {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-[#94a3b8]">fără preț</span>}
+            </span>
+            <StockCount stock={product.stock} minStock={product.minStock} unit />
+          </span>
+        </div>
         {/* Click pe denumire deschide fișa cu stocul și compatibilitățile. */}
-        <ProductPreview product={toPreview(product, catalog, compatibilities)} canModify={canModify} canSell={canSell}>
-          <span className="block text-sm text-[#64748b] hover:text-[#2563eb]">
+        <ProductPreview
+          product={toPreview(product, catalog, compatibilities)}
+          canModify={canModify}
+          canSell={canSell}
+          editButton={
+            <ProductFormDialog
+              brands={catalog.brands}
+              models={catalog.models}
+              product={toProductFormValue(product)}
+              triggerKind="secondary"
+              triggerLabel="Editează"
+              types={catalog.types}
+              warehouses={catalog.warehouses}
+            />
+          }
+        >
+          <span className="block text-sm text-[#1e293b] hover:text-[#2563eb]">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
           </span>
         </ProductPreview>
-        <div className="mt-1 lg:hidden">
+        <div className="mt-0.5 lg:hidden">
           <CarLines lines={cars} compact />
-        </div>
-        <div className="mt-1.5 flex items-center gap-2 lg:hidden">
-          <span className="text-[0.9375rem] font-semibold tabular-nums text-[#0f172a]">
-            {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : "—"}
-          </span>
-          <StockCount stock={product.stock} minStock={product.minStock} />
         </div>
       </TableCell>
       <TableCell className="max-lg:hidden">
