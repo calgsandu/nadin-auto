@@ -280,7 +280,7 @@ function MobileMenu({
             <X className="size-4" aria-hidden="true" />
           </button>
         </div>
-        <nav aria-label="Secțiuni" className="grid gap-4 px-3 py-4">
+        <nav aria-label="Secțiuni" className="grid gap-1 px-3 py-4">
           {groups.map((group) =>
             group.display === "list" || group.sections.length === 1 ? (
               <div key={group.id} className="grid gap-0.5">
@@ -296,20 +296,30 @@ function MobileMenu({
                 ))}
               </div>
             ) : (
-              <div key={group.id}>
-                <p className="flex items-center gap-3 px-3 pb-1 text-sm font-semibold text-[#0f172a]">
+              // Grupurile stau strânse; se deschide doar cel al paginii curente.
+              <details key={group.id} className="group" open={group.sections.includes(activeSectionId)}>
+                <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-[#475569] [&::-webkit-details-marker]:hidden">
                   {(() => {
                     const Icon = menuIcons[group.icon];
-                    return <Icon className="size-[1.125rem] text-[#94a3b8]" aria-hidden="true" />;
+                    return <Icon className="size-[1.125rem] shrink-0 text-[#94a3b8]" aria-hidden="true" />;
                   })()}
-                  {group.label}
-                </p>
-                <div className="ml-[1.375rem] grid gap-0.5 border-l border-[#e5e9f0] pl-2.5">
+                  <span className="group-open:font-semibold group-open:text-[#0f172a]">{group.label}</span>
+                  {(() => {
+                    const sum = group.sections.reduce((total, section) => total + countFor(counts, section), 0);
+                    return sum > 0 ? (
+                      <span className="rounded-md bg-[#f1f4f9] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-[#475569] group-open:hidden">
+                        {sum}
+                      </span>
+                    ) : null;
+                  })()}
+                  <ChevronDown className="ml-auto size-4 shrink-0 text-[#94a3b8] transition-transform group-open:rotate-180" aria-hidden="true" />
+                </summary>
+                <div className="mb-1 ml-[1.375rem] grid gap-0.5 border-l border-[#e5e9f0] pl-2.5">
                   {group.sections.map((section) => (
                     <SubLink key={section} section={section} active={section === activeSectionId} count={countFor(counts, section)} />
                   ))}
                 </div>
-              </div>
+              </details>
             ),
           )}
         </nav>
