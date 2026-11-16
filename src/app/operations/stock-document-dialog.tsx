@@ -891,8 +891,10 @@ export function StockSaleDialog({
               {/* Ordinea muncii la tejghea: cine cumpără, piesele, apoi cum plătește
                   lângă total. Factura și notițele, rar folosite, stau strânse. */}
               <DrawerCard icon={FileText} title="Detalii">
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
-                <Field label="Client">
+                {/* Pe telefon Data și Discountul (rar schimbate) stau alăturate,
+                    ca piesele să urce mai aproape de ecranul de start. */}
+                <div className="grid grid-cols-2 gap-3 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
+                <Field label="Client" className="max-md:col-span-2">
                   <div className="flex gap-2">
                     <select
                       className={inputClassName}
@@ -931,7 +933,7 @@ export function StockSaleDialog({
                     </span>
                   ) : null}
                 </Field>
-                <Field label="Din locația">
+                <Field label="Din locația" className="max-md:col-span-2">
                   <select
                     className={inputClassName}
                     name="warehouseId"

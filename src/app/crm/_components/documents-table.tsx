@@ -261,18 +261,24 @@ export function RecentDocumentsTable({
   // Plata are sens doar pe vânzări; pe recepții și transferuri ar fi o
   // coloană de liniuțe care fură lățimea coloanei de produse.
   const hasSales = documents.some((document) => document.type === "SALE");
+  // Zi goală: doar mesajul, fără un antet de tabel deasupra lui.
+  if (documents.length === 0) {
+    return <div className="crm-card px-3 py-10 text-center text-sm text-[#475569]">{emptyText}</div>;
+  }
   return (
     <div className="overflow-hidden crm-card">
       <div className="overflow-x-auto">
-        <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
-          <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+        {/* Pe telefon: fără antet, totalul sub numărul documentului — rămân
+            Document, Produs și Acțiuni, fără scroll lateral. */}
+        <table className="crm-table w-full border-collapse text-left text-sm lg:min-w-[760px]">
+          <thead className="border-b border-[#e5e9f0] bg-[#f8fafc] max-lg:hidden">
             <tr>
               {/* Data, cantitatea și TVA stau ca subtitluri (sub document, sub total):
                   ca coloane separate împingeau Acțiunile în afara ecranului pe laptop. */}
               <TableHead>Document</TableHead>
               <TableHead secondary>Depozit</TableHead>
               <TableHead className="min-w-[16rem]">Produs</TableHead>
-              <TableHead align="right">Total</TableHead>
+              <TableHead align="right" className="max-lg:hidden">Total</TableHead>
               {hasSales ? <TableHead secondary>Plată</TableHead> : null}
               <TableHead align="right">
                 <span className="sr-only">Acțiuni</span>
@@ -280,13 +286,14 @@ export function RecentDocumentsTable({
             </tr>
           </thead>
           <tbody>
-            {documents.length > 0 ? documents.map((document) => {
+            {documents.map((document) => {
               const docTotal = documentTotalLei(document);
               return (
               <tr key={document.id} className="motion-table-row border-t border-[#edf0f5] hover:bg-[#f8fafc]">
                 <TableCell className="whitespace-nowrap">
                   <span className="block font-semibold">{formatDocumentType(document.type)} #{document.number}</span>
                   <span className="block text-xs text-[#475569]">{formatDate(document.documentDate)}</span>
+                  <span className="mt-1 block font-semibold tabular-nums lg:hidden">{formatMoney(docTotal)} lei</span>
                 </TableCell>
                 <TableCell secondary>{document.warehouse.name}</TableCell>
                 <TableCell>
@@ -306,7 +313,7 @@ export function RecentDocumentsTable({
                     </div>
                   )}
                 </TableCell>
-                <TableCell align="right" className="whitespace-nowrap">
+                <TableCell align="right" className="whitespace-nowrap max-lg:hidden">
                   <span className="block tabular-nums font-semibold">{formatMoney(docTotal)} lei</span>
                   <span className="block text-xs text-[#475569]">
                     {formatNumber(document.lines.reduce((sum, line) => sum + line.quantity, 0))} buc.
@@ -347,13 +354,7 @@ export function RecentDocumentsTable({
                 </TableCell>
               </tr>
               );
-            }) : (
-              <tr>
-                <td className="px-3 py-10 text-center text-[#475569]" colSpan={COMPANY.vatPayer ? 10 : 9}>
-                  {emptyText}
-                </td>
-              </tr>
-            )}
+            })}
           </tbody>
         </table>
       </div>

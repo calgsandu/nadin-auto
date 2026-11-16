@@ -309,14 +309,16 @@ export function DrawerField({
   label,
   children,
   hint,
+  className = "",
 }: {
   label: string;
   children: ReactNode;
   hint?: string;
+  className?: string;
 }) {
   return (
     // Eticheta mai stinsă decât valoarea: ochiul cade pe ce e scris, nu pe titluri.
-    <label className="grid gap-1 text-[13px] font-medium text-[#475569]">
+    <label className={`grid gap-1 text-[13px] font-medium text-[#475569] ${className}`}>
       <span className="line-label">{label}</span>
       {children}
       {hint ? <span className="text-xs font-normal text-[#475569]">{hint}</span> : null}
