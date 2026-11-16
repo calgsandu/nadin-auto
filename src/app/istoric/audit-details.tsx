@@ -27,10 +27,10 @@ export function AuditDetails({ id }: { id: string }) {
         });
       }}
     >
-      <summary className="cursor-pointer whitespace-nowrap text-xs font-semibold text-[#18181b] underline decoration-[#2563eb] underline-offset-4">
+      <summary className="cursor-pointer whitespace-nowrap text-xs font-semibold text-[#0f172a] underline decoration-[#2563eb] underline-offset-4">
         Vezi detalii
       </summary>
-      <pre className="mt-2 max-h-72 max-w-xl overflow-auto rounded-md border border-[#e4e4e7] bg-[#fafafa] p-2 text-left font-mono text-[11px] leading-relaxed text-[#3f3f46]">
+      <pre className="mt-2 max-h-72 max-w-xl overflow-auto rounded-md border border-[#e5e9f0] bg-[#f8fafc] p-2 text-left font-mono text-[11px] leading-relaxed text-[#334155]">
         {error ?? json ?? "Se încarcă…"}
       </pre>
     </details>

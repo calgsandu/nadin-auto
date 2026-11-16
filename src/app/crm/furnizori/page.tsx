@@ -53,10 +53,10 @@ function PartnersWorkspace({
 }) {
   return (
     <section className="motion-page p-4 lg:px-6 lg:py-5">
-      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
+            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
               <tr>
                 <TableHead>Nume</TableHead>
                 <TableHead secondary>Tip</TableHead>
@@ -72,42 +72,42 @@ function PartnersWorkspace({
               {partners.map((partner) => (
                 <tr
                   key={partner.id}
-                  className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]"
+                  className="motion-table-row border-t border-[#edf0f5] align-top hover:bg-[#f8fafc]"
                 >
-                  <TableCell className="font-semibold text-[#18181b]">
+                  <TableCell className="font-semibold text-[#0f172a]">
                     {partner.name}
                   </TableCell>
                   <TableCell secondary>{formatPartnerKind(partner.kind)}</TableCell>
                   <TableCell secondary className="text-xs tabular-nums">
                     <span className="block">{formatText(partner.idno)}</span>
-                    {partner.vatCode ? <span className="mt-0.5 block text-[#71717a]">TVA {partner.vatCode}</span> : null}
+                    {partner.vatCode ? <span className="mt-0.5 block text-[#64748b]">TVA {partner.vatCode}</span> : null}
                   </TableCell>
-                  <TableCell className="text-[#52525b]">
+                  <TableCell className="text-[#475569]">
                     <span className="block">{formatText(partner.phone)}</span>
                     {partner.email ? <span className="mt-0.5 block">{partner.email}</span> : null}
                   </TableCell>
-                  <TableCell secondary className="max-w-xs text-[#52525b]">
+                  <TableCell secondary className="max-w-xs text-[#475569]">
                     {formatText(partner.address)}
                     {/* Se scriau („Observații, condiții de livrare") și se citeau
                         doar ca să reumple același formular. */}
                     {partner.notes ? (
-                      <span className="mt-0.5 block text-xs text-[#71717a]">{partner.notes}</span>
+                      <span className="mt-0.5 block text-xs text-[#64748b]">{partner.notes}</span>
                     ) : null}
                   </TableCell>
                   <TableCell align="right">
                     <span
-                      className={`font-mono font-semibold ${
-                        partner.balanceLei > 0 ? "text-[#b91c1c]" : "text-[#52525b]"
+                      className={`tabular-nums font-semibold ${
+                        partner.balanceLei > 0 ? "text-[#b91c1c]" : "text-[#475569]"
                       }`}
                     >
                       {partner.balanceLei !== 0 ? `${formatMoney(partner.balanceLei)} lei` : "—"}
                     </span>
                   </TableCell>
                   <TableCell align="right" secondary>
-                    <span className="font-semibold tabular-nums text-[#18181b]">
+                    <span className="font-semibold tabular-nums text-[#0f172a]">
                       {formatNumber(partner._count.documents + partner._count.paymentAccounts)}
                     </span>
-                    <span className="mt-0.5 block text-xs text-[#71717a]">
+                    <span className="mt-0.5 block text-xs text-[#64748b]">
                       {partner._count.paymentAccounts} conturi
                     </span>
                   </TableCell>
@@ -144,7 +144,7 @@ function PartnersWorkspace({
           </table>
         </div>
         {partners.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-[#52525b]">
+          <div className="px-4 py-12 text-center text-sm text-[#475569]">
             Nu există furnizori încă.
           </div>
         ) : null}

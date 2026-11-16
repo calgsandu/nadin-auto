@@ -5,7 +5,7 @@ import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-lab
 import { productLineSubtitle, type ProductLineInfo } from "@/lib/catalog/product-line-label";
 
 export const adminRowCls =
-  "motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]";
+  "motion-table-row border-t border-[#edf0f5] align-top hover:bg-[#f8fafc]";
 
 /**
  * Coloanele secundare dispar sub `lg`. Tabelele CRM-ului aveau `min-w-[1100px]`,
@@ -27,7 +27,7 @@ export function TableHead({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-3 py-2 text-xs font-medium text-[#52525b] ${
+      className={`whitespace-nowrap px-4 py-2 text-[0.8125rem] font-medium text-[#64748b] ${
         align === "right" ? "text-right" : "text-left"
       } ${secondary ? secondaryCls : ""} ${className}`}
     >
@@ -49,7 +49,7 @@ export function TableCell({
 }) {
   return (
     <td
-      className={`px-3 py-2 ${align === "right" ? "text-right" : "text-left"} ${
+      className={`px-4 py-2 ${align === "right" ? "text-right" : "text-left"} ${
         secondary ? secondaryCls : ""
       } ${className}`}
     >
@@ -68,7 +68,7 @@ export function VehicleSubline({
 }) {
   const label = product ? productLineSubtitle(product) : vehicleLabel(fitment);
   return label ? (
-    <span className="block text-xs font-normal text-[#52525b]">{label}</span>
+    <span className="block text-xs font-normal text-[#475569]">{label}</span>
   ) : null;
 }
 
@@ -85,19 +85,19 @@ export function DailyMetric({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="min-w-0 rounded-lg border border-[#e4e4e7] bg-white px-4 py-3 max-sm:px-3 max-sm:py-2">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[13px] font-medium text-[#52525b] max-sm:truncate max-sm:text-xs">{label}</p>
+    <div className="min-w-0 bg-white px-5 py-4 max-sm:px-3 max-sm:py-2.5">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-[#64748b] max-sm:truncate max-sm:text-xs">{label}</p>
         {Icon ? (
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#f4f4f5] text-[#52525b] max-sm:hidden">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#eef4ff] text-[#2563eb] max-sm:hidden">
             <Icon className="size-4" aria-hidden="true" />
           </span>
         ) : null}
       </div>
-      <p className="-mt-1 text-2xl font-semibold tracking-tight tabular-nums text-[#18181b] max-sm:mt-0.5 max-sm:text-base">
+      <p className="mt-1 text-[1.75rem] font-medium leading-tight tracking-tight tabular-nums text-[#0f172a] max-sm:mt-0.5 max-sm:text-lg">
         {value}
       </p>
-      {hint ? <p className="mt-1 text-xs text-[#71717a] max-sm:hidden">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-[#64748b] max-sm:hidden">{hint}</p> : null}
     </div>
   );
 }
@@ -111,7 +111,7 @@ export function ExportLink({ href, label }: { href: string; label: string }) {
     <a
       href={href}
       title={label}
-      className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
+      className="button-secondary inline-flex items-center gap-2 rounded-lg border border-[#e5e9f0] bg-white px-3 py-2 text-sm font-medium text-[#0f172a] hover:bg-[#f8fafc]"
     >
       <Download className="size-4" aria-hidden="true" />
       <span className="max-sm:sr-only">{label}</span>
@@ -135,13 +135,13 @@ export function AdminSection({
 }) {
   return (
     <section className="motion-page p-4 lg:px-6 lg:py-5">
-      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table
             className="crm-table w-full border-collapse text-left text-sm"
             style={{ minWidth }}
           >
-            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
+            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
               <tr>
                 {head.map((h, i) =>
                   h === null ? null : (
@@ -159,7 +159,7 @@ export function AdminSection({
           </table>
         </div>
         {isEmpty ? (
-          <div className="px-4 py-12 text-center text-sm text-[#52525b]">{empty}</div>
+          <div className="px-4 py-14 text-center text-sm text-[#64748b]">{empty}</div>
         ) : null}
       </div>
     </section>
@@ -168,15 +168,15 @@ export function AdminSection({
 
 export function ButtonSkeleton() {
   return (
-    <div aria-hidden="true" className="skeleton-pulse h-9 w-32 rounded-md bg-[#f0f0f2]" />
+    <div aria-hidden="true" className="skeleton-pulse h-9 w-32 rounded-md bg-[#edf0f5]" />
   );
 }
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-lg border border-[#e4e4e7] bg-white px-3.5 py-2.5">
-      <div className="skeleton-pulse h-3.5 w-24 rounded bg-[#f0f0f2]" />
-      <div className="skeleton-pulse mt-2 h-6 w-16 rounded bg-[#f1f1f3]" />
+    <div className="rounded-lg border border-[#e5e9f0] bg-white px-3.5 py-2.5">
+      <div className="skeleton-pulse h-3.5 w-24 rounded bg-[#edf0f5]" />
+      <div className="skeleton-pulse mt-2 h-6 w-16 rounded bg-[#eef1f6]" />
     </div>
   );
 }
@@ -206,18 +206,18 @@ export function WorkspaceSkeleton({
       ) : null}
 
       {filters > 0 ? (
-        <div className="grid gap-3 rounded-lg border border-[#e4e4e7] bg-[#fafafa] p-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 rounded-lg border border-[#e5e9f0] bg-[#f8fafc] p-4 sm:grid-cols-2 lg:grid-cols-5">
           {Array.from({ length: filters }, (_, index) => (
-            <div key={index} className="skeleton-pulse h-10 rounded-md bg-[#f0f0f2]" />
+            <div key={index} className="skeleton-pulse h-10 rounded-md bg-[#edf0f5]" />
           ))}
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
-        <div className="h-9 border-b border-[#e4e4e7] bg-[#fafafa]" />
+      <div className="overflow-hidden crm-card">
+        <div className="h-9 border-b border-[#e5e9f0] bg-[#f8fafc]" />
         <div className="grid gap-2 p-3">
           {Array.from({ length: rows }, (_, index) => (
-            <div key={index} className="skeleton-pulse h-9 rounded-md bg-[#f1f1f3]" />
+            <div key={index} className="skeleton-pulse h-9 rounded-md bg-[#eef1f6]" />
           ))}
         </div>
       </div>
@@ -250,11 +250,11 @@ export function Pagination({
   hrefFor: (page: number) => string;
   summary?: ReactNode;
 }) {
-  if (pageCount <= 1) return summary ? <p className="text-sm text-[#52525b]">{summary}</p> : null;
+  if (pageCount <= 1) return summary ? <p className="text-sm text-[#475569]">{summary}</p> : null;
   const cell =
     "grid h-8 min-w-8 place-items-center rounded-md border px-2 text-sm font-medium tabular-nums";
-  const idle = `${cell} border-[#e4e4e7] bg-white text-[#3f3f46] hover:bg-[#f4f4f5]`;
-  const disabled = `${cell} border-[#f0f0f2] text-[#d4d4d8]`;
+  const idle = `${cell} border-[#e5e9f0] bg-white text-[#334155] hover:bg-[#f1f4f9]`;
+  const disabled = `${cell} border-[#edf0f5] text-[#cbd5e1]`;
   const step = (target: number, label: string, icon: ReactNode) =>
     target < 1 || target > pageCount || target === page ? (
       <span aria-hidden="true" className={disabled}>{icon}</span>
@@ -266,14 +266,14 @@ export function Pagination({
 
   return (
     <nav aria-label="Paginare" className="flex flex-wrap items-center gap-1.5 text-sm">
-      {summary ? <p className="mr-auto text-[#52525b]">{summary}</p> : null}
+      {summary ? <p className="mr-auto text-[#475569]">{summary}</p> : null}
       {step(1, "Prima pagină", <ChevronsLeft className="size-4" aria-hidden="true" />)}
       {step(page - 1, "Pagina anterioară", <ChevronLeft className="size-4" aria-hidden="true" />)}
       {pageWindow(page, pageCount).map((item, index) =>
         item === "gap" ? (
-          <span key={`gap-${index}`} className="px-1 text-[#a1a1aa]">…</span>
+          <span key={`gap-${index}`} className="px-1 text-[#94a3b8]">…</span>
         ) : item === page ? (
-          <span key={item} aria-current="page" className={`${cell} border-[#18181b] bg-[#18181b] text-white`}>
+          <span key={item} aria-current="page" className={`${cell} border-[#2563eb] bg-[#2563eb] text-white`}>
             {item}
           </span>
         ) : (
@@ -310,7 +310,7 @@ export function FilterField({
   return (
     <label
       className={`field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
-        active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e4e4e7] bg-white text-[#3f3f46]"
+        active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e5e9f0] bg-white text-[#334155]"
       }`}
     >
       <span className="shrink-0 opacity-70 [&>svg]:size-4" aria-hidden="true">
@@ -326,9 +326,9 @@ export function FilterSubmit({ label = "Aplică" }: { label?: string }) {
   return (
     <button
       type="submit"
-      className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
+      className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e5e9f0] bg-white px-3 text-sm font-medium text-[#0f172a] hover:bg-[#f1f4f9]"
     >
-      <Filter className="size-4 text-[#71717a]" aria-hidden="true" />
+      <Filter className="size-4 text-[#64748b]" aria-hidden="true" />
       {label}
     </button>
   );
@@ -338,7 +338,7 @@ export function FilterReset({ href }: { href: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+      className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
     >
       <X className="size-4" aria-hidden="true" /> Resetează
     </Link>
@@ -348,11 +348,11 @@ export function FilterReset({ href }: { href: string }) {
 /** Comutator segmentat (depozite, filtre de listă): un grup, nu pastile separate. */
 // Pe telefon un singur rând care se derulează, nu trei rânduri de depozite.
 export const segmentedCls =
-  "inline-flex max-w-full flex-wrap rounded-lg border border-[#e4e4e7] bg-white p-0.5 max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:[scrollbar-width:none] [&>*]:shrink-0 [&>*]:whitespace-nowrap";
+  "inline-flex max-w-full flex-wrap rounded-lg border border-[#e5e9f0] bg-white p-0.5 max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:[scrollbar-width:none] [&>*]:shrink-0 [&>*]:whitespace-nowrap";
 
 export function segmentCls(active: boolean) {
   return `rounded-md px-3 py-1 text-sm font-medium transition-colors ${
-    active ? "bg-[#18181b] text-white" : "text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+    active ? "bg-[#2563eb] text-white" : "text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
   }`;
 }
 
@@ -363,7 +363,7 @@ const badgeTones: Record<BadgeTone, string> = {
   green: "bg-[#f0fdf4] text-[#166534] ring-[#bbf7d0]",
   amber: "bg-[#fffbeb] text-[#92400e] ring-[#fde68a]",
   red: "bg-[#fef2f2] text-[#b91c1c] ring-[#fecaca]",
-  gray: "bg-[#f4f4f5] text-[#3f3f46] ring-[#e4e4e7]",
+  gray: "bg-[#f1f4f9] text-[#334155] ring-[#e5e9f0]",
   purple: "bg-[#f5f3ff] text-[#6d28d9] ring-[#ddd6fe]",
 };
 

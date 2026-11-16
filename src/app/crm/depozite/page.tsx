@@ -47,10 +47,10 @@ async function Loader({
     >
       {data.warehouses.map((w: WarehouseRow) => (
         <tr key={w.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#18181b]">{w.name}</TableCell>
+          <TableCell className="font-semibold text-[#0f172a]">{w.name}</TableCell>
           <TableCell>{w.isDefault ? "Da" : "—"}</TableCell>
           <TableCell>{w.active ? "Da" : "Inactiv"}</TableCell>
-          <TableCell align="right" className="font-mono">{formatNumber(w._count.stocks)}</TableCell>
+          <TableCell className="tabular-nums text-[#475569]">{formatNumber(w._count.stocks)}</TableCell>
           {canModify ? (
             <TableCell align="right">
               <RowActions>

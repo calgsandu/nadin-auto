@@ -14,7 +14,7 @@ export type CatalogSearchParams = {
   fitment?: string;
   type?: string;
   year?: string;
-  /** "1" = doar produsele cu stoc; "mic" = aproape terminate (de comandat). */
+  /** "1" = doar produsele cu stoc; "ok" = peste pragul minim; "mic" = aproape terminate (de comandat); "0" = fără stoc. */
   stoc?: string;
   page?: string;
 };
@@ -47,6 +47,15 @@ export async function getCatalogData(
   const stockFilter: Prisma.ProductWhereInput[] = [];
   if (options.onlyInStock || params.stoc === "1") stockFilter.push({ stock: { gt: 0 } });
   if (params.stoc === "mic") stockFilter.push(lowStockWhere);
+  if (params.stoc === "ok") {
+    stockFilter.push({
+      OR: [
+        { minStock: null, stock: { gt: 3 } },
+        { minStock: { not: null }, stock: { gt: prisma.product.fields.minStock } },
+      ],
+    });
+  }
+  if (params.stoc === "0") stockFilter.push({ OR: [{ stock: null }, { stock: { lte: 0 } }] });
   const withStock = (base: Prisma.ProductWhereInput): Prisma.ProductWhereInput =>
     stockFilter.length > 0 ? { AND: [base, ...stockFilter] } : base;
   const where = withStock(buildProductWhere(params, matchedIds));
@@ -61,6 +70,7 @@ export async function getCatalogData(
     types,
     warehouses,
     fitments,
+    stockSummary,
   ] = await Promise.all([
     prisma.product.findMany({
       where,
@@ -129,6 +139,7 @@ export async function getCatalogData(
           orderBy: [{ yearStart: "asc" }, { yearEnd: "asc" }],
         })
       : [],
+    getStockSummary(),
   ]);
 
   return {
@@ -153,7 +164,28 @@ export async function getCatalogData(
     types,
     warehouses,
     fitments,
+    stockSummary,
   };
+}
+
+/**
+ * Cifrele din capul paginii Produse, pe tot catalogul: câte piese sunt în stoc,
+ * aproape terminate (același prag ca `lowStockWhere`) și lipsă, plus valoarea
+ * stocului la prețul de vânzare. Un singur dus-întors.
+ */
+async function getStockSummary() {
+  const [row] = await prisma.$queryRaw<
+    { total: number; out: number; low: number; pieces: number; value: number }[]
+  >`
+    SELECT
+      count(*)::int AS total,
+      (count(*) FILTER (WHERE COALESCE(stock, 0) <= 0))::int AS out,
+      (count(*) FILTER (WHERE stock > 0 AND stock <= COALESCE("minStock", 3)))::int AS low,
+      COALESCE(sum(GREATEST(COALESCE(stock, 0), 0)), 0)::int AS pieces,
+      COALESCE(sum(GREATEST(COALESCE(stock, 0), 0) * COALESCE("salePriceLei", 0)), 0)::float8 AS value
+    FROM "Product"
+  `;
+  return { ...row, inStock: row.total - row.out - row.low };
 }
 
 function normalizePage(page: string | undefined) {

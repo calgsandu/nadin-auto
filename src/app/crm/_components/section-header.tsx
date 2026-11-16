@@ -1,15 +1,12 @@
 import type { ReactNode } from "react";
-import { getSection, groupForSection, type WorkspaceSectionId } from "@/lib/operations/workspace";
+import { groupForSection, sectionLabel, type WorkspaceSectionId } from "@/lib/operations/workspace";
 import { canViewSection } from "@/lib/roles";
 import type { AppRole } from "@/generated/prisma/enums";
 import { HeaderNotifications, SectionTabs } from "./chrome";
-import { sectionIconElement } from "./section-icons";
 
 /**
- * Antetul secțiunii: titlul mare, acțiunile paginii și clopoțelul „De făcut"
- * pe primul rând; dedesubt, sub-tab-urile grupului (subliniate). Grupurile
- * „list" au deja fiecare secțiune în sidebar-ul de desktop, deci acolo
- * tab-urile apar doar pe telefon.
+ * Antetul secțiunii: titlul mare, acțiunile paginii și clopoțelul „De făcut".
+ * Sub-tab-urile grupului apar doar unde meniul nu le arată deja.
  */
 export function CrmHeader({
   section,
@@ -20,29 +17,26 @@ export function CrmHeader({
   role: AppRole;
   children?: ReactNode;
 }) {
-  const title = getSection(section).title;
+  // Același nume ca în meniu: „Proforme" nu devine „Conturi de plată" pe pagină.
+  const title = sectionLabel(section);
   const group = groupForSection(section);
   const hasTabs =
     (group?.sections.filter((id) => canViewSection(role, id)).length ?? 0) > 1;
   const tabsOnDesktop = hasTabs && group?.display === "tabs";
 
   return (
-    <header className="motion-page border-b border-[#e4e4e7] px-4 lg:px-6">
-      <div className="flex min-h-14 flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
-        {/* Iconița secțiunii, aceeași ca în meniu: dintr-o privire știi unde ești. */}
-        <h1 className="flex items-center gap-3 text-xl font-semibold tracking-tight text-[#18181b]">
-          <span className="grid size-9 place-items-center rounded-xl bg-[#eff6ff] text-[#2563eb] ring-1 ring-[#dbeafe]">
-            {sectionIconElement(section, "size-[18px]")}
-          </span>
-          {title}
-        </h1>
+    <header className="motion-page px-4 pt-1 lg:px-6 lg:pt-4">
+      <div className="flex min-h-12 flex-wrap items-center gap-x-4 gap-y-2 py-2">
+        <h1 className="text-[1.375rem] font-semibold tracking-tight text-[#0f172a] lg:text-[1.625rem]">{title}</h1>
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {children}
           <HeaderNotifications />
         </div>
       </div>
+      {/* Pe desktop secțiunile grupului sunt în meniu, sub grup; tab-urile
+          rămân pentru telefon și pentru meniul restrâns (vezi globals.css). */}
       {hasTabs ? (
-        <div className={tabsOnDesktop ? "" : "lg:hidden"}>
+        <div className={`border-b border-[#e5e9f0] ${tabsOnDesktop ? "crm-header-tabs" : "lg:hidden"}`}>
           <SectionTabs role={role} />
         </div>
       ) : null}

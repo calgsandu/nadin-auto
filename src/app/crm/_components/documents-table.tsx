@@ -41,7 +41,7 @@ export function SaleLines({ lines }: { lines: SaleLineWithProduct[] }) {
         return (
           <span key={line.id}>
             {(line.product?.externalCode ?? line.externalCode) ? (
-              <span className="mr-1.5 font-semibold text-[#18181b]">
+              <span className="mr-1.5 font-semibold text-[#0f172a]">
                 {line.product?.externalCode ?? line.externalCode}
               </span>
             ) : null}
@@ -54,15 +54,15 @@ export function SaleLines({ lines }: { lines: SaleLineWithProduct[] }) {
                 extern
               </span>
             ) : null}
-            <span className="font-mono text-[#52525b]"> x{line.quantity}</span>
+            <span className="tabular-nums text-[#475569]"> x{line.quantity}</span>
             {sold != null ? (
               <span
-                className={`ml-1.5 whitespace-nowrap rounded px-1 font-mono text-xs font-semibold ${
+                className={`ml-1.5 whitespace-nowrap rounded px-1 tabular-nums text-xs font-semibold ${
                   marked
                     ? diff < 0
                       ? "bg-[#fee2e2] text-[#b91c1c]"
                       : "bg-[#dbeafe] text-[#1d4ed8]"
-                    : "text-[#52525b]"
+                    : "text-[#475569]"
                 }`}
                 title={
                   marked
@@ -210,13 +210,13 @@ export function SalesRegisterExport() {
   const firstOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   const today = now.toISOString().slice(0, 10);
   const inputCls =
-    "h-9 rounded-md border border-[#e4e4e7] bg-white px-2 text-sm text-[#18181b]";
+    "h-9 rounded-md border border-[#e5e9f0] bg-white px-2 text-sm text-[#0f172a]";
   const buttonCls =
-    "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]";
+    "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e5e9f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#0f172a] hover:bg-[#f1f4f9]";
 
   return (
     <details className="group relative">
-      <summary className="button-secondary inline-flex h-9 cursor-pointer list-none items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5] [&::-webkit-details-marker]:hidden">
+      <summary className="button-secondary inline-flex h-9 cursor-pointer list-none items-center gap-1.5 rounded-md border border-[#e5e9f0] bg-white px-3 text-sm font-semibold text-[#0f172a] hover:bg-[#f1f4f9] [&::-webkit-details-marker]:hidden">
         <FileText className="size-4" aria-hidden="true" />
         Registru vânzări
       </summary>
@@ -224,11 +224,11 @@ export function SalesRegisterExport() {
         action="/api/export/sales-register"
         method="get"
         target="_blank"
-        className="motion-popover absolute right-0 z-30 mt-1.5 grid w-max gap-2 rounded-lg border border-[#e4e4e7] bg-white p-3 shadow-lg"
+        className="motion-popover absolute right-0 z-30 mt-1.5 grid w-max gap-2 rounded-lg border border-[#e5e9f0] bg-white p-3 shadow-lg"
       >
         <div className="flex items-center gap-2">
           <input className={inputCls} type="date" name="from" defaultValue={firstOfMonth} aria-label="De la" />
-          <span className="text-xs text-[#52525b]">–</span>
+          <span className="text-xs text-[#475569]">–</span>
           <input className={inputCls} type="date" name="to" defaultValue={today} aria-label="Până la" />
         </div>
         <div className="flex justify-end gap-2">
@@ -262,10 +262,10 @@ export function RecentDocumentsTable({
   // coloană de liniuțe care fură lățimea coloanei de produse.
   const hasSales = documents.some((document) => document.type === "SALE");
   return (
-    <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+    <div className="overflow-hidden crm-card">
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
-          <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
+          <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
             <tr>
               {/* Data, cantitatea și TVA stau ca subtitluri (sub document, sub total):
                   ca coloane separate împingeau Acțiunile în afara ecranului pe laptop. */}
@@ -283,10 +283,10 @@ export function RecentDocumentsTable({
             {documents.length > 0 ? documents.map((document) => {
               const docTotal = documentTotalLei(document);
               return (
-              <tr key={document.id} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
+              <tr key={document.id} className="motion-table-row border-t border-[#edf0f5] hover:bg-[#f8fafc]">
                 <TableCell className="whitespace-nowrap">
                   <span className="block font-semibold">{formatDocumentType(document.type)} #{document.number}</span>
-                  <span className="block text-xs text-[#52525b]">{formatDate(document.documentDate)}</span>
+                  <span className="block text-xs text-[#475569]">{formatDate(document.documentDate)}</span>
                 </TableCell>
                 <TableCell secondary>{document.warehouse.name}</TableCell>
                 <TableCell>
@@ -299,7 +299,7 @@ export function RecentDocumentsTable({
                           {line.product
                             ? line.product.description
                             : `${line.externalCode ? `${line.externalCode} ` : ""}${line.externalName ?? "Piesă externă"}`}
-                          <span className="font-mono text-[#52525b]"> x{line.quantity}</span>
+                          <span className="tabular-nums text-[#475569]"> x{line.quantity}</span>
                           <VehicleSubline product={line.product} />
                         </span>
                       ))}
@@ -307,8 +307,8 @@ export function RecentDocumentsTable({
                   )}
                 </TableCell>
                 <TableCell align="right" className="whitespace-nowrap">
-                  <span className="block font-mono font-semibold">{formatMoney(docTotal)} lei</span>
-                  <span className="block text-xs text-[#52525b]">
+                  <span className="block tabular-nums font-semibold">{formatMoney(docTotal)} lei</span>
+                  <span className="block text-xs text-[#475569]">
                     {formatNumber(document.lines.reduce((sum, line) => sum + line.quantity, 0))} buc.
                     {COMPANY.vatPayer ? ` · TVA ${formatMoney(docTotal / 6)}` : null}
                   </span>
@@ -349,7 +349,7 @@ export function RecentDocumentsTable({
               );
             }) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#52525b]" colSpan={COMPANY.vatPayer ? 10 : 9}>
+                <td className="px-3 py-10 text-center text-[#475569]" colSpan={COMPANY.vatPayer ? 10 : 9}>
                   {emptyText}
                 </td>
               </tr>

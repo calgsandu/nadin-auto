@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createContext, Fragment, useContext, useEffect, type ReactNode } from "react";
 import {
   Bell,
+  ChevronDown,
   ChevronsUpDown,
   ClipboardList,
   FileText,
@@ -23,6 +24,7 @@ import { groupForSection, navigationGroups, sectionLabel } from "@/lib/operation
 import { canViewSection } from "@/lib/roles";
 import { menuIcons, sectionIcon } from "./section-icons";
 import type { AppRole } from "@/generated/prisma/enums";
+import type { WorkspaceSectionId } from "@/lib/operations/workspace";
 
 /**
  * Contoarele din meniu și din clopoțel (aprobări, de adus, proforme neachitate)
@@ -83,22 +85,18 @@ export function Sidebar({
     .toUpperCase();
 
   return (
-    <nav aria-label="Meniu principal" className="flex flex-col gap-2 px-3 py-2 lg:h-full lg:gap-0 lg:px-2.5 lg:py-2">
-      {/* Cartea firmei: sigla, numele și butonul de restrângere a meniului. */}
-      <div className="crm-account flex items-center justify-between gap-2 px-1 pb-1 lg:mb-2 lg:rounded-xl lg:border lg:border-[#e4e4e7] lg:bg-white lg:p-2 lg:shadow-[0_1px_2px_rgb(24_24_27/0.04)]">
-        <Link href="/crm/produse" className="flex min-w-0 items-center gap-2.5">
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#f4f4f5] ring-1 ring-[#e4e4e7]">
+    <nav aria-label="Meniu principal" className="crm-sidebar-nav flex flex-col gap-2 px-3 py-2 lg:h-full lg:gap-0 lg:px-3 lg:py-4">
+      {/* Sigla și numele; butonul de restrângere stă jos, lângă cont. */}
+      <div className="crm-sidebar-brand crm-account flex items-center justify-between gap-2 px-1 pb-1 lg:mb-5 lg:px-1.5 lg:pb-0">
+        <Link href="/crm/produse" className="flex min-w-0 items-center gap-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#eef4ff]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="" className="h-5 w-7 object-contain" />
           </span>
-          <span className="crm-nav-label min-w-0">
-            <span className="block truncate text-sm font-semibold tracking-tight text-[#18181b]">Nadin Auto</span>
-            <span className="block truncate text-xs text-[#71717a]">Piese auto</span>
+          <span className="crm-nav-label truncate text-[1.0625rem] font-semibold tracking-tight text-[#0f172a]">
+            Nadin Auto
           </span>
         </Link>
-        <div className="hidden lg:block">
-          <SidebarCollapseButton />
-        </div>
         <div className="flex shrink-0 items-center gap-2 lg:hidden">
           <ChangePasswordDialog compact />
           <TrustedDeviceControl compact />
@@ -120,99 +118,217 @@ export function Sidebar({
         ))}
       </div>
 
-      {/* Desktop: o listă scurtă, fără titluri de grup — grupurile cu tab-uri
-          ocupă un singur rând; cele folosite rar stau sub o linie. */}
-      <div className="hidden min-h-0 flex-1 overflow-y-auto pt-1 lg:block">
-        <div className="grid gap-px">
-          {visibleGroups.map((group, index) => (
-            <Fragment key={group.id}>
-              {group.rare && !visibleGroups[index - 1]?.rare ? (
-                <hr className="mx-2.5 my-2 border-[#e4e4e7]" />
-              ) : null}
-              {group.display === "list" ? (
-                group.sections.map((section) => (
-                  <NavLink
-                    key={section}
-                    active={section === activeSectionId}
-                    badge={countFor(counts, section)}
-                    href={crmSectionHref(section)}
-                    icon={sectionIcon(section)}
-                    label={sectionLabel(section)}
-                  />
-                ))
-              ) : (
-                <NavLink
-                  active={group.sections.includes(activeSectionId)}
-                  badge={group.sections.reduce((sum, section) => sum + countFor(counts, section), 0)}
-                  highlightBadge={group.sections.includes("aprobari")}
-                  href={crmSectionHref(group.sections[0])}
-                  icon={menuIcons[group.icon]}
-                  label={group.label}
-                />
-              )}
-            </Fragment>
-          ))}
+      {/* Desktop: ce se face zilnic e la vedere; grupurile își deschid
+          secțiunile sub ele, ca arbore, când ești într-una din ele. */}
+      <div className="crm-sidebar-links hidden min-h-0 flex-1 overflow-y-auto lg:block">
+        <div className="grid gap-0.5">
+          {visibleGroups.map((group, index) => {
+            const groupActive = group.sections.includes(activeSectionId);
+            const caption = index === 0 ? "Lucru zilnic" : group.rare && !visibleGroups[index - 1]?.rare ? "Evidență" : null;
+            return (
+              <Fragment key={group.id}>
+                {caption ? (
+                  <p className={`crm-nav-caption px-3 pb-1.5 text-xs font-medium text-[#94a3b8] ${index === 0 ? "" : "mt-5"}`}>
+                    {caption}
+                  </p>
+                ) : null}
+                {group.display === "list" || group.sections.length === 1 ? (
+                  group.sections.map((section) => {
+                    const count = countFor(counts, section);
+                    return (
+                      <div key={section} className="crm-fly-item" onPointerEnter={placeFlyout} onFocus={placeFlyout} onClick={closeFlyout} onPointerLeave={reopenFlyout}>
+                        <NavLink
+                          active={section === activeSectionId}
+                          badge={count}
+                          href={crmSectionHref(section)}
+                          icon={sectionIcon(section)}
+                          label={sectionLabel(section)}
+                        />
+                        {/* Meniul restrâns: eticheta apare lângă iconiță la hover. */}
+                        <span className="crm-fly crm-fly-pill" aria-hidden="true">
+                          <span className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-[#0f172a] px-2.5 py-1.5 text-sm font-medium text-white shadow-lg">
+                            {sectionLabel(section)}
+                            {count > 0 ? (
+                              <span className="rounded-md bg-white/20 px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums">
+                                {count}
+                              </span>
+                            ) : null}
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="crm-fly-item" onPointerEnter={placeFlyout} onFocus={placeFlyout} onClick={closeFlyout} onPointerLeave={reopenFlyout}>
+                    <NavLink
+                      active={groupActive}
+                      parent
+                      badge={group.sections.reduce((sum, section) => sum + countFor(counts, section), 0)}
+                      badgeInTree={groupActive}
+                      highlightBadge={group.sections.includes("aprobari")}
+                      href={crmSectionHref(group.sections[0])}
+                      icon={menuIcons[group.icon]}
+                      label={group.label}
+                    />
+                    {groupActive ? (
+                      <div className="crm-nav-sub mb-1.5 ml-[1.375rem] grid gap-0.5 border-l border-[#e5e9f0] pl-2.5">
+                        {group.sections.map((section) => (
+                          <SubLink key={section} section={section} active={section === activeSectionId} count={countFor(counts, section)} />
+                        ))}
+                      </div>
+                    ) : null}
+                    {/* Meniul restrâns: secțiunile grupului într-un meniu lateral. */}
+                    <div className="crm-fly crm-fly-menu">
+                      <div className="grid w-56 gap-0.5 rounded-xl border border-[#e5e9f0] bg-white p-1.5 shadow-[0_12px_32px_-12px_rgb(15_23_42/0.25)]">
+                        <p className="px-2.5 pb-1 pt-1.5 text-sm font-semibold text-[#0f172a]">{group.label}</p>
+                        {group.sections.map((section) => (
+                          <SubLink key={section} section={section} active={section === activeSectionId} count={countFor(counts, section)} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Fragment>
+            );
+          })}
         </div>
       </div>
 
-      {/* Cine e logat, cu acțiunile contului ca iconițe. */}
-      <div className="crm-account hidden items-center gap-2 border-t border-[#e4e4e7] px-1.5 pt-2.5 lg:flex">
-        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#e0e7ff] text-xs font-semibold text-[#3730a3]">
-          {initials || "?"}
-        </span>
-        <div className="crm-account-meta min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold text-[#18181b]">{userLabel}</p>
-          <p className="truncate text-xs text-[#71717a]">{roleLabels[role]}</p>
-        </div>
-        {/* Acțiunile contului stau într-un meniu: trei iconițe tăiau numele. */}
-        <div className="crm-account-actions">
-          <RowMenu ariaLabel="Contul meu" icon={ChevronsUpDown} label={userLabel}>
+      {/* Cine e logat; acțiunile contului stau într-un meniu. */}
+      <div className="crm-sidebar-account hidden items-center gap-1 border-t border-[#e5e9f0] pt-3 lg:flex">
+        <div className="min-w-0 flex-1">
+          <RowMenu
+            ariaLabel={`Contul meu: ${userLabel}`}
+            label={userLabel}
+            triggerClassName="crm-account-trigger flex w-full items-center gap-2.5 rounded-xl p-1.5 text-left hover:bg-[#f1f4f9]"
+            trigger={
+              <>
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#eef4ff] text-xs font-semibold text-[#1d4ed8]">
+                  {initials || "?"}
+                </span>
+                <span className="crm-account-meta min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-[#0f172a]">{userLabel}</span>
+                  <span className="block truncate text-xs text-[#64748b]">{roleLabels[role]}</span>
+                </span>
+                <ChevronsUpDown className="crm-account-meta size-4 shrink-0 text-[#94a3b8]" aria-hidden="true" />
+              </>
+            }
+          >
             <ChangePasswordDialog />
             <TrustedDeviceControl />
             <LogoutButton />
           </RowMenu>
         </div>
+        <SidebarCollapseButton />
       </div>
     </nav>
   );
 }
 
+/**
+ * Meniul restrâns: pill-ul și meniul lateral sunt `position: fixed` (lista de
+ * linkuri are scroll și le-ar tăia), deci le punem în dreptul rândului când
+ * intră mouse-ul sau focusul. Meniul nu iese din ecran pe jos.
+ */
+function placeFlyout(event: { currentTarget: HTMLElement }) {
+  const item = event.currentTarget;
+  const fly = item.querySelector<HTMLElement>(":scope > .crm-fly");
+  if (!fly) return;
+  const rect = item.getBoundingClientRect();
+  const top = fly.classList.contains("crm-fly-menu")
+    ? rect.top - 6
+    : rect.top + (rect.height - fly.offsetHeight) / 2;
+  fly.style.top = `${Math.max(8, Math.min(top, window.innerHeight - fly.offsetHeight - 8))}px`;
+}
+
+/** Clic = alegerea s-a făcut: meniul se închide chiar dacă mouse-ul e încă pe el. */
+function closeFlyout(event: { currentTarget: HTMLElement }) {
+  event.currentTarget.setAttribute("data-fly-closed", "");
+}
+
+function reopenFlyout(event: { currentTarget: HTMLElement }) {
+  event.currentTarget.removeAttribute("data-fly-closed");
+}
+
+function SubLink({ section, active, count }: { section: WorkspaceSectionId; active: boolean; count: number }) {
+  return (
+    <Link
+      href={crmSectionHref(section)}
+      aria-current={active ? "page" : undefined}
+      className={`motion-nav-link flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm ${
+        active ? "bg-[#eef4ff] font-semibold text-[#1d4ed8]" : "text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
+      }`}
+    >
+      <span className="truncate">{sectionLabel(section)}</span>
+      {count > 0 ? (
+        <span className="ml-auto rounded-md bg-[#2563eb] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
+          {count}
+        </span>
+      ) : null}
+    </Link>
+  );
+}
+
 function NavLink({
   active,
+  parent = false,
   badge = 0,
+  badgeInTree = false,
   highlightBadge = false,
   href,
   icon: Icon,
   label,
 }: {
   active: boolean;
+  /** Rând de grup: activ înseamnă „ești într-o secțiune de sub el", nu pastila plină. */
+  parent?: boolean;
   badge?: number;
+  /** Grupul activ: secțiunile (cu contoarele lor) sunt deja în arbore, deci
+   *  suma apare doar cu meniul restrâns, când arborele e ascuns. */
+  badgeInTree?: boolean;
   /** Albastru = cere atenție (aprobări); gri = doar un număr de lucru. */
   highlightBadge?: boolean;
   href: string;
   icon: LucideIcon;
   label: string;
 }) {
+  const filled = active && !parent;
   return (
     <Link
-      aria-current={active ? "page" : undefined}
-      className={`motion-nav-link relative flex min-w-max items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm lg:min-w-0 lg:py-[0.3125rem] ${
-        active
-          ? "bg-white font-semibold text-[#18181b] shadow-[0_1px_2px_rgb(24_24_27/0.06)] ring-1 ring-[#e4e4e7] lg:before:absolute lg:before:-left-2.5 lg:before:inset-y-1.5 lg:before:w-[3px] lg:before:rounded-r-full lg:before:bg-[#2563eb]"
-          : "font-medium text-[#3f3f46] hover:bg-white/70 hover:text-[#18181b]"
+      aria-current={active ? (parent ? "true" : "page") : undefined}
+      className={`motion-nav-link relative flex min-w-max items-center gap-3 rounded-xl px-3 py-2 text-sm lg:min-w-0 ${
+        filled
+          ? "bg-[#2563eb] font-medium text-white shadow-[0_4px_12px_-4px_rgb(37_99_235/0.5)]"
+          : active
+            ? "crm-nav-parent-active font-semibold text-[#0f172a] max-lg:bg-[#2563eb] max-lg:font-medium max-lg:text-white"
+            : "font-medium text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
       }`}
       href={href}
-      title={label}
+      aria-label={badge > 0 ? `${label} (${badge})` : label}
     >
       <Icon
-        className={`size-4 shrink-0 ${active ? "text-[#2563eb]" : "text-[#71717a]"}`}
+        className={`size-[1.125rem] shrink-0 ${
+          filled ? "text-white" : active ? "text-[#2563eb] max-lg:text-white" : "text-[#94a3b8]"
+        }`}
         aria-hidden="true"
       />
       <span className="crm-nav-label truncate whitespace-nowrap">{label}</span>
+      {parent ? (
+        <ChevronDown
+          className={`crm-nav-label ml-auto size-4 shrink-0 text-[#94a3b8] transition-transform max-lg:hidden ${active ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      ) : null}
       {badge > 0 ? (
         <span
-          className={`crm-nav-badge ml-auto rounded-md px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums ${
-            highlightBadge ? "bg-[#2563eb] text-white" : "border border-[#e4e4e7] bg-white text-[#52525b]"
+          data-tone={highlightBadge ? "hi" : undefined}
+          data-in-tree={badgeInTree || undefined}
+          className={`crm-nav-badge rounded-md px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums ${parent ? "" : "ml-auto"} ${
+            filled
+              ? "bg-white/20 text-white"
+              : highlightBadge
+                ? "bg-[#2563eb] text-white"
+                : "bg-[#f1f4f9] text-[#475569]"
           }`}
         >
           {badge}
@@ -278,7 +394,7 @@ function LogoutButton({ compact = false }: { compact?: boolean }) {
         type="submit"
         aria-label="Ieșire din cont"
         title="Ieșire din cont"
-        className={`button-secondary inline-flex items-center justify-center rounded-lg border border-[#e4e4e7] bg-white text-sm font-semibold text-[#52525b] hover:border-[#d4d4d8] hover:text-[#18181b] ${
+        className={`button-secondary inline-flex items-center justify-center rounded-lg border border-[#e5e9f0] bg-white text-sm font-semibold text-[#475569] hover:border-[#cbd5e1] hover:text-[#0f172a] ${
           compact ? "size-8" : "w-full gap-2 px-3 py-2"
         }`}
       >
@@ -314,8 +430,8 @@ export function SectionTabs({ role }: { role: AppRole }) {
               aria-current={active ? "page" : undefined}
               className={`inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 pb-2 pt-1 text-sm font-medium transition-colors ${
                 active
-                  ? "border-[#18181b] text-[#18181b]"
-                  : "border-transparent text-[#71717a] hover:border-[#d4d4d8] hover:text-[#18181b]"
+                  ? "border-[#2563eb] text-[#1d4ed8]"
+                  : "border-transparent text-[#64748b] hover:border-[#cbd5e1] hover:text-[#0f172a]"
               }`}
             >
               {sectionLabel(section)}
@@ -354,13 +470,13 @@ export function HeaderNotifications() {
   return (
     <RowMenu ariaLabel={total > 0 ? `De făcut: ${total}` : "Nimic de făcut"} badge={total} icon={Bell} label="De făcut" size="header">
       {visible.length === 0 ? (
-        <p className="px-2.5 py-2 text-sm text-[#52525b]">Nimic în așteptare.</p>
+        <p className="px-2.5 py-2 text-sm text-[#475569]">Nimic în așteptare.</p>
       ) : (
         visible.map((item) => {
           const Icon = item.icon;
           return (
-            <Link key={item.key} href={item.href} className="text-[#18181b]">
-              <Icon className="size-4 text-[#71717a]" aria-hidden="true" />
+            <Link key={item.key} href={item.href} className="text-[#0f172a]">
+              <Icon className="size-4 text-[#64748b]" aria-hidden="true" />
               <span className="flex-1">{item.label}</span>
               <span className="font-semibold tabular-nums">{countFor(counts, item.key)}</span>
             </Link>

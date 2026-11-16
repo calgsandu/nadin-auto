@@ -24,7 +24,7 @@ export function BootstrapForm() {
       <button
         type="submit"
         disabled={pending}
-        className="h-11 rounded-md bg-[#18181b] text-sm font-semibold text-white hover:bg-[#3f3f46] disabled:opacity-60"
+        className="h-11 rounded-md bg-[#2563eb] text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60"
       >
         {pending ? "Se inițializează..." : "Inițializează 2FA"}
       </button>

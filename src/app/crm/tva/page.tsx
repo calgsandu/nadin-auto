@@ -32,7 +32,7 @@ function VatWorkspace({ data }: { data: VatReportData }) {
   if (!data.vatPayer) {
     return (
       <section className="motion-page p-4 lg:px-6 lg:py-5">
-        <div className="rounded-xl border border-[#e4e4e7] bg-white px-4 py-10 text-center text-sm text-[#52525b]">
+        <div className="crm-card px-4 py-10 text-center text-sm text-[#475569]">
           Firma este configurată ca neplătitoare de TVA
           (<code className="font-medium">COMPANY.vatPayer = false</code>), deci
           registrul nu se calculează.
@@ -63,10 +63,10 @@ function VatWorkspace({ data }: { data: VatReportData }) {
         />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[980px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
+            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
               <tr>
                 <TableHead>Luna</TableHead>
                 <TableHead align="right" secondary>Vânzări</TableHead>
@@ -81,30 +81,30 @@ function VatWorkspace({ data }: { data: VatReportData }) {
             </thead>
             <tbody>
               {data.months.map((month) => (
-                <tr key={month.key} className="motion-table-row border-t border-[#f0f0f2] hover:bg-[#fafafa]">
+                <tr key={month.key} className="motion-table-row border-t border-[#edf0f5] hover:bg-[#f8fafc]">
                   <TableCell className="font-semibold capitalize">{month.label}</TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#475569]">
                     {formatNumber(month.salesCount)}
                   </TableCell>
                   <TableCell align="right" className="tabular-nums">
                     {formatMoney(month.salesGross)}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#475569]">
                     {formatMoney(month.salesNet)}
                   </TableCell>
                   <TableCell align="right" className="font-semibold tabular-nums">
                     {formatMoney(month.salesVat)}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#475569]">
                     {month.returnsGross > 0 ? formatMoney(month.returnsGross) : "—"}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#475569]">
                     {month.returnsVat > 0 ? `−${formatMoney(month.returnsVat)}` : "—"}
                   </TableCell>
                   <TableCell align="right" className="font-semibold tabular-nums">
                     {formatMoney(month.netVat)}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#475569]">
                     {month.invoicesCount > 0
                       ? `${formatNumber(month.invoicesCount)} · ${formatMoney(month.invoicesGross)}`
                       : "—"}

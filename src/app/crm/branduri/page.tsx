@@ -1,3 +1,4 @@
+import { BrandName } from "@/app/components/brand-logo";
 import { Suspense } from "react";
 import { AdminDeleteButton, BrandDialog } from "@/app/admin/admin-dialogs";
 import { deleteBrandAction } from "@/app/admin/actions";
@@ -41,14 +42,14 @@ async function Loader({
 
   return (
     <AdminSection
-      head={["Brand", "Modele", canModify ? "Acțiuni" : null]}
+      head={["Marcă", "Modele", canModify ? "Acțiuni" : null]}
       empty="Niciun brand."
       isEmpty={data.brands.length === 0}
     >
       {data.brands.map((b: BrandRow) => (
         <tr key={b.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#18181b]">{b.name}</TableCell>
-          <TableCell align="right" className="font-mono">{formatNumber(b._count.models)}</TableCell>
+          <TableCell className="font-medium text-[#0f172a]"><BrandName name={b.name} /></TableCell>
+          <TableCell className="tabular-nums text-[#475569]">{formatNumber(b._count.models)}</TableCell>
           {canModify ? (
             <TableCell align="right">
               <RowActions>

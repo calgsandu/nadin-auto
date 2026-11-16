@@ -56,10 +56,10 @@ function StaffWorkspace({
 }) {
   return (
     <section className="motion-page p-4 lg:px-6 lg:py-5">
-      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
+            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
               <tr>
                 <TableHead>Nume</TableHead>
                 <TableHead secondary>Utilizator</TableHead>
@@ -73,12 +73,12 @@ function StaffWorkspace({
               {users.map((user) => (
                 <tr
                   key={user.id}
-                  className="motion-table-row border-t border-[#f0f0f2] align-middle hover:bg-[#f4f4f5]"
+                  className="motion-table-row border-t border-[#edf0f5] align-middle hover:bg-[#f1f4f9]"
                 >
-                  <TableCell className="font-semibold text-[#18181b]">
+                  <TableCell className="font-semibold text-[#0f172a]">
                     {formatText(user.name)}
                   </TableCell>
-                  <TableCell secondary className="text-[#52525b]">
+                  <TableCell secondary className="text-[#475569]">
                     <span className="tabular-nums">{formatText(user.username)}</span>
                   </TableCell>
                   <TableCell>{formatRole(user.role)}</TableCell>
@@ -128,7 +128,7 @@ function StaffWorkspace({
           </table>
         </div>
         {users.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-[#52525b]">
+          <div className="px-4 py-12 text-center text-sm text-[#475569]">
             Niciun utilizator încă.
           </div>
         ) : null}

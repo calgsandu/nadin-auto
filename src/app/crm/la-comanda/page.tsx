@@ -1,10 +1,11 @@
 import { Suspense } from "react";
+import { ExternalOrderDialog } from "@/app/external-orders/external-order-dialog";
 import { ExternalOrdersWorkspace } from "@/app/external-orders/external-orders-workspace";
 import { getExternalOrdersData, type ExternalOrdersData } from "@/lib/external-orders/queries";
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { WorkspaceSkeleton } from "../_components/ui";
+import { ButtonSkeleton, WorkspaceSkeleton } from "../_components/ui";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -16,12 +17,21 @@ export default async function ExternalOrdersPage() {
 
   return (
     <>
-      <CrmHeader section="la-comanda" role={appUser.role} />
+      <CrmHeader section="la-comanda" role={appUser.role}>
+        <Suspense fallback={<ButtonSkeleton />}>
+          <HeaderAction dataPromise={dataPromise} />
+        </Suspense>
+      </CrmHeader>
       <Suspense fallback={<WorkspaceSkeleton cards={4} rows={5} />}>
         <Loader dataPromise={dataPromise} canModify={canModify} />
       </Suspense>
     </>
   );
+}
+
+async function HeaderAction({ dataPromise }: { dataPromise: Promise<ExternalOrdersData> }) {
+  const data = await dataPromise;
+  return <ExternalOrderDialog suppliers={data.suppliers} triggerLabel="Comandă nouă" />;
 }
 
 async function Loader({

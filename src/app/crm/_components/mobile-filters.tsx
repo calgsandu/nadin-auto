@@ -18,7 +18,7 @@ export function MobileFilters({ active = 0, children }: { active?: number; child
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
         className={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium sm:hidden ${
-          active > 0 ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e4e4e7] bg-white text-[#3f3f46]"
+          active > 0 ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e5e9f0] bg-white text-[#334155]"
         }`}
       >
         <SlidersHorizontal className="size-4" aria-hidden="true" />
@@ -28,10 +28,16 @@ export function MobileFilters({ active = 0, children }: { active?: number; child
             {active}
           </span>
         ) : null}
-        <ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+        <ChevronDown className={`size-4 transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
-      <div className={open ? "flex w-full flex-wrap items-center gap-2 sm:contents" : "hidden sm:contents"}>
-        {children}
+      <div
+        className={`grid w-full transition-[grid-template-rows,opacity,visibility] duration-200 ease-out sm:contents sm:visible sm:opacity-100 ${
+          open
+            ? "visible grid-rows-[1fr] opacity-100"
+            : "invisible grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="flex min-h-0 flex-wrap items-center gap-2 overflow-hidden sm:contents">{children}</div>
       </div>
     </>
   );

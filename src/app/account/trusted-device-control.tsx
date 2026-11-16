@@ -33,7 +33,7 @@ function ForgetDeviceButton({ compact }: { compact: boolean }) {
       title={label}
       aria-label={label}
       disabled={pending}
-      className={`button-secondary inline-flex items-center justify-center rounded-lg border border-[#e4e4e7] bg-white font-semibold text-[#52525b] hover:text-[#18181b] disabled:opacity-60 ${
+      className={`button-secondary inline-flex items-center justify-center rounded-lg border border-[#e5e9f0] bg-white font-semibold text-[#475569] hover:text-[#0f172a] disabled:opacity-60 ${
         compact ? "size-8" : "gap-2 px-3 py-2 text-sm"
       }`}
     >

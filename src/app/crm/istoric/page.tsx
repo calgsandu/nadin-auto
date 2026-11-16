@@ -58,7 +58,7 @@ function AuditWorkspace({ data }: { data: AuditData }) {
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="inline-flex rounded-lg border border-[#e4e4e7] bg-white p-0.5">
+        <div className="inline-flex rounded-lg border border-[#e5e9f0] bg-white p-0.5">
         {filters.map((filter) => {
           const active = data.filters.act === filter.key;
           const href = crmAuditHref({
@@ -71,7 +71,7 @@ function AuditWorkspace({ data }: { data: AuditData }) {
               href={href}
               aria-current={active ? "page" : undefined}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                active ? "bg-[#18181b] text-white" : "text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+                active ? "bg-[#2563eb] text-white" : "text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
               }`}
             >
               {filter.label}
@@ -87,10 +87,10 @@ function AuditWorkspace({ data }: { data: AuditData }) {
         ) : null}
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[820px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
+            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
               <tr>
                 <TableHead>Data și ora</TableHead>
                 <TableHead secondary>Utilizator</TableHead>
@@ -104,7 +104,7 @@ function AuditWorkspace({ data }: { data: AuditData }) {
                 data.entries.map((entry) => <AuditRowView key={entry.id} entry={entry} />)
               ) : (
                 <tr>
-                  <td className="px-3 py-12 text-center text-[#52525b]" colSpan={5}>
+                  <td className="px-3 py-12 text-center text-[#475569]" colSpan={5}>
                     Nu există intrări în jurnal pentru filtrele curente.
                   </td>
                 </tr>
@@ -129,19 +129,19 @@ function AuditRowView({ entry }: { entry: AuditRow }) {
     !entry.restoredDocumentId;
 
   return (
-    <tr className="motion-table-row border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]">
-      <TableCell className="whitespace-nowrap font-mono text-xs">
+    <tr className="motion-table-row border-t border-[#edf0f5] align-top hover:bg-[#f8fafc]">
+      <TableCell className="whitespace-nowrap tabular-nums text-[#475569]">
         {dateTimeFormat.format(entry.createdAt)}
       </TableCell>
       <TableCell secondary>
         <p className="font-medium">{entry.userName || entry.userEmail || "—"}</p>
         {entry.userName && entry.userEmail ? (
-          <p className="mt-0.5 text-xs text-[#71717a]">{entry.userEmail}</p>
+          <p className="mt-0.5 text-xs text-[#64748b]">{entry.userEmail}</p>
         ) : null}
       </TableCell>
       <TableCell>
         <StatusBadge tone={meta.tone}>{meta.label}</StatusBadge>
-        <p className="mt-1 text-xs text-[#71717a]">
+        <p className="mt-1 text-xs text-[#64748b]">
           {AUDIT_ENTITY_LABEL[entry.entity] ?? entry.entity}
         </p>
       </TableCell>
@@ -155,7 +155,7 @@ function AuditRowView({ entry }: { entry: AuditRow }) {
           {entry.hasDetails ? (
             <AuditDetails id={entry.id} />
           ) : (
-            <span className="text-xs text-[#71717a]">—</span>
+            <span className="text-xs text-[#64748b]">—</span>
           )}
         </div>
       </TableCell>

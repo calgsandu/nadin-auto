@@ -66,7 +66,7 @@ export function PartnerPaymentDialog({
           setOpen(true);
         }}
         title="Încasează"
-        className="button-secondary button-icon-cash relative inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-1.5 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5] max-sm:size-8 max-sm:justify-center max-sm:px-0"
+        className="button-secondary button-icon-cash relative inline-flex items-center gap-1.5 rounded-md border border-[#e5e9f0] px-3 py-1.5 text-xs font-semibold text-[#0f172a] hover:bg-[#f1f4f9] max-sm:size-8 max-sm:justify-center max-sm:px-0"
       >
         <span className="max-sm:sr-only">Încasează</span>
       </button>
@@ -102,7 +102,7 @@ export function PartnerPaymentDialog({
                   />
                   {balanceLei > 0 ? (
                     <button
-                      className="button-secondary shrink-0 whitespace-nowrap rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#18181b] hover:bg-[#f4f4f5]"
+                      className="button-secondary shrink-0 whitespace-nowrap rounded-md border border-[#e5e9f0] bg-white px-3 text-sm font-medium text-[#0f172a] hover:bg-[#f1f4f9]"
                       type="button"
                       onClick={() => {
                         if (amountRef.current) amountRef.current.value = fullDebt;
@@ -115,7 +115,7 @@ export function PartnerPaymentDialog({
                   ) : null}
                 </div>
                 {/* Ce rămâne după încasare, calculat pe loc. */}
-                <span className={`text-xs ${left < 0 ? "font-medium text-[#b45309]" : "text-[#52525b]"}`}>
+                <span className={`text-xs ${left < 0 ? "font-medium text-[#b45309]" : "text-[#475569]"}`}>
                   {left > 0
                     ? `rămâne de plată ${money(left)} lei`
                     : left === 0
@@ -129,7 +129,7 @@ export function PartnerPaymentDialog({
             </div>
             </DrawerCard>
             <details className="group">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#52525b] hover:text-[#18181b] [&::-webkit-details-marker]:hidden">
+              <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#475569] hover:text-[#0f172a] [&::-webkit-details-marker]:hidden">
                 <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Notițe
               </summary>
               <textarea

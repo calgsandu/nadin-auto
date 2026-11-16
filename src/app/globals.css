@@ -17,9 +17,9 @@
   --ring: #2e90fa;
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-  --duration-fast: 140ms;
-  --duration-base: 210ms;
-  --duration-drawer: 280ms;
+  --duration-fast: 170ms;
+  --duration-base: 240ms;
+  --duration-drawer: 320ms;
 }
 
 @theme inline {
@@ -37,28 +37,28 @@
  * de atingere. `text-xs` crește puțin ca subtitlurile să rămână citibile.
  */
 /*
- * Aspectul CRM-ului (direcția „Clar"): griuri neutre și un singur albastru.
- * Vitrina publică își păstrează paleta caldă, de aceea totul e legat de
- * `.crm-main`. Fontul e Figtree (vitrina rămâne pe Manrope).
+ * Aspectul CRM-ului: fundal gri-albăstrui, suprafețe albe, un singur albastru.
+ * Vitrina publică își păstrează paleta ei, de aceea totul e legat de
+ * `.crm-main`. Fontul e Outfit (vitrina rămâne pe Manrope).
  */
 :root:has(.crm-main) {
-  --background: #fafafa;
-  --foreground: #18181b;
+  --background: #f3f5fa;
+  --foreground: #0f172a;
   --accent: #2563eb;
-  --border: #e4e4e7;
+  --border: #e5e9f0;
   --ring: #2563eb;
 }
 
 /* Pe body, nu pe `.crm-main`: drawerele și meniurile sunt portate în body.
-   Figtree n-are chirilice; textul în rusă se afișează cu fontul de rezervă. */
-:root:has(.crm-main) body {
+   Outfit n-are chirilice; textul în rusă se afișează cu fontul de rezervă.
+   Paginile de autentificare (`.auth-shell`) folosesc același font și fundal. */
+:root:has(.crm-main, .auth-shell) body {
+  background: #f3f5fa;
   font-family: var(--font-crm), var(--font-app), ui-sans-serif, system-ui, sans-serif;
 }
 
-:root:has(.crm-main) body {
-  background: #f4f4f5;
-}
-
+/* Rădăcina în rem strânge sau lărgește tot CRM-ul proporțional. Telefonul
+   rămâne pe 16px: acolo contează țintele de atingere. */
 @media (min-width: 1024px) {
   :root:has(.crm-main) {
     font-size: 14px;
@@ -67,23 +67,32 @@
   }
 }
 
-/* Laptopuri mici (1366 la 125%, 1280): totul puțin mai strâns, altfel
-   meniul, filtrele și tabelul nu încap și rândurile par aglomerate. */
-@media (min-width: 1024px) and (max-width: 1279px) {
-  :root:has(.crm-main) {
-    font-size: 13px;
-  }
-
-  .crm-table th,
-  .crm-table td {
-    padding: 0.375rem 0.5rem;
-  }
-}
-
-@media (min-width: 1600px) {
+@media (min-width: 1280px) {
   :root:has(.crm-main) {
     font-size: 15px;
   }
+}
+
+@media (min-width: 1680px) {
+  :root:has(.crm-main) {
+    font-size: 16px;
+  }
+}
+
+/* Suprafața standard: tabel, panou, cifre-cheie. Un singur chenar pe lucru. */
+.crm-card {
+  border: 1px solid #e5e9f0;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+
+.crm-table th {
+  padding-block: 0.75rem;
+}
+
+.crm-table td {
+  padding-block: 0.75rem;
 }
 
 body {
@@ -149,8 +158,8 @@ a {
 
 .motion-table-row {
   transition:
-    background-color var(--duration-fast) ease,
-    color var(--duration-fast) ease;
+    background-color var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 /*
@@ -170,7 +179,7 @@ a {
 }
 
 .motion-drawer-backdrop {
-  animation: backdrop-enter 180ms ease-out both;
+  animation: backdrop-enter var(--duration-base) ease-out both;
 }
 
 .motion-drawer-panel {
@@ -193,8 +202,41 @@ a {
 }
 
 .motion-popover {
-  animation: popover-enter 160ms var(--ease-out-soft) both;
+  animation: popover-enter 190ms var(--ease-out-soft) both;
   transform-origin: top center;
+}
+
+.crm-nav-sub {
+  animation: submenu-enter var(--duration-base) var(--ease-out-soft) both;
+  transform-origin: top center;
+}
+
+.crm-tree-submenu {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  animation: tree-submenu-enter var(--duration-base) var(--ease-out-soft) both;
+}
+
+.crm-main {
+  transition: grid-template-columns var(--duration-drawer) var(--ease-drawer);
+}
+
+.crm-aside {
+  transition: width var(--duration-drawer) var(--ease-drawer);
+}
+
+.crm-nav-label {
+  transition:
+    opacity var(--duration-fast) ease,
+    max-width var(--duration-drawer) var(--ease-drawer),
+    color var(--duration-base) ease;
+  max-width: 14rem;
+  overflow: hidden;
+}
+
+details > summary svg {
+  transition: transform var(--duration-base) var(--ease-out-soft);
 }
 
 .skeleton-pulse {
@@ -216,6 +258,7 @@ a {
 .button-primary,
 .button-secondary,
 .button-danger {
+  border-radius: 0.625rem;
   transition:
     transform var(--duration-fast) var(--ease-out-soft),
     background-color var(--duration-fast) ease,
@@ -242,11 +285,11 @@ a {
   /* Doar bordura se închide la hover: cardurile și tabelele care „săreau"
      sub cursor dădeau senzația de pagină care se mișcă. */
   .motion-card:hover {
-    border-color: #d4d4d8;
+    border-color: #cbd5e1;
   }
 
   .motion-line-item:hover {
-    border-color: #d4d4d8;
+    border-color: #cbd5e1;
     background-color: #fff;
   }
 }
@@ -300,12 +343,38 @@ a {
 @keyframes popover-enter {
   from {
     opacity: 0;
-    transform: translateY(-4px) scale(0.99);
+    transform: translateY(-6px) scale(0.985);
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes submenu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scaleY(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes tree-submenu-enter {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -338,29 +407,171 @@ a {
 }
 
 /* CRM sidebar collapse (desktop only) */
+.crm-fly {
+  display: none;
+}
+/* Grupul activ: contoarele sunt deja pe secțiunile din arbore. Suma de pe
+   grup apare doar cu meniul restrâns (vezi `badgeInTree`). */
+html:not([data-crm-collapsed]) .crm-nav-badge[data-in-tree] {
+  display: none;
+}
+/* La deschiderea meniului etichetele apar după ce s-a lățit, nu tăiate pe parcurs. */
+@keyframes crm-reveal {
+  from {
+    opacity: 0;
+  }
+}
+html[data-crm-expanding] .crm-sidebar-nav :is(.crm-nav-label, .crm-nav-badge, .crm-nav-sub, .crm-account-meta) {
+  animation: crm-reveal 160ms ease 200ms both;
+}
 @media (min-width: 1024px) {
   html[data-crm-collapsed] .crm-main {
-    grid-template-columns: 4.25rem minmax(0, 1fr);
+    grid-template-columns: 4.5rem minmax(0, 1fr);
   }
   html[data-crm-collapsed] .crm-aside {
-    width: 4.25rem;
+    width: 4.5rem;
+    background: #f8fafc;
   }
-  html[data-crm-collapsed] .crm-nav-label,
-  html[data-crm-collapsed] .crm-nav-badge,
-  html[data-crm-collapsed] .crm-account-meta {
+  /* `display: none`, nu `max-width: 0`: un element ascuns altfel păstrează
+     `gap`-ul flex și împinge iconița din centru (6px, 12px la grupuri). */
+  html[data-crm-collapsed] .crm-nav-sub,
+  html[data-crm-collapsed] .crm-account-meta,
+  html[data-crm-collapsed] .crm-nav-label {
     display: none;
   }
-  html[data-crm-collapsed] .crm-aside .motion-nav-link {
+  /* Contorul trece în colțul iconiței: albastru = cere atenție, gri = de lucru. */
+  html[data-crm-collapsed] .crm-aside .crm-nav-badge {
+    position: absolute;
+    top: -0.3rem;
+    right: -0.3rem;
+    min-width: 1.125rem;
+    height: 1.125rem;
+    padding: 0 0.25rem;
+    border-radius: 999px;
+    background: #64748b;
+    color: #fff;
+    font-size: 10px;
+    line-height: 1.125rem;
+    text-align: center;
+    box-shadow: 0 0 0 2px #f8fafc;
+  }
+  html[data-crm-collapsed] .crm-aside .crm-nav-badge[data-tone="hi"] {
+    background: #2563eb;
+  }
+  /* Titlurile de grup devin o linie; grupul activ își ia pastila plină. */
+  html[data-crm-collapsed] .crm-nav-caption {
+    width: 1.25rem;
+    height: 1px;
+    margin: 0.625rem auto;
+    padding: 0;
+    overflow: hidden;
+    background: #e5e9f0;
+    color: transparent;
+  }
+  html[data-crm-collapsed] .crm-nav-caption:first-child {
+    display: none;
+  }
+  html[data-crm-collapsed] .crm-nav-parent-active {
+    background: #2563eb;
+  }
+  html[data-crm-collapsed] .crm-nav-parent-active svg {
+    color: #fff;
+  }
+  /* Cu meniul deschis secțiunile grupului sunt sub el; tab-urile ar fi dubluri. */
+  html:not([data-crm-collapsed]) .crm-header-tabs {
+    display: none;
+  }
+  html[data-crm-collapsed] .crm-aside .motion-nav-link:not(.crm-fly *) {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-inline: auto;
     justify-content: center;
+    padding: 0;
+    border-radius: 0.75rem;
+    box-shadow: none;
+  }
+  html[data-crm-collapsed] .crm-sidebar-nav {
     padding-inline: 0.5rem;
   }
-  html[data-crm-collapsed] .crm-account {
-    flex-direction: column;
-    justify-content: center;
+  /* Pill la hover pentru rânduri simple, meniu lateral pentru grupuri. `top`
+     vine din `placeFlyout`; padding-ul din stânga e puntea invizibilă prin care
+     mouse-ul trece din iconiță în meniu. Ascunderea e doar `visibility`, care
+     întârzie: cât meniul încă se vede, primește hover și rămâne deschis.
+     Focusul deschide doar de la tastatură (`:focus-visible`): după un clic
+     linkul rămâne focusat și meniul n-ar mai dispărea. */
+  html[data-crm-collapsed] .crm-fly {
+    display: block;
+    position: fixed;
+    left: 4rem;
+    z-index: 60;
+    padding-left: 0.875rem;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition:
+      opacity 100ms ease,
+      transform 100ms ease,
+      visibility 0s linear 100ms;
   }
-  html[data-crm-collapsed] .crm-account-actions {
-    flex-direction: column;
+  html[data-crm-collapsed] .crm-fly-item:hover:not([data-fly-closed]) > .crm-fly,
+  html[data-crm-collapsed] .crm-fly-item:has(:focus-visible) > .crm-fly {
+    z-index: 61;
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 120ms ease,
+      transform 160ms var(--ease-out-soft),
+      visibility 0s;
+  }
+  html[data-crm-collapsed] .crm-fly-pill {
+    pointer-events: none;
+  }
+  /* Meniul lateral: mouse-ul care taie în diagonală spre el trece peste
+     rândul de dedesubt. Rândul acela nu-și deschide meniul decât după 90ms,
+     iar meniul părăsit mai stă 220ms, cât să ajungi în el. */
+  html[data-crm-collapsed] .crm-fly-menu {
+    transition:
+      opacity 120ms ease 220ms,
+      transform 120ms ease 220ms,
+      visibility 0s linear 340ms;
+  }
+  html[data-crm-collapsed] .crm-fly-item:hover:not([data-fly-closed]) > .crm-fly-menu,
+  html[data-crm-collapsed] .crm-fly-item:has(:focus-visible) > .crm-fly-menu {
+    transition:
+      opacity 120ms ease 90ms,
+      transform 160ms var(--ease-out-soft) 90ms,
+      visibility 0s linear 90ms;
+  }
+  html[data-crm-collapsed] .crm-sidebar-brand {
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+  html[data-crm-collapsed] .crm-sidebar-links > div {
+    gap: 0.25rem;
+  }
+  /* Jos: butonul de restrângere deasupra, contul (doar inițialele) dedesubt. */
+  html[data-crm-collapsed] .crm-sidebar-account {
+    flex-direction: column-reverse;
     gap: 0.5rem;
+  }
+  html[data-crm-collapsed] .crm-account-trigger {
+    justify-content: center;
+    padding: 0.125rem;
+    border-radius: 999px;
+  }
+}
+
+/* În Produse, lista de mărci este o a doua navigare laterală. Când meniul
+   principal e restrâns, o ascundem și lăsăm tabelul să folosească lățimea
+   câștigată. Marca se poate alege în continuare din filtrele de sus. */
+@media (min-width: 1280px) {
+  html[data-crm-collapsed] .products-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-crm-collapsed] .products-brand-tree {
+    display: none;
   }
 }
 
@@ -483,7 +694,7 @@ a {
 
 .row-menu-panel :is(button, a):hover:not(:disabled),
 .row-menu-panel :is(button, a):focus-visible {
-  background: #f4f4f5;
+  background: #f1f4f9;
   outline: none;
 }
 
@@ -507,9 +718,10 @@ a {
 .stat-strip {
   gap: 1px;
   overflow: hidden;
-  border: 1px solid #e4e4e7;
-  border-radius: 0.75rem;
-  background: #e4e4e7;
+  border: 1px solid #e5e9f0;
+  border-radius: 1rem;
+  background: #e5e9f0;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
 }
 
 .stat-strip > * {

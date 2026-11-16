@@ -198,18 +198,18 @@ export function OperationDrawer({
           }}
           className={drawerPanelClassName}
         >
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e5e9f0] bg-[#f8fafc] px-5 py-3">
             <div>
-              <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#18181b]">
+              <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#0f172a]">
                 {Icon ? (
-                  <span className="grid size-8 place-items-center rounded-lg bg-[#18181b] text-white">
+                  <span className="grid size-8 place-items-center rounded-lg bg-[#2563eb] text-white">
                     <Icon className="size-4" aria-hidden="true" />
                   </span>
                 ) : null}
                 {title}
               </h2>
               {draft?.savedAt ? (
-                <p className="text-xs text-[#52525b]">
+                <p className="text-xs text-[#475569]">
                   Ciornă salvată {draftTime(draft.savedAt)}
                 </p>
               ) : null}
@@ -280,7 +280,7 @@ export function DrawerChoice({
 }) {
   return (
     <fieldset className="group min-w-0">
-      <legend className="mb-1 text-sm font-medium text-[#3f3f46]">{label}</legend>
+      <legend className="mb-1 text-sm font-medium text-[#334155]">{label}</legend>
       <div className="flex flex-wrap gap-1.5">
         {options.map((option) => (
           <label key={option.value} className="relative">
@@ -291,7 +291,7 @@ export function DrawerChoice({
               type="radio"
               value={option.value}
             />
-            <span className="flex h-9 items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#3f3f46] transition-colors peer-hover:border-[#d4d4d8] peer-checked:border-[#2563eb] peer-checked:bg-[#eff6ff] peer-checked:text-[#1d4ed8] peer-focus-visible:ring-2 peer-focus-visible:ring-[#2563eb]/40">
+            <span className="flex h-9 items-center gap-1.5 rounded-md border border-[#e5e9f0] bg-white px-3 text-sm font-medium text-[#334155] transition-colors peer-hover:border-[#cbd5e1] peer-checked:border-[#2563eb] peer-checked:bg-[#eff6ff] peer-checked:text-[#1d4ed8] peer-focus-visible:ring-2 peer-focus-visible:ring-[#2563eb]/40">
               {option.icon ? <option.icon className="size-4 opacity-70" aria-hidden="true" /> : null}
               {option.label}
             </span>
@@ -299,7 +299,7 @@ export function DrawerChoice({
         ))}
       </div>
       {hint ? (
-        <span className="mt-1 block text-xs text-[#71717a] group-has-[:checked]:hidden">{hint}</span>
+        <span className="mt-1 block text-xs text-[#64748b] group-has-[:checked]:hidden">{hint}</span>
       ) : null}
     </fieldset>
   );
@@ -316,10 +316,10 @@ export function DrawerField({
 }) {
   return (
     // Eticheta mai stinsă decât valoarea: ochiul cade pe ce e scris, nu pe titluri.
-    <label className="grid gap-1 text-[13px] font-medium text-[#52525b]">
+    <label className="grid gap-1 text-[13px] font-medium text-[#475569]">
       <span className="line-label">{label}</span>
       {children}
-      {hint ? <span className="text-xs font-normal text-[#52525b]">{hint}</span> : null}
+      {hint ? <span className="text-xs font-normal text-[#475569]">{hint}</span> : null}
     </label>
   );
 }
@@ -328,7 +328,7 @@ export function DrawerField({
 export function DrawerHeading({ icon: Icon, title, action }: { icon: LucideIcon; title: string; action?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <h3 className="flex items-center gap-2.5 font-semibold text-[#18181b]">
+      <h3 className="flex items-center gap-2.5 font-semibold text-[#0f172a]">
         <span className="grid size-8 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
           <Icon className="size-4" aria-hidden="true" />
         </span>
@@ -362,7 +362,7 @@ export function DrawerCard({
   return (
     <section
       data-drawer-lines={lines ? "" : undefined}
-      className={`grid content-start gap-3 rounded-xl border border-[#e4e4e7] bg-white p-4 ${className}`}
+      className={`grid content-start gap-3 crm-card p-4 ${className}`}
     >
       <DrawerHeading icon={icon} title={title} action={action} />
       {children}
@@ -373,7 +373,7 @@ export function DrawerCard({
 /** Totalul documentului: cardul închis, cel mai vizibil lucru din formular. */
 export function DrawerTotal({ total, vat }: { total: string; vat: string }) {
   return (
-    <div className="self-start rounded-xl bg-[#18181b] px-4 py-3.5 text-right text-white shadow-sm">
+    <div className="self-start rounded-xl bg-[#2563eb] px-4 py-3.5 text-right text-white shadow-sm">
       <p className="text-sm text-white/70">Total</p>
       <p className="text-[1.75rem] font-semibold leading-tight tracking-tight tabular-nums">{total} lei</p>
       <p className="text-xs text-white/60">din care TVA {vat} lei</p>
@@ -396,16 +396,16 @@ export function DrawerSection({
   children: ReactNode;
 }) {
   return (
-    <section data-drawer-lines className="grid gap-3 overflow-visible rounded-xl border border-[#e4e4e7] bg-white p-4">
+    <section data-drawer-lines className="grid gap-3 overflow-visible crm-card p-4">
       {icon ? (
         <DrawerHeading icon={icon} title={title} action={action} />
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-semibold text-[#18181b]">{title}</h3>
+          <h3 className="font-semibold text-[#0f172a]">{title}</h3>
           {action}
         </div>
       )}
-      {description ? <p className="-mt-1 text-sm text-[#52525b]">{description}</p> : null}
+      {description ? <p className="-mt-1 text-sm text-[#475569]">{description}</p> : null}
       <div className="grid gap-1.5">{children}</div>
     </section>
   );
@@ -525,7 +525,7 @@ export function DrawerFooter({
   pending?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-end gap-2 border-t border-[#e4e4e7] pt-4">
+    <div className="flex items-center justify-end gap-2 border-t border-[#e5e9f0] pt-4">
       <CloseIconButton label="Anulează" onClick={onCancel} />
       <DrawerSubmit label={submitLabel} pending={pending} />
     </div>
@@ -614,15 +614,15 @@ export function handleEnterNavigation(
  * iar pe monitor rămâneau două treimi de ecran nefolosite.
  */
 export const drawerPanelClassName =
-  "motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-[#fafafa] shadow-xl md:max-w-[90vw]";
+  "motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-[#f8fafc] shadow-xl md:max-w-[90vw]";
 export const drawerFormClassName = "grid gap-4 px-5 py-4";
 export const drawerInputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm outline-none placeholder:text-[#71717a]";
+  "field-control h-9 w-full rounded-md border border-[#e5e9f0] bg-white px-2.5 text-sm outline-none placeholder:text-[#64748b]";
 export const drawerSecondaryButton =
-  "button-secondary flex items-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#fafafa]";
+  "button-secondary flex items-center gap-2 rounded-md border border-[#e5e9f0] bg-white px-3 py-2 text-sm font-semibold text-[#0f172a] hover:bg-[#f8fafc]";
 export const drawerDangerButton =
-  "button-danger line-offset mt-6 grid size-9 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";
+  "button-danger line-offset mt-6 grid size-9 place-items-center rounded-md border border-[#e5e9f0] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-35";
 /** Marchează un rând de produs, ca navigarea cu Enter să știe unde se află. */
 const DRAWER_LINE_MARKER = "motion-line-item";
 export const drawerLineClassName =
-  `${DRAWER_LINE_MARKER} grid gap-2 rounded-md border border-[#f0f0f2] bg-white px-2.5 py-2 md:items-start`;
+  `${DRAWER_LINE_MARKER} grid gap-2 rounded-md border border-[#edf0f5] bg-white px-2.5 py-2 md:items-start`;

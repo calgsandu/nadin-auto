@@ -161,12 +161,12 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                           return (
                             <div
                               key={line.productId}
-                              className="grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_8rem] md:items-center"
+                              className="grid gap-2 rounded-lg border border-[#e9edf3] bg-[#f8fafc] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_8rem] md:items-center"
                             >
                               <input type="hidden" name="productId" value={line.productId} />
                               <div className="min-w-0">
-                                <p className="font-medium text-[#18181b]">{line.label}</p>
-                                <p className="mt-0.5 text-xs text-[#52525b]">
+                                <p className="font-medium text-[#0f172a]">{line.label}</p>
+                                <p className="mt-0.5 text-xs text-[#475569]">
                                   vândut {line.quantity} × {money(line.unitPriceLei)} lei
                                 </p>
                               </div>
@@ -188,7 +188,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                                   }}
                                 />
                               </Field>
-                              <p className="text-right text-sm font-semibold tabular-nums text-[#18181b]">
+                              <p className="text-right text-sm font-semibold tabular-nums text-[#0f172a]">
                                 {money(qty * line.unitPriceLei)} lei
                               </p>
                             </div>
@@ -199,7 +199,7 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                     <DrawerTotal total={money(totalLei)} vat={money(Math.round((totalLei / 6) * 100) / 100)} />
                   </div>
                 ) : (
-                  <p className="rounded-xl border border-dashed border-[#d4d4d8] bg-white px-4 py-8 text-center text-sm text-[#52525b]">
+                  <p className="rounded-xl border border-dashed border-[#cbd5e1] bg-white px-4 py-8 text-center text-sm text-[#475569]">
                     Alege vânzarea — apar produsele din ea.
                   </p>
                 )}
@@ -223,5 +223,5 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
 const Field = DrawerField;
 const inputClassName = drawerInputClassName;
 const primaryButtonClassName =
-  "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]";
+  "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]";
 const secondaryButtonClassName = drawerSecondaryButton;

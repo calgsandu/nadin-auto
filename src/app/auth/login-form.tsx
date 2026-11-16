@@ -54,31 +54,24 @@ export function LoginForm() {
   }
 
   return (
-    <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.35)] md:grid-cols-2">
-      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#18181b] p-10 text-white md:flex">
-        <div className="relative">
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight">
-            Nadin Auto
-          </h1>
-          <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#a8a49b]">
-            Catalog, stoc și operațiuni de depozit într-un singur loc.
+    <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-[#e5e9f0] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.35)] md:grid-cols-2">
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#2563eb] p-10 text-white md:flex">
+        <div>
+          <span className="grid size-12 place-items-center rounded-2xl bg-white">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="" className="h-7 w-9 object-contain" />
+          </span>
+          <h1 className="mt-8 text-4xl font-semibold leading-tight tracking-tight">Nadin Auto</h1>
+          <p className="mt-3 max-w-xs text-[0.9375rem] leading-relaxed text-white/75">
+            Catalog, stoc și vânzări într-un singur loc.
           </p>
         </div>
-        <ul className="relative text-sm text-[#d6d3cd]">
-          {["Catalog cu 1.900+ produse", "Recepții, vânzări și transferuri", "Acces controlat pentru personal"].map(
-            (item) => (
-              <li key={item} className="border-t border-white/10 py-3 last:pb-0">
-                {item}
-              </li>
-            ),
-          )}
-        </ul>
       </aside>
 
-      <section className="bg-[#fafafa] p-8 sm:p-10">
-        <p className="text-base font-bold text-[#18181b] md:hidden">Nadin Auto</p>
-        <h2 className="mt-4 text-2xl font-semibold text-[#18181b] md:mt-0">Bine ai revenit</h2>
-        <p className="mt-1 text-sm text-[#52525b]">
+      <section className="bg-white p-8 sm:p-10">
+        <p className="text-base font-bold text-[#0f172a] md:hidden">Nadin Auto</p>
+        <h2 className="mt-4 text-2xl font-semibold text-[#0f172a] md:mt-0">Bine ai revenit</h2>
+        <p className="mt-1 text-sm text-[#475569]">
           Autentifică-te cu datele primite de la administrator.
         </p>
 
@@ -112,27 +105,27 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={isPending}
-            className="mt-1 h-11 rounded-md bg-[#18181b] text-sm font-semibold text-white transition-colors hover:bg-[#3f3f46] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-1 h-11 rounded-md bg-[#2563eb] text-sm font-semibold text-white transition-colors hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending ? "Se autentifică..." : "Autentificare"}
           </button>
         </form>
 
-        <div className="my-6 flex items-center gap-3 text-xs text-[#71717a]">
-          <span className="h-px flex-1 bg-[#e4e4e7]" />
+        <div className="my-6 flex items-center gap-3 text-xs text-[#64748b]">
+          <span className="h-px flex-1 bg-[#e5e9f0]" />
           cont existent
-          <span className="h-px flex-1 bg-[#e4e4e7]" />
+          <span className="h-px flex-1 bg-[#e5e9f0]" />
         </div>
         <button
           type="button"
           onClick={handleGoogle}
           disabled={googleLoading}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white text-sm font-semibold text-[#18181b] transition-colors hover:bg-[#f4f4f5] disabled:opacity-60"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#e5e9f0] bg-white text-sm font-semibold text-[#0f172a] transition-colors hover:bg-[#f1f4f9] disabled:opacity-60"
         >
           <GoogleIcon />
           {googleLoading ? "Se conectează..." : "Google — doar conturi existente"}
         </button>
-        <p className="mt-3 text-center text-xs leading-relaxed text-[#71717a]">
+        <p className="mt-3 text-center text-xs leading-relaxed text-[#64748b]">
           Google nu acordă acces conturilor noi; panoul acceptă numai personalul aprobat.
         </p>
       </section>
@@ -142,7 +135,7 @@ export function LoginForm() {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#3f3f46]">
+    <label className="grid gap-1.5 text-sm font-medium text-[#334155]">
       {label}
       {children}
     </label>
@@ -150,7 +143,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const inputClassName =
-  "h-11 w-full rounded-md border border-[#e4e4e7] bg-white px-3 text-sm text-[#18181b] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30 placeholder:text-[#71717a]";
+  "h-11 w-full rounded-md border border-[#e5e9f0] bg-white px-3 text-sm text-[#0f172a] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30 placeholder:text-[#64748b]";
 
 function GoogleIcon() {
   return (

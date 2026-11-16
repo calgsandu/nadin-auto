@@ -29,7 +29,7 @@ export function CreateStaffDialog() {
   return (
     <>
       <button
-        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
+        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         type="button"
         onClick={() => setOpen(true)}
       >
@@ -263,9 +263,9 @@ function StaffDrawer({ title, onClose, children }: { title: string; onClose: () 
       <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
         <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={onClose} />
         <aside className={drawerPanelClassName}>
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e4e4e7] bg-[#fafafa] px-5 py-3">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e5e9f0] bg-[#f8fafc] px-5 py-3">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-[#18181b]">{title}</h2>
+              <h2 className="text-lg font-semibold tracking-tight text-[#0f172a]">{title}</h2>
             </div>
             <CloseIconButton onClick={onClose} />
           </div>
@@ -290,7 +290,7 @@ function PasswordField({ value, onChange }: { value: string; onChange: (value: s
           value={value}
           onChange={(event) => onChange(event.target.value)}
         />
-        <button className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 text-xs font-semibold" type="button" onClick={() => onChange(generatePassword())}>
+        <button className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e5e9f0] bg-white px-3 text-xs font-semibold" type="button" onClick={() => onChange(generatePassword())}>
           <Wand2 className="size-3.5" aria-hidden="true" />
           Generează
         </button>
@@ -306,10 +306,10 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
       <div className="rounded-lg border border-[#7cb8f5] bg-[#eff6ff] p-4 text-sm text-[#194185]">
         Copiază parola acum. După închiderea ferestrei nu mai poate fi afișată.
       </div>
-      <div className="flex items-center gap-2 rounded-lg border border-[#e4e4e7] bg-white p-3">
+      <div className="flex items-center gap-2 rounded-lg border border-[#e5e9f0] bg-white p-3">
         <code className="min-w-0 flex-1 break-all font-mono text-sm">{password}</code>
         <button
-          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-2 text-xs font-semibold"
+          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e5e9f0] px-3 py-2 text-xs font-semibold"
           type="button"
           onClick={async () => {
             await navigator.clipboard.writeText(password);
@@ -320,7 +320,7 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
           {copied ? "Copiat" : "Copiază"}
         </button>
       </div>
-      <button className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
+      <button className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
         <Check className="size-4" aria-hidden="true" />
         Am salvat parola
       </button>
@@ -347,13 +347,13 @@ function RevealedActivationCode({
       <div className="rounded-lg border border-[#7cb8f5] bg-[#eff6ff] p-4 text-sm leading-6 text-[#194185]">
         Comunică acest cod separat, ideal personal. După închiderea ferestrei nu mai poate fi afișat.
       </div>
-      <div className="rounded-lg border border-[#e4e4e7] bg-white p-3">
+      <div className="rounded-lg border border-[#e5e9f0] bg-white p-3">
         <div className="flex items-center gap-2">
           <code className="min-w-0 flex-1 break-all font-mono text-base font-semibold tracking-[0.12em]">
             {code}
           </code>
           <button
-            className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] px-3 py-2 text-xs font-semibold"
+            className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e5e9f0] px-3 py-2 text-xs font-semibold"
             type="button"
             onClick={async () => {
               await navigator.clipboard.writeText(code);
@@ -364,10 +364,10 @@ function RevealedActivationCode({
           {copied ? "Copiat" : "Copiază"}
           </button>
         </div>
-        <p className="mt-2 text-xs text-[#52525b]">Expiră la {expiryLabel}.</p>
+        <p className="mt-2 text-xs text-[#475569]">Expiră la {expiryLabel}.</p>
       </div>
       <button
-        className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#18181b] px-3.5 py-2 text-sm font-semibold text-white"
+        className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white"
         type="button"
         onClick={onClose}
       >
@@ -380,7 +380,7 @@ function RevealedActivationCode({
 
 function DrawerActions({ onClose, submitLabel }: { onClose: () => void; submitLabel: string }) {
   return (
-    <div className="flex justify-end gap-2 border-t border-[#e4e4e7] pt-5">
+    <div className="flex justify-end gap-2 border-t border-[#e5e9f0] pt-5">
       <CloseIconButton label="Anulează" onClick={onClose} />
       <PendingSubmit label={submitLabel} />
     </div>
@@ -398,11 +398,11 @@ function ActiveSubmit({ active }: { active: boolean }) {
 }
 
 function RowButton({ onClick, children }: { onClick: () => void; children: ReactNode }) {
-  return <button className="button-secondary rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-xs font-semibold text-[#18181b] hover:bg-[#f4f4f5]" type="button" onClick={onClick}>{children}</button>;
+  return <button className="button-secondary rounded-md border border-[#e5e9f0] bg-white px-3 py-2 text-xs font-semibold text-[#0f172a] hover:bg-[#f1f4f9]" type="button" onClick={onClick}>{children}</button>;
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
-  return <label className="grid gap-1 text-sm font-medium text-[#3f3f46]">{label}{children}</label>;
+  return <label className="grid gap-1 text-sm font-medium text-[#334155]">{label}{children}</label>;
 }
 
 function generatePassword() {
@@ -412,4 +412,4 @@ function generatePassword() {
   return Array.from(bytes, (value) => alphabet[value % alphabet.length]).join("");
 }
 
-const inputClassName = "field-control h-9 w-full rounded-md border border-[#e4e4e7] bg-white px-2.5 text-sm outline-none placeholder:text-[#71717a]";
+const inputClassName = "field-control h-9 w-full rounded-md border border-[#e5e9f0] bg-white px-2.5 text-sm outline-none placeholder:text-[#64748b]";

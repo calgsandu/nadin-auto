@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Figtree, Manrope, Roboto_Mono } from "next/font/google";
+import { Manrope, Outfit, Roboto_Mono } from "next/font/google";
 import { Toaster } from "@/app/components/action-toast";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
 import "./globals.css";
@@ -10,9 +10,9 @@ const appFont = Manrope({
   subsets: ["latin", "latin-ext", "cyrillic"],
 });
 
-// CRM-ul: Figtree, clar și compact la mărimi mici (vezi `.crm-main` în
+// CRM-ul: Outfit, geometric, cu cifre mari și aerisite (vezi `.crm-main` în
 // globals.css). Vitrina, care are și varianta în rusă, rămâne pe Manrope.
-const crmFont = Figtree({
+const crmFont = Outfit({
   variable: "--font-crm",
   subsets: ["latin", "latin-ext"],
 });
@@ -56,7 +56,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full bg-[#f6f6f4] text-[#1b1a17]">
         <Script id="crm-sidebar-state" strategy="beforeInteractive">
-          {`try{var c=localStorage.getItem("nadin-crm-collapsed");if(c==="1"||(c===null&&innerWidth<1440))document.documentElement.setAttribute("data-crm-collapsed","")}catch(e){}`}
+          {`try{var c=localStorage.getItem("nadin-crm-collapsed");if(c==="1"||(c===null&&innerWidth<1280))document.documentElement.setAttribute("data-crm-collapsed","")}catch(e){}`}
         </Script>
         {children}
         <Toaster />

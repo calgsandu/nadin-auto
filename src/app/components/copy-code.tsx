@@ -30,7 +30,7 @@ export function CopyCode({ code, className = "" }: { code: string; className?: s
       {copied ? (
         <Check className="size-3.5 text-[#16a34a]" aria-label="Copiat" />
       ) : (
-        <Copy className="size-3.5 text-[#a1a1aa] opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+        <Copy className="size-3.5 text-[#94a3b8] opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
       )}
     </button>
   );

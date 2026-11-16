@@ -205,8 +205,8 @@ export function InventoryDialog({
       <button
         className={
           prefill
-            ? "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-semibold text-[#18181b] hover:bg-[#f4f4f5]"
-            : "button-primary inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]"
+            ? "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e5e9f0] bg-white px-3 py-2 text-sm font-semibold text-[#0f172a] hover:bg-[#f1f4f9]"
+            : "button-primary inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         }
         type="button"
         onClick={openDialog}
@@ -231,13 +231,13 @@ export function InventoryDialog({
               title="Detalii"
               action={
                 summary.products > 0 ? (
-                  <p className="flex flex-wrap items-center gap-x-3 text-sm text-[#52525b]">
+                  <p className="flex flex-wrap items-center gap-x-3 text-sm text-[#475569]">
                     <span>
-                      <span className="font-semibold tabular-nums text-[#18181b]">{summary.products}</span> produse
+                      <span className="font-semibold tabular-nums text-[#0f172a]">{summary.products}</span> produse
                     </span>
                     <span className="font-semibold tabular-nums text-[#166534]">+{summary.plus} buc.</span>
                     <span className="font-semibold tabular-nums text-[#b91c1c]">−{summary.minus} buc.</span>
-                    <span className="text-[#71717a]">față de sistem</span>
+                    <span className="text-[#64748b]">față de sistem</span>
                   </p>
                 ) : null
               }
@@ -298,7 +298,7 @@ export function InventoryDialog({
             </DrawerSection>
 
             <details className="group">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#52525b] hover:text-[#18181b] [&::-webkit-details-marker]:hidden">
+              <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#475569] hover:text-[#0f172a] [&::-webkit-details-marker]:hidden">
                 <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Notițe
               </summary>
               <textarea
@@ -349,7 +349,7 @@ const InventoryLineRow = memo(function InventoryLineRow({
       style={hidden ? { display: "none" } : undefined}
     >
       <div>
-        <p className="line-label mb-1 text-[13px] font-medium leading-5 text-[#52525b]">Produs</p>
+        <p className="line-label mb-1 text-[13px] font-medium leading-5 text-[#475569]">Produs</p>
         <ProductSearchCombobox
           showHint={false}
           initialProduct={line.productId ? { id: line.productId, label: line.label } : null}
@@ -406,11 +406,11 @@ function CountDifference({ system, counted }: { system: number | null; counted: 
   if (system === null) return null;
   const value = Number(counted);
   if (counted === "" || !Number.isFinite(value)) {
-    return <span className="text-xs font-normal text-[#71717a]">în sistem: {system}</span>;
+    return <span className="text-xs font-normal text-[#64748b]">în sistem: {system}</span>;
   }
   const difference = value - system;
   if (difference === 0) {
-    return <span className="text-xs font-normal text-[#71717a]">la fel ca în sistem</span>;
+    return <span className="text-xs font-normal text-[#64748b]">la fel ca în sistem</span>;
   }
   return (
     <span className={`text-xs font-medium ${difference > 0 ? "text-[#166534]" : "text-[#b91c1c]"}`}>

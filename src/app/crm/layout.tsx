@@ -42,8 +42,8 @@ export default async function CrmLayout({
 
   return (
     <CrmChrome counts={{ aprobari, "de-adus": deAdus, "conturi-plata": proforme, "stoc-mic": stocMic }}>
-      <main className="crm-main min-h-[100dvh] bg-[#f4f4f5] lg:grid lg:grid-cols-[14rem_minmax(0,1fr)]">
-        <aside className="crm-aside sticky top-0 z-40 border-b border-[#e4e4e7] bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-[14rem] lg:border-b-0 lg:bg-transparent">
+      <main className="crm-main min-h-[100dvh] bg-[#f3f5fa] lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)]">
+        <aside className="crm-aside sticky top-0 z-40 border-b border-[#e5e9f0] bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-[15.5rem] lg:border-b-0 lg:border-r">
           <Sidebar
             role={appUser.role}
             userName={appUser.name}
@@ -51,10 +51,8 @@ export default async function CrmLayout({
           />
         </aside>
 
-        {/* Pe desktop conținutul stă într-un panou alb, pe fundalul gri al meniului. */}
-        <section className="min-w-0 bg-white lg:col-start-2 lg:my-2 lg:mr-2 lg:min-h-[calc(100dvh-1rem)] lg:rounded-2xl lg:border lg:border-[#e4e4e7] lg:shadow-[0_1px_3px_rgb(24_24_27/0.05)]">
-          {children}
-        </section>
+        {/* Conținutul stă direct pe fundal; fiecare tabel sau panou e un card alb. */}
+        <section className="min-w-0 pb-8 lg:col-start-2">{children}</section>
       </main>
     </CrmChrome>
   );

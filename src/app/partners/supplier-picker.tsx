@@ -67,7 +67,7 @@ export function SupplierPicker({
       {/* Pe același rând cu selectul: sub el, rândul formularului se dezalinia. */}
       <button
         aria-label="Furnizor nou"
-        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#18181b] hover:bg-[#f4f4f5]"
+        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e5e9f0] bg-white text-[#0f172a] hover:bg-[#f1f4f9]"
         title="Furnizor nou"
         type="button"
         onClick={() => setCreating(true)}

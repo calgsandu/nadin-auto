@@ -70,24 +70,24 @@ export function CatalogFilters({
 
   const pill = (active: boolean) =>
     `field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
-      active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e4e4e7] bg-white text-[#3f3f46]"
+      active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e5e9f0] bg-white text-[#334155]"
     }`;
   const select = "min-w-0 max-w-40 cursor-pointer bg-transparent font-medium outline-none";
 
   return (
-    <section className="motion-page flex flex-wrap items-center gap-2 px-3 pt-3 lg:px-6 lg:pt-4">
+    <section className="flex flex-wrap items-center gap-2 p-3">
       <div className="relative min-w-0 flex-1 sm:w-60 sm:flex-none">
         <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
           {searching ? (
             <LoaderCircle className="size-4 animate-spin text-[#2563eb]" aria-hidden="true" />
           ) : (
-            <Search className="size-4 text-[#71717a]" aria-hidden="true" />
+            <Search className="size-4 text-[#64748b]" aria-hidden="true" />
           )}
         </span>
         <input
           aria-label="Caută cod, mașină, piesă"
           autoComplete="off"
-          className="field-control h-9 w-full rounded-lg border border-[#e4e4e7] bg-white pl-8 pr-12 text-sm outline-none placeholder:text-[#71717a]"
+          className="field-control h-9 w-full rounded-lg border border-[#e5e9f0] bg-white pl-8 pr-12 text-sm outline-none placeholder:text-[#64748b]"
           data-catalog-search
           enterKeyHint="search"
           placeholder="Cod, mașină, piesă"
@@ -101,7 +101,7 @@ export function CatalogFilters({
           }}
         />
         {/* Scurtătura de la tastatură, ca s-o vadă lumea (vezi Sidebar). */}
-        <kbd className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-[#e4e4e7] bg-white px-1 font-sans text-xs text-[#71717a] sm:block">
+        <kbd className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-[#e5e9f0] bg-white px-1 font-sans text-xs text-[#64748b] sm:block">
           Ctrl K
         </kbd>
       </div>
@@ -179,7 +179,7 @@ export function CatalogFilters({
         onApply={updateParam}
         placeholder="An"
         inputMode="numeric"
-        icon={<CalendarDays className="size-4 text-[#71717a]" aria-hidden="true" />}
+        icon={<CalendarDays className="size-4 text-[#64748b]" aria-hidden="true" />}
         className="w-24"
       />
       <label className={pill(Boolean(searchParams.get("stoc")))}>
@@ -192,13 +192,15 @@ export function CatalogFilters({
         >
           <option value="">Orice stoc</option>
           <option value="1">Doar în stoc</option>
+          <option value="ok">Stoc suficient</option>
           <option value="mic">Aproape terminate</option>
+          <option value="0">Fără stoc</option>
         </select>
       </label>
       </MobileFilters>
       {searchParams.toString() ? (
         <button
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
           type="button"
           onClick={() => {
             window.clearTimeout(timer.current);
@@ -241,7 +243,7 @@ function TextFilterInput({
       {icon ? <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">{icon}</span> : null}
       <input
         aria-label={placeholder}
-        className={`field-control h-9 w-full rounded-lg border border-[#e4e4e7] bg-white text-sm outline-none placeholder:text-[#71717a] ${icon ? "pl-8 pr-3" : "px-3"}`}
+        className={`field-control h-9 w-full rounded-lg border border-[#e5e9f0] bg-white text-sm outline-none placeholder:text-[#64748b] ${icon ? "pl-8 pr-3" : "px-3"}`}
         defaultValue={value}
         inputMode={inputMode}
         onBlur={(event) => apply(event.currentTarget.value)}

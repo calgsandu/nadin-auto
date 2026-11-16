@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
 
 const STORAGE_KEY = "nadin-crm-collapsed";
@@ -32,6 +32,39 @@ function subscribeToCollapsedState(onStoreChange: () => void) {
   };
 }
 
+function toggleCollapsed() {
+  const root = document.documentElement;
+  const next = !root.hasAttribute("data-crm-collapsed");
+  // La deschidere etichetele apar abia după ce meniul s-a lățit (vezi
+  // `data-crm-expanding` în globals.css), nu tăiate cu „…" pe parcurs.
+  if (!next) {
+    root.setAttribute("data-crm-expanding", "");
+    window.setTimeout(() => root.removeAttribute("data-crm-expanding"), 450);
+  }
+  root.toggleAttribute("data-crm-collapsed", next);
+  try {
+    localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
+  } catch {
+    // ponytail: localStorage blocked = preference just doesn't persist
+  }
+}
+
+/** Ctrl/⌘+B oriunde, „[" când nu scrii într-un câmp. */
+function onShortcut(event: KeyboardEvent) {
+  const target = event.target as HTMLElement;
+  const typing =
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement ||
+    target.isContentEditable;
+  const hit =
+    ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === "b" && !target.isContentEditable) ||
+    (event.key === "[" && !typing && !event.ctrlKey && !event.metaKey && !event.altKey);
+  if (!hit || !window.matchMedia("(min-width: 1024px)").matches) return;
+  event.preventDefault();
+  toggleCollapsed();
+}
+
 export function SidebarCollapseButton() {
   const collapsed = useSyncExternalStore(
     subscribeToCollapsedState,
@@ -39,24 +72,22 @@ export function SidebarCollapseButton() {
     getCollapsedServerSnapshot,
   );
 
-  const toggle = () => {
-    const next = !collapsed;
-    document.documentElement.toggleAttribute("data-crm-collapsed", next);
-    try {
-      localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
-    } catch {
-      // ponytail: localStorage blocked = preference just doesn't persist
-    }
-  };
+  useEffect(() => {
+    window.addEventListener("keydown", onShortcut);
+    return () => window.removeEventListener("keydown", onShortcut);
+  }, []);
+
+  const label = `${collapsed ? "Extinde meniul" : "Restrânge meniul"} (Ctrl+B)`;
 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={toggleCollapsed}
       aria-expanded={!collapsed}
-      aria-label={collapsed ? "Extinde meniul" : "Restrânge meniul"}
-      title={collapsed ? "Extinde meniul" : "Restrânge meniul"}
-      className="motion-nav-link grid size-7 place-items-center rounded-md text-[#71717a] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+      aria-label={label}
+      title={label}
+      aria-keyshortcuts="Control+B"
+      className="motion-nav-link grid size-8 shrink-0 place-items-center rounded-md text-[#64748b] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
     >
       {collapsed ? (
         <ChevronsRight className="size-4" aria-hidden="true" />

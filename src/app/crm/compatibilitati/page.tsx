@@ -1,3 +1,4 @@
+import { BrandName } from "@/app/components/brand-logo";
 import { Suspense } from "react";
 import { AdminDeleteButton, FitmentDialog } from "@/app/admin/admin-dialogs";
 import { deleteFitmentAction } from "@/app/admin/actions";
@@ -70,13 +71,13 @@ async function Loader({
     >
       {data.fitments.map((f: FitmentRow) => (
         <tr key={f.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#18181b]">
+          <TableCell className="font-semibold text-[#0f172a]">
             {f.label}
-            {f.labelRu ? <p className="mt-1 text-xs font-normal text-[#52525b]">RU: {f.labelRu}</p> : null}
+            {f.labelRu ? <p className="mt-1 text-xs font-normal text-[#475569]">RU: {f.labelRu}</p> : null}
           </TableCell>
-          <TableCell>{f.carModel.brand.name} {f.carModel.name}</TableCell>
+          <TableCell><BrandName name={f.carModel.brand.name} className="whitespace-nowrap" /> {f.carModel.name}</TableCell>
           <TableCell>{formatYearLabel(f.yearStart, f.yearEnd, f.yearOpenEnded)}</TableCell>
-          <TableCell align="right" className="font-mono">{formatNumber(f._count.products)}</TableCell>
+          <TableCell className="tabular-nums text-[#475569]">{formatNumber(f._count.products)}</TableCell>
           {canModify ? (
             <TableCell align="right">
               <RowActions>

@@ -21,7 +21,7 @@ function salePaymentMethodTone(value: SalePaymentMethodStatus) {
         ? "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
         : value === "TRANSFER"
           ? "border-[#fcd34d] bg-[#fffbeb] text-[#92400e]"
-          : "border-[#d4d4d8] bg-[#fafafa] text-[#52525b]";
+          : "border-[#cbd5e1] bg-[#f8fafc] text-[#475569]";
 }
 
 export function SalePaymentMethodBadge({

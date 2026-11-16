@@ -311,10 +311,10 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                     return (
                     <div
                       key={line.id}
-                      className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
+                      className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#e9edf3] bg-[#f8fafc] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
                     >
                       <div>
-                        <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
+                        <p className="line-label mb-1 text-sm font-medium text-[#334155]">Produs</p>
                         <ProductSearchCombobox
                           showHint={false}
                           initialProduct={initialProductOf(line)}
@@ -356,7 +356,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                         ) : null}
                       </Field>
                       <Field label="Sumă">
-                        <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-[#18181b]">
+                        <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-[#0f172a]">
                           {money(lineVal)} lei
                         </div>
                       </Field>
@@ -373,7 +373,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
 
               <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
                 <details className="group">
-                  <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#52525b] hover:text-[#18181b] [&::-webkit-details-marker]:hidden">
+                  <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#475569] hover:text-[#0f172a] [&::-webkit-details-marker]:hidden">
                     <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Notițe
                   </summary>
                   <textarea
@@ -588,10 +588,10 @@ export function StockTransferDialog({
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
-                      className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
+                      className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#e9edf3] bg-[#f8fafc] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
                     >
                       <div>
-                        <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
+                        <p className="line-label mb-1 text-sm font-medium text-[#334155]">Produs</p>
                         <ProductSearchCombobox
                           showHint={false}
                           initialProduct={initialProductOf(line)}
@@ -1076,7 +1076,7 @@ export function StockSaleDialog({
                               onChange={(e) => setLineField(line.id, "price", e.currentTarget.value)}
                             />
                             {line.cost ? (
-                              <span className="text-xs text-[#52525b]">marjă {money(marja)} lei</span>
+                              <span className="text-xs text-[#475569]">marjă {money(marja)} lei</span>
                             ) : null}
                           </Field>
                           <LineControls index={index} total={lines.length} onRemove={() => removeLine(line.id)} />
@@ -1094,9 +1094,9 @@ export function StockSaleDialog({
                     const showStock = Boolean(line.productId) && line.stocks.length > 0;
                     const notEnough = showStock && (Number(line.qty) || 0) > stockHere;
                     return (
-                    <div key={line.id} className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#ececef] bg-[#fafafa] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
+                    <div key={line.id} className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-[#e9edf3] bg-[#f8fafc] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
                       <div>
-                        <p className="line-label mb-1 text-sm font-medium text-[#3f3f46]">Produs</p>
+                        <p className="line-label mb-1 text-sm font-medium text-[#334155]">Produs</p>
                         <input name="externalName" type="hidden" value="" />
                         <input name="externalCode" type="hidden" value="" />
                         <input name="externalSupplierId" type="hidden" value="" />
@@ -1109,7 +1109,7 @@ export function StockSaleDialog({
                           onSelect={(p) => selectProduct(line.id, p)}
                         />
                         {showStock || margin !== null ? (
-                          <span className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-[#71717a]">
+                          <span className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-[#64748b]">
                             {showStock ? (
                               notEnough ? (
                                 <span className="font-medium text-[#b91c1c]">
@@ -1154,7 +1154,7 @@ export function StockSaleDialog({
                         />
                       </Field>
                       <Field label="Sumă">
-                        <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-[#18181b]">
+                        <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-[#0f172a]">
                           {money(lineVal)} lei
                         </div>
                       </Field>
@@ -1192,7 +1192,7 @@ export function StockSaleDialog({
                     </p>
                   ) : null}
                   <details className="group md:col-span-2">
-                    <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#52525b] hover:text-[#18181b] [&::-webkit-details-marker]:hidden">
+                    <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#475569] hover:text-[#0f172a] [&::-webkit-details-marker]:hidden">
                       <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Factură / notițe
                     </summary>
                     <div className="mt-2 grid gap-3 md:grid-cols-2">
@@ -1248,7 +1248,7 @@ function LineControls({
 const Field = DrawerField;
 const inputClassName = drawerInputClassName;
 const primaryButtonClassName =
-  "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#18181b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#27272a]";
+  "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]";
 const secondaryButtonClassName = drawerSecondaryButton;
 const dangerButtonClassName = drawerDangerButton;
 

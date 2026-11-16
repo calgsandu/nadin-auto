@@ -26,6 +26,8 @@ export function RowMenu({
   badge = 0,
   ariaLabel,
   size = "row",
+  trigger,
+  triggerClassName,
 }: {
   label: string;
   children: ReactNode;
@@ -36,6 +38,9 @@ export function RowMenu({
   ariaLabel?: string;
   /** "row" = buton mic de rând de tabel, "header" = buton de antet. */
   size?: "row" | "header";
+  /** Conținut propriu pentru buton (ex. contul din sidebar: inițiale + nume). */
+  trigger?: ReactNode;
+  triggerClassName?: string;
 }) {
   const [used, setUsed] = useState(false);
   const [position, setPosition] = useState<Position | null>(null);
@@ -94,25 +99,32 @@ export function RowMenu({
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={ariaLabel ?? `Mai multe acțiuni: ${label}`}
-        className={`button-secondary relative grid place-items-center rounded-md border border-[#e4e4e7] bg-white text-[#52525b] hover:bg-[#f4f4f5] hover:text-[#18181b] ${
-          size === "header" ? "size-9 rounded-lg" : "size-7"
-        }`}
-        title={ariaLabel ?? "Mai multe acțiuni"}
+        className={
+          triggerClassName ??
+          `button-secondary relative grid place-items-center rounded-md border border-[#e5e9f0] bg-white text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a] ${
+            size === "header" ? "size-9 rounded-lg" : "size-7"
+          }`
+        }
+        title={trigger ? undefined : (ariaLabel ?? "Mai multe acțiuni")}
         type="button"
         onClick={toggle}
       >
-        <Icon className="size-4" aria-hidden="true" />
-        {badge > 0 ? (
-          <span className="absolute -right-1.5 -top-1.5 min-w-4 rounded-full bg-[#2563eb] px-1 text-[10px] font-bold leading-4 tabular-nums text-white">
-            {badge}
-          </span>
-        ) : null}
+        {trigger ?? (
+          <>
+            <Icon className="size-4" aria-hidden="true" />
+            {badge > 0 ? (
+              <span className="absolute -right-1.5 -top-1.5 min-w-4 rounded-full bg-[#2563eb] px-1 text-[10px] font-bold leading-4 tabular-nums text-white">
+                {badge}
+              </span>
+            ) : null}
+          </>
+        )}
       </button>
       {used
         ? createPortal(
             <div
               ref={panelRef}
-              className="row-menu-panel motion-popover fixed z-[45] grid min-w-44 gap-0.5 rounded-lg border border-[#e4e4e7] bg-white p-1 shadow-lg"
+              className="row-menu-panel motion-popover fixed z-[45] grid min-w-44 gap-0.5 rounded-lg border border-[#e5e9f0] bg-white p-1 shadow-lg"
               role="menu"
               style={open ? position : { display: "none" }}
               // Un click pe o acțiune închide meniul; dialogul ei rămâne deschis.

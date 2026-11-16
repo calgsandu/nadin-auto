@@ -1,5 +1,4 @@
 import { StatusBadge } from "@/app/crm/_components/ui";
-import { PaymentAccountDialog } from "@/app/payment-accounts/payment-account-dialog";
 import { PaymentAccountRowActions } from "@/app/payment-accounts/payment-account-row-actions";
 import type { PaymentAccountsData } from "@/lib/payment-accounts/queries";
 import { vehicleLabel } from "@/lib/catalog/vehicle-label";
@@ -16,29 +15,25 @@ export function PaymentAccountsWorkspace({
 }) {
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
-      <div className="flex justify-end">
-        <PaymentAccountDialog customers={data.customers} warehouses={data.warehouses} />
-      </div>
-
-      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
+      <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[1040px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e4e4e7] bg-[#fafafa] text-xs text-[#52525b]">
+            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc] text-xs text-[#475569]">
               <tr>
                 <Head>Cont</Head><Head>Client</Head><Head>Marfă</Head><Head>Flux</Head><Head right>Total</Head><Head right>Documente</Head>
               </tr>
             </thead>
             <tbody>
               {data.accounts.map((account) => (
-                <tr key={account.id} className="border-t border-[#f0f0f2] align-top hover:bg-[#fafafa]">
+                <tr key={account.id} className="border-t border-[#edf0f5] align-top hover:bg-[#f8fafc]">
                   <Cell>
                     <span className="font-semibold">#{account.number}</span>
-                    <span className="mt-1 block text-xs text-[#52525b]">{date.format(account.issueDate)}</span>
-                    {account.dueDate ? <span className="block text-xs text-[#71717a]">scadent {date.format(account.dueDate)}</span> : null}
+                    <span className="mt-1 block text-xs text-[#475569]">{date.format(account.issueDate)}</span>
+                    {account.dueDate ? <span className="block text-xs text-[#64748b]">scadent {date.format(account.dueDate)}</span> : null}
                   </Cell>
                   <Cell>
                     <span className="font-semibold">{account.customerName}</span>
-                    <span className="mt-1 block font-mono text-xs text-[#52525b]">IDNO {account.customerIdno}</span>
+                    <span className="mt-1 block font-mono text-xs text-[#475569]">IDNO {account.customerIdno}</span>
                   </Cell>
                   <Cell>
                     <div className="grid gap-1">
@@ -47,16 +42,16 @@ export function PaymentAccountsWorkspace({
                         return (
                           <span key={line.id}>
                             {line.productCode ? `${line.productCode} ` : ""}
-                            {line.description} <span className="font-mono text-[#52525b]">×{line.quantity}</span>
-                            {vehicle ? <span className="block text-xs text-[#52525b]">{vehicle}</span> : null}
+                            {line.description} <span className="tabular-nums text-[#475569]">×{line.quantity}</span>
+                            {vehicle ? <span className="block text-xs text-[#475569]">{vehicle}</span> : null}
                           </span>
                         );
                       })}
                     </div>
-                    <span className="mt-2 block text-xs text-[#71717a]">Din {account.warehouse.name}</span>
+                    <span className="mt-2 block text-xs text-[#64748b]">Din {account.warehouse.name}</span>
                   </Cell>
                   <Cell><Flow account={account} /></Cell>
-                  <Cell right><span className="font-mono font-semibold">{money.format(Number(account.totalGross))} lei</span></Cell>
+                  <Cell right><span className="tabular-nums font-semibold">{money.format(Number(account.totalGross))} lei</span></Cell>
                   <Cell right>
                     <PaymentAccountRowActions
                       cancelled={Boolean(account.cancelledAt)}
@@ -78,7 +73,7 @@ export function PaymentAccountsWorkspace({
           </table>
         </div>
         {data.accounts.length === 0 ? (
-          <p className="px-4 py-12 text-center text-sm text-[#52525b]">Nu există conturi de plată.</p>
+          <p className="px-4 py-12 text-center text-sm text-[#475569]">Nu există conturi de plată.</p>
         ) : null}
       </div>
     </section>
@@ -93,9 +88,9 @@ function Flow({ account }: { account: PaymentAccountsData["accounts"][number] })
     { label: "Predat", done: Boolean(account.fulfilledAt) },
   ];
   return (
-    <div className="grid w-72 grid-cols-3 overflow-hidden rounded-md border border-[#e4e4e7]">
+    <div className="grid w-72 grid-cols-3 overflow-hidden rounded-md border border-[#e5e9f0]">
       {steps.map((step) => (
-        <span key={step.label} className={`border-l border-[#e4e4e7] px-2 py-1.5 text-center text-xs font-semibold first:border-l-0 ${step.done ? "bg-[#eff6ff] text-[#1d4ed8]" : "bg-white text-[#71717a]"}`}>
+        <span key={step.label} className={`border-l border-[#e5e9f0] px-2 py-1.5 text-center text-xs font-semibold first:border-l-0 ${step.done ? "bg-[#eff6ff] text-[#1d4ed8]" : "bg-white text-[#64748b]"}`}>
           {step.done ? "● " : "○ "}{step.label}
         </span>
       ))}

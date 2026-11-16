@@ -1,3 +1,4 @@
+import { BrandName } from "@/app/components/brand-logo";
 import { Suspense } from "react";
 import { AdminDeleteButton, ModelDialog } from "@/app/admin/admin-dialogs";
 import { deleteModelAction } from "@/app/admin/actions";
@@ -57,15 +58,15 @@ async function Loader({
 
   return (
     <AdminSection
-      head={["Model", "Brand", "Compatibilități", canModify ? "Acțiuni" : null]}
+      head={["Model", "Marcă", "Compatibilități", canModify ? "Acțiuni" : null]}
       empty="Niciun model."
       isEmpty={data.models.length === 0}
     >
       {data.models.map((m: ModelRow) => (
         <tr key={m.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#18181b]">{m.name}</TableCell>
-          <TableCell>{m.brand.name}</TableCell>
-          <TableCell align="right" className="font-mono">{formatNumber(m._count.fitments)}</TableCell>
+          <TableCell className="font-semibold text-[#0f172a]">{m.name}</TableCell>
+          <TableCell><BrandName name={m.brand.name} /></TableCell>
+          <TableCell className="tabular-nums text-[#475569]">{formatNumber(m._count.fitments)}</TableCell>
           {canModify ? (
             <TableCell align="right">
               <RowActions>

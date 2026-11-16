@@ -54,13 +54,13 @@ function UnavailableRestockWorkspace({
           )}
         />
       </div>
-      <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
-        <div className="border-b border-[#e4e4e7] px-4 py-2.5">
-          <h2 className="text-sm font-semibold text-[#18181b]">Marcate fără stoc</h2>
+      <div className="overflow-hidden crm-card">
+        <div className="border-b border-[#e5e9f0] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#0f172a]">Marcate fără stoc</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[980px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e4e4e7] bg-[#fafafa]">
+            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
               <tr>
                 <TableHead>Cod</TableHead>
                 <TableHead>Produs</TableHead>
@@ -72,7 +72,7 @@ function UnavailableRestockWorkspace({
             <tbody>
               {operations.restockUnavailable.length > 0 ? (
                 operations.restockUnavailable.map((line) => (
-                  <tr key={line.productId} className="motion-table-row border-t border-[#f0f0f2]">
+                  <tr key={line.productId} className="motion-table-row border-t border-[#edf0f5]">
                     <TableCell className="font-mono text-xs font-semibold">
                       {formatText(line.product.externalCode)}
                     </TableCell>
@@ -80,7 +80,7 @@ function UnavailableRestockWorkspace({
                       {line.product.description}
                       <VehicleSubline product={line.product} />
                     </TableCell>
-                    <TableCell align="right" className="font-mono font-semibold">{formatNumber(line.quantity)}</TableCell>
+                    <TableCell align="right" className="tabular-nums font-semibold">{formatNumber(line.quantity)}</TableCell>
                     <TableCell secondary>{formatDate(line.latestRequestedAt)}</TableCell>
                     {canModify ? (
                       <TableCell align="right">
@@ -97,7 +97,7 @@ function UnavailableRestockWorkspace({
                 ))
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#52525b]" colSpan={canModify ? 5 : 4}>
+                  <td className="px-3 py-10 text-center text-[#475569]" colSpan={canModify ? 5 : 4}>
                     Nu sunt produse marcate fără stoc.
                   </td>
                 </tr>

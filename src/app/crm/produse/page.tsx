@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Car, ChevronDown, Printer } from "lucide-react";
+import { BrandLogo, brandLabel, brandLogoSrc } from "@/app/components/brand-logo";
 import { CopyCode } from "@/app/components/copy-code";
 import { LocalBadge } from "@/app/components/local-badge";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
@@ -61,7 +62,7 @@ export default async function ProductsPage({
 
       {/* Desktop: mașinile în stânga. Suspense fără cheie: la un click
           panoul rămâne pe loc, doar lista se reîncarcă. */}
-      <div className="xl:grid xl:grid-cols-[12rem_minmax(0,1fr)] xl:items-start">
+      <div className="products-layout gap-4 px-3 pt-4 lg:px-6 xl:grid xl:grid-cols-[14.5rem_minmax(0,1fr)] xl:items-start">
         <Suspense fallback={<div className="max-xl:hidden" />}>
           <BrandTreeLoader catalogPromise={catalogPromise} />
         </Suspense>
@@ -84,20 +85,22 @@ async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cat
   const href = (brand?: string, model?: string) =>
     crmCatalogPageHref({ ...params, brand, model, fitment: undefined, page: undefined });
   const row = (active: boolean) =>
-    `flex items-center justify-between gap-2 rounded-md px-2 py-1 text-[13px] ${
-      active ? "bg-[#eff6ff] font-semibold text-[#1d4ed8]" : "text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+    `flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm ${
+      active ? "bg-[#eef4ff] font-semibold text-[#1d4ed8]" : "text-[#334155] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
     }`;
 
   return (
     <nav
       aria-label="Mașini"
-      className="sticky top-0 max-h-[100dvh] overflow-y-auto border-r border-[#e4e4e7] py-4 pl-3 pr-2 max-xl:hidden"
+      className="products-brand-tree crm-card sticky top-4 max-h-[calc(100dvh-2rem)] overflow-y-auto p-2 max-xl:hidden"
     >
-      <p className="px-2 pb-1.5 text-[13px] font-medium text-[#71717a]">Mașină</p>
       <Link href={href()} className={row(!params.brand)} aria-current={!params.brand ? "page" : undefined}>
+        <span className="grid size-6 shrink-0 place-items-center rounded-md bg-[#f1f4f9] text-[#64748b]">
+          <Car className="size-3.5" aria-hidden="true" />
+        </span>
         <span>Toate mașinile</span>
       </Link>
-      <ul className="mt-1 grid gap-px">
+      <ul className="mt-0.5 grid gap-0.5">
         {brands.map((brand) => {
           const open = brand.id === params.brand;
           return (
@@ -108,14 +111,15 @@ async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cat
                 aria-current={open && !params.model ? "page" : undefined}
                 aria-expanded={open}
               >
-                <span className="truncate">{brand.name}</span>
+                <BrandLogo name={brand.name} />
+                <span className="min-w-0 flex-1 truncate">{brandLabel(brand.name)}</span>
                 <ChevronDown
-                  className={`size-3.5 shrink-0 text-[#a1a1aa] transition-transform ${open ? "rotate-180" : ""}`}
+                  className={`size-3.5 shrink-0 text-[#94a3b8] transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
                   aria-hidden="true"
                 />
               </Link>
               {open && models.length > 0 ? (
-                <ul className="my-1 ml-2 grid gap-px border-l border-[#e4e4e7] pl-1.5">
+                <ul className="crm-tree-submenu my-1 ml-5 grid gap-0.5 border-l border-[#e5e9f0] pl-2">
                   {models.map((model) => {
                     const active = model.id === params.model;
                     return (
@@ -138,6 +142,16 @@ async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cat
       </ul>
     </nav>
   );
+}
+
+/** Marca din titlul „MARCĂ MODEL" al unei compatibilități. */
+function carBrand(title: string, brands: { name: string }[]) {
+  return brands.find((brand) => title.startsWith(`${brand.name} `))?.name;
+}
+
+/** „AUDI A4" → „Audi A4": marca scrisă ca în lista din stânga, modelul neatins. */
+function withBrandLabel(title: string, brand: string | undefined) {
+  return brand && title.startsWith(brand) ? brandLabel(brand) + title.slice(brand.length) : title;
 }
 
 async function ProductWorkspaceLoader({
@@ -185,90 +199,94 @@ function ProductWorkspace({
   const end = Math.min(page * pageSize, catalog.productCount);
 
   return (
-    <>
-      <CatalogFilters
-        brands={catalog.brands}
-        models={catalog.models}
-        fitments={catalog.fitments}
-        types={catalog.types}
-      />
-      <section className="motion-page grid grid-cols-1 gap-4 p-3 lg:px-6 lg:py-4">
-        <LabelPicker>
-          <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-white">
-            <div className="overflow-x-auto">
-              <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[720px]">
-                <thead className="border-b border-[#e2e8f0] bg-[#f8fafc]">
-                  <tr>
-                    {canModify ? (
-                      <TableHead className="max-sm:hidden">
-                        <span className="sr-only">Selectează pentru sticker</span>
-                      </TableHead>
-                    ) : null}
-                    <TableHead className="max-sm:hidden">Cod</TableHead>
-                    <TableHead className="sm:min-w-[16rem]">Piesă</TableHead>
-                    <TableHead className="max-sm:hidden">Mașină și ani</TableHead>
-                    <TableHead align="right" className="max-sm:hidden">Preț vânzare</TableHead>
-                    <TableHead align="right" className="max-sm:hidden">Stoc</TableHead>
-                    {canModify ? <TableHead align="right" secondary>Cost aducere</TableHead> : null}
-                    {canModify ? (
-                      <TableHead align="right">
-                        <span className="sr-only">Acțiuni</span>
-                      </TableHead>
-                    ) : null}
-                  </tr>
-                </thead>
-                <tbody>
-                  {catalog.products.map((product) => (
-                    <ProductRow
-                      key={product.id}
-                      canModify={canModify}
-                      canSell={canSell}
-                      catalog={catalog}
-                      product={product}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {catalog.products.length === 0 ? (
-              <div className="px-4 py-12 text-center text-sm text-[#52525b]">
-                Nu am găsit nimic.{" "}
-                <Link className="font-medium text-[#2563eb] hover:underline" href={crmSectionHref("produse")}>
-                  Resetează
-                </Link>
-              </div>
-            ) : null}
+    <section className="motion-page">
+      <LabelPicker>
+        <div className="crm-card overflow-hidden">
+          <CatalogFilters
+            brands={catalog.brands}
+            models={catalog.models}
+            fitments={catalog.fitments}
+            types={catalog.types}
+          />
+          <div className="overflow-x-auto">
+            <table className="crm-table w-full table-fixed border-collapse text-left text-sm lg:table-auto lg:min-w-[720px]">
+              <thead className="border-y border-[#e5e9f0] bg-[#f8fafc]">
+                <tr>
+                  {canModify ? (
+                    <TableHead className="max-lg:hidden">
+                      <span className="sr-only">Selectează pentru sticker</span>
+                    </TableHead>
+                  ) : null}
+                  <TableHead className="max-lg:hidden">Cod</TableHead>
+                  <TableHead className="lg:min-w-[16rem]">
+                    <span className="lg:hidden">Cod produs și piesă</span>
+                    <span className="hidden lg:inline">Piesă</span>
+                  </TableHead>
+                  <TableHead className="max-lg:hidden">Mașină și ani</TableHead>
+                  <TableHead align="right" className="max-lg:hidden">Stoc</TableHead>
+                  {canModify ? <TableHead align="right" secondary>Cost</TableHead> : null}
+                  <TableHead align="right" className="max-lg:hidden">Preț</TableHead>
+                  {canModify ? (
+                    <TableHead align="right" className="max-lg:hidden">
+                      <span className="sr-only">Acțiuni</span>
+                    </TableHead>
+                  ) : null}
+                </tr>
+              </thead>
+              <tbody>
+                {catalog.products.map((product) => (
+                  <ProductRow
+                    key={product.id}
+                    canModify={canModify}
+                    canSell={canSell}
+                    catalog={catalog}
+                    product={product}
+                  />
+                ))}
+              </tbody>
+            </table>
           </div>
-        </LabelPicker>
-
-        <Pagination
-          page={page}
-          pageCount={pageCount}
-          hrefFor={(target) => crmCatalogPageHref({ ...catalog.params, page: target })}
-          summary={`${start}–${end} din ${formatNumber(catalog.productCount)} produse`}
-        />
-      </section>
-    </>
+          {catalog.products.length === 0 ? (
+            <div className="px-4 py-14 text-center text-sm text-[#475569]">
+              Nu am găsit nimic.{" "}
+              <Link className="font-medium text-[#2563eb] hover:underline" href={crmSectionHref("produse")}>
+                Resetează filtrele
+              </Link>
+            </div>
+          ) : null}
+          <div className="border-t border-[#e5e9f0] px-4 py-3">
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              hrefFor={(target) => crmCatalogPageHref({ ...catalog.params, page: target })}
+              summary={`${start}–${end} din ${formatNumber(catalog.productCount)} piese`}
+            />
+          </div>
+        </div>
+      </LabelPicker>
+    </section>
   );
 }
 
 /**
- * Stocul ca etichetă cu punct: verde în stoc, albastru aproape terminat, roșu
- * lipsă. Albastru, nu galben: pe monitorul din magazin galbenul-portocaliu și
- * roșul se confundau.
+ * Stocul ca insignă: verde în stoc, albastru aproape terminat, roșu lipsă.
+ * Albastru, nu galben: pe monitorul din magazin galbenul-portocaliu și roșul
+ * se confundau.
  */
 function StockCount({ stock, minStock }: { stock: number | null; minStock: number | null }) {
   const value = stock ?? 0;
   // Același prag ca filtrul „aproape terminate": minStock, implicit 3.
-  const tone =
+  const [tone, label] =
     value <= 0
-      ? "bg-[#fef2f2] text-[#b91c1c] ring-[#fecaca]"
+      ? ["bg-[#fef2f2] text-[#b91c1c]", "Fără stoc"]
       : value <= (minStock ?? 3)
-        ? "bg-[#eff6ff] text-[#1d4ed8] ring-[#bfdbfe]"
-        : "bg-[#f0fdf4] text-[#166534] ring-[#bbf7d0]";
+        ? ["bg-[#eef4ff] text-[#1d4ed8]", "Aproape terminat"]
+        : ["bg-[#ecfdf3] text-[#15803d]", "În stoc"];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[13px] font-semibold tabular-nums ring-1 ring-inset ${tone}`}>
-      <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+    <span
+      title={label}
+      className={`inline-grid min-w-9 place-items-center rounded-lg px-2 py-1 text-sm font-semibold leading-none tabular-nums ${tone}`}
+    >
       {formatNumber(value)}
     </span>
   );
@@ -301,20 +319,22 @@ function ProductRow({
   );
   // TOATE mașinile, fiecare pe rândul ei — un „+1" ascundea gemenii
   // (Sprinter ↔ Crafter) și părea că s-au șters. Cea căutată vine prima.
-  // Ce e ales sus nu se mai repetă pe fiecare rând: cu marca aleasă dispare
-  // marca, cu modelul ales rămân doar anii.
+  // Ce e ales în stânga nu se mai repetă pe fiecare rând: cu marca aleasă
+  // dispare marca, cu modelul ales rămân doar anii.
   const filteredBrand = catalog.brands.find((brand) => brand.id === catalog.params.brand)?.name;
   const filteredModel = catalog.models.find((model) => model.id === catalog.params.model)?.name;
   const prefix = filteredBrand && filteredModel ? `${filteredBrand} ${filteredModel}` : filteredBrand;
   const cars = matchingFirst(compatibilities, catalog.params.q).map((compatibility) => ({
     ...compatibility,
-    title: withoutPrefix(compatibility.title, prefix),
+    // Logo-ul doar cât marca nu e deja aleasă în stânga.
+    brand: filteredBrand ? null : (carBrand(compatibility.title, catalog.brands) ?? null),
+    title: withBrandLabel(withoutPrefix(compatibility.title, prefix), filteredBrand ? undefined : carBrand(compatibility.title, catalog.brands)),
   }));
 
   return (
-    <tr className="motion-table-row border-t border-[#f0f0f2] even:bg-[#fafafa] hover:bg-[#f4f4f5]">
+    <tr className="motion-table-row border-t border-[#edf0f5] hover:bg-[#f8fafc]">
       {canModify ? (
-        <TableCell className="max-sm:hidden">
+        <TableCell className="w-10 max-lg:hidden">
           <input
             type="checkbox"
             data-label-id={product.id}
@@ -325,62 +345,59 @@ function ProductRow({
               .map((compatibility) => `${compatibility.title}, ani ${compatibility.years}`)
               .join(" • ")}
             aria-label={`Selectează ${product.description} pentru sticker`}
-            className="size-4 cursor-pointer accent-[#18181b]"
+            className="size-4 cursor-pointer rounded accent-[#2563eb]"
           />
         </TableCell>
       ) : null}
-      <TableCell className="whitespace-nowrap max-sm:hidden">
-        {/* Codul e cheia piesei: după el se caută și se comandă. */}
+      <TableCell className="whitespace-nowrap max-lg:hidden">
+        {/* Codul e cheia piesei: îl afișăm primul și mai vizibil decât denumirea. */}
         {product.externalCode ? (
-          <CopyCode code={product.externalCode} className="bg-[#f1f5f9] px-1.5 py-0.5 font-mono text-sm font-bold text-[#0f172a] ring-1 ring-inset ring-[#e2e8f0] xl:text-[15px]" />
+          <CopyCode code={product.externalCode} className="font-mono text-base font-bold text-[#1e293b]" />
         ) : (
-          <p className="font-mono text-sm font-bold text-[#18181b] xl:text-[15px]">—</p>
+          <span className="text-[#cbd5e1]">—</span>
         )}
         {product.alternativeCode ? (
-          <p className="mt-0.5 font-mono text-xs text-[#71717a]">{product.alternativeCode}</p>
+          <p className="mt-0.5 font-mono text-xs text-[#94a3b8]">{product.alternativeCode}</p>
         ) : null}
       </TableCell>
       <TableCell>
-        {/* Pe telefon coloanele Cod / Mașină / Preț / Stoc nu încap: codul vine
-            deasupra, mașinile, prețul și stocul dedesubt, totul într-un bloc. */}
+        {/* Pe telefon codul rămâne primul, urmat de denumire, mașini și preț. */}
         {product.externalCode ? (
-          <CopyCode code={product.externalCode} className="mb-1 font-mono text-[15px] font-bold text-[#18181b] sm:hidden" />
+          <CopyCode code={product.externalCode} className="mb-1 block font-mono text-lg font-bold text-[#1e293b] lg:hidden" />
         ) : null}
-        {/* Piesa e ce se citește întâi (ca în 1C): „Panou lateral L" mare, nu
-            pierdut sub „MERCEDES-BENZ …" repetat pe fiecare rând. Click: fișa cu
-            stocul pe fiecare depozit și toate mașinile. */}
+        {/* Click pe denumire deschide fișa cu stocul și compatibilitățile. */}
         <ProductPreview product={toPreview(product, catalog, compatibilities)} canModify={canModify} canSell={canSell}>
-          <span className="block text-[15px] font-semibold text-[#18181b] hover:text-[#2563eb] hover:underline lg:text-sm xl:text-[15px]">
+          <span className="block text-sm text-[#64748b] hover:text-[#2563eb]">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
           </span>
         </ProductPreview>
-        <div className="mt-1 sm:hidden">
-          <CarLines lines={cars} />
+        <div className="mt-1 lg:hidden">
+          <CarLines lines={cars} compact />
         </div>
-        <div className="mt-1.5 flex items-center gap-2 sm:hidden">
-          <span className="text-[15px] font-semibold tabular-nums text-[#18181b]">
+        <div className="mt-1.5 flex items-center gap-2 lg:hidden">
+          <span className="text-[0.9375rem] font-semibold tabular-nums text-[#0f172a]">
             {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : "—"}
           </span>
           <StockCount stock={product.stock} minStock={product.minStock} />
         </div>
       </TableCell>
-      <TableCell className="max-sm:hidden">
+      <TableCell className="max-lg:hidden">
         <CarLines lines={cars} />
       </TableCell>
-      <TableCell align="right" className="whitespace-nowrap text-sm max-sm:hidden font-semibold tabular-nums text-[#18181b] xl:text-[15px]">
-        {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : "—"}
-      </TableCell>
-      <TableCell align="right" className="font-semibold tabular-nums max-sm:hidden">
+      <TableCell align="right" className="max-lg:hidden">
         <StockCount stock={product.stock} minStock={product.minStock} />
       </TableCell>
       {canModify ? (
-        <TableCell align="right" secondary className="tabular-nums text-[#52525b]">
-          <Lei value={product.costLei} />
+        <TableCell align="right" secondary className="whitespace-nowrap tabular-nums text-[#64748b]">
+          {product.costLei != null ? <Lei value={product.costLei} /> : <span className="text-[#cbd5e1]">—</span>}
         </TableCell>
       ) : null}
+      <TableCell align="right" className="whitespace-nowrap text-[0.9375rem] font-semibold tabular-nums text-[#0f172a] max-lg:hidden">
+        {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-[#cbd5e1]">—</span>}
+      </TableCell>
       {canModify ? (
-        <TableCell align="right">
+        <TableCell align="right" className="max-lg:hidden">
           <div className="flex justify-end gap-1.5">
             <ProductFormDialog
               brands={catalog.brands}
@@ -397,9 +414,9 @@ function ProductRow({
                 target="_blank"
                 rel="noreferrer"
                 title="Sticker produs (70×50.8mm)"
-                className="text-[#18181b]"
+                className="text-[#0f172a]"
               >
-                <Printer className="size-4 text-[#71717a]" aria-hidden="true" /> Sticker
+                <Printer className="size-4 text-[#64748b]" aria-hidden="true" /> Sticker
               </a>
               <ProductDeleteButton productId={product.id} label={product.description} />
             </RowMenu>
@@ -415,23 +432,27 @@ function ProductRow({
 function Lei({ value }: { value: Parameters<typeof formatMoney>[0] }) {
   return (
     <>
-      {formatMoney(value)} <span className="text-[0.85em] font-normal text-[#a1a1aa]">lei</span>
+      {formatMoney(value)} <span className="text-[0.85em] font-normal text-[#94a3b8]">lei</span>
     </>
   );
 }
 
-/** Mașina și anii, câte una pe rând, mai mici decât piesa. */
-function CarLines({ lines }: { lines: { title: string; years: string }[] }) {
-  if (lines.length === 0) return <span className="text-[#a1a1aa]">—</span>;
+/** Mașina și anii, câte una pe rând, cu logo-ul mărcii în față. */
+function CarLines({
+  lines,
+  compact = false,
+}: {
+  lines: { title: string; years: string; brand: string | null }[];
+  compact?: boolean;
+}) {
+  if (lines.length === 0) return <span className="text-[#cbd5e1]">—</span>;
   return (
-    <ul className="space-y-0.5 text-[13px] text-[#52525b]">
+    <ul className="space-y-1 text-sm">
       {lines.map((line, index) => (
-        <li key={`${line.title}:${line.years}:${index}`} className="flex items-center gap-1.5">
-          <Car className="size-3.5 shrink-0 text-[#a78bfa]" aria-hidden="true" />
-          {line.title ? <span className="font-medium text-[#3f3f46]">{line.title}</span> : null}
-          <span className="whitespace-nowrap rounded bg-[#f5f3ff] px-1.5 text-xs font-medium tabular-nums text-[#6d28d9]">
-            {line.years}
-          </span>
+        <li key={`${line.title}:${line.years}:${index}`} className={`flex items-center gap-2 ${compact ? "min-w-0 flex-wrap" : ""}`}>
+          {line.brand ? <BrandLogo name={line.brand} className="size-5" /> : null}
+          {line.title ? <span className={`${compact ? "min-w-0 break-words" : "whitespace-nowrap"} text-[#334155]`}>{line.title}</span> : null}
+          <span className="whitespace-nowrap tabular-nums text-[#94a3b8]">{line.years}</span>
         </li>
       ))}
     </ul>
@@ -511,7 +532,10 @@ function toPreview(
     alternativeCode: product.alternativeCode,
     description: product.description,
     type: product.type.name,
-    compatibilities,
+    compatibilities: compatibilities.map((line) => {
+      const brand = carBrand(line.title, catalog.brands);
+      return { ...line, logo: brand ? brandLogoSrc(brand) : null };
+    }),
     stocks,
     total: stocks.reduce((sum, stock) => sum + stock.quantity, 0),
     price: product.salePriceLei != null ? `${formatMoney(product.salePriceLei)} lei` : null,
