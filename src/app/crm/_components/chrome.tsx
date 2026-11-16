@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, Fragment, useContext, useEffect, type ReactNode } from "react";
+import { createContext, Fragment, useContext, useEffect, useState, type ReactNode } from "react";
 import {
   Bell,
   ChevronDown,
@@ -68,6 +68,9 @@ export function Sidebar({
 }) {
   const counts = useContext(NavCountsContext);
   const activeSectionId = sectionFromPathname(usePathname());
+  // Grupurile din meniu se deschid/închid pe click, fără să schimbe pagina;
+  // implicit e deschis doar grupul paginii curente.
+  const [toggledGroups, setToggledGroups] = useState<Record<string, boolean>>({});
   useSearchShortcut();
   const visibleGroups = navigationGroups
     .map((group) => ({
@@ -124,6 +127,7 @@ export function Sidebar({
         <div className="grid gap-0.5">
           {visibleGroups.map((group, index) => {
             const groupActive = group.sections.includes(activeSectionId);
+            const groupOpen = toggledGroups[group.id] ?? groupActive;
             const caption = index === 0 ? "Lucru zilnic" : group.rare && !visibleGroups[index - 1]?.rare ? "Evidență" : null;
             return (
               <Fragment key={group.id}>
@@ -164,13 +168,15 @@ export function Sidebar({
                       active={groupActive}
                       parent
                       badge={group.sections.reduce((sum, section) => sum + countFor(counts, section), 0)}
-                      badgeInTree={groupActive}
+                      badgeInTree={groupOpen}
                       highlightBadge={group.sections.includes("aprobari")}
                       href={crmSectionHref(group.sections[0])}
+                      expanded={groupOpen}
+                      onToggle={() => setToggledGroups((current) => ({ ...current, [group.id]: !groupOpen }))}
                       icon={menuIcons[group.icon]}
                       label={group.label}
                     />
-                    {groupActive ? (
+                    {groupOpen ? (
                       <div className="crm-nav-sub mb-1.5 ml-[1.375rem] grid gap-0.5 border-l border-[#e5e9f0] pl-2.5">
                         {group.sections.map((section) => (
                           <SubLink key={section} section={section} active={section === activeSectionId} count={countFor(counts, section)} />
@@ -241,8 +247,12 @@ function placeFlyout(event: { currentTarget: HTMLElement }) {
   fly.style.top = `${Math.max(8, Math.min(top, window.innerHeight - fly.offsetHeight - 8))}px`;
 }
 
-/** Clic = alegerea s-a făcut: meniul se închide chiar dacă mouse-ul e încă pe el. */
-function closeFlyout(event: { currentTarget: HTMLElement }) {
+/**
+ * Clic pe o secțiune = alegerea s-a făcut: meniul se închide chiar dacă
+ * mouse-ul e încă pe el. Clicul pe rândul grupului (buton) îl lasă deschis.
+ */
+function closeFlyout(event: { currentTarget: HTMLElement; target: EventTarget }) {
+  if (!(event.target as HTMLElement).closest("a")) return;
   event.currentTarget.setAttribute("data-fly-closed", "");
 }
 
@@ -276,6 +286,8 @@ function NavLink({
   badgeInTree = false,
   highlightBadge = false,
   href,
+  expanded,
+  onToggle,
   icon: Icon,
   label,
 }: {
@@ -289,23 +301,23 @@ function NavLink({
   /** Albastru = cere atenție (aprobări); gri = doar un număr de lucru. */
   highlightBadge?: boolean;
   href: string;
+  /** Rând de grup pe desktop: lista de sub el e deschisă. */
+  expanded?: boolean;
+  /** Dat = rândul e buton care deschide/închide lista, nu link spre o pagină. */
+  onToggle?: () => void;
   icon: LucideIcon;
   label: string;
 }) {
   const filled = active && !parent;
-  return (
-    <Link
-      aria-current={active ? (parent ? "true" : "page") : undefined}
-      className={`motion-nav-link relative flex min-w-max items-center gap-3 rounded-xl px-3 py-2 text-sm lg:min-w-0 ${
+  const className = `motion-nav-link relative flex min-w-max items-center gap-3 rounded-xl px-3 py-2 text-sm lg:min-w-0 ${
         filled
           ? "bg-[#2563eb] font-medium text-white shadow-[0_4px_12px_-4px_rgb(37_99_235/0.5)]"
           : active
             ? "crm-nav-parent-active font-semibold text-[#0f172a] max-lg:bg-[#2563eb] max-lg:font-medium max-lg:text-white"
             : "font-medium text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
-      }`}
-      href={href}
-      aria-label={badge > 0 ? `${label} (${badge})` : label}
-    >
+      }`;
+  const content = (
+    <>
       <Icon
         className={`size-[1.125rem] shrink-0 ${
           filled ? "text-white" : active ? "text-[#2563eb] max-lg:text-white" : "text-[#94a3b8]"
@@ -315,7 +327,7 @@ function NavLink({
       <span className="crm-nav-label truncate whitespace-nowrap">{label}</span>
       {parent ? (
         <ChevronDown
-          className={`crm-nav-label ml-auto size-4 shrink-0 text-[#94a3b8] transition-transform max-lg:hidden ${active ? "rotate-180" : ""}`}
+          className={`crm-nav-label ml-auto size-4 shrink-0 text-[#94a3b8] transition-transform max-lg:hidden ${(expanded ?? active) ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       ) : null}
@@ -334,6 +346,31 @@ function NavLink({
           {badge}
         </span>
       ) : null}
+    </>
+  );
+  const ariaLabel = badge > 0 ? `${label} (${badge})` : label;
+  if (onToggle) {
+    return (
+      <button
+        type="button"
+        aria-current={active ? "true" : undefined}
+        aria-expanded={expanded}
+        aria-label={ariaLabel}
+        className={`${className} w-full text-left`}
+        onClick={onToggle}
+      >
+        {content}
+      </button>
+    );
+  }
+  return (
+    <Link
+      aria-current={active ? (parent ? "true" : "page") : undefined}
+      className={className}
+      href={href}
+      aria-label={ariaLabel}
+    >
+      {content}
     </Link>
   );
 }
