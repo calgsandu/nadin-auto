@@ -21,7 +21,7 @@ import {
   filterControlCls,
 } from "../_components/ui";
 import { toDocLines, toDocumentDetails } from "../_components/documents-table";
-import { formatDate, formatDocType, formatMoney, formatNumber } from "../_components/format";
+import { formatDate, formatDocumentType, formatMoney, formatNumber } from "../_components/format";
 import { MobileFilters } from "../_components/mobile-filters";
 
 type DocumentsData = Awaited<ReturnType<typeof getDocumentsData>>;
@@ -85,7 +85,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
             <option value="RECEIPT">Recepții</option>
             <option value="SALE">Vânzări</option>
             <option value="RETURN">Retururi</option>
-            <option value="ADJUSTMENT">Ajustări/Transferuri</option>
+            <option value="ADJUSTMENT">Ajustări și transferuri</option>
           </select>
         </FilterField>
         <FilterField icon={<Users />} label="Partener" active={Boolean(filters.partner)}>
@@ -132,7 +132,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
               {documents.map((d) => (
                 <tr key={d.id} className={adminRowCls}>
                   <TableCell className="whitespace-nowrap">
-                    <span className="block font-semibold">{formatDocType(d.type)} #{d.number}</span>
+                    <span className="block font-semibold">{formatDocumentType(d)} #{d.number}</span>
                     <span className="block text-xs text-[#475569]">{formatDate(d.documentDate)}</span>
                     {/* Pe telefon: partenerul și totalul sub document, în loc de coloane. */}
                     <span className="mt-1 block whitespace-normal text-xs text-[#475569] sm:hidden">
@@ -158,7 +158,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                     {/* „Detalii" rămâne la vedere; exporturile, editarea și ștergerea stau în „⋯". */}
                     <div className="flex justify-end gap-1.5">
                       <DocumentDetailsButton details={toDocumentDetails(d, canModify)} />
-                      <RowMenu label={`${formatDocType(d.type)} #${d.number}`}>
+                      <RowMenu label={`${formatDocumentType(d)} #${d.number}`}>
                         <a href={`/api/export/document/${d.id}/pdf`} className="text-[#0f172a]">
                           <FileText className="size-4 text-[#64748b]" aria-hidden="true" /> PDF intern
                         </a>
@@ -170,7 +170,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                         {canModify ? (
                           <DocumentRowActions
                             id={d.id}
-                            title={`${formatDocType(d.type)} #${d.number}`}
+                            title={`${formatDocumentType(d)} #${d.number}`}
                             documentDate={d.documentDate.toISOString().slice(0, 10)}
                             documentType={d.type}
                             notes={d.notes ?? ""}
@@ -205,7 +205,8 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
 }
 
 function documentTotal(d: { totalEuro: Parameters<typeof formatMoney>[0] | null; totalLei: Parameters<typeof formatMoney>[0] | null }) {
-  if (d.totalEuro != null) return `${formatMoney(d.totalEuro)} EUR`;
-  if (d.totalLei != null) return `${formatMoney(d.totalLei)} lei`;
-  return null;
+  // Aceeași regulă ca în restul aplicației: `totalLei`, cu `totalEuro` (tot lei,
+  // din documentele vechi) ca rezervă. 0 = fără valoare (ajustări), deci „—".
+  const value = Number(d.totalLei ?? d.totalEuro ?? 0);
+  return value ? `${formatMoney(value)} lei` : null;
 }

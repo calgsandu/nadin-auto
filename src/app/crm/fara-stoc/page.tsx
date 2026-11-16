@@ -58,11 +58,15 @@ function UnavailableRestockWorkspace({
         <div className="border-b border-[#e5e9f0] px-4 py-2.5">
           <h2 className="text-sm font-semibold text-[#0f172a]">Marcate fără stoc</h2>
         </div>
+        {operations.restockUnavailable.length === 0 ? (
+          <p className="px-3 py-10 text-center text-sm text-[#475569]">Nu sunt produse marcate fără stoc.</p>
+        ) : (
         <div className="overflow-x-auto">
-          <table className="crm-table w-full min-w-[980px] border-collapse text-left text-sm">
+          {/* Sub lg codul trece lângă denumire: fără scroll lateral pe telefon. */}
+          <table className="crm-table w-full border-collapse text-left text-sm lg:min-w-[980px]">
             <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
               <tr>
-                <TableHead>Cod</TableHead>
+                <TableHead className="max-lg:hidden">Cod</TableHead>
                 <TableHead>Produs</TableHead>
                 <TableHead align="right">Cantitate</TableHead>
                 <TableHead secondary>Ultima vânzare</TableHead>
@@ -70,13 +74,15 @@ function UnavailableRestockWorkspace({
               </tr>
             </thead>
             <tbody>
-              {operations.restockUnavailable.length > 0 ? (
-                operations.restockUnavailable.map((line) => (
+              {operations.restockUnavailable.map((line) => (
                   <tr key={line.productId} className="motion-table-row border-t border-[#edf0f5]">
-                    <TableCell className="font-mono text-xs font-semibold">
+                    <TableCell className="font-mono text-xs font-semibold max-lg:hidden">
                       {formatText(line.product.externalCode)}
                     </TableCell>
                     <TableCell className="font-medium">
+                      {line.product.externalCode ? (
+                        <span className="block font-mono text-sm font-bold lg:hidden">{line.product.externalCode}</span>
+                      ) : null}
                       {line.product.description}
                       <VehicleSubline product={line.product} />
                     </TableCell>
@@ -94,17 +100,11 @@ function UnavailableRestockWorkspace({
                       </TableCell>
                     ) : null}
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td className="px-3 py-10 text-center text-[#475569]" colSpan={canModify ? 5 : 4}>
-                    Nu sunt produse marcate fără stoc.
-                  </td>
-                </tr>
-              )}
+                ))}
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </section>
   );

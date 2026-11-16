@@ -241,7 +241,7 @@ export async function getInventoryData(params: {
   // Stocul și arhiva nu depind unul de altul — un singur dus-întors, nu trei.
   // Progresul numărătorii: de la data din filtru sau din ultimele 30 de zile.
   const countSince = params.from || defaultCountSince();
-  const [stocks, operations, total, counted] = await Promise.all([
+  const [stocks, operations, total, counted, positionsByWarehouse] = await Promise.all([
     selected
       ? prisma.warehouseStock.findMany({
           where: { warehouseId: selected.id, quantity: { not: 0 } },
@@ -290,10 +290,13 @@ export async function getInventoryData(params: {
       : Promise.resolve([]),
     where ? prisma.stockDocument.count({ where }) : Promise.resolve(0),
     selected ? getCountedProducts(selected.id, countSince) : Promise.resolve({} as Record<string, CountedProduct>),
+    // Pozițiile cu marfă din fiecare depozit, pe tab-uri: se vede unde e stocul.
+    prisma.warehouseStock.groupBy({ by: ["warehouseId"], where: { quantity: { gt: 0 } }, _count: true }),
   ]);
 
   return {
     warehouses,
+    positions: Object.fromEntries(positionsByWarehouse.map((row) => [row.warehouseId, row._count])) as Record<string, number>,
     selected,
     stocks,
     operations,

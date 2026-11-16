@@ -63,27 +63,34 @@ function RestockWorkspace({
         <DailyMetric icon={CircleCheck} label="Aduse azi" value={formatNumber(operations.restockDeliveredToday.length)} />
         <DailyMetric icon={PackageX} label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
       </div>
+      {operations.restockPending.length === 0 ? (
+        <div className="crm-card px-3 py-10 text-center text-sm text-[#475569]">Nu sunt produse de adus în Pavilion 110A.</div>
+      ) : (
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
-          <table className="crm-table w-full min-w-[980px] border-collapse text-left text-sm">
+          {/* Lista se folosește și de pe telefon, la raft: sub lg codul trece
+              lângă denumire și rămân Produs, Cantitate și bifele. */}
+          <table className="crm-table w-full border-collapse text-left text-sm lg:min-w-[980px]">
             <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
               <tr>
-                <TableHead>Cod</TableHead>
+                <TableHead className="max-lg:hidden">Cod</TableHead>
                 <TableHead>Produs</TableHead>
                 <TableHead align="right" secondary>Solicitări</TableHead>
-                <TableHead align="right">De adus în 110A</TableHead>
+                <TableHead align="right">De adus</TableHead>
                 <TableHead secondary>Prima vânzare</TableHead>
                 {canModify ? <TableHead align="right">Bifează</TableHead> : null}
               </tr>
             </thead>
             <tbody>
-              {operations.restockPending.length > 0 ? (
-                operations.restockPending.map((line) => (
+              {operations.restockPending.map((line) => (
                   <tr key={line.productId} className="motion-table-row border-t border-[#edf0f5] hover:bg-[#f8fafc]">
-                    <TableCell className="font-mono text-xs font-semibold">
+                    <TableCell className="font-mono text-xs font-semibold max-lg:hidden">
                       {formatText(line.product.externalCode)}
                     </TableCell>
                     <TableCell className="font-medium">
+                      {line.product.externalCode ? (
+                        <span className="block font-mono text-sm font-bold lg:hidden">{line.product.externalCode}</span>
+                      ) : null}
                       {line.product.description}
                       <VehicleSubline product={line.product} />
                     </TableCell>
@@ -109,18 +116,12 @@ function RestockWorkspace({
                       </TableCell>
                     ) : null}
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td className="px-3 py-10 text-center text-[#475569]" colSpan={canModify ? 6 : 5}>
-                    Nu sunt produse de adus în Pavilion 110A.
-                  </td>
-                </tr>
-              )}
+                ))}
             </tbody>
           </table>
         </div>
       </div>
+      )}
     </section>
   );
 }

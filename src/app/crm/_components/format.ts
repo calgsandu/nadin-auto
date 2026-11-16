@@ -38,19 +38,15 @@ export function formatText(value: string | null | undefined) {
   return value && value.trim() ? value : "-";
 }
 
-/** Eticheta scurtă din tabelele de operațiuni (recepții/transferuri/vânzări). */
-export function formatDocumentType(type: string) {
-  if (type === "RECEIPT") return "Recepție";
-  if (type === "SALE") return "Vânzare";
-  return "Transfer";
-}
-
-/** Eticheta completă din „Documente", unde apar și retururile și ajustările. */
-export function formatDocType(type: string) {
-  if (type === "RECEIPT") return "Recepție";
-  if (type === "SALE") return "Vânzare";
-  if (type === "RETURN") return "Retur";
-  return "Ajustare/Transfer";
+/**
+ * Eticheta documentului. Transferul e o pereche de ajustări legate prin
+ * `transferGroupId`; o ajustare fără pereche vine din inventar sau import.
+ */
+export function formatDocumentType(doc: { type: string; transferGroupId?: string | null }) {
+  if (doc.type === "RECEIPT") return "Recepție";
+  if (doc.type === "SALE") return "Vânzare";
+  if (doc.type === "RETURN") return "Retur";
+  return doc.transferGroupId ? "Transfer" : "Ajustare";
 }
 
 export function formatYearLabel(

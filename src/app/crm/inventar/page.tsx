@@ -81,7 +81,8 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
                 aria-current={active ? "page" : undefined}
                 className={segmentCls(active)}
               >
-                {warehouse.name}
+                {warehouse.name}{" "}
+                <span className="tabular-nums opacity-70">{formatNumber(data.positions[warehouse.id] ?? 0)}</span>
               </Link>
             );
           })}

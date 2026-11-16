@@ -169,7 +169,7 @@ export function toDocumentDetails(
   const usesSalePrice = doc.type === "SALE" || doc.type === "RETURN";
   return {
     id: doc.id,
-    typeLabel: formatDocumentType(doc.type),
+    typeLabel: formatDocumentType(doc),
     number: doc.number,
     date: formatDate(doc.documentDate),
     warehouse: doc.warehouse.name,
@@ -291,7 +291,7 @@ export function RecentDocumentsTable({
               return (
               <tr key={document.id} className="motion-table-row border-t border-[#edf0f5] hover:bg-[#f8fafc]">
                 <TableCell className="whitespace-nowrap">
-                  <span className="block font-semibold">{formatDocumentType(document.type)} #{document.number}</span>
+                  <span className="block font-semibold">{formatDocumentType(document)} #{document.number}</span>
                   <span className="block text-xs text-[#475569]">{formatDate(document.documentDate)}</span>
                   <span className="mt-1 block font-semibold tabular-nums lg:hidden">{formatMoney(docTotal)} lei</span>
                 </TableCell>
@@ -333,10 +333,10 @@ export function RecentDocumentsTable({
                   <div className="flex justify-end gap-1.5">
                     <DocumentDetailsButton details={toDocumentDetails(document, canModify)} />
                     {canModify ? (
-                      <RowMenu label={`${formatDocumentType(document.type)} #${document.number}`}>
+                      <RowMenu label={`${formatDocumentType(document)} #${document.number}`}>
                         <DocumentRowActions
                           id={document.id}
-                          title={`${formatDocumentType(document.type)} #${document.number}`}
+                          title={`${formatDocumentType(document)} #${document.number}`}
                           documentDate={document.documentDate.toISOString().slice(0, 10)}
                           documentType={document.type}
                           notes={document.notes ?? ""}
