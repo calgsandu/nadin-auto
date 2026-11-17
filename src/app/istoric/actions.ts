@@ -6,6 +6,7 @@ import { canReviewOperations, canWriteCatalog } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { logAuditRequired } from "@/lib/audit";
 import { getAuditEntryDetails } from "@/lib/audit/queries";
+import { productIdsToResolve } from "@/lib/audit/view";
 import {
   aggregateRestockRequests,
   reconcileSaleRestockTasks,
@@ -316,5 +317,16 @@ export async function loadAuditDetailsAction(id: string) {
   if (!canReviewOperations(user.role)) {
     throw new Error("Nu ai drepturi pentru jurnal.");
   }
-  return getAuditEntryDetails(id);
+  const details = await getAuditEntryDetails(id);
+  const ids = productIdsToResolve(details);
+  const products = ids.length
+    ? await prisma.product.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, externalCode: true, description: true },
+      })
+    : [];
+  const productNames = Object.fromEntries(
+    products.map((p) => [p.id, `${p.externalCode ? `${p.externalCode} · ` : ""}${p.description}`]),
+  );
+  return { details, productNames };
 }
