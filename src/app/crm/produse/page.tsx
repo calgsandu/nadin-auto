@@ -231,7 +231,7 @@ function ProductWorkspace({
             types={catalog.types}
           />
           <div className="overflow-x-auto">
-            <table className="crm-table w-full table-fixed border-collapse text-left text-sm lg:table-auto lg:min-w-[720px]">
+            <table className="crm-table crm-table-compact w-full table-fixed border-collapse text-left text-sm lg:table-auto lg:min-w-[720px]">
               <thead className="border-y border-[#e6e4df] bg-[#faf9f7] max-lg:hidden">
                 <tr>
                   {canModify ? (
@@ -383,7 +383,7 @@ function ProductRow({
       <TableCell className="whitespace-nowrap max-lg:hidden">
         {/* Codul e cheia piesei: îl afișăm primul și mai vizibil decât denumirea. */}
         {product.externalCode ? (
-          <CopyCode code={product.externalCode} className="font-mono text-base font-bold text-[#292524]" />
+          <CopyCode code={product.externalCode} className="font-mono text-[0.9375rem] font-bold text-[#292524]" />
         ) : (
           <span className="text-[#d6d3d1]">—</span>
         )}
