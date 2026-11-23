@@ -55,7 +55,7 @@ export function LoginForm() {
 
   return (
     <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-[#e6e4df] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.35)] md:grid-cols-2">
-      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#1a1917] p-10 text-white md:flex">
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#2563eb] p-10 text-white md:flex">
         <div>
           <span className="grid size-12 place-items-center rounded-2xl bg-white">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -105,7 +105,7 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={isPending}
-            className="mt-1 h-11 rounded-md bg-[#1a1917] text-sm font-semibold text-white transition-colors hover:bg-[#34322e] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-1 h-11 rounded-md bg-[#2563eb] text-sm font-semibold text-white transition-colors hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending ? "Se autentifică..." : "Autentificare"}
           </button>
@@ -143,7 +143,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const inputClassName =
-  "h-11 w-full rounded-md border border-[#e6e4df] bg-white px-3 text-sm text-[#1a1917] outline-none transition focus:border-[#1a1917] focus:ring-2 focus:ring-[#1a1917]/30 placeholder:text-[#78716c]";
+  "h-11 w-full rounded-md border border-[#e6e4df] bg-white px-3 text-sm text-[#1a1917] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30 placeholder:text-[#78716c]";
 
 function GoogleIcon() {
   return (

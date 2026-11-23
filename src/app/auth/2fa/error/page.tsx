@@ -10,7 +10,7 @@ export default function TwoFactorErrorPage() {
       <div className="grid gap-3">
         <Link
           href="/auth/2fa/continue"
-          className="flex h-11 items-center justify-center rounded-md bg-[#1a1917] text-sm font-semibold text-white hover:bg-[#34322e]"
+          className="flex h-11 items-center justify-center rounded-md bg-[#2563eb] text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         >
           Încearcă din nou
         </Link>

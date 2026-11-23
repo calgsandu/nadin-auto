@@ -191,7 +191,7 @@ function ActionButton({
 }) {
   const status = useFormStatus();
   const colors = primary
-    ? "border-[#1a1917] bg-[#1a1917] text-white"
+    ? "border-[#2563eb] bg-[#2563eb] text-white"
     : danger
       ? "border-[#fca5a5] bg-white text-[#b91c1c]"
       : "border-[#e6e4df] bg-white text-[#1a1917]";

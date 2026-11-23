@@ -80,7 +80,7 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
                       {w.name}
                       <div className="mt-1.5 h-1.5 w-full max-w-56 rounded-full bg-[#f0efeb]">
                         <div
-                          className="h-1.5 rounded-full bg-[#1a1917]"
+                          className="h-1.5 rounded-full bg-[#2563eb]"
                           style={{ width: `${Math.max((w.total_quantity / max) * 100, w.total_quantity > 0 ? 4 : 0)}%` }}
                         />
                       </div>

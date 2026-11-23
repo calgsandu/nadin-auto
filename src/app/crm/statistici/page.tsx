@@ -127,7 +127,7 @@ function StatsWorkspace({
                         <p className="font-medium text-[#1a1917]">{product.label}</p>
                         <div className="mt-1.5 h-1.5 w-full max-w-64 rounded-full bg-[#f0efeb]">
                           <div
-                            className="h-1.5 rounded-full bg-[#1a1917]"
+                            className="h-1.5 rounded-full bg-[#2563eb]"
                             style={{ width: `${Math.max((product.quantity / max) * 100, 4)}%` }}
                           />
                         </div>
@@ -188,7 +188,7 @@ function PeriodStatsTable({
                     <p className="font-semibold">{row.label}</p>
                     <div className="mt-1.5 h-1.5 w-full max-w-48 rounded-full bg-[#f0efeb]">
                       <div
-                        className="h-1.5 rounded-full bg-[#1a1917]"
+                        className="h-1.5 rounded-full bg-[#2563eb]"
                         style={{ width: `${Math.max((row.revenueLei / max) * 100, row.revenueLei > 0 ? 4 : 0)}%` }}
                       />
                     </div>

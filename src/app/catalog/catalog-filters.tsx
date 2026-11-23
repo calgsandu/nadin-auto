@@ -70,7 +70,7 @@ export function CatalogFilters({
 
   const pill = (active: boolean) =>
     `field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
-      active ? "border-[#d6d3cd] bg-[#ecebe6] text-[#34322e]" : "border-[#e6e4df] bg-white text-[#44403c]"
+      active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e6e4df] bg-white text-[#44403c]"
     }`;
   const select = "min-w-0 max-w-40 cursor-pointer bg-transparent font-medium outline-none";
 
@@ -79,7 +79,7 @@ export function CatalogFilters({
       <div className="relative min-w-0 flex-1 sm:w-60 sm:flex-none">
         <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
           {searching ? (
-            <LoaderCircle className="size-4 animate-spin text-[#1a1917]" aria-hidden="true" />
+            <LoaderCircle className="size-4 animate-spin text-[#2563eb]" aria-hidden="true" />
           ) : (
             <Search className="size-4 text-[#78716c]" aria-hidden="true" />
           )}

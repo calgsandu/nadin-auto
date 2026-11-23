@@ -119,9 +119,9 @@ export function TopBar({
   return (
     <div className="flex h-16 items-center gap-3 px-4 lg:gap-3 lg:px-6 xl:gap-5">
       <Link href="/crm/produse" className="flex shrink-0 items-center gap-2.5" aria-label="Nadin Auto">
-        <span className="grid size-9 place-items-center rounded-full bg-[#1a1917]">
+        <span className="grid size-9 place-items-center rounded-full bg-[#eef4ff]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="" className="h-4 w-6 object-contain brightness-0 invert" />
+          <img src="/logo.png" alt="" className="h-4 w-6 object-contain" />
         </span>
         <span className="text-[1.125rem] font-semibold tracking-tight text-[#1a1917] lg:max-xl:hidden">Nadin Auto</span>
       </Link>
@@ -136,7 +136,7 @@ export function TopBar({
               aria-label={count > 0 ? `${label} (${count})` : label}
               className={`motion-nav-link inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-medium xl:px-3.5 ${
                 active
-                  ? "bg-[#1a1917] text-white"
+                  ? "bg-[#2563eb] text-white shadow-[0_4px_12px_-4px_rgb(37_99_235/0.5)]"
                   : "border border-[#e6e4df] bg-white text-[#1a1917] hover:border-[#d6d3d1]"
               }`}
             >
@@ -145,7 +145,7 @@ export function TopBar({
               {count > 0 ? (
                 <span
                   className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold leading-none tabular-nums ${
-                    active ? "bg-white text-[#1a1917]" : "bg-[#1a1917] text-white"
+                    active ? "bg-white text-[#1d4ed8]" : "bg-[#2563eb] text-white"
                   }`}
                 >
                   {count}
@@ -174,7 +174,7 @@ export function TopBar({
             triggerClassName="flex items-center gap-2.5 rounded-full py-1 pl-1 pr-2 hover:bg-white"
             trigger={
               <>
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#e4e2dc] text-xs font-semibold text-[#1a1917]">
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#eef4ff] text-xs font-semibold text-[#1d4ed8]">
                   {initials || "?"}
                 </span>
                 <span className="min-w-0 max-2xl:hidden">
@@ -236,7 +236,7 @@ function MobileMenu({
         <Menu className="size-4" aria-hidden="true" />
         Meniu
         {total > 0 ? (
-          <span className="rounded-md bg-[#1a1917] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
+          <span className="rounded-md bg-[#2563eb] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
             {total}
           </span>
         ) : null}
@@ -326,12 +326,12 @@ function SubLink({ section, active, count }: { section: WorkspaceSectionId; acti
       href={crmSectionHref(section)}
       aria-current={active ? "page" : undefined}
       className={`motion-nav-link flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm ${
-        active ? "bg-[#ecebe6] font-semibold text-[#34322e]" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+        active ? "bg-[#eef4ff] font-semibold text-[#1d4ed8]" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
       }`}
     >
       <span className="truncate">{sectionLabel(section)}</span>
       {count > 0 ? (
-        <span className="ml-auto rounded-md bg-[#1a1917] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
+        <span className="ml-auto rounded-md bg-[#2563eb] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
           {count}
         </span>
       ) : null}
@@ -358,7 +358,7 @@ function NavLink({
       aria-label={badge > 0 ? `${label} (${badge})` : label}
       href={href}
       className={`motion-nav-link flex items-center gap-3 rounded-full px-3 py-2 text-sm font-medium ${
-        active ? "bg-[#1a1917] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+        active ? "bg-[#2563eb] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
       }`}
     >
       <Icon className={`size-[1.125rem] shrink-0 ${active ? "text-white" : "text-[#a8a29e]"}`} aria-hidden="true" />
@@ -366,7 +366,7 @@ function NavLink({
       {badge > 0 ? (
         <span
           className={`ml-auto grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold leading-none tabular-nums ${
-            active ? "bg-white text-[#1a1917]" : "bg-[#1a1917] text-white"
+            active ? "bg-white text-[#1d4ed8]" : "bg-[#2563eb] text-white"
           }`}
         >
           {badge}
@@ -471,14 +471,14 @@ export function SectionTabs({ role }: { role: AppRole }) {
               href={crmSectionHref(section)}
               aria-current={active ? "page" : undefined}
               className={`inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-sm font-medium transition-colors ${
-                active ? "bg-[#1a1917] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+                active ? "bg-[#2563eb] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
               }`}
             >
               {sectionLabel(section)}
               {count > 0 ? (
                 <span
                   className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold leading-none tabular-nums ${
-                    active ? "bg-white text-[#1a1917]" : "bg-[#ecebe6] text-[#1a1917]"
+                    active ? "bg-white text-[#1d4ed8]" : "bg-[#eef4ff] text-[#1d4ed8]"
                   }`}
                 >
                   {count}

@@ -115,7 +115,7 @@ export function PartnerFormDialog({
           className={
             triggerKind === "row"
               ? rowIconButtonCls
-              : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#34322e]"
+              : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
           }
           title={triggerKind === "row" ? triggerLabel : undefined}
           type="button"
@@ -162,7 +162,7 @@ export function PartnerFormDialog({
             >
               <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
                 <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#1a1917]">
-                  <span className="grid size-8 place-items-center rounded-lg bg-[#1a1917] text-white">
+                  <span className="grid size-8 place-items-center rounded-lg bg-[#2563eb] text-white">
                     <Handshake className="size-4" aria-hidden="true" />
                   </span>
                   {partner ? "Editează partener" : "Partener nou"}

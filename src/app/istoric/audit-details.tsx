@@ -28,7 +28,7 @@ export function AuditDetails({ id }: { id: string }) {
         });
       }}
     >
-      <summary className="cursor-pointer whitespace-nowrap text-right text-xs font-semibold text-[#1a1917] underline decoration-[#1a1917] underline-offset-4">
+      <summary className="cursor-pointer whitespace-nowrap text-right text-xs font-semibold text-[#1a1917] underline decoration-[#2563eb] underline-offset-4">
         Vezi detalii
       </summary>
       <div className="mt-2 max-h-80 w-[min(36rem,80vw)] overflow-auto rounded-md border border-[#e6e4df] bg-[#faf9f7] px-3 py-2 text-xs text-[#44403c]">

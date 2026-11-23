@@ -322,7 +322,7 @@ function ClientsOverview({ customers }: { customers: CustomerRow[] }) {
       {top.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {top.map((customer, index) => (
-            <Link key={customer.id} href={crmCustomersHref(customer.id)} scroll={false} className="rounded-[1.25rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1917]">
+            <Link key={customer.id} href={crmCustomersHref(customer.id)} scroll={false} className="rounded-[1.25rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]">
               <PastelCard
                 tone={cardTones[index]}
                 title={customer.name}

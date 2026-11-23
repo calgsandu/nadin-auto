@@ -71,7 +71,7 @@ function AuditWorkspace({ data }: { data: AuditData }) {
               href={href}
               aria-current={active ? "page" : undefined}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                active ? "bg-[#1a1917] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+                active ? "bg-[#2563eb] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
               }`}
             >
               {filter.label}

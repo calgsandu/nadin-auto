@@ -89,7 +89,7 @@ export function DailyMetric({
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-[#78716c] max-sm:truncate max-sm:text-xs">{label}</p>
         {Icon ? (
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#ecebe6] text-[#1a1917] max-sm:hidden">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#eef4ff] text-[#2563eb] max-sm:hidden">
             <Icon className="size-4" aria-hidden="true" />
           </span>
         ) : null}
@@ -273,7 +273,7 @@ export function Pagination({
         item === "gap" ? (
           <span key={`gap-${index}`} className="px-1 text-[#a8a29e]">…</span>
         ) : item === page ? (
-          <span key={item} aria-current="page" className={`${cell} border-[#1a1917] bg-[#1a1917] text-white`}>
+          <span key={item} aria-current="page" className={`${cell} border-[#2563eb] bg-[#2563eb] text-white`}>
             {item}
           </span>
         ) : (
@@ -310,7 +310,7 @@ export function FilterField({
   return (
     <label
       className={`field-control inline-flex h-9 items-center gap-2 rounded-full border px-3 text-sm ${
-        active ? "border-[#d6d3cd] bg-[#ecebe6] text-[#34322e]" : "border-[#e6e4df] bg-white text-[#44403c]"
+        active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e6e4df] bg-white text-[#44403c]"
       }`}
     >
       <span className="shrink-0 opacity-70 [&>svg]:size-4" aria-hidden="true">
@@ -352,7 +352,7 @@ export const segmentedCls =
 
 export function segmentCls(active: boolean) {
   return `rounded-full px-3 py-1 text-sm font-medium transition-colors ${
-    active ? "bg-[#1a1917] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+    active ? "bg-[#2563eb] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
   }`;
 }
 
@@ -361,7 +361,7 @@ export function SegmentCount({ active, value }: { active: boolean; value: number
   return (
     <span
       className={`ml-1 inline-grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold tabular-nums ${
-        active ? "bg-white text-[#1a1917]" : "bg-[#ecebe6] text-[#1a1917]"
+        active ? "bg-white text-[#1d4ed8]" : "bg-[#eef4ff] text-[#1d4ed8]"
       }`}
     >
       {value}
@@ -528,7 +528,7 @@ export function PastelCard({
       </p>
       {progress !== undefined ? (
         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/80">
-          <div className="h-full rounded-full bg-[#1a1917]" style={{ width: `${Math.round(Math.min(Math.max(progress, 0), 1) * 100)}%` }} />
+          <div className="h-full rounded-full bg-[#2563eb]" style={{ width: `${Math.round(Math.min(Math.max(progress, 0), 1) * 100)}%` }} />
         </div>
       ) : null}
       {footer ? <div className="mt-3 text-xs text-[#57534e]">{footer}</div> : null}

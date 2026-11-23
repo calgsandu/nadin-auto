@@ -16,7 +16,7 @@ function salePaymentMethodTone(value: SalePaymentMethodStatus) {
   return value === "CASH"
     ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
     : value === "CARD"
-      ? "border-[#d6d3cd] bg-[#ecebe6] text-[#34322e]"
+      ? "border-[#93c5fd] bg-[#eff6ff] text-[#1d4ed8]"
       : value === "CREDIT"
         ? "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
         : value === "TRANSFER"

@@ -191,7 +191,7 @@ function ApprovalCard({
           <div className="flex justify-end">
             <Link
               href={`/crm/istoric?doc=${entry.appliedEntityId}`}
-              className="text-sm font-semibold text-[#34322e] underline decoration-[#84adff] underline-offset-4"
+              className="text-sm font-semibold text-[#1d4ed8] underline decoration-[#84adff] underline-offset-4"
             >
               Vezi documentul în istoric
             </Link>

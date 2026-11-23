@@ -44,9 +44,9 @@
 :root:has(.crm-main) {
   --background: #efeeea;
   --foreground: #1a1917;
-  --accent: #1a1917;
+  --accent: #2563eb;
   --border: #e6e4df;
-  --ring: #1a1917;
+  --ring: #2563eb;
 }
 
 /* Pe body, nu pe `.crm-main`: drawerele și meniurile sunt portate în body.
@@ -242,7 +242,7 @@ details > summary svg {
 
 .field-control:focus-visible {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgb(26 25 23 / 14%);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 14%);
 }
 
 .button-primary,
@@ -569,8 +569,8 @@ details > summary svg {
 
 /* Rândul bifat (stickere) iese în evidență, cu bara albastră în stânga. */
 .crm-table tr:has(input[data-label-id]:checked) {
-  background: #ecebe6;
-  box-shadow: inset 3px 0 0 #1a1917;
+  background: #eff6ff;
+  box-shadow: inset 3px 0 0 #2563eb;
 }
 
 /* Iconițele butoanelor de rând (Editează, Detalii, Încasează, Fișă), tot din CSS. */

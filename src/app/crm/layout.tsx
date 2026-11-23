@@ -46,11 +46,11 @@ export default async function CrmLayout({
         {/* Bara de sus stă pe același fundal ca pagina; fără blur: un
             `backdrop-filter` ar prinde drawerele `fixed` din ea. */}
         <header className="sticky top-0 z-40 border-b border-[#e6e4df] bg-[#efeeea] lg:border-b-0">
-          <div className="mx-auto max-w-[110rem]">
+          <div>
             <TopBar role={appUser.role} userName={appUser.name} userEmail={appUser.email} />
           </div>
         </header>
-        <section className="mx-auto min-w-0 max-w-[110rem] pb-8">{children}</section>
+        <section className="min-w-0 pb-8">{children}</section>
       </main>
     </CrmChrome>
   );

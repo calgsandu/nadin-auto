@@ -206,7 +206,7 @@ export function InventoryDialog({
         className={
           prefill
             ? "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e6e4df] bg-white px-3 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
-            : "button-primary inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3 py-2 text-sm font-semibold text-white hover:bg-[#34322e]"
+            : "button-primary inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         }
         type="button"
         onClick={openDialog}

@@ -325,7 +325,7 @@ export function ProductSearchCombobox({
                 ref={index === activeIndex ? activeItemRef : null}
                 aria-selected={index === activeIndex}
                 className={`button-secondary flex w-full items-baseline gap-3 border-b border-[#eeede9] px-3 py-1.5 text-left text-sm text-[#1a1917] ${
-                  index === activeIndex ? "bg-[#e4e2dc]" : "hover:bg-[#f3f2ef]"
+                  index === activeIndex ? "bg-[#dbeafe]" : "hover:bg-[#f3f2ef]"
                 }`}
                 role="option"
                 type="button"

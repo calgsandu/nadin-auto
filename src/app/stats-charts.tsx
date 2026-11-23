@@ -14,8 +14,8 @@ import {
 } from "recharts";
 import type { StatsData } from "@/lib/stats/queries";
 
-const INK = "#1a1917";
-const GREEN = "#1f6b3a";
+const BLUE = "#2563eb";
+const GREEN = "#15803d";
 const GRID = "#eeede9";
 const AXIS = "#57534e";
 
@@ -73,7 +73,7 @@ export function DailyChart({
             tickFormatter={(v: number) => money.format(v)}
           />
           <Tooltip formatter={(v) => fmt(Number(v))} contentStyle={tooltipStyle} />
-          <Bar dataKey="Venit" fill={INK} radius={[4, 4, 0, 0]} maxBarSize={34} />
+          <Bar dataKey="Venit" fill={BLUE} radius={[4, 4, 0, 0]} maxBarSize={34} />
           {canModify ? (
             <Line
               dataKey="Profit"
@@ -120,7 +120,7 @@ export function MonthlyChart({
             tickFormatter={(v: number) => money.format(v)}
           />
           <Tooltip formatter={(v) => fmt(Number(v))} contentStyle={tooltipStyle} />
-          <Bar dataKey="Venit" fill="#c7b8ef" radius={[4, 4, 0, 0]} maxBarSize={40} />
+          <Bar dataKey="Venit" fill="#8ec5fc" radius={[4, 4, 0, 0]} maxBarSize={40} />
           {canModify ? (
             <Line
               dataKey="Profit"
@@ -163,7 +163,7 @@ export function TopProductsChart({ rows }: { rows: StatsData["topProducts"] }) {
           <Tooltip contentStyle={tooltipStyle} formatter={(v) => `${Number(v)} buc.`} />
           <Bar dataKey="Cantitate" radius={[0, 4, 4, 0]} maxBarSize={22}>
             {data.map((_, i) => (
-              <Cell key={i} fill={i === 0 ? INK : "#c7b8ef"} />
+              <Cell key={i} fill={i === 0 ? BLUE : "#8ec5fc"} />
             ))}
           </Bar>
         </BarChart>

@@ -108,7 +108,7 @@ async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cat
     crmCatalogPageHref({ ...params, brand, model, fitment: undefined, page: undefined });
   const row = (active: boolean) =>
     `flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm ${
-      active ? "bg-[#ecebe6] font-semibold text-[#34322e]" : "text-[#44403c] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+      active ? "bg-[#eef4ff] font-semibold text-[#1d4ed8]" : "text-[#44403c] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
     }`;
 
   return (
@@ -270,7 +270,7 @@ function ProductWorkspace({
           {catalog.products.length === 0 ? (
             <div className="px-4 py-14 text-center text-sm text-[#57534e]">
               Nu am găsit nimic.{" "}
-              <Link className="font-medium text-[#1a1917] hover:underline" href={crmSectionHref("produse")}>
+              <Link className="font-medium text-[#2563eb] hover:underline" href={crmSectionHref("produse")}>
                 Resetează filtrele
               </Link>
             </div>
@@ -310,7 +310,7 @@ function StockCount({
     value <= 0
       ? ["bg-[#fef2f2] text-[#b91c1c]", "Fără stoc"]
       : value <= (minStock ?? 3)
-        ? ["bg-[#ecebe6] text-[#34322e]", "Aproape terminat"]
+        ? ["bg-[#eef4ff] text-[#1d4ed8]", "Aproape terminat"]
         : ["bg-[#ecfdf3] text-[#15803d]", "În stoc"];
   return (
     <span
@@ -376,7 +376,7 @@ function ProductRow({
               .map((compatibility) => `${compatibility.title}, ani ${compatibility.years}`)
               .join(" • ")}
             aria-label={`Selectează ${product.description} pentru sticker`}
-            className="size-4 cursor-pointer rounded accent-[#1a1917]"
+            className="size-4 cursor-pointer rounded accent-[#2563eb]"
           />
         </TableCell>
       ) : null}
@@ -424,7 +424,7 @@ function ProductRow({
             />
           }
         >
-          <span className="block text-sm text-[#292524] hover:text-[#1a1917]">
+          <span className="block text-sm text-[#292524] hover:text-[#2563eb]">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
           </span>

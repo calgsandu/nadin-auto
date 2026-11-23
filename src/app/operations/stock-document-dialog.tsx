@@ -1012,7 +1012,7 @@ export function StockSaleDialog({
                     if (line.external) {
                       const marja = ((Number(line.price) || 0) - (Number(line.cost) || 0)) * (Number(line.qty) || 0);
                       return (
-                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-lg border border-[#e4e2dc] bg-[#f5f9ff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_13rem_5rem_6.5rem_7.5rem_2.25rem] md:items-start">
+                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-lg border border-[#dbeafe] bg-[#f5f9ff] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_13rem_5rem_6.5rem_7.5rem_2.25rem] md:items-start">
                           <Field label="Piesă externă">
                             <input name="productId" type="hidden" value="" />
                             <input
@@ -1130,7 +1130,7 @@ export function StockSaleDialog({
                                   {betterWarehouse ? " " : null}
                                   {betterWarehouse ? (
                                     <button
-                                      className="font-semibold text-[#1a1917] underline underline-offset-2 hover:text-[#34322e]"
+                                      className="font-semibold text-[#2563eb] underline underline-offset-2 hover:text-[#1d4ed8]"
                                       type="button"
                                       onClick={() => changeWarehouse(betterWarehouse.id)}
                                     >
@@ -1270,7 +1270,7 @@ function LineControls({
 const Field = DrawerField;
 const inputClassName = drawerInputClassName;
 const primaryButtonClassName =
-  "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3 py-2 text-sm font-semibold text-white hover:bg-[#34322e]";
+  "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]";
 const secondaryButtonClassName = drawerSecondaryButton;
 const dangerButtonClassName = drawerDangerButton;
 

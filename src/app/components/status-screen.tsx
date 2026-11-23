@@ -40,7 +40,7 @@ export function StatusScreen({
 }
 
 export const statusPrimaryButton =
-  "button-primary rounded-md bg-[#1a1917] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#34322e]";
+  "button-primary rounded-md bg-[#2563eb] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1d4ed8]";
 export const statusSecondaryButton =
   "button-secondary rounded-md border border-[#e6e4df] bg-white px-4 py-2.5 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]";
 

@@ -16,7 +16,7 @@ export function VerifyForm({ credentialId }: { credentialId: string }) {
       <label className="grid gap-1.5 text-sm font-medium text-[#44403c]">
         Codul din Authenticator
         <input
-          className="h-12 rounded-md border border-[#e6e4df] bg-white px-3 text-center font-mono text-lg tracking-[0.3em] outline-none focus:border-[#1a1917] focus:ring-2 focus:ring-[#1a1917]/30"
+          className="h-12 rounded-md border border-[#e6e4df] bg-white px-3 text-center font-mono text-lg tracking-[0.3em] outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30"
           name="code"
           inputMode="numeric"
           pattern="[0-9]{6}"
@@ -41,7 +41,7 @@ export function VerifyForm({ credentialId }: { credentialId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="h-11 rounded-md bg-[#1a1917] text-sm font-semibold text-white hover:bg-[#34322e] disabled:opacity-60"
+        className="h-11 rounded-md bg-[#2563eb] text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60"
       >
         {pending ? "Se verifică..." : "Verifică și continuă"}
       </button>

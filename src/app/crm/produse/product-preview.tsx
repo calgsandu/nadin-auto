@@ -88,7 +88,7 @@ export function ProductPreview({
               </div>
 
               <div className="grid gap-4 px-5 py-4">
-                <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl bg-[#1a1917] p-4 text-white">
+                <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl bg-[#2563eb] p-4 text-white">
                   <div>
                     <p className="text-sm text-white/70">Preț de vânzare</p>
                     <p className="text-3xl font-semibold tracking-tight tabular-nums">
@@ -109,7 +109,7 @@ export function ProductPreview({
                     ) : null}
                     {canSell ? (
                       <Link
-                        className="inline-flex h-10 items-center gap-2 rounded-md bg-[#1a1917] px-4 text-sm font-semibold text-white hover:bg-[#34322e]"
+                        className="inline-flex h-10 items-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
                         href={`/crm/vanzari?nou=1&produs=${product.id}`}
                       >
                         <ShoppingCart className="size-4" aria-hidden="true" /> Vinde
@@ -120,7 +120,7 @@ export function ProductPreview({
 
                 <section className="crm-card">
                   <h3 className="flex items-center gap-2.5 border-b border-[#eeede9] px-4 py-2.5 text-sm font-semibold text-[#1a1917]">
-                    <span className="grid size-7 place-items-center rounded-lg bg-[#ecebe6] text-[#1a1917]">
+                    <span className="grid size-7 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
                       <Car className="size-4" aria-hidden="true" />
                     </span>
                     Se potrivește pe
@@ -147,7 +147,7 @@ export function ProductPreview({
                 <section className="crm-card">
                   <h3 className="flex items-center justify-between border-b border-[#eeede9] px-4 py-2.5 text-sm font-semibold text-[#1a1917]">
                     <span className="flex items-center gap-2.5">
-                      <span className="grid size-7 place-items-center rounded-lg bg-[#ecebe6] text-[#1a1917]">
+                      <span className="grid size-7 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
                         <Warehouse className="size-4" aria-hidden="true" />
                       </span>
                       Stoc pe depozite

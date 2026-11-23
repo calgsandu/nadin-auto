@@ -53,7 +53,7 @@ const emptyLine = (id: number): EditableLine => ({
 
 const initialState: PaymentAccountActionState = { ok: false, message: "" };
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm text-[#1a1917] outline-none placeholder:text-[#78716c] focus:border-[#1a1917] focus:ring-2 focus:ring-[#1a1917]/25";
+  "field-control h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm text-[#1a1917] outline-none placeholder:text-[#78716c] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/25";
 
 export function PaymentAccountDialog({
   customers,
@@ -135,7 +135,7 @@ export function PaymentAccountDialog({
   return (
     <>
       <button
-        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#34322e]"
+        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         type="button"
         onClick={() => {
           setMounted(true);

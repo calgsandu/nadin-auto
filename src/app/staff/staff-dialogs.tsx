@@ -29,7 +29,7 @@ export function CreateStaffDialog() {
   return (
     <>
       <button
-        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#34322e]"
+        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
         type="button"
         onClick={() => setOpen(true)}
       >
@@ -303,7 +303,7 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
   const [copied, setCopied] = useState(false);
   return (
     <div className="grid gap-4">
-      <div className="rounded-lg border border-[#7cb8f5] bg-[#ecebe6] p-4 text-sm text-[#194185]">
+      <div className="rounded-lg border border-[#7cb8f5] bg-[#eff6ff] p-4 text-sm text-[#194185]">
         Copiază parola acum. După închiderea ferestrei nu mai poate fi afișată.
       </div>
       <div className="flex items-center gap-2 rounded-lg border border-[#e6e4df] bg-white p-3">
@@ -320,7 +320,7 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
           {copied ? "Copiat" : "Copiază"}
         </button>
       </div>
-      <button className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
+      <button className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
         <Check className="size-4" aria-hidden="true" />
         Am salvat parola
       </button>
@@ -344,7 +344,7 @@ function RevealedActivationCode({
   });
   return (
     <div className="grid gap-4">
-      <div className="rounded-lg border border-[#7cb8f5] bg-[#ecebe6] p-4 text-sm leading-6 text-[#194185]">
+      <div className="rounded-lg border border-[#7cb8f5] bg-[#eff6ff] p-4 text-sm leading-6 text-[#194185]">
         Comunică acest cod separat, ideal personal. După închiderea ferestrei nu mai poate fi afișat.
       </div>
       <div className="rounded-lg border border-[#e6e4df] bg-white p-3">
@@ -367,7 +367,7 @@ function RevealedActivationCode({
         <p className="mt-2 text-xs text-[#57534e]">Expiră la {expiryLabel}.</p>
       </div>
       <button
-        className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white"
+        className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white"
         type="button"
         onClick={onClose}
       >

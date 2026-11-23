@@ -21,7 +21,7 @@ export type CatalogSearchParams = {
   page?: string;
 };
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 100;
 
 /**
  * „Aproape terminat": mai sunt câteva bucăți, dar cel mult pragul din fișă

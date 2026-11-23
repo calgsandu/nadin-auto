@@ -202,7 +202,7 @@ export function OperationDrawer({
             <div>
               <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#1a1917]">
                 {Icon ? (
-                  <span className="grid size-8 place-items-center rounded-lg bg-[#1a1917] text-white">
+                  <span className="grid size-8 place-items-center rounded-lg bg-[#2563eb] text-white">
                     <Icon className="size-4" aria-hidden="true" />
                   </span>
                 ) : null}
@@ -291,7 +291,7 @@ export function DrawerChoice({
               type="radio"
               value={option.value}
             />
-            <span className="flex h-9 items-center gap-1.5 rounded-md border border-[#e6e4df] bg-white px-3 text-sm font-medium text-[#44403c] transition-colors peer-hover:border-[#d6d3d1] peer-checked:border-[#1a1917] peer-checked:bg-[#ecebe6] peer-checked:text-[#34322e] peer-focus-visible:ring-2 peer-focus-visible:ring-[#1a1917]/40">
+            <span className="flex h-9 items-center gap-1.5 rounded-md border border-[#e6e4df] bg-white px-3 text-sm font-medium text-[#44403c] transition-colors peer-hover:border-[#d6d3d1] peer-checked:border-[#2563eb] peer-checked:bg-[#eff6ff] peer-checked:text-[#1d4ed8] peer-focus-visible:ring-2 peer-focus-visible:ring-[#2563eb]/40">
               {option.icon ? <option.icon className="size-4 opacity-70" aria-hidden="true" /> : null}
               {option.label}
             </span>
@@ -331,7 +331,7 @@ export function DrawerHeading({ icon: Icon, title, action }: { icon: LucideIcon;
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h3 className="flex items-center gap-2.5 font-semibold text-[#1a1917]">
-        <span className="grid size-8 place-items-center rounded-lg bg-[#ecebe6] text-[#1a1917]">
+        <span className="grid size-8 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
           <Icon className="size-4" aria-hidden="true" />
         </span>
         {title}
@@ -375,7 +375,7 @@ export function DrawerCard({
 /** Totalul documentului: cardul închis, cel mai vizibil lucru din formular. */
 export function DrawerTotal({ total, vat }: { total: string; vat: string }) {
   return (
-    <div className="self-start rounded-xl bg-[#1a1917] px-4 py-3.5 text-right text-white shadow-sm">
+    <div className="self-start rounded-xl bg-[#2563eb] px-4 py-3.5 text-right text-white shadow-sm">
       <p className="text-sm text-white/70">Total</p>
       <p className="text-[1.75rem] font-semibold leading-tight tracking-tight tabular-nums">{total} lei</p>
       <p className="text-xs text-white/60">din care TVA {vat} lei</p>

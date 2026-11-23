@@ -113,7 +113,7 @@ export function RowMenu({
           <>
             <Icon className="size-4" aria-hidden="true" />
             {badge > 0 ? (
-              <span className="absolute -right-1.5 -top-1.5 min-w-4 rounded-full bg-[#1a1917] px-1 text-[10px] font-bold leading-4 tabular-nums text-white">
+              <span className="absolute -right-1.5 -top-1.5 min-w-4 rounded-full bg-[#2563eb] px-1 text-[10px] font-bold leading-4 tabular-nums text-white">
                 {badge}
               </span>
             ) : null}

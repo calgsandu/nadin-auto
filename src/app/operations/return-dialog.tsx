@@ -223,5 +223,5 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
 const Field = DrawerField;
 const inputClassName = drawerInputClassName;
 const primaryButtonClassName =
-  "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3 py-2 text-sm font-semibold text-white hover:bg-[#34322e]";
+  "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]";
 const secondaryButtonClassName = drawerSecondaryButton;

@@ -12,7 +12,7 @@ export function CopyCode({ code, className = "" }: { code: string; className?: s
 
   return (
     <button
-      className={`group inline-flex items-center gap-1.5 rounded-md text-left hover:text-[#1a1917] ${className}`}
+      className={`group inline-flex items-center gap-1.5 rounded-md text-left hover:text-[#2563eb] ${className}`}
       title="Copiază codul"
       type="button"
       onClick={async (event) => {

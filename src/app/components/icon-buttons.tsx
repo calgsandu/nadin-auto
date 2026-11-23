@@ -19,7 +19,7 @@ const closeCls =
   "button-secondary inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-[#e6e4df] bg-white text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]";
 
 const saveCls =
-  "button-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#1a1917] px-3.5 text-sm font-semibold text-white hover:bg-[#34322e] disabled:cursor-not-allowed disabled:opacity-60";
+  "button-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60";
 
 export function CloseIconButton({
   label = "Închide",

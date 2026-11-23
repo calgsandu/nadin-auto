@@ -15,7 +15,7 @@ export function TwoFactorShell({
       <section className="w-full max-w-lg overflow-hidden rounded-2xl border border-[#e6e4df] bg-white shadow-[0_24px_60px_-20px_rgba(24,33,29,0.25)]">
         <header className="border-b border-[#e6e4df] bg-[#faf9f7] px-6 py-6 sm:px-8">
           <div className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-[#eaf3ff] text-[#34322e]">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-[#eaf3ff] text-[#1d4ed8]">
               <ShieldCheck className="size-5" aria-hidden="true" />
             </span>
             <div>

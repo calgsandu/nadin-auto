@@ -48,7 +48,7 @@ export function SaleLines({ lines }: { lines: SaleLineWithProduct[] }) {
             {lineDescription(line)}
             {!line.product ? (
               <span
-                className="ml-1.5 rounded bg-[#e4e2dc] px-1 text-xs font-semibold text-[#34322e]"
+                className="ml-1.5 rounded bg-[#dbeafe] px-1 text-xs font-semibold text-[#1d4ed8]"
                 title="Piesă de la furnizor — nu face parte din catalogul/stocul propriu"
               >
                 extern
@@ -61,7 +61,7 @@ export function SaleLines({ lines }: { lines: SaleLineWithProduct[] }) {
                   marked
                     ? diff < 0
                       ? "bg-[#fee2e2] text-[#b91c1c]"
-                      : "bg-[#e4e2dc] text-[#34322e]"
+                      : "bg-[#dbeafe] text-[#1d4ed8]"
                     : "text-[#57534e]"
                 }`}
                 title={

@@ -51,7 +51,7 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
           {state.ok ? (
             <div className="grid gap-4 px-5 py-4">
               <div className="rounded-md border border-[#86efac] bg-[#f0fdf4] px-3 py-3 text-sm text-[#166534]">{state.message}</div>
-              <button className="button-primary justify-self-end rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>Închide</button>
+              <button className="button-primary justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>Închide</button>
             </div>
           ) : (
             <form action={formAction} className="grid gap-4 px-5 py-4">

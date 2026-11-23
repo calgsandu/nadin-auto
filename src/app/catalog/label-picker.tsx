@@ -238,7 +238,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                                       event.currentTarget.checked,
                                     )
                                   }
-                                  className="size-3.5 accent-[#1a1917]"
+                                  className="size-3.5 accent-[#2563eb]"
                                 />
                                 <span>
                                   {item.alternativeCode
@@ -253,7 +253,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                                 type="button"
                                 onClick={() => updateCount(item.id, item.count - 1)}
                                 disabled={item.count <= MIN_LABEL_COUNT}
-                                className="grid size-8 place-items-center rounded-full border border-[#d6d3d1] bg-white text-[#1a1917] transition-colors hover:border-[#b9b5ac] hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1917] disabled:cursor-not-allowed disabled:opacity-35"
+                                className="grid size-8 place-items-center rounded-full border border-[#d6d3d1] bg-white text-[#1a1917] transition-colors hover:border-[#b9b5ac] hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb] disabled:cursor-not-allowed disabled:opacity-35"
                                 aria-label={`Mai puține stickere pentru ${item.code || item.name}`}
                               >
                                 <Minus aria-hidden="true" className="size-3.5" strokeWidth={2.25} />
@@ -267,14 +267,14 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                                 onChange={(event) =>
                                   updateCount(item.id, Number(event.currentTarget.value))
                                 }
-                                className="h-8 w-11 rounded-lg border border-[#d6d3d1] bg-white text-center font-mono text-sm font-bold text-[#1a1917] [appearance:textfield] focus:border-[#1a1917] focus:outline-none focus:ring-1 focus:ring-[#1a1917] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                className="h-8 w-11 rounded-lg border border-[#d6d3d1] bg-white text-center font-mono text-sm font-bold text-[#1a1917] [appearance:textfield] focus:border-[#2563eb] focus:outline-none focus:ring-1 focus:ring-[#2563eb] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                                 aria-label={`Număr stickere pentru ${item.code || item.name}`}
                               />
                               <button
                                 type="button"
                                 onClick={() => updateCount(item.id, item.count + 1)}
                                 disabled={item.count >= MAX_LABEL_COUNT}
-                                className="grid size-8 place-items-center rounded-full border border-[#d6d3d1] bg-white text-[#1a1917] transition-colors hover:border-[#b9b5ac] hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1917] disabled:cursor-not-allowed disabled:opacity-35"
+                                className="grid size-8 place-items-center rounded-full border border-[#d6d3d1] bg-white text-[#1a1917] transition-colors hover:border-[#b9b5ac] hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb] disabled:cursor-not-allowed disabled:opacity-35"
                                 aria-label={`Mai multe stickere pentru ${item.code || item.name}`}
                               >
                                 <Plus aria-hidden="true" className="size-3.5" strokeWidth={2.25} />
@@ -282,7 +282,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                               <button
                                 type="button"
                                 onClick={() => remove(item.id)}
-                                className="ml-1 grid size-7 place-items-center rounded-full text-[#8d887f] transition-colors hover:bg-[#f4e6e4] hover:text-[#a53027] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1917]"
+                                className="ml-1 grid size-7 place-items-center rounded-full text-[#8d887f] transition-colors hover:bg-[#f4e6e4] hover:text-[#a53027] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
                                 aria-label={`Scoate ${item.code || item.name} din selecție`}
                               >
                                 <X aria-hidden="true" className="size-4" />
@@ -305,7 +305,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                     href={printHref}
                     rel="noopener"
                     target="_blank"
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-medium text-[#1a1917] transition-colors hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1917]"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-medium text-[#1a1917] transition-colors hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
                   >
                     <Printer aria-hidden="true" className="size-4 text-[#57534e]" />
                     Printează {stickerCount} {stickerCount === 1 ? "sticker" : "stickere"}
@@ -319,7 +319,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                         ? "Restrânge lista cantităților"
                         : "Arată lista cantităților"
                     }
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-medium text-[#1a1917] transition-colors hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1917]"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-medium text-[#1a1917] transition-colors hover:bg-[#f3f2ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
                   >
                     <ListOrdered aria-hidden="true" className="size-4 text-[#57534e]" />
                     Cantități
@@ -334,7 +334,7 @@ export function LabelPicker({ children }: { children: ReactNode }) {
                     onClick={clear}
                     aria-label="Deselectează tot"
                     title="Deselectează tot"
-                    className="ml-auto grid size-8 place-items-center rounded-lg text-[#57534e] transition-colors hover:bg-[#f3f2ef] hover:text-[#1a1917] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1917]"
+                    className="ml-auto grid size-8 place-items-center rounded-lg text-[#57534e] transition-colors hover:bg-[#f3f2ef] hover:text-[#1a1917] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
                   >
                     <X aria-hidden="true" className="size-4" />
                   </button>

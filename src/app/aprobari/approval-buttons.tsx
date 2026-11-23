@@ -68,7 +68,7 @@ export function RejectButton({ operationId }: { operationId: string }) {
           required
           autoFocus
           placeholder="Ex.: cantitate sau client greșit"
-          className="w-full rounded-md border border-[#e6e4df] bg-white px-2 py-1.5 text-xs text-[#1a1917] outline-none focus:border-[#1a1917] focus:ring-2 focus:ring-[#1a1917]/20"
+          className="w-full rounded-md border border-[#e6e4df] bg-white px-2 py-1.5 text-xs text-[#1a1917] outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
         />
       </label>
       <div className="flex justify-end gap-1.5">
