@@ -59,7 +59,7 @@ function StaffWorkspace({
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
               <tr>
                 <TableHead>Nume</TableHead>
                 <TableHead secondary>Utilizator</TableHead>
@@ -73,12 +73,12 @@ function StaffWorkspace({
               {users.map((user) => (
                 <tr
                   key={user.id}
-                  className="motion-table-row border-t border-[#edf0f5] align-middle hover:bg-[#f1f4f9]"
+                  className="motion-table-row border-t border-[#eeede9] align-middle hover:bg-[#f3f2ef]"
                 >
-                  <TableCell className="font-semibold text-[#0f172a]">
+                  <TableCell className="font-semibold text-[#1a1917]">
                     {formatText(user.name)}
                   </TableCell>
-                  <TableCell secondary className="text-[#475569]">
+                  <TableCell secondary className="text-[#57534e]">
                     <span className="tabular-nums">{formatText(user.username)}</span>
                   </TableCell>
                   <TableCell>{formatRole(user.role)}</TableCell>
@@ -128,7 +128,7 @@ function StaffWorkspace({
           </table>
         </div>
         {users.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-[#475569]">
+          <div className="px-4 py-12 text-center text-sm text-[#57534e]">
             Niciun utilizator încă.
           </div>
         ) : null}

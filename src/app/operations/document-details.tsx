@@ -100,9 +100,9 @@ function DetailsPanel({
           onClick={onClose}
         />
         <aside className={drawerPanelClassName}>
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e5e9f0] bg-[#f8fafc] px-5 py-3">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
             <div>
-              <h2 className="mt-1 text-lg font-semibold tracking-tight text-[#0f172a]">
+              <h2 className="mt-1 text-lg font-semibold tracking-tight text-[#1a1917]">
                 {details.typeLabel} #{details.number}
               </h2>
             </div>
@@ -110,7 +110,7 @@ function DetailsPanel({
           </div>
 
           <div className="grid gap-4 px-5 py-4">
-            <dl className="grid gap-x-6 gap-y-1.5 rounded-lg border border-[#e5e9f0] bg-white p-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
+            <dl className="grid gap-x-6 gap-y-1.5 rounded-lg border border-[#e6e4df] bg-white p-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
               <MetaItem label="Data documentului" value={details.date} />
               <MetaItem label="Depozit" value={details.warehouse} />
               <MetaItem
@@ -139,12 +139,12 @@ function DetailsPanel({
             </dl>
 
             <div className="overflow-hidden crm-card">
-              <div className="border-b border-[#e5e9f0] bg-[#f1f4f9] px-3.5 py-2 text-sm font-semibold text-[#0f172a]">
+              <div className="border-b border-[#e6e4df] bg-[#f3f2ef] px-3.5 py-2 text-sm font-semibold text-[#1a1917]">
                 Produse ({details.lines.length})
               </div>
               <div className="overflow-x-auto">
                 <table className="crm-table w-full min-w-[520px] border-collapse text-left text-sm">
-                  <thead className="border-b border-[#e5e9f0] bg-[#f8fafc] text-xs text-[#475569]">
+                  <thead className="border-b border-[#e6e4df] bg-[#faf9f7] text-xs text-[#57534e]">
                     <tr>
                       <th className="px-3 py-2 font-semibold">Cod</th>
                       <th className="px-3 py-2 font-semibold">Produs</th>
@@ -155,12 +155,12 @@ function DetailsPanel({
                   </thead>
                   <tbody>
                     {details.lines.map((line) => (
-                      <tr key={line.id} className="border-t border-[#edf0f5]">
+                      <tr key={line.id} className="border-t border-[#eeede9]">
                         <td className="px-3 py-2 font-mono text-xs">{line.code ?? "—"}</td>
                         <td className="px-3 py-2">
                           {line.description}
                           {line.vehicle ? (
-                            <span className="mt-0.5 block text-xs text-[#475569]">
+                            <span className="mt-0.5 block text-xs text-[#57534e]">
                               {line.vehicle}
                             </span>
                           ) : null}
@@ -175,13 +175,13 @@ function DetailsPanel({
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="border-t border-[#e5e9f0] bg-[#f8fafc] text-sm">
+                  <tfoot className="border-t border-[#e6e4df] bg-[#faf9f7] text-sm">
                     {details.showVat ? (
                       <tr>
-                        <td colSpan={4} className="px-3 py-2 text-right text-[#475569]">
+                        <td colSpan={4} className="px-3 py-2 text-right text-[#57534e]">
                           TVA inclus (÷6)
                         </td>
-                        <td className="px-3 py-2 text-right tabular-nums text-[#475569]">
+                        <td className="px-3 py-2 text-right tabular-nums text-[#57534e]">
                           {money.format(tva)}
                         </td>
                       </tr>
@@ -203,19 +203,19 @@ function DetailsPanel({
               <div className="flex flex-wrap gap-2">
                 <a
                   href={`/api/export/document/${details.id}/pdf`}
-                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e5e9f0] bg-white px-3.5 py-2 text-sm font-semibold text-[#0f172a] hover:bg-[#f1f4f9]"
+                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3.5 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
                 >
                   <FileText className="size-4" aria-hidden="true" /> PDF intern
                 </a>
                 <a
                   href={`/api/export/invoice/${details.id}`}
-                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e5e9f0] bg-white px-3.5 py-2 text-sm font-semibold text-[#0f172a] hover:bg-[#f1f4f9]"
+                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3.5 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
                 >
                   <Download className="size-4" aria-hidden="true" /> Excel intern
                 </a>
                 <Link
                   href={`/crm/istoric?doc=${details.id}`}
-                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e5e9f0] bg-white px-3.5 py-2 text-sm font-semibold text-[#0f172a] hover:bg-[#f1f4f9]"
+                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3.5 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
                 >
                   <History className="size-4" aria-hidden="true" /> Istoric modificări
                 </Link>
@@ -231,8 +231,8 @@ function DetailsPanel({
 function MetaItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-sm text-[#64748b]">{label}</dt>
-      <dd className="mt-0.5 text-[#0f172a]">{value}</dd>
+      <dt className="text-sm text-[#78716c]">{label}</dt>
+      <dd className="mt-0.5 text-[#1a1917]">{value}</dd>
     </div>
   );
 }

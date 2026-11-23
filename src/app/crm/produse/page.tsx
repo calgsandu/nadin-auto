@@ -51,7 +51,15 @@ export default async function ProductsPage({
 
   return (
     <>
-      <CrmHeader section="produse" role={appUser.role}>
+      <CrmHeader
+        section="produse"
+        role={appUser.role}
+        summary={
+          <Suspense fallback={null}>
+            <ProductSummary catalogPromise={catalogPromise} />
+          </Suspense>
+        }
+      >
         <ExportLink href="/api/export/products" label="Export Excel" />
         {canModify ? (
           <Suspense fallback={<ButtonSkeleton />}>
@@ -76,6 +84,20 @@ export default async function ProductsPage({
   );
 }
 
+/** Rândul de sub titlu: starea stocului pe tot catalogul, cu legături spre filtre. */
+async function ProductSummary({ catalogPromise }: { catalogPromise: Promise<CatalogData> }) {
+  const { stockSummary } = await catalogPromise;
+  return (
+    <>
+      {formatNumber(stockSummary.inStock + stockSummary.low)} piese în stoc,{" "}
+      <Link className="underline decoration-[#d6d3d1] underline-offset-4 hover:text-[#1a1917]" href="/crm/produse?stoc=mic">
+        {formatNumber(stockSummary.low)} aproape terminate
+      </Link>
+      , {formatNumber(stockSummary.out)} lipsă.
+    </>
+  );
+}
+
 /**
  * Mașinile în stânga: click pe marcă deschide sub ea modelele ei; click pe
  * marca sau modelul ales îl scoate. Tipul piesei se alege sus.
@@ -86,16 +108,16 @@ async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cat
     crmCatalogPageHref({ ...params, brand, model, fitment: undefined, page: undefined });
   const row = (active: boolean) =>
     `flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm ${
-      active ? "bg-[#eef4ff] font-semibold text-[#1d4ed8]" : "text-[#334155] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
+      active ? "bg-[#ecebe6] font-semibold text-[#34322e]" : "text-[#44403c] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
     }`;
 
   return (
     <nav
       aria-label="Mașini"
-      className="products-brand-tree crm-card sticky top-4 max-h-[calc(100dvh-2rem)] overflow-y-auto p-2 max-xl:hidden"
+      className="products-brand-tree crm-card sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto p-2 max-xl:hidden"
     >
       <Link href={href()} className={row(!params.brand)} aria-current={!params.brand ? "page" : undefined}>
-        <span className="grid size-6 shrink-0 place-items-center rounded-md bg-[#f1f4f9] text-[#64748b]">
+        <span className="grid size-6 shrink-0 place-items-center rounded-md bg-[#f3f2ef] text-[#78716c]">
           <Car className="size-3.5" aria-hidden="true" />
         </span>
         <span>Toate mașinile</span>
@@ -114,12 +136,12 @@ async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cat
                 <BrandLogo name={brand.name} />
                 <span className="min-w-0 flex-1 truncate">{brandLabel(brand.name)}</span>
                 <ChevronDown
-                  className={`size-3.5 shrink-0 text-[#94a3b8] transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
+                  className={`size-3.5 shrink-0 text-[#a8a29e] transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
                   aria-hidden="true"
                 />
               </Link>
               {open && models.length > 0 ? (
-                <ul className="crm-tree-submenu my-1 ml-5 grid gap-0.5 border-l border-[#e5e9f0] pl-2">
+                <ul className="crm-tree-submenu my-1 ml-5 grid gap-0.5 border-l border-[#e6e4df] pl-2">
                   {models.map((model) => {
                     const active = model.id === params.model;
                     return (
@@ -210,7 +232,7 @@ function ProductWorkspace({
           />
           <div className="overflow-x-auto">
             <table className="crm-table w-full table-fixed border-collapse text-left text-sm lg:table-auto lg:min-w-[720px]">
-              <thead className="border-y border-[#e5e9f0] bg-[#f8fafc] max-lg:hidden">
+              <thead className="border-y border-[#e6e4df] bg-[#faf9f7] max-lg:hidden">
                 <tr>
                   {canModify ? (
                     <TableHead className="max-lg:hidden">
@@ -246,14 +268,14 @@ function ProductWorkspace({
             </table>
           </div>
           {catalog.products.length === 0 ? (
-            <div className="px-4 py-14 text-center text-sm text-[#475569]">
+            <div className="px-4 py-14 text-center text-sm text-[#57534e]">
               Nu am găsit nimic.{" "}
-              <Link className="font-medium text-[#2563eb] hover:underline" href={crmSectionHref("produse")}>
+              <Link className="font-medium text-[#1a1917] hover:underline" href={crmSectionHref("produse")}>
                 Resetează filtrele
               </Link>
             </div>
           ) : null}
-          <div className="border-t border-[#e5e9f0] px-4 py-3">
+          <div className="border-t border-[#e6e4df] px-4 py-3">
             <Pagination
               page={page}
               pageCount={pageCount}
@@ -288,7 +310,7 @@ function StockCount({
     value <= 0
       ? ["bg-[#fef2f2] text-[#b91c1c]", "Fără stoc"]
       : value <= (minStock ?? 3)
-        ? ["bg-[#eef4ff] text-[#1d4ed8]", "Aproape terminat"]
+        ? ["bg-[#ecebe6] text-[#34322e]", "Aproape terminat"]
         : ["bg-[#ecfdf3] text-[#15803d]", "În stoc"];
   return (
     <span
@@ -341,7 +363,7 @@ function ProductRow({
   }));
 
   return (
-    <tr className="motion-table-row border-t border-[#edf0f5] hover:bg-[#f8fafc]">
+    <tr className="motion-table-row border-t border-[#eeede9] hover:bg-[#faf9f7]">
       {canModify ? (
         <TableCell className="w-10 max-lg:hidden">
           <input
@@ -354,19 +376,19 @@ function ProductRow({
               .map((compatibility) => `${compatibility.title}, ani ${compatibility.years}`)
               .join(" • ")}
             aria-label={`Selectează ${product.description} pentru sticker`}
-            className="size-4 cursor-pointer rounded accent-[#2563eb]"
+            className="size-4 cursor-pointer rounded accent-[#1a1917]"
           />
         </TableCell>
       ) : null}
       <TableCell className="whitespace-nowrap max-lg:hidden">
         {/* Codul e cheia piesei: îl afișăm primul și mai vizibil decât denumirea. */}
         {product.externalCode ? (
-          <CopyCode code={product.externalCode} className="font-mono text-base font-bold text-[#1e293b]" />
+          <CopyCode code={product.externalCode} className="font-mono text-base font-bold text-[#292524]" />
         ) : (
-          <span className="text-[#cbd5e1]">—</span>
+          <span className="text-[#d6d3d1]">—</span>
         )}
         {product.alternativeCode ? (
-          <p className="mt-0.5 font-mono text-xs text-[#94a3b8]">{product.alternativeCode}</p>
+          <p className="mt-0.5 font-mono text-xs text-[#a8a29e]">{product.alternativeCode}</p>
         ) : null}
       </TableCell>
       <TableCell>
@@ -374,13 +396,13 @@ function ProductRow({
             denumirea și mașinile. Un rând în minus = mai multe piese pe ecran. */}
         <div className="mb-0.5 flex items-center justify-between gap-3 lg:hidden">
           {product.externalCode ? (
-            <CopyCode code={product.externalCode} className="min-w-0 truncate font-mono text-lg font-bold text-[#1e293b]" />
+            <CopyCode code={product.externalCode} className="min-w-0 truncate font-mono text-lg font-bold text-[#292524]" />
           ) : (
-            <span className="text-sm text-[#94a3b8]">fără cod</span>
+            <span className="text-sm text-[#a8a29e]">fără cod</span>
           )}
           <span className="flex shrink-0 items-center gap-2">
-            <span className="text-[0.9375rem] font-semibold tabular-nums text-[#0f172a]">
-              {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-[#94a3b8]">fără preț</span>}
+            <span className="text-[0.9375rem] font-semibold tabular-nums text-[#1a1917]">
+              {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-[#a8a29e]">fără preț</span>}
             </span>
             <StockCount stock={product.stock} minStock={product.minStock} unit />
           </span>
@@ -402,7 +424,7 @@ function ProductRow({
             />
           }
         >
-          <span className="block text-sm text-[#1e293b] hover:text-[#2563eb]">
+          <span className="block text-sm text-[#292524] hover:text-[#1a1917]">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
           </span>
@@ -418,12 +440,12 @@ function ProductRow({
         <StockCount stock={product.stock} minStock={product.minStock} />
       </TableCell>
       {canModify ? (
-        <TableCell align="right" secondary className="whitespace-nowrap tabular-nums text-[#64748b]">
-          {product.costLei != null ? <Lei value={product.costLei} /> : <span className="text-[#cbd5e1]">—</span>}
+        <TableCell align="right" secondary className="whitespace-nowrap tabular-nums text-[#78716c]">
+          {product.costLei != null ? <Lei value={product.costLei} /> : <span className="text-[#d6d3d1]">—</span>}
         </TableCell>
       ) : null}
-      <TableCell align="right" className="whitespace-nowrap text-[0.9375rem] font-semibold tabular-nums text-[#0f172a] max-lg:hidden">
-        {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-[#cbd5e1]">—</span>}
+      <TableCell align="right" className="whitespace-nowrap text-[0.9375rem] font-semibold tabular-nums text-[#1a1917] max-lg:hidden">
+        {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-[#d6d3d1]">—</span>}
       </TableCell>
       {canModify ? (
         <TableCell align="right" className="max-lg:hidden">
@@ -443,9 +465,9 @@ function ProductRow({
                 target="_blank"
                 rel="noreferrer"
                 title="Sticker produs (70×50.8mm)"
-                className="text-[#0f172a]"
+                className="text-[#1a1917]"
               >
-                <Printer className="size-4 text-[#64748b]" aria-hidden="true" /> Sticker
+                <Printer className="size-4 text-[#78716c]" aria-hidden="true" /> Sticker
               </a>
               <ProductDeleteButton productId={product.id} label={product.description} />
             </RowMenu>
@@ -461,7 +483,7 @@ function ProductRow({
 function Lei({ value }: { value: Parameters<typeof formatMoney>[0] }) {
   return (
     <>
-      {formatMoney(value)} <span className="text-[0.85em] font-normal text-[#94a3b8]">lei</span>
+      {formatMoney(value)} <span className="text-[0.85em] font-normal text-[#a8a29e]">lei</span>
     </>
   );
 }
@@ -474,14 +496,14 @@ function CarLines({
   lines: { title: string; years: string; brand: string | null }[];
   compact?: boolean;
 }) {
-  if (lines.length === 0) return <span className="text-[#cbd5e1]">—</span>;
+  if (lines.length === 0) return <span className="text-[#d6d3d1]">—</span>;
   return (
     <ul className="space-y-1 text-sm">
       {lines.map((line, index) => (
         <li key={`${line.title}:${line.years}:${index}`} className={`flex items-center gap-2 ${compact ? "min-w-0 flex-wrap" : ""}`}>
           {line.brand ? <BrandLogo name={line.brand} className="size-5" /> : null}
-          {line.title ? <span className={`${compact ? "min-w-0 break-words" : "whitespace-nowrap"} text-[#334155]`}>{line.title}</span> : null}
-          <span className="whitespace-nowrap tabular-nums text-[#94a3b8]">{line.years}</span>
+          {line.title ? <span className={`${compact ? "min-w-0 break-words" : "whitespace-nowrap"} text-[#44403c]`}>{line.title}</span> : null}
+          <span className="whitespace-nowrap tabular-nums text-[#a8a29e]">{line.years}</span>
         </li>
       ))}
     </ul>

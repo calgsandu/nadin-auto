@@ -71,24 +71,24 @@ export function ProductPreview({
               onClick={() => setOpen(false)}
             />
             <aside aria-label={product.description} className={drawerPanelClassName.replace("md:max-w-[90vw]", "md:max-w-2xl")}>
-              <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e5e9f0] bg-[#f8fafc] px-5 py-3">
+              <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
                 <div className="min-w-0">
                   {product.code ? (
-                    <p className="font-mono text-xl font-bold text-[#0f172a]">
+                    <p className="font-mono text-xl font-bold text-[#1a1917]">
                       <CopyCode code={product.code} />
                       {product.alternativeCode ? (
-                        <span className="ml-2 text-sm font-medium text-[#64748b]">{product.alternativeCode}</span>
+                        <span className="ml-2 text-sm font-medium text-[#78716c]">{product.alternativeCode}</span>
                       ) : null}
                     </p>
                   ) : null}
-                  <h2 className="text-lg font-semibold tracking-tight text-[#0f172a]">{product.description}</h2>
-                  <p className="text-sm text-[#475569]">{product.type}</p>
+                  <h2 className="text-lg font-semibold tracking-tight text-[#1a1917]">{product.description}</h2>
+                  <p className="text-sm text-[#57534e]">{product.type}</p>
                 </div>
                 <CloseIconButton onClick={() => setOpen(false)} />
               </div>
 
               <div className="grid gap-4 px-5 py-4">
-                <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl bg-[#2563eb] p-4 text-white">
+                <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl bg-[#1a1917] p-4 text-white">
                   <div>
                     <p className="text-sm text-white/70">Preț de vânzare</p>
                     <p className="text-3xl font-semibold tracking-tight tabular-nums">
@@ -99,7 +99,7 @@ export function ProductPreview({
                     {canModify ? editButton : null}
                     {canModify ? (
                       <a
-                        className="button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-[#e5e9f0] bg-white px-3 text-sm font-medium text-[#0f172a] hover:bg-[#f1f4f9]"
+                        className="button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3 text-sm font-medium text-[#1a1917] hover:bg-[#f3f2ef]"
                         href={`/print/labels?ids=${product.id}`}
                         rel="noreferrer"
                         target="_blank"
@@ -109,7 +109,7 @@ export function ProductPreview({
                     ) : null}
                     {canSell ? (
                       <Link
-                        className="inline-flex h-10 items-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+                        className="inline-flex h-10 items-center gap-2 rounded-md bg-[#1a1917] px-4 text-sm font-semibold text-white hover:bg-[#34322e]"
                         href={`/crm/vanzari?nou=1&produs=${product.id}`}
                       >
                         <ShoppingCart className="size-4" aria-hidden="true" /> Vinde
@@ -119,41 +119,41 @@ export function ProductPreview({
                 </div>
 
                 <section className="crm-card">
-                  <h3 className="flex items-center gap-2.5 border-b border-[#edf0f5] px-4 py-2.5 text-sm font-semibold text-[#0f172a]">
-                    <span className="grid size-7 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
+                  <h3 className="flex items-center gap-2.5 border-b border-[#eeede9] px-4 py-2.5 text-sm font-semibold text-[#1a1917]">
+                    <span className="grid size-7 place-items-center rounded-lg bg-[#ecebe6] text-[#1a1917]">
                       <Car className="size-4" aria-hidden="true" />
                     </span>
                     Se potrivește pe
                   </h3>
-                  <ul className="divide-y divide-[#f1f4f9]">
+                  <ul className="divide-y divide-[#f3f2ef]">
                     {product.compatibilities.map((compatibility) => (
                       <li
                         key={`${compatibility.title}:${compatibility.years}`}
                         className="flex items-center justify-between gap-3 px-4 py-2 text-sm"
                       >
-                        <span className="flex items-center gap-2.5 font-medium text-[#0f172a]">
+                        <span className="flex items-center gap-2.5 font-medium text-[#1a1917]">
                           {compatibility.logo ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={compatibility.logo} alt="" className="size-5 shrink-0 object-contain" />
                           ) : null}
                           {compatibility.title}
                         </span>
-                        <span className="text-[#475569]">{compatibility.years}</span>
+                        <span className="text-[#57534e]">{compatibility.years}</span>
                       </li>
                     ))}
                   </ul>
                 </section>
 
                 <section className="crm-card">
-                  <h3 className="flex items-center justify-between border-b border-[#edf0f5] px-4 py-2.5 text-sm font-semibold text-[#0f172a]">
+                  <h3 className="flex items-center justify-between border-b border-[#eeede9] px-4 py-2.5 text-sm font-semibold text-[#1a1917]">
                     <span className="flex items-center gap-2.5">
-                      <span className="grid size-7 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
+                      <span className="grid size-7 place-items-center rounded-lg bg-[#ecebe6] text-[#1a1917]">
                         <Warehouse className="size-4" aria-hidden="true" />
                       </span>
                       Stoc pe depozite
                     </span>
-                    <span className="font-normal text-[#475569]">
-                      total <span className="font-semibold text-[#0f172a]">{product.total}</span> buc.
+                    <span className="font-normal text-[#57534e]">
+                      total <span className="font-semibold text-[#1a1917]">{product.total}</span> buc.
                     </span>
                   </h3>
                   <ul className="grid sm:grid-cols-2">
@@ -161,12 +161,12 @@ export function ProductPreview({
                     {[...product.stocks].sort((a, b) => b.quantity - a.quantity).map((stock) => (
                       <li
                         key={stock.id}
-                        className="flex items-center justify-between gap-3 border-b border-[#f1f4f9] px-4 py-2 text-sm"
+                        className="flex items-center justify-between gap-3 border-b border-[#f3f2ef] px-4 py-2 text-sm"
                       >
-                        <span className="text-[#334155]">{stock.name}</span>
+                        <span className="text-[#44403c]">{stock.name}</span>
                         <span
                           className={`min-w-8 rounded-md px-1.5 text-center font-semibold tabular-nums ${
-                            stock.quantity > 0 ? "bg-[#f0fdf4] text-[#166534]" : "text-[#94a3b8]"
+                            stock.quantity > 0 ? "bg-[#f0fdf4] text-[#166534]" : "text-[#a8a29e]"
                           }`}
                         >
                           {stock.quantity}
@@ -177,7 +177,7 @@ export function ProductPreview({
                 </section>
 
                 {product.notes ? (
-                  <p className="crm-card p-4 text-sm text-[#0f172a]">{product.notes}</p>
+                  <p className="crm-card p-4 text-sm text-[#1a1917]">{product.notes}</p>
                 ) : null}
               </div>
             </aside>

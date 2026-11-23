@@ -18,7 +18,7 @@ import { salePaymentMethodLabel } from "@/lib/operations/sale-payment-method";
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { DailyMetric, TableCell, TableHead, WorkspaceSkeleton } from "../_components/ui";
+import { HeroPanel, PastelCard, StatusBadge, TableCell, TableHead, WorkspaceSkeleton, type PastelTone } from "../_components/ui";
 import { formatDate, formatMoney, formatNumber, formatText } from "../_components/format";
 import { IconLabel, rowIconButtonCls } from "@/app/components/icon-buttons";
 
@@ -71,17 +71,7 @@ async function Loader({
 
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
-      <div className="stat-strip grid sm:grid-cols-3">
-        <DailyMetric icon={Users} label="Clienți" value={formatNumber(data.customers.length)} />
-        <DailyMetric icon={ShoppingBag}
-          label="Cumpărat total"
-          value={`${formatMoney(sum(data.customers, (one) => one.boughtLei))} lei`}
-        />
-        <DailyMetric icon={Wallet}
-          label="Datorii deschise"
-          value={`${formatMoney(sum(data.customers, (one) => Math.max(one.debtLei, 0)))} lei`}
-        />
-      </div>
+      <ClientsOverview customers={data.customers} />
 
       {open && detail ? (
         <CustomerCard canModify={canModify} customer={open} detail={detail} />
@@ -90,7 +80,7 @@ async function Loader({
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[820px]">
-            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
               <tr>
                 <TableHead>Client</TableHead>
                 <TableHead secondary>Contact</TableHead>
@@ -106,11 +96,11 @@ async function Loader({
               {data.customers.map((customer) => (
                 <tr
                   key={customer.id}
-                  className={`motion-table-row border-t border-[#edf0f5] align-top hover:bg-[#f8fafc] ${
-                    customer.id === openId ? "bg-[#f1f4f9]" : ""
+                  className={`motion-table-row border-t border-[#eeede9] align-top hover:bg-[#faf9f7] ${
+                    customer.id === openId ? "bg-[#f3f2ef]" : ""
                   }`}
                 >
-                  <TableCell className="font-semibold text-[#0f172a]">
+                  <TableCell className="font-semibold text-[#1a1917]">
                     <Link
                       className="hover:underline"
                       href={crmCustomersHref(customer.id === openId ? undefined : customer.id)}
@@ -118,34 +108,32 @@ async function Loader({
                     >
                       {customer.name}
                     </Link>
-                    <span className="mt-0.5 block text-xs font-normal text-[#475569]">
+                    <span className="mt-0.5 block text-xs font-normal text-[#57534e]">
                       {formatNumber(customer.purchases)} vânzări
-                      <span className="sm:hidden"> · {formatMoney(customer.boughtLei)} lei</span>
+                      <span className="sm:hidden">, {formatMoney(customer.boughtLei)} lei</span>
                     </span>
                   </TableCell>
-                  <TableCell secondary className="text-[#475569]">
+                  <TableCell secondary className="text-[#57534e]">
                     <span className="block">{formatText(customer.phone)}</span>
                     {customer.email ? <span className="mt-0.5 block">{customer.email}</span> : null}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#475569]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#57534e]">
                     {customer.discountPercent ? `${customer.discountPercent}%` : "-"}
                   </TableCell>
-                  <TableCell align="right" className="tabular-nums font-semibold text-[#0f172a] max-sm:hidden">
+                  <TableCell align="right" className="tabular-nums font-semibold text-[#1a1917] max-sm:hidden">
                     {formatMoney(customer.boughtLei)}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#475569]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#57534e]">
                     {formatMoney(customer.paidLei)}
                   </TableCell>
                   <TableCell align="right">
-                    <span
-                      className={`tabular-nums font-semibold ${
-                        customer.debtLei > 0 ? "text-[#b91c1c]" : "text-[#475569]"
-                      }`}
-                    >
-                      {customer.debtLei !== 0 ? formatMoney(customer.debtLei) : "-"}
-                    </span>
+                    {customer.debtLei > 0 ? (
+                      <StatusBadge tone="red">{formatMoney(customer.debtLei)} lei</StatusBadge>
+                    ) : (
+                      <span className="tabular-nums text-[#57534e]">{customer.debtLei !== 0 ? formatMoney(customer.debtLei) : "-"}</span>
+                    )}
                   </TableCell>
-                  <TableCell secondary className="text-[#475569]">
+                  <TableCell secondary className="text-[#57534e]">
                     {customer.lastPurchaseAt ? formatDate(customer.lastPurchaseAt) : "-"}
                   </TableCell>
                   {canModify ? (
@@ -176,7 +164,7 @@ async function Loader({
           </table>
         </div>
         {data.customers.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-[#475569]">
+          <div className="px-4 py-12 text-center text-sm text-[#57534e]">
             Niciun client încă. Clienții adăugați la o vânzare apar aici.
           </div>
         ) : null}
@@ -197,10 +185,10 @@ function CustomerCard({
 }) {
   return (
     <div className="motion-card crm-card">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#e5e9f0] px-4 py-3">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#e6e4df] px-4 py-3">
         <div>
-          <h2 className="text-base font-semibold text-[#0f172a]">{customer.name}</h2>
-          <p className="mt-0.5 text-xs text-[#475569]">
+          <h2 className="text-base font-semibold text-[#1a1917]">{customer.name}</h2>
+          <p className="mt-0.5 text-xs text-[#57534e]">
             {formatText(customer.phone)}
             {customer.discountPercent ? ` · discount ${customer.discountPercent}%` : ""}
             {customer.debtLei > 0 ? ` · datorie ${formatMoney(customer.debtLei)} lei` : ""}
@@ -228,26 +216,26 @@ function CustomerCard({
 
       <div className="grid gap-4 px-4 py-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <h3 className="text-sm font-semibold text-[#0f172a]">Ce a cumpărat</h3>
+          <h3 className="text-sm font-semibold text-[#1a1917]">Ce a cumpărat</h3>
           {detail.sales.length === 0 ? (
-            <p className="mt-2 text-sm text-[#475569]">Nicio vânzare înregistrată.</p>
+            <p className="mt-2 text-sm text-[#57534e]">Nicio vânzare înregistrată.</p>
           ) : (
             <ul className="mt-2 grid gap-3">
               {detail.sales.map((sale) => (
-                <li key={sale.id} className="border-t border-[#edf0f5] pt-3 first:border-0 first:pt-0">
+                <li key={sale.id} className="border-t border-[#eeede9] pt-3 first:border-0 first:pt-0">
                   <div className="flex items-baseline justify-between gap-3 text-sm">
-                    <span className="font-semibold text-[#0f172a]">
+                    <span className="font-semibold text-[#1a1917]">
                       Vânzare #{sale.number}
                     </span>
-                    <span className="tabular-nums font-semibold text-[#0f172a]">
+                    <span className="tabular-nums font-semibold text-[#1a1917]">
                       {formatMoney(sale.totalLei)} lei
                     </span>
                   </div>
-                  <p className="text-xs text-[#475569]">
+                  <p className="text-xs text-[#57534e]">
                     {formatDate(sale.documentDate)} · {salePaymentMethodLabel(sale.paymentMethod)}
                     {sale.discountPercent ? ` · -${Number(sale.discountPercent)}%` : ""}
                   </p>
-                  <ul className="mt-1 grid gap-0.5 text-xs text-[#475569]">
+                  <ul className="mt-1 grid gap-0.5 text-xs text-[#57534e]">
                     {sale.lines.map((line) => (
                       <li key={line.id} className="flex justify-between gap-3">
                         <span>
@@ -268,20 +256,20 @@ function CustomerCard({
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-[#0f172a]">Încasări</h3>
+          <h3 className="text-sm font-semibold text-[#1a1917]">Încasări</h3>
           {detail.payments.length === 0 ? (
-            <p className="mt-2 text-sm text-[#475569]">Nicio încasare scrisă.</p>
+            <p className="mt-2 text-sm text-[#57534e]">Nicio încasare scrisă.</p>
           ) : (
             <ul className="mt-2 grid gap-2 text-sm">
               {detail.payments.map((payment) => (
                 <li key={payment.id} className="flex items-baseline justify-between gap-3">
-                  <span className="text-[#475569]">
+                  <span className="text-[#57534e]">
                     {formatDate(payment.paidAt)}
                     {payment.notes ? (
                       <span className="block text-xs">{payment.notes}</span>
                     ) : null}
                   </span>
-                  <span className="tabular-nums font-semibold text-[#0f172a]">
+                  <span className="tabular-nums font-semibold text-[#1a1917]">
                     {formatMoney(payment.amount)}
                   </span>
                 </li>
@@ -291,6 +279,72 @@ function CustomerCard({
         </div>
       </div>
     </div>
+  );
+}
+
+const cardTones: PastelTone[] = ["green", "blue", "lilac", "yellow"];
+
+/**
+ * Sus: cât e de încasat și de la cine (blocul negru), apoi cei mai mari patru
+ * clienți ca fișe colorate, cu partea lor din tot ce s-a vândut pe clienți.
+ */
+function ClientsOverview({ customers }: { customers: CustomerRow[] }) {
+  const debtors = customers.filter((one) => one.debtLei > 0).sort((a, b) => b.debtLei - a.debtLei);
+  const totalDebt = sum(debtors, (one) => one.debtLei);
+  const totalBought = sum(customers, (one) => one.boughtLei);
+  const top = [...customers].filter((one) => one.boughtLei > 0).sort((a, b) => b.boughtLei - a.boughtLei).slice(0, 4);
+  const restDebt = sum(debtors.slice(3), (one) => one.debtLei);
+  const segmentTones: PastelTone[] = ["red", "yellow", "blue"];
+
+  return (
+    <>
+      <HeroPanel
+        label="De încasat de la clienți"
+        value={`${formatMoney(totalDebt)} lei`}
+        note={debtors.length > 0 ? `de la ${formatNumber(debtors.length)} ${debtors.length === 1 ? "client" : "clienți"}` : "nimeni nu datorează"}
+        segments={[
+          ...debtors.slice(0, 3).map((one, index) => ({
+            label: one.name,
+            value: `${formatMoney(one.debtLei)} lei`,
+            amount: one.debtLei,
+            tone: segmentTones[index],
+          })),
+          ...(restDebt > 0
+            ? [{ label: "Alții", value: `${formatMoney(restDebt)} lei`, amount: restDebt, tone: "gray" as const }]
+            : []),
+        ]}
+        stats={[
+          { label: "Clienți", value: formatNumber(customers.length), icon: Users, tone: "blue" },
+          { label: "Cumpărat total", value: `${formatMoney(totalBought)} lei`, icon: ShoppingBag, tone: "green" },
+          { label: "Plătit total", value: `${formatMoney(sum(customers, (one) => one.paidLei))} lei`, icon: Wallet, tone: "lilac" },
+        ]}
+      />
+      {top.length > 0 ? (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {top.map((customer, index) => (
+            <Link key={customer.id} href={crmCustomersHref(customer.id)} scroll={false} className="rounded-[1.25rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1917]">
+              <PastelCard
+                tone={cardTones[index]}
+                title={customer.name}
+                subtitle={`${formatNumber(customer.purchases)} vânzări`}
+                value={`${formatMoney(customer.boughtLei)} lei`}
+                progress={totalBought > 0 ? customer.boughtLei / totalBought : 0}
+                footer={
+                  <span className="flex items-center justify-between gap-2">
+                    <span>{totalBought > 0 ? Math.round((customer.boughtLei / totalBought) * 100) : 0}% din vânzările pe clienți</span>
+                    {customer.debtLei > 0 ? (
+                      <StatusBadge tone="red">datorează {formatMoney(customer.debtLei)}</StatusBadge>
+                    ) : (
+                      <StatusBadge tone="green">la zi</StatusBadge>
+                    )}
+                  </span>
+                }
+              />
+            </Link>
+          ))}
+        </div>
+      ) : null}
+    </>
   );
 }
 

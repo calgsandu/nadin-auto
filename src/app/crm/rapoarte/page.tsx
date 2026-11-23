@@ -44,7 +44,7 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
         <div className="flex justify-end">
           <a
             href="/api/export/backup"
-            className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e5e9f0] bg-white px-3.5 py-2 text-sm font-semibold text-[#0f172a] hover:bg-[#f1f4f9]"
+            className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3.5 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
           >
             <Download className="size-4" aria-hidden="true" /> Backup complet (Excel)
           </a>
@@ -69,7 +69,7 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="overflow-hidden crm-card">
-          <div className="border-b border-[#edf0f5] px-4 py-3 font-semibold text-[#0f172a]">Stoc pe depozit</div>
+          <div className="border-b border-[#eeede9] px-4 py-3 font-semibold text-[#1a1917]">Stoc pe depozit</div>
           <table className="w-full border-collapse text-left text-sm">
             <tbody>
               {data.warehouseStock.map((w) => {
@@ -78,9 +78,9 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
                   <tr key={w.id} className={adminRowCls}>
                     <TableCell className="font-medium">
                       {w.name}
-                      <div className="mt-1.5 h-1.5 w-full max-w-56 rounded-full bg-[#eef1f6]">
+                      <div className="mt-1.5 h-1.5 w-full max-w-56 rounded-full bg-[#f0efeb]">
                         <div
-                          className="h-1.5 rounded-full bg-[#2563eb]"
+                          className="h-1.5 rounded-full bg-[#1a1917]"
                           style={{ width: `${Math.max((w.total_quantity / max) * 100, w.total_quantity > 0 ? 4 : 0)}%` }}
                         />
                       </div>
@@ -94,9 +94,9 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
         </div>
 
         <div className="overflow-hidden crm-card">
-          <div className="border-b border-[#edf0f5] px-4 py-3 font-semibold text-[#0f172a]">
+          <div className="border-b border-[#eeede9] px-4 py-3 font-semibold text-[#1a1917]">
             Produse sub stocul minim
-            <span className="ml-2 text-xs font-normal text-[#64748b]">prag per produs, implicit 3</span>
+            <span className="ml-2 text-xs font-normal text-[#78716c]">prag per produs, implicit 3</span>
           </div>
           <div className="max-h-96 overflow-y-auto">
             <table className="w-full border-collapse text-left text-sm">
@@ -107,7 +107,7 @@ function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: b
                     <TableCell>{p.description}</TableCell>
                     <TableCell align="right" className="whitespace-nowrap tabular-nums font-semibold">
                       {p.stock ?? 0}
-                      <span className="font-normal text-[#64748b]"> / prag {p.min_stock}</span>
+                      <span className="font-normal text-[#78716c]"> / prag {p.min_stock}</span>
                     </TableCell>
                   </tr>
                 ))}

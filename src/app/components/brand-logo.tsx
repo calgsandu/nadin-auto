@@ -18,7 +18,7 @@ export function BrandLogo({ name, className = "size-6" }: { name: string; classN
   ) : (
     <span
       aria-hidden="true"
-      className={`${className} grid shrink-0 place-items-center rounded-md bg-[#f1f4f9] text-[0.6875rem] font-semibold text-[#64748b]`}
+      className={`${className} grid shrink-0 place-items-center rounded-md bg-[#f3f2ef] text-[0.6875rem] font-semibold text-[#78716c]`}
     >
       {name.slice(0, 1)}
     </span>

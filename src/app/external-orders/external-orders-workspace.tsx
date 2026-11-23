@@ -78,12 +78,12 @@ function OrdersTable({
 
   return (
     <div className="overflow-hidden crm-card">
-      <div className="border-b border-[#e5e9f0] px-4 py-2.5">
-        <h2 className="text-sm font-semibold text-[#0f172a]">{title}</h2>
+      <div className="border-b border-[#e6e4df] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#1a1917]">{title}</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="crm-table w-full sm:min-w-[1080px] border-collapse text-left text-sm">
-          <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+          <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
             <tr>
               <TableHead className="max-sm:hidden">Nr.</TableHead>
               <TableHead className="max-sm:hidden">Client</TableHead>
@@ -100,24 +100,24 @@ function OrdersTable({
           <tbody>
             {orders.length > 0 ? (
               orders.map((order) => (
-                <tr key={order.id} className="motion-table-row border-t border-[#edf0f5] align-top hover:bg-[#f8fafc]">
+                <tr key={order.id} className="motion-table-row border-t border-[#eeede9] align-top hover:bg-[#faf9f7]">
                   <TableCell className="tabular-nums text-xs font-semibold max-sm:hidden">#{order.number}</TableCell>
                   <TableCell className="max-sm:hidden">
-                    <p className="font-medium text-[#0f172a]">{order.customerName}</p>
+                    <p className="font-medium text-[#1a1917]">{order.customerName}</p>
                     {order.customerPhone ? (
-                      <p className="mt-0.5 tabular-nums text-xs text-[#475569]">{order.customerPhone}</p>
+                      <p className="mt-0.5 tabular-nums text-xs text-[#57534e]">{order.customerPhone}</p>
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    <p className="font-medium text-[#0f172a]">{order.productName}</p>
+                    <p className="font-medium text-[#1a1917]">{order.productName}</p>
                     {order.productCode ? (
-                      <p className="mt-0.5 font-mono text-xs text-[#475569]">{order.productCode}</p>
+                      <p className="mt-0.5 font-mono text-xs text-[#57534e]">{order.productCode}</p>
                     ) : null}
                     {order.notes ? (
-                      <p className="mt-0.5 text-xs text-[#475569]">{order.notes}</p>
+                      <p className="mt-0.5 text-xs text-[#57534e]">{order.notes}</p>
                     ) : null}
                     {/* Pe telefon: clientul, cantitatea, prețul și statusul sub piesă. */}
-                    <div className="mt-1.5 grid gap-1 text-xs text-[#475569] sm:hidden">
+                    <div className="mt-1.5 grid gap-1 text-xs text-[#57534e] sm:hidden">
                       <p>
                         #{order.number} · {order.customerName} · x{formatNumber(order.quantity)}
                         {order.salePriceLei != null ? ` · ${formatMoney(order.salePriceLei)} lei` : ""}
@@ -128,7 +128,7 @@ function OrdersTable({
                     </div>
                   </TableCell>
                   <TableCell className="max-sm:hidden">
-                    {order.supplierName ?? <span className="text-[#64748b]">de stabilit</span>}
+                    {order.supplierName ?? <span className="text-[#78716c]">de stabilit</span>}
                     {order.offerValidUntil ? (
                       // Oferta expirată nu era semnalată nicăieri: comanda se
                       // confirma la un preț care nu mai era valabil.
@@ -136,7 +136,7 @@ function OrdersTable({
                         className={`mt-0.5 text-xs ${
                           isExpiredOffer(order.status, order.offerValidUntil)
                             ? "font-semibold text-[#b91c1c]"
-                            : "text-[#475569]"
+                            : "text-[#57534e]"
                         }`}
                       >
                         {isExpiredOffer(order.status, order.offerValidUntil)
@@ -182,7 +182,7 @@ function OrdersTable({
               ))
             ) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#475569]" colSpan={actionColumns > 0 ? 10 : 9}>
+                <td className="px-3 py-10 text-center text-[#57534e]" colSpan={actionColumns > 0 ? 10 : 9}>
                   {emptyLabel}
                 </td>
               </tr>
@@ -211,7 +211,7 @@ function StatusBadge({ status }: { status: ExternalOrderStatus }) {
 
 function MarginCell({ order }: { order: ExternalOrderRow }) {
   const margin = orderMargin(order);
-  if (margin == null) return <span className="font-normal text-[#64748b]">—</span>;
+  if (margin == null) return <span className="font-normal text-[#78716c]">—</span>;
   return (
     <span className={margin < 0 ? "text-[#b91c1c]" : "text-[#166534]"}>
       {formatMoney(margin)} lei
@@ -255,7 +255,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-4 py-2.5 text-[13px] font-semibold text-[#475569] ${
+      className={`whitespace-nowrap px-4 py-2.5 text-[13px] font-semibold text-[#57534e] ${
         align === "right" ? "text-right" : "text-left"
       } ${className}`}
     >

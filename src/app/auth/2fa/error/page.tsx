@@ -10,13 +10,13 @@ export default function TwoFactorErrorPage() {
       <div className="grid gap-3">
         <Link
           href="/auth/2fa/continue"
-          className="flex h-11 items-center justify-center rounded-md bg-[#2563eb] text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+          className="flex h-11 items-center justify-center rounded-md bg-[#1a1917] text-sm font-semibold text-white hover:bg-[#34322e]"
         >
           Încearcă din nou
         </Link>
         <Link
           href="/auth/sign-in"
-          className="flex h-11 items-center justify-center rounded-md border border-[#e5e9f0] bg-white text-sm font-semibold text-[#475569] hover:bg-[#f1f4f9]"
+          className="flex h-11 items-center justify-center rounded-md border border-[#e6e4df] bg-white text-sm font-semibold text-[#57534e] hover:bg-[#f3f2ef]"
         >
           Autentificare nouă
         </Link>

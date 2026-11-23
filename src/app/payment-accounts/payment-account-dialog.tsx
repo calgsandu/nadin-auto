@@ -53,7 +53,7 @@ const emptyLine = (id: number): EditableLine => ({
 
 const initialState: PaymentAccountActionState = { ok: false, message: "" };
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e5e9f0] bg-white px-2.5 text-sm text-[#0f172a] outline-none placeholder:text-[#64748b] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/25";
+  "field-control h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm text-[#1a1917] outline-none placeholder:text-[#78716c] focus:border-[#1a1917] focus:ring-2 focus:ring-[#1a1917]/25";
 
 export function PaymentAccountDialog({
   customers,
@@ -135,7 +135,7 @@ export function PaymentAccountDialog({
   return (
     <>
       <button
-        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#34322e]"
         type="button"
         onClick={() => {
           setMounted(true);
@@ -182,7 +182,7 @@ export function PaymentAccountDialog({
                       </select>
                       <button
                         aria-label="Client nou"
-                        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e5e9f0] bg-white text-[#0f172a] hover:bg-[#f1f4f9]"
+                        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e6e4df] bg-white text-[#1a1917] hover:bg-[#f3f2ef]"
                         title="Client nou"
                         type="button"
                         onClick={() => setCustomerForm(true)}
@@ -238,10 +238,10 @@ export function PaymentAccountDialog({
                       return (
                         <div
                           key={line.id}
-                          className="motion-line-item grid gap-2 rounded-lg border border-[#e9edf3] bg-[#f8fafc] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_8rem_8rem_2.25rem] md:items-start"
+                          className="motion-line-item grid gap-2 rounded-lg border border-[#ebe9e4] bg-[#faf9f7] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_8rem_8rem_2.25rem] md:items-start"
                         >
                           <div>
-                            <p className="line-label mb-1 text-[13px] font-medium leading-5 text-[#475569]">Produs</p>
+                            <p className="line-label mb-1 text-[13px] font-medium leading-5 text-[#57534e]">Produs</p>
                             <ProductSearchCombobox
                               showHint={false}
                               initialProduct={
@@ -284,7 +284,7 @@ export function PaymentAccountDialog({
                             />
                           </Field>
                           <Field label="Sumă">
-                            <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-[#0f172a]">
+                            <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-[#1a1917]">
                               {money(calculated.gross)} lei
                             </div>
                           </Field>

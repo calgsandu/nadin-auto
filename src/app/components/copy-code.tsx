@@ -12,7 +12,7 @@ export function CopyCode({ code, className = "" }: { code: string; className?: s
 
   return (
     <button
-      className={`group inline-flex items-center gap-1.5 rounded-md text-left hover:text-[#2563eb] ${className}`}
+      className={`group inline-flex items-center gap-1.5 rounded-md text-left hover:text-[#1a1917] ${className}`}
       title="Copiază codul"
       type="button"
       onClick={async (event) => {
@@ -30,7 +30,7 @@ export function CopyCode({ code, className = "" }: { code: string; className?: s
       {copied ? (
         <Check className="size-3.5 text-[#16a34a]" aria-label="Copiat" />
       ) : (
-        <Copy className="size-3.5 text-[#94a3b8] opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+        <Copy className="size-3.5 text-[#a8a29e] opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
       )}
     </button>
   );

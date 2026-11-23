@@ -89,7 +89,7 @@ function DeliverControl({ orderId }: { orderId: string }) {
   return (
     <>
       <button
-        className="button-primary inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1d4ed8]"
+        className="button-primary inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#34322e]"
         type="button"
         onClick={() => setOpen(true)}
       >
@@ -138,7 +138,7 @@ function StatusButton({ status }: { status: ExternalOrderStatus }) {
       className={`button-secondary inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
         cancel
           ? "border-[#fca5a5] text-[#b91c1c] hover:bg-[#fef2f2]"
-          : "border-[#e5e9f0] text-[#0f172a] hover:bg-[#f1f4f9]"
+          : "border-[#e6e4df] text-[#1a1917] hover:bg-[#f3f2ef]"
       }`}
       disabled={pending}
       name="status"

@@ -19,7 +19,7 @@ function shiftDay(key: string, delta: number) {
 }
 
 const navButton =
-  "button-secondary inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-[#e5e9f0] bg-white text-[#0f172a] hover:bg-[#f1f4f9]";
+  "button-secondary inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-[#e6e4df] bg-white text-[#1a1917] hover:bg-[#f3f2ef]";
 
 /**
  * Navigare pe zile: chevron înapoi/înainte + selector de dată. Folosită de
@@ -49,7 +49,7 @@ export function SalesDayNav({
         onChange={(event) => {
           if (event.target.value) router.push(dayHref(event.target.value));
         }}
-        className="h-9 rounded-md border border-[#e5e9f0] bg-white px-2.5 text-sm font-medium text-[#0f172a]"
+        className="h-9 rounded-full border border-[#e6e4df] bg-white px-2.5 text-sm font-medium text-[#1a1917]"
         aria-label="Alege ziua"
       />
       {isToday ? (
@@ -63,7 +63,7 @@ export function SalesDayNav({
       )}
       {!isToday ? (
         <Link
-          className="button-secondary h-9 content-center rounded-md border border-[#e5e9f0] bg-white px-3 text-sm font-semibold text-[#0f172a] hover:bg-[#f1f4f9]"
+          className="button-secondary h-9 content-center rounded-full border border-[#e6e4df] bg-white px-3 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
           href={dayHref(todayKey)}
         >
           Azi

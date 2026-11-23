@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Manrope, Outfit, Roboto_Mono } from "next/font/google";
 import { Toaster } from "@/app/components/action-toast";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
@@ -55,9 +54,6 @@ export default async function RootLayout({
       className={`${appFont.variable} ${crmFont.variable} ${monoFont.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#f6f6f4] text-[#1b1a17]">
-        <Script id="crm-sidebar-state" strategy="beforeInteractive">
-          {`try{var c=localStorage.getItem("nadin-crm-collapsed");if(c==="1"||(c===null&&innerWidth<1280))document.documentElement.setAttribute("data-crm-collapsed","")}catch(e){}`}
-        </Script>
         {children}
         <Toaster />
       </body>

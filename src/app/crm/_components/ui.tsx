@@ -5,7 +5,7 @@ import { vehicleLabel, type VehicleFitmentInfo } from "@/lib/catalog/vehicle-lab
 import { productLineSubtitle, type ProductLineInfo } from "@/lib/catalog/product-line-label";
 
 export const adminRowCls =
-  "motion-table-row border-t border-[#edf0f5] align-top hover:bg-[#f8fafc]";
+  "motion-table-row border-t border-[#eeede9] align-top hover:bg-[#faf9f7]";
 
 /**
  * Coloanele secundare dispar sub `lg`. Tabelele CRM-ului aveau `min-w-[1100px]`,
@@ -27,7 +27,7 @@ export function TableHead({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-4 py-2 text-[0.8125rem] font-medium text-[#64748b] ${
+      className={`whitespace-nowrap px-4 py-2 text-[0.8125rem] font-medium text-[#78716c] ${
         align === "right" ? "text-right" : "text-left"
       } ${secondary ? secondaryCls : ""} ${className}`}
     >
@@ -68,7 +68,7 @@ export function VehicleSubline({
 }) {
   const label = product ? productLineSubtitle(product) : vehicleLabel(fitment);
   return label ? (
-    <span className="block text-xs font-normal text-[#475569]">{label}</span>
+    <span className="block text-xs font-normal text-[#57534e]">{label}</span>
   ) : null;
 }
 
@@ -87,17 +87,17 @@ export function DailyMetric({
   return (
     <div className="min-w-0 bg-white px-5 py-4 max-sm:px-3 max-sm:py-2.5">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-[#64748b] max-sm:truncate max-sm:text-xs">{label}</p>
+        <p className="text-sm text-[#78716c] max-sm:truncate max-sm:text-xs">{label}</p>
         {Icon ? (
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#eef4ff] text-[#2563eb] max-sm:hidden">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#ecebe6] text-[#1a1917] max-sm:hidden">
             <Icon className="size-4" aria-hidden="true" />
           </span>
         ) : null}
       </div>
-      <p className="mt-1 text-[1.75rem] font-medium leading-tight tracking-tight tabular-nums text-[#0f172a] max-sm:mt-0.5 max-sm:text-lg">
+      <p className="mt-1 text-[1.75rem] font-medium leading-tight tracking-tight tabular-nums text-[#1a1917] max-sm:mt-0.5 max-sm:text-lg">
         {value}
       </p>
-      {hint ? <p className="mt-1 text-xs text-[#64748b] max-sm:hidden">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-[#78716c] max-sm:hidden">{hint}</p> : null}
     </div>
   );
 }
@@ -111,7 +111,7 @@ export function ExportLink({ href, label }: { href: string; label: string }) {
     <a
       href={href}
       title={label}
-      className="button-secondary inline-flex items-center gap-2 rounded-lg border border-[#e5e9f0] bg-white px-3 py-2 text-sm font-medium text-[#0f172a] hover:bg-[#f8fafc]"
+      className="button-secondary inline-flex items-center gap-2 rounded-full border border-[#e6e4df] bg-white px-3.5 py-2 text-sm font-medium text-[#1a1917] hover:bg-[#faf9f7]"
     >
       <Download className="size-4" aria-hidden="true" />
       <span className="max-sm:sr-only">{label}</span>
@@ -141,7 +141,7 @@ export function AdminSection({
             className="crm-table w-full border-collapse text-left text-sm"
             style={{ minWidth }}
           >
-            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
               <tr>
                 {head.map((h, i) =>
                   h === null ? null : (
@@ -159,7 +159,7 @@ export function AdminSection({
           </table>
         </div>
         {isEmpty ? (
-          <div className="px-4 py-14 text-center text-sm text-[#64748b]">{empty}</div>
+          <div className="px-4 py-14 text-center text-sm text-[#78716c]">{empty}</div>
         ) : null}
       </div>
     </section>
@@ -168,15 +168,15 @@ export function AdminSection({
 
 export function ButtonSkeleton() {
   return (
-    <div aria-hidden="true" className="skeleton-pulse h-9 w-32 rounded-md bg-[#edf0f5]" />
+    <div aria-hidden="true" className="skeleton-pulse h-9 w-32 rounded-md bg-[#eeede9]" />
   );
 }
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-lg border border-[#e5e9f0] bg-white px-3.5 py-2.5">
-      <div className="skeleton-pulse h-3.5 w-24 rounded bg-[#edf0f5]" />
-      <div className="skeleton-pulse mt-2 h-6 w-16 rounded bg-[#eef1f6]" />
+    <div className="rounded-lg border border-[#e6e4df] bg-white px-3.5 py-2.5">
+      <div className="skeleton-pulse h-3.5 w-24 rounded bg-[#eeede9]" />
+      <div className="skeleton-pulse mt-2 h-6 w-16 rounded bg-[#f0efeb]" />
     </div>
   );
 }
@@ -206,18 +206,18 @@ export function WorkspaceSkeleton({
       ) : null}
 
       {filters > 0 ? (
-        <div className="grid gap-3 rounded-lg border border-[#e5e9f0] bg-[#f8fafc] p-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 rounded-lg border border-[#e6e4df] bg-[#faf9f7] p-4 sm:grid-cols-2 lg:grid-cols-5">
           {Array.from({ length: filters }, (_, index) => (
-            <div key={index} className="skeleton-pulse h-10 rounded-md bg-[#edf0f5]" />
+            <div key={index} className="skeleton-pulse h-10 rounded-md bg-[#eeede9]" />
           ))}
         </div>
       ) : null}
 
       <div className="overflow-hidden crm-card">
-        <div className="h-9 border-b border-[#e5e9f0] bg-[#f8fafc]" />
+        <div className="h-9 border-b border-[#e6e4df] bg-[#faf9f7]" />
         <div className="grid gap-2 p-3">
           {Array.from({ length: rows }, (_, index) => (
-            <div key={index} className="skeleton-pulse h-9 rounded-md bg-[#eef1f6]" />
+            <div key={index} className="skeleton-pulse h-9 rounded-md bg-[#f0efeb]" />
           ))}
         </div>
       </div>
@@ -250,11 +250,11 @@ export function Pagination({
   hrefFor: (page: number) => string;
   summary?: ReactNode;
 }) {
-  if (pageCount <= 1) return summary ? <p className="text-sm text-[#475569]">{summary}</p> : null;
+  if (pageCount <= 1) return summary ? <p className="text-sm text-[#57534e]">{summary}</p> : null;
   const cell =
-    "grid h-8 min-w-8 place-items-center rounded-md border px-2 text-sm font-medium tabular-nums";
-  const idle = `${cell} border-[#e5e9f0] bg-white text-[#334155] hover:bg-[#f1f4f9]`;
-  const disabled = `${cell} border-[#edf0f5] text-[#cbd5e1]`;
+    "grid h-8 min-w-8 place-items-center rounded-full border px-2 text-sm font-medium tabular-nums";
+  const idle = `${cell} border-[#e6e4df] bg-white text-[#44403c] hover:bg-[#f3f2ef]`;
+  const disabled = `${cell} border-[#eeede9] text-[#d6d3d1]`;
   const step = (target: number, label: string, icon: ReactNode) =>
     target < 1 || target > pageCount || target === page ? (
       <span aria-hidden="true" className={disabled}>{icon}</span>
@@ -266,14 +266,14 @@ export function Pagination({
 
   return (
     <nav aria-label="Paginare" className="flex flex-wrap items-center gap-1.5 text-sm">
-      {summary ? <p className="mr-auto text-[#475569]">{summary}</p> : null}
+      {summary ? <p className="mr-auto text-[#57534e]">{summary}</p> : null}
       {step(1, "Prima pagină", <ChevronsLeft className="size-4" aria-hidden="true" />)}
       {step(page - 1, "Pagina anterioară", <ChevronLeft className="size-4" aria-hidden="true" />)}
       {pageWindow(page, pageCount).map((item, index) =>
         item === "gap" ? (
-          <span key={`gap-${index}`} className="px-1 text-[#94a3b8]">…</span>
+          <span key={`gap-${index}`} className="px-1 text-[#a8a29e]">…</span>
         ) : item === page ? (
-          <span key={item} aria-current="page" className={`${cell} border-[#2563eb] bg-[#2563eb] text-white`}>
+          <span key={item} aria-current="page" className={`${cell} border-[#1a1917] bg-[#1a1917] text-white`}>
             {item}
           </span>
         ) : (
@@ -309,8 +309,8 @@ export function FilterField({
 }) {
   return (
     <label
-      className={`field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
-        active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e5e9f0] bg-white text-[#334155]"
+      className={`field-control inline-flex h-9 items-center gap-2 rounded-full border px-3 text-sm ${
+        active ? "border-[#d6d3cd] bg-[#ecebe6] text-[#34322e]" : "border-[#e6e4df] bg-white text-[#44403c]"
       }`}
     >
       <span className="shrink-0 opacity-70 [&>svg]:size-4" aria-hidden="true">
@@ -326,9 +326,9 @@ export function FilterSubmit({ label = "Aplică" }: { label?: string }) {
   return (
     <button
       type="submit"
-      className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e5e9f0] bg-white px-3 text-sm font-medium text-[#0f172a] hover:bg-[#f1f4f9]"
+      className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-full border border-[#e6e4df] bg-white px-3 text-sm font-medium text-[#1a1917] hover:bg-[#f3f2ef]"
     >
-      <Filter className="size-4 text-[#64748b]" aria-hidden="true" />
+      <Filter className="size-4 text-[#78716c]" aria-hidden="true" />
       {label}
     </button>
   );
@@ -338,7 +338,7 @@ export function FilterReset({ href }: { href: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
+      className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
     >
       <X className="size-4" aria-hidden="true" /> Resetează
     </Link>
@@ -348,32 +348,190 @@ export function FilterReset({ href }: { href: string }) {
 /** Comutator segmentat (depozite, filtre de listă): un grup, nu pastile separate. */
 // Pe telefon un singur rând care se derulează, nu trei rânduri de depozite.
 export const segmentedCls =
-  "inline-flex max-w-full flex-wrap rounded-lg border border-[#e5e9f0] bg-white p-0.5 max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:[scrollbar-width:none] [&>*]:shrink-0 [&>*]:whitespace-nowrap";
+  "inline-flex max-w-full flex-wrap gap-0.5 rounded-full border border-[#e6e4df] bg-white p-1 max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:[scrollbar-width:none] [&>*]:shrink-0 [&>*]:whitespace-nowrap";
 
 export function segmentCls(active: boolean) {
-  return `rounded-md px-3 py-1 text-sm font-medium transition-colors ${
-    active ? "bg-[#2563eb] text-white" : "text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
+  return `rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+    active ? "bg-[#1a1917] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
   }`;
+}
+
+/** Numărul din interiorul unei pastile de filtru („Deschise 4"). */
+export function SegmentCount({ active, value }: { active: boolean; value: number }) {
+  return (
+    <span
+      className={`ml-1 inline-grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold tabular-nums ${
+        active ? "bg-white text-[#1a1917]" : "bg-[#ecebe6] text-[#1a1917]"
+      }`}
+    >
+      {value}
+    </span>
+  );
 }
 
 export type BadgeTone = "blue" | "green" | "amber" | "red" | "gray" | "purple";
 
 const badgeTones: Record<BadgeTone, string> = {
-  blue: "bg-[#eff6ff] text-[#1d4ed8] ring-[#bfdbfe]",
-  green: "bg-[#f0fdf4] text-[#166534] ring-[#bbf7d0]",
-  amber: "bg-[#fffbeb] text-[#92400e] ring-[#fde68a]",
-  red: "bg-[#fef2f2] text-[#b91c1c] ring-[#fecaca]",
-  gray: "bg-[#f1f4f9] text-[#334155] ring-[#e5e9f0]",
-  purple: "bg-[#f5f3ff] text-[#6d28d9] ring-[#ddd6fe]",
+  blue: "bg-[#e3eaf8] text-[#2f4f8f]",
+  green: "bg-[#dff1e4] text-[#1f6b3a]",
+  amber: "bg-[#fbefc9] text-[#7a5300]",
+  red: "bg-[#fde4de] text-[#a8321d]",
+  gray: "bg-[#ecebe6] text-[#44403c]",
+  purple: "bg-[#ece6fa] text-[#5b3fa0]",
 };
 
 /** Insigna de status din tabele (aceeași formă peste tot: În stoc, Activ, Creare…). */
 export function StatusBadge({ tone, children }: { tone: BadgeTone; children: ReactNode }) {
   return (
     <span
-      className={`inline-flex whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${badgeTones[tone]}`}
+      className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium [&>svg]:size-3.5 ${badgeTones[tone]}`}
     >
       {children}
     </span>
+  );
+}
+
+/** Culorile pastel ale segmentelor și cardurilor colorate (stil „Keel"). */
+export type PastelTone = "red" | "yellow" | "blue" | "lilac" | "green" | "gray";
+
+const barTones: Record<PastelTone, string> = {
+  red: "bg-[#f2a08f]",
+  yellow: "bg-[#f3d37a]",
+  blue: "bg-[#a9bde6]",
+  lilac: "bg-[#c7b8ef]",
+  green: "bg-[#a8d8b4]",
+  gray: "bg-[#78716c]",
+};
+
+const cardTones: Record<PastelTone, string> = {
+  red: "bg-[#fbe3dc]",
+  yellow: "bg-[#faefcc]",
+  blue: "bg-[#dfe6f6]",
+  lilac: "bg-[#e9e3f9]",
+  green: "bg-[#dcefe1]",
+  gray: "bg-white",
+};
+
+const statCols: Record<number, string> = { 1: "lg:grid-cols-1", 2: "lg:grid-cols-2", 3: "lg:grid-cols-3", 4: "lg:grid-cols-4" };
+
+export type HeroSegment = { label: string; value: string; amount: number; tone: PastelTone; note?: ReactNode };
+export type HeroStat = { label: string; value: string; hint?: ReactNode; icon?: LucideIcon; tone?: PastelTone };
+
+/**
+ * Blocul negru din capul paginii: cifra principală, din ce e compusă (bara
+ * segmentată) și câteva cifre de lângă ea. Unul singur pe pagină.
+ */
+export function HeroPanel({
+  label,
+  value,
+  note,
+  corner,
+  segments = [],
+  stats = [],
+}: {
+  label: string;
+  value: string;
+  note?: ReactNode;
+  /** Ceva mic în colțul din dreapta-sus (o pastilă albă, un link). */
+  corner?: ReactNode;
+  segments?: HeroSegment[];
+  stats?: HeroStat[];
+}) {
+  const total = segments.reduce((sum, segment) => sum + Math.max(segment.amount, 0), 0);
+  return (
+    <section className="motion-page rounded-[1.25rem] bg-[#1a1917] p-5 text-white lg:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm text-[#a8a29e]">{label}</p>
+          <p className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="text-[2.25rem] font-normal leading-none tracking-tight tabular-nums lg:text-[2.75rem]">{value}</span>
+            {note ? <span className="text-sm text-[#a8a29e]">{note}</span> : null}
+          </p>
+        </div>
+        {corner}
+      </div>
+
+      {segments.length > 0 && total > 0 ? (
+        <div className="mt-6 grid gap-3" style={{ gridTemplateColumns: segments.map((s) => `minmax(0, ${Math.max(s.amount, total * 0.08)}fr)`).join(" ") }}>
+          {segments.map((segment) => (
+            <div key={segment.label} className="min-w-0">
+              <div className={`h-1.5 rounded-full ${barTones[segment.tone]}`} />
+              <p className="mt-2 truncate text-sm">
+                <span className="text-[#a8a29e]">{segment.label}</span>{" "}
+                <span className="font-medium tabular-nums">{segment.value}</span>
+              </p>
+              {segment.note ? <p className="mt-0.5 truncate text-xs text-[#a8a29e]">{segment.note}</p> : null}
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {stats.length > 0 ? (
+        <div className={`crm-hero-rule grid grid-cols-2 gap-4 border-t pt-5 ${statCols[Math.min(stats.length, 4)]} ${segments.length > 0 ? "mt-6" : "mt-5"}`}>
+          {stats.map(({ label: statLabel, value: statValue, hint, icon: Icon, tone = "gray" }) => (
+            <div key={statLabel} className="flex min-w-0 items-start gap-3">
+              {Icon ? (
+                <span className={`grid size-9 shrink-0 place-items-center rounded-full text-[#1a1917] max-sm:hidden ${tone === "gray" ? "bg-white" : cardTones[tone]}`}>
+                  <Icon className="size-4" aria-hidden="true" />
+                </span>
+              ) : null}
+              <div className="min-w-0">
+                <p className="truncate text-xs text-[#a8a29e]">{statLabel}</p>
+                <p className="text-lg font-medium leading-tight tabular-nums">{statValue}</p>
+                {hint ? <p className="mt-0.5 truncate text-xs text-[#a8a29e] max-sm:hidden">{hint}</p> : null}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+/** Card colorat pastel cu o cifră și o bară de progres (depozite, mărci, ținte). */
+export function PastelCard({
+  tone,
+  title,
+  subtitle,
+  value,
+  of,
+  progress,
+  footer,
+  icon: Icon,
+}: {
+  tone: PastelTone;
+  title: string;
+  subtitle?: ReactNode;
+  value: string;
+  of?: string;
+  /** 0–1; lipsă = fără bară. */
+  progress?: number;
+  footer?: ReactNode;
+  icon?: LucideIcon;
+}) {
+  return (
+    <div className={`motion-card min-w-0 rounded-[1.25rem] p-4 lg:p-5 ${cardTones[tone]}`}>
+      <div className="flex items-center gap-3">
+        {Icon ? (
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white text-[#1a1917]">
+            <Icon className="size-4" aria-hidden="true" />
+          </span>
+        ) : null}
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-[#1a1917]">{title}</p>
+          {subtitle ? <p className="truncate text-xs text-[#57534e]">{subtitle}</p> : null}
+        </div>
+      </div>
+      <p className="mt-4 flex items-baseline gap-2">
+        <span className="text-[1.75rem] font-normal leading-none tracking-tight tabular-nums text-[#1a1917]">{value}</span>
+        {of ? <span className="text-sm text-[#57534e]">{of}</span> : null}
+      </p>
+      {progress !== undefined ? (
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/80">
+          <div className="h-full rounded-full bg-[#1a1917]" style={{ width: `${Math.round(Math.min(Math.max(progress, 0), 1) * 100)}%` }} />
+        </div>
+      ) : null}
+      {footer ? <div className="mt-3 text-xs text-[#57534e]">{footer}</div> : null}
+    </div>
   );
 }

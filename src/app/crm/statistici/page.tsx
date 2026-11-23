@@ -6,7 +6,7 @@ import { getPartnerProfitData, type PartnerProfitData } from "@/lib/reports/part
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { DailyMetric, TableCell, TableHead, WorkspaceSkeleton } from "../_components/ui";
+import { HeroPanel, TableCell, TableHead, WorkspaceSkeleton } from "../_components/ui";
 import { formatDate, formatMoney, formatNumber } from "../_components/format";
 
 export const dynamic = "force-dynamic";
@@ -61,34 +61,32 @@ function StatsWorkspace({
 }) {
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
-      <div className={`stat-strip grid sm:grid-cols-2 ${canModify ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
-        <DailyMetric icon={TrendingUp}
-          label="Venit (30 zile)"
-          value={`${formatMoney(data.last30.revenueLei)} lei`}
-          hint={`${formatNumber(data.last30.quantity)} produse vândute`}
-        />
-        {canModify ? (
-          <DailyMetric icon={PiggyBank}
-            label="Profit (30 zile)"
-            value={`${formatMoney(data.last30.profitLei)} lei`}
-            hint={
-              data.last30.revenueLei > 0
-                ? `marjă ${Math.round((data.last30.profitLei / data.last30.revenueLei) * 100)}%`
-                : undefined
-            }
-          />
-        ) : null}
-        <DailyMetric icon={ShoppingCart}
-          label="Vânzări (30 zile)"
-          value={formatNumber(data.last30.salesCount)}
-          hint={`coș mediu ${formatMoney(data.last30.avgSaleLei)} lei`}
-        />
-        <DailyMetric icon={Undo2}
-          label="Retururi (13 luni)"
-          value={formatNumber(data.returnsCount)}
-          hint={`${formatMoney(data.returnsLei)} lei returnați`}
-        />
-      </div>
+      <HeroPanel
+        label="Venit în ultimele 30 de zile"
+        value={`${formatMoney(data.last30.revenueLei)} lei`}
+        note={`din ${formatNumber(data.last30.salesCount)} vânzări`}
+        segments={
+          canModify && data.last30.revenueLei > 0
+            ? [
+                { label: "Profit", value: `${formatMoney(data.last30.profitLei)} lei`, amount: data.last30.profitLei, tone: "green" },
+                {
+                  label: "Cost",
+                  value: `${formatMoney(data.last30.revenueLei - data.last30.profitLei)} lei`,
+                  amount: data.last30.revenueLei - data.last30.profitLei,
+                  tone: "gray",
+                },
+              ]
+            : []
+        }
+        stats={[
+          { label: "Coș mediu", value: `${formatMoney(data.last30.avgSaleLei)} lei`, icon: ShoppingCart, tone: "blue" },
+          { label: "Produse vândute", value: formatNumber(data.last30.quantity), icon: TrendingUp, tone: "lilac" },
+          ...(canModify && data.last30.revenueLei > 0
+            ? [{ label: "Marjă", value: `${Math.round((data.last30.profitLei / data.last30.revenueLei) * 100)}%`, icon: PiggyBank, tone: "green" as const }]
+            : []),
+          { label: "Retururi, 13 luni", value: formatNumber(data.returnsCount), hint: `${formatMoney(data.returnsLei)} lei`, icon: Undo2, tone: "red" },
+        ]}
+      />
 
       <div className="grid gap-3 xl:grid-cols-2">
         <DailyChart rows={data.daily} canModify={canModify} />
@@ -107,12 +105,12 @@ function StatsWorkspace({
       {partnerProfit ? <PartnerProfitTable rows={partnerProfit} /> : null}
 
       <div className="overflow-hidden crm-card">
-        <div className="border-b border-[#e5e9f0] px-4 py-2.5">
-          <h2 className="text-sm font-semibold text-[#0f172a]">Top produse vândute (30 zile)</h2>
+        <div className="border-b border-[#e6e4df] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#1a1917]">Top produse vândute (30 zile)</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[560px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
               <tr>
                 <TableHead>Produs</TableHead>
                 <TableHead align="right">Cantitate</TableHead>
@@ -124,12 +122,12 @@ function StatsWorkspace({
                 data.topProducts.map((product) => {
                   const max = data.topProducts[0]?.quantity || 1;
                   return (
-                    <tr key={product.productId} className="motion-table-row border-t border-[#edf0f5]">
+                    <tr key={product.productId} className="motion-table-row border-t border-[#eeede9]">
                       <TableCell>
-                        <p className="font-medium text-[#0f172a]">{product.label}</p>
-                        <div className="mt-1.5 h-1.5 w-full max-w-64 rounded-full bg-[#eef1f6]">
+                        <p className="font-medium text-[#1a1917]">{product.label}</p>
+                        <div className="mt-1.5 h-1.5 w-full max-w-64 rounded-full bg-[#f0efeb]">
                           <div
-                            className="h-1.5 rounded-full bg-[#2563eb]"
+                            className="h-1.5 rounded-full bg-[#1a1917]"
                             style={{ width: `${Math.max((product.quantity / max) * 100, 4)}%` }}
                           />
                         </div>
@@ -141,7 +139,7 @@ function StatsWorkspace({
                 })
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#475569]" colSpan={3}>
+                  <td className="px-3 py-10 text-center text-[#57534e]" colSpan={3}>
                     Nu există vânzări în ultimele 30 de zile.
                   </td>
                 </tr>
@@ -167,12 +165,12 @@ function PeriodStatsTable({
 
   return (
     <div className="overflow-hidden crm-card">
-      <div className="border-b border-[#e5e9f0] px-4 py-2.5">
-        <h2 className="text-sm font-semibold text-[#0f172a]">{title}</h2>
+      <div className="border-b border-[#e6e4df] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#1a1917]">{title}</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[620px] border-collapse text-left text-sm">
-          <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+          <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
             <tr>
               <TableHead>Perioadă</TableHead>
               <TableHead align="right">Vânzări</TableHead>
@@ -185,12 +183,12 @@ function PeriodStatsTable({
           <tbody>
             {rows.length > 0 ? (
               rows.map((row) => (
-                <tr key={row.key} className="motion-table-row border-t border-[#edf0f5]">
+                <tr key={row.key} className="motion-table-row border-t border-[#eeede9]">
                   <TableCell className="capitalize">
                     <p className="font-semibold">{row.label}</p>
-                    <div className="mt-1.5 h-1.5 w-full max-w-48 rounded-full bg-[#eef1f6]">
+                    <div className="mt-1.5 h-1.5 w-full max-w-48 rounded-full bg-[#f0efeb]">
                       <div
-                        className="h-1.5 rounded-full bg-[#2563eb]"
+                        className="h-1.5 rounded-full bg-[#1a1917]"
                         style={{ width: `${Math.max((row.revenueLei / max) * 100, row.revenueLei > 0 ? 4 : 0)}%` }}
                       />
                     </div>
@@ -199,7 +197,7 @@ function PeriodStatsTable({
                   <TableCell align="right" secondary className="tabular-nums">{formatNumber(row.quantity)}</TableCell>
                   <TableCell align="right" className="tabular-nums font-semibold">{formatMoney(row.revenueLei)} lei</TableCell>
                   {canModify ? (
-                    <TableCell align="right" secondary className="tabular-nums text-[#475569]">{formatMoney(row.costLei)} lei</TableCell>
+                    <TableCell align="right" secondary className="tabular-nums text-[#57534e]">{formatMoney(row.costLei)} lei</TableCell>
                   ) : null}
                   {canModify ? (
                     <TableCell
@@ -213,7 +211,7 @@ function PeriodStatsTable({
               ))
             ) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#475569]" colSpan={canModify ? 6 : 4}>
+                <td className="px-3 py-10 text-center text-[#57534e]" colSpan={canModify ? 6 : 4}>
                   Nu există date pentru această perioadă.
                 </td>
               </tr>
@@ -229,12 +227,12 @@ function PeriodStatsTable({
 function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
   return (
     <div className="overflow-hidden crm-card">
-      <div className="border-b border-[#e5e9f0] px-4 py-2.5">
-        <h2 className="text-sm font-semibold text-[#0f172a]">Profit pe client (12 luni)</h2>
+      <div className="border-b border-[#e6e4df] px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-[#1a1917]">Profit pe client (12 luni)</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="crm-table w-full min-w-[820px] border-collapse text-left text-sm">
-          <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+          <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
             <tr>
               <TableHead>Client</TableHead>
               <TableHead align="right" secondary>Vânzări</TableHead>
@@ -251,9 +249,9 @@ function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
               rows.map((row) => (
                 <tr
                   key={row.partnerId ?? "tejghea"}
-                  className="motion-table-row border-t border-[#edf0f5] hover:bg-[#f8fafc]"
+                  className="motion-table-row border-t border-[#eeede9] hover:bg-[#faf9f7]"
                 >
-                  <TableCell className="font-medium text-[#0f172a]">{row.name}</TableCell>
+                  <TableCell className="font-medium text-[#1a1917]">{row.name}</TableCell>
                   <TableCell align="right" secondary className="tabular-nums">
                     {formatNumber(row.salesCount)}
                   </TableCell>
@@ -263,7 +261,7 @@ function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
                   <TableCell align="right" className="font-semibold tabular-nums">
                     {formatMoney(row.revenueLei)} lei
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#475569]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#57534e]">
                     {formatMoney(row.costLei)} lei
                   </TableCell>
                   <TableCell
@@ -274,17 +272,17 @@ function PartnerProfitTable({ rows }: { rows: PartnerProfitData }) {
                   >
                     {formatMoney(row.profitLei)} lei
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#475569]">
+                  <TableCell align="right" secondary className="tabular-nums text-[#57534e]">
                     {row.marginPercent === null ? "—" : `${Math.round(row.marginPercent)}%`}
                   </TableCell>
-                  <TableCell secondary className="text-[#475569]">
+                  <TableCell secondary className="text-[#57534e]">
                     {row.lastSale ? formatDate(row.lastSale) : "—"}
                   </TableCell>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#475569]" colSpan={8}>
+                <td className="px-3 py-10 text-center text-[#57534e]" colSpan={8}>
                   Nu există vânzări în ultimele 12 luni.
                 </td>
               </tr>

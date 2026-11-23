@@ -5,7 +5,7 @@ import { getPendingApprovalCount } from "@/lib/audit/queries";
 import { prisma } from "@/lib/prisma";
 import { lowStockWhere } from "@/lib/catalog/queries";
 import { canReviewOperations, canViewSection, canWriteCatalog } from "@/lib/roles";
-import { CrmChrome, Sidebar } from "./_components/chrome";
+import { CrmChrome, TopBar } from "./_components/chrome";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -42,17 +42,15 @@ export default async function CrmLayout({
 
   return (
     <CrmChrome counts={{ aprobari, "de-adus": deAdus, "conturi-plata": proforme, "stoc-mic": stocMic }}>
-      <main className="crm-main min-h-[100dvh] bg-[#f3f5fa] lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)]">
-        <aside className="crm-aside sticky top-0 z-40 border-b border-[#e5e9f0] bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-[15.5rem] lg:border-b-0 lg:border-r">
-          <Sidebar
-            role={appUser.role}
-            userName={appUser.name}
-            userEmail={appUser.email}
-          />
-        </aside>
-
-        {/* Conținutul stă direct pe fundal; fiecare tabel sau panou e un card alb. */}
-        <section className="min-w-0 pb-8 lg:col-start-2">{children}</section>
+      <main className="crm-main min-h-[100dvh] bg-[#efeeea]">
+        {/* Bara de sus stă pe același fundal ca pagina; fără blur: un
+            `backdrop-filter` ar prinde drawerele `fixed` din ea. */}
+        <header className="sticky top-0 z-40 border-b border-[#e6e4df] bg-[#efeeea] lg:border-b-0">
+          <div className="mx-auto max-w-[110rem]">
+            <TopBar role={appUser.role} userName={appUser.name} userEmail={appUser.email} />
+          </div>
+        </header>
+        <section className="mx-auto min-w-0 max-w-[110rem] pb-8">{children}</section>
       </main>
     </CrmChrome>
   );

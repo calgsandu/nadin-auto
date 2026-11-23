@@ -64,14 +64,14 @@ function RestockWorkspace({
         <DailyMetric icon={PackageX} label="Fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
       </div>
       {operations.restockPending.length === 0 ? (
-        <div className="crm-card px-3 py-10 text-center text-sm text-[#475569]">Nu sunt produse de adus în Pavilion 110A.</div>
+        <div className="crm-card px-3 py-10 text-center text-sm text-[#57534e]">Nu sunt produse de adus în Pavilion 110A.</div>
       ) : (
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           {/* Lista se folosește și de pe telefon, la raft: sub lg codul trece
               lângă denumire și rămân Produs, Cantitate și bifele. */}
           <table className="crm-table w-full border-collapse text-left text-sm lg:min-w-[980px]">
-            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
               <tr>
                 <TableHead className="max-lg:hidden">Cod</TableHead>
                 <TableHead>Produs</TableHead>
@@ -83,7 +83,7 @@ function RestockWorkspace({
             </thead>
             <tbody>
               {operations.restockPending.map((line) => (
-                  <tr key={line.productId} className="motion-table-row border-t border-[#edf0f5] hover:bg-[#f8fafc]">
+                  <tr key={line.productId} className="motion-table-row border-t border-[#eeede9] hover:bg-[#faf9f7]">
                     <TableCell className="font-mono text-xs font-semibold max-lg:hidden">
                       {formatText(line.product.externalCode)}
                     </TableCell>

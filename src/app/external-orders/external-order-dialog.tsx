@@ -75,7 +75,7 @@ export function ExternalOrderDialog({
         className={
           triggerKind === "row"
             ? rowIconButtonCls
-            : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+            : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#34322e]"
         }
         title={triggerKind === "row" ? triggerLabel : undefined}
         type="button"
@@ -173,7 +173,7 @@ export function ExternalOrderDialog({
                     margin !== null ? (
                       <p className={`text-sm font-semibold tabular-nums ${margin < 0 ? "text-[#b91c1c]" : "text-[#166534]"}`}>
                         marjă {formatLei(margin)} lei
-                        {qty > 1 ? <span className="font-normal text-[#475569]"> ({formatLei(margin / qty)} / buc)</span> : null}
+                        {qty > 1 ? <span className="font-normal text-[#57534e]"> ({formatLei(margin / qty)} / buc)</span> : null}
                       </p>
                     ) : null
                   }
@@ -240,4 +240,4 @@ const Field = DrawerField;
 const formatLei = (value: number) => new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 2 }).format(value);
 
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e5e9f0] bg-white px-2.5 text-sm outline-none placeholder:text-[#64748b] disabled:bg-[#eef1f6]";
+  "field-control h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm outline-none placeholder:text-[#78716c] disabled:bg-[#f0efeb]";

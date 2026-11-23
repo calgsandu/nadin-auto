@@ -101,7 +101,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
         <FilterField icon={<CalendarDays />} label="De la" active={Boolean(filters.from)}>
           <input className={filterControlCls} type="date" name="from" defaultValue={filters.from} />
         </FilterField>
-        <span className="text-[#94a3b8]" aria-hidden="true">–</span>
+        <span className="text-[#a8a29e]" aria-hidden="true">–</span>
         <FilterField icon={<CalendarDays />} label="Până la" active={Boolean(filters.to)}>
           <input className={filterControlCls} type="date" name="to" defaultValue={filters.to} />
         </FilterField>
@@ -115,7 +115,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[820px]">
-            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
               <tr>
                 <TableHead>Document</TableHead>
                 <TableHead className="max-sm:hidden">Depozit</TableHead>
@@ -133,9 +133,9 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                 <tr key={d.id} className={adminRowCls}>
                   <TableCell className="whitespace-nowrap">
                     <span className="block font-semibold">{formatDocumentType(d)} #{d.number}</span>
-                    <span className="block text-xs text-[#475569]">{formatDate(d.documentDate)}</span>
+                    <span className="block text-xs text-[#57534e]">{formatDate(d.documentDate)}</span>
                     {/* Pe telefon: partenerul și totalul sub document, în loc de coloane. */}
-                    <span className="mt-1 block whitespace-normal text-xs text-[#475569] sm:hidden">
+                    <span className="mt-1 block whitespace-normal text-xs text-[#57534e] sm:hidden">
                       {[d.partner?.name, documentTotal(d)].filter(Boolean).join(" · ")}
                     </span>
                   </TableCell>
@@ -159,12 +159,12 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
                     <div className="flex justify-end gap-1.5">
                       <DocumentDetailsButton details={toDocumentDetails(d, canModify)} />
                       <RowMenu label={`${formatDocumentType(d)} #${d.number}`}>
-                        <a href={`/api/export/document/${d.id}/pdf`} className="text-[#0f172a]">
-                          <FileText className="size-4 text-[#64748b]" aria-hidden="true" /> PDF intern
+                        <a href={`/api/export/document/${d.id}/pdf`} className="text-[#1a1917]">
+                          <FileText className="size-4 text-[#78716c]" aria-hidden="true" /> PDF intern
                         </a>
                         {d.type !== "ADJUSTMENT" ? (
-                          <a href={`/api/export/invoice/${d.id}`} className="text-[#0f172a]">
-                            <Download className="size-4 text-[#64748b]" aria-hidden="true" /> Excel intern
+                          <a href={`/api/export/invoice/${d.id}`} className="text-[#1a1917]">
+                            <Download className="size-4 text-[#78716c]" aria-hidden="true" /> Excel intern
                           </a>
                         ) : null}
                         {canModify ? (
@@ -191,7 +191,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
             </tbody>
           </table>
         </div>
-        {documents.length === 0 ? <div className="px-4 py-12 text-center text-sm text-[#475569]">Niciun document pentru filtrele curente.</div> : null}
+        {documents.length === 0 ? <div className="px-4 py-12 text-center text-sm text-[#57534e]">Niciun document pentru filtrele curente.</div> : null}
       </div>
 
       <Pagination

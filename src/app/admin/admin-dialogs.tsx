@@ -32,7 +32,7 @@ type Action = (state: AdminActionState, fd: FormData) => Promise<AdminActionStat
 
 const initial: AdminActionState = { ok: false, message: "" };
 const inputClassName =
-  "h-9 w-full rounded-md border border-[#e5e9f0] bg-white px-2.5 text-sm text-[#0f172a] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30 placeholder:text-[#64748b]";
+  "h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm text-[#1a1917] outline-none transition focus:border-[#1a1917] focus:ring-2 focus:ring-[#1a1917]/30 placeholder:text-[#78716c]";
 
 function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary" | "row"; onClick: () => void }) {
   if (kind === "row") {
@@ -47,7 +47,7 @@ function TriggerButton({ label, kind, onClick }: { label: string; kind: "primary
     <button
       type="button"
       onClick={onClick}
-      className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+      className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#34322e]"
     >
       {label}
     </button>
@@ -70,7 +70,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`grid content-start gap-1 text-sm font-medium text-[#334155] ${className}`}>
+    <label className={`grid content-start gap-1 text-sm font-medium text-[#44403c] ${className}`}>
       {label}
       {children}
     </label>
@@ -126,15 +126,15 @@ function Drawer({
           setOpen(false);
         }}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e5e9f0] bg-[#f8fafc] px-5 py-3">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-[#0f172a]">{title}</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-[#1a1917]">{title}</h2>
           </div>
           <CloseIconButton onClick={() => setOpen(false)} />
         </div>
         <form onSubmit={onSubmit} className="grid gap-4 px-5 py-4 lg:grid-cols-2">
           {children}
-          <div className="flex items-center justify-end gap-2 border-t border-[#e5e9f0] pt-5 lg:col-span-2">
+          <div className="flex items-center justify-end gap-2 border-t border-[#e6e4df] pt-5 lg:col-span-2">
             <CloseIconButton label="Anulează" onClick={() => setOpen(false)} />
             <SubmitButton label={submitLabel} pending={pending} />
           </div>
@@ -247,10 +247,10 @@ export function WarehouseDialog({
         <Field label="Nume">
           <input className={inputClassName} name="name" defaultValue={warehouse?.name ?? ""} placeholder="ex. Pavilion 110A" required />
         </Field>
-        <label className="flex items-center gap-2 self-start text-sm text-[#334155] lg:col-span-2">
+        <label className="flex items-center gap-2 self-start text-sm text-[#44403c] lg:col-span-2">
           <input type="checkbox" name="isDefault" defaultChecked={warehouse?.isDefault ?? false} /> Depozit implicit
         </label>
-        <label className="flex items-center gap-2 self-start text-sm text-[#334155] lg:col-span-2">
+        <label className="flex items-center gap-2 self-start text-sm text-[#44403c] lg:col-span-2">
           <input type="checkbox" name="active" defaultChecked={warehouse?.active ?? true} /> Activ
         </label>
       </Drawer>
@@ -377,7 +377,7 @@ export function FitmentDialog({
         <Field label="An sfârșit">
           <input className={inputClassName} name="yearEnd" defaultValue={fitment?.yearEnd ?? ""} inputMode="numeric" placeholder="2010" />
         </Field>
-        <label className="flex items-center gap-2 self-start text-sm text-[#334155] lg:col-span-2">
+        <label className="flex items-center gap-2 self-start text-sm text-[#44403c] lg:col-span-2">
           <input type="checkbox" name="yearOpenEnded" defaultChecked={fitment?.yearOpenEnded ?? false} /> În continuare (fără an de sfârșit)
         </label>
       </Drawer>
@@ -439,7 +439,7 @@ export function BrandSelect({
       </select>
       <button
         aria-label="Brand nou"
-        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e5e9f0] bg-white text-[#0f172a] hover:bg-[#f1f4f9]"
+        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e6e4df] bg-white text-[#1a1917] hover:bg-[#f3f2ef]"
         title="Brand nou"
         type="button"
         onClick={() => setCreating(true)}
@@ -512,7 +512,7 @@ export function ModelSelect({
         <>
           <button
             aria-label="Model nou"
-            className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e5e9f0] bg-white text-[#0f172a] hover:bg-[#f1f4f9]"
+            className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e6e4df] bg-white text-[#1a1917] hover:bg-[#f3f2ef]"
             title="Model nou"
             type="button"
             onClick={() => setCreating(true)}

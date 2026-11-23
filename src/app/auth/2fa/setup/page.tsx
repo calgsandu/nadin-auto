@@ -55,7 +55,7 @@ export default async function TwoFactorSetupPage() {
       description="Acest pas este obligatoriu pentru toate conturile. Scanează codul, apoi confirmă cu primul cod generat de aplicație."
     >
       <div className="grid gap-6">
-        <div className="mx-auto rounded-2xl border border-[#e5e9f0] bg-white p-3">
+        <div className="mx-auto rounded-2xl border border-[#e6e4df] bg-white p-3">
           <Image
             src={qrDataUrl}
             alt="Cod QR pentru configurarea aplicației Authenticator"

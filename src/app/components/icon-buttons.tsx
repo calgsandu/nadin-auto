@@ -9,17 +9,17 @@ import type { ComponentProps } from "react";
 
 /** Pătrat mic, contur — pentru acțiunile de pe rânduri (editează, detalii, PDF…). */
 export const rowIconButtonCls =
-  "button-secondary relative inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[#e5e9f0] bg-white text-[#334155] hover:bg-[#f1f4f9] hover:text-[#0f172a] disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
+  "button-secondary relative inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[#e6e4df] bg-white text-[#44403c] hover:bg-[#f3f2ef] hover:text-[#1a1917] disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
 
 /** Același pătrat, roșu — pentru ștergere. */
 export const rowDangerIconButtonCls =
   "button-secondary relative inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[#fca5a5] bg-white text-[#b91c1c] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
 
 const closeCls =
-  "button-secondary inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-[#e5e9f0] bg-white text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]";
+  "button-secondary inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-[#e6e4df] bg-white text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]";
 
 const saveCls =
-  "button-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60";
+  "button-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#1a1917] px-3.5 text-sm font-semibold text-white hover:bg-[#34322e] disabled:cursor-not-allowed disabled:opacity-60";
 
 export function CloseIconButton({
   label = "Închide",

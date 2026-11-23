@@ -73,9 +73,9 @@ function ApprovalList({
 }) {
   return (
     <section className="grid gap-3">
-      <h2 className="text-base font-semibold text-[#0f172a]">{title}</h2>
+      <h2 className="text-base font-semibold text-[#1a1917]">{title}</h2>
       {entries.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#d8d5ce] bg-white px-5 py-12 text-center text-sm text-[#475569]">
+        <div className="rounded-xl border border-dashed border-[#d8d5ce] bg-white px-5 py-12 text-center text-sm text-[#57534e]">
           {empty}
         </div>
       ) : (
@@ -98,14 +98,14 @@ function ApprovalCard({
 }) {
   return (
     <article className="overflow-hidden crm-card">
-      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[#edf0f5] px-4 py-3.5">
+      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[#eeede9] px-4 py-3.5">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <ModeBadge mode={mode} />
             <StatusBadge tone="gray">{entry.kind === "SALE" ? "Vânzare" : "Predare cont"}</StatusBadge>
           </div>
-          <h3 className="mt-2 font-semibold text-[#0f172a]">{entry.summary}</h3>
-          <p className="mt-1 text-xs text-[#64748b]">
+          <h3 className="mt-2 font-semibold text-[#1a1917]">{entry.summary}</h3>
+          <p className="mt-1 text-xs text-[#78716c]">
             {entry.requestedByName || entry.requestedByEmail || "Utilizator"},{" "}
             {dateTimeFormat.format(entry.createdAt)}
           </p>
@@ -146,9 +146,9 @@ function ApprovalCard({
           )}
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-[#edf0f5]">
+        <div className="overflow-x-auto rounded-lg border border-[#eeede9]">
           <table className="crm-table w-full min-w-[620px] border-collapse text-left text-sm">
-            <thead className="bg-[#f8fafc] text-xs text-[#475569]">
+            <thead className="bg-[#faf9f7] text-xs text-[#57534e]">
               <tr>
                 <th className="px-3 py-2 font-semibold">Produs</th>
                 <th className="px-3 py-2 text-right font-semibold">Cantitate</th>
@@ -158,7 +158,7 @@ function ApprovalCard({
             </thead>
             <tbody>
               {entry.details.lines.map((line) => (
-                <tr key={line.productId} className="border-t border-[#edf0f5]">
+                <tr key={line.productId} className="border-t border-[#eeede9]">
                   <td className="px-3 py-2.5 font-medium">{line.productLabel}</td>
                   <td className="px-3 py-2.5 text-right tabular-nums">
                     {line.quantity}
@@ -191,7 +191,7 @@ function ApprovalCard({
           <div className="flex justify-end">
             <Link
               href={`/crm/istoric?doc=${entry.appliedEntityId}`}
-              className="text-sm font-semibold text-[#1d4ed8] underline decoration-[#84adff] underline-offset-4"
+              className="text-sm font-semibold text-[#34322e] underline decoration-[#84adff] underline-offset-4"
             >
               Vezi documentul în istoric
             </Link>
@@ -205,8 +205,8 @@ function ApprovalCard({
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-medium text-[#64748b]">{label}</p>
-      <p className="mt-1 font-medium text-[#0f172a]">{value}</p>
+      <p className="text-xs font-medium text-[#78716c]">{label}</p>
+      <p className="mt-1 font-medium text-[#1a1917]">{value}</p>
     </div>
   );
 }

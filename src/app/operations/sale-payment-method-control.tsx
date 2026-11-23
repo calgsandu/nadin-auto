@@ -16,12 +16,12 @@ function salePaymentMethodTone(value: SalePaymentMethodStatus) {
   return value === "CASH"
     ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
     : value === "CARD"
-      ? "border-[#93c5fd] bg-[#eff6ff] text-[#1d4ed8]"
+      ? "border-[#d6d3cd] bg-[#ecebe6] text-[#34322e]"
       : value === "CREDIT"
         ? "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
         : value === "TRANSFER"
           ? "border-[#fcd34d] bg-[#fffbeb] text-[#92400e]"
-          : "border-[#cbd5e1] bg-[#f8fafc] text-[#475569]";
+          : "border-[#d6d3d1] bg-[#faf9f7] text-[#57534e]";
 }
 
 export function SalePaymentMethodBadge({

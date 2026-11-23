@@ -1,4 +1,5 @@
-import { StatusBadge } from "@/app/crm/_components/ui";
+import { AlertTriangle, CalendarClock, CheckCircle2, PackageCheck, Truck } from "lucide-react";
+import { HeroPanel, StatusBadge } from "@/app/crm/_components/ui";
 import { PaymentAccountRowActions } from "@/app/payment-accounts/payment-account-row-actions";
 import type { PaymentAccountsData } from "@/lib/payment-accounts/queries";
 import { vehicleLabel } from "@/lib/catalog/vehicle-label";
@@ -13,27 +14,61 @@ export function PaymentAccountsWorkspace({
   data: PaymentAccountsData;
   canSubmitEFactura: boolean;
 }) {
+  const now = new Date();
+  const soon = new Date(now.getTime() + 7 * DAY);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const live = data.accounts.filter((account) => !account.cancelledAt);
+  const unpaid = live.filter((account) => !account.paidAt);
+  const sum = (rows: typeof live) => rows.reduce((total, account) => total + Number(account.totalGross), 0);
+  const overdue = unpaid.filter((account) => account.dueDate && account.dueDate < now);
+  const dueSoon = unpaid.filter((account) => account.dueDate && account.dueDate >= now && account.dueDate <= soon);
+  const later = unpaid.filter((account) => !overdue.includes(account) && !dueSoon.includes(account));
+  const paidThisMonth = live.filter((account) => account.paidAt && account.paidAt >= monthStart);
+  const toDeliver = live.filter((account) => account.paidAt && !account.fulfilledAt);
+
   return (
     <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+      {live.length > 0 ? (
+        <HeroPanel
+          label="Neachitate"
+          value={`${money.format(sum(unpaid))} lei`}
+          note={`în ${unpaid.length} ${unpaid.length === 1 ? "proformă" : "proforme"}`}
+          segments={[
+            { label: "Restante", value: `${money.format(sum(overdue))} lei`, amount: sum(overdue), tone: "red" as const, note: `${overdue.length} proforme` },
+            { label: "Scadente în 7 zile", value: `${money.format(sum(dueSoon))} lei`, amount: sum(dueSoon), tone: "yellow" as const, note: `${dueSoon.length} proforme` },
+            { label: "Mai târziu", value: `${money.format(sum(later))} lei`, amount: sum(later), tone: "blue" as const, note: `${later.length} proforme` },
+          ].filter((segment) => segment.amount > 0)}
+          stats={[
+            { label: "Achitate luna aceasta", value: `${money.format(sum(paidThisMonth))} lei`, hint: `${paidThisMonth.length} proforme`, icon: CheckCircle2, tone: "green" },
+            { label: "Achitate, de predat", value: String(toDeliver.length), hint: toDeliver.length > 0 ? `${money.format(sum(toDeliver))} lei` : "nimic de predat", icon: Truck, tone: "yellow" },
+            { label: "Emise în total", value: String(live.length), icon: PackageCheck, tone: "lilac" },
+          ]}
+        />
+      ) : null}
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[1040px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc] text-xs text-[#475569]">
+            <thead className="border-b border-[#e6e4df] bg-[#faf9f7] text-xs text-[#57534e]">
               <tr>
-                <Head>Cont</Head><Head>Client</Head><Head>Marfă</Head><Head>Flux</Head><Head right>Total</Head><Head right>Documente</Head>
+                <Head>Cont</Head><Head>Client</Head><Head>Marfă</Head><Head>Status</Head><Head right>Total</Head><Head right>Documente</Head>
               </tr>
             </thead>
             <tbody>
               {data.accounts.map((account) => (
-                <tr key={account.id} className="border-t border-[#edf0f5] align-top hover:bg-[#f8fafc]">
+                <tr key={account.id} className="border-t border-[#eeede9] align-top hover:bg-[#faf9f7]">
                   <Cell>
                     <span className="font-semibold">#{account.number}</span>
-                    <span className="mt-1 block text-xs text-[#475569]">{date.format(account.issueDate)}</span>
-                    {account.dueDate ? <span className="block text-xs text-[#64748b]">scadent {date.format(account.dueDate)}</span> : null}
+                    <span className="mt-1 block text-xs text-[#57534e]">{date.format(account.issueDate)}</span>
+                    {account.dueDate ? <span className="block text-xs text-[#78716c]">scadent {date.format(account.dueDate)}</span> : null}
                   </Cell>
                   <Cell>
-                    <span className="font-semibold">{account.customerName}</span>
-                    <span className="mt-1 block font-mono text-xs text-[#475569]">IDNO {account.customerIdno}</span>
+                    <div className="flex items-center gap-3">
+                      <Initials name={account.customerName} />
+                      <div className="min-w-0">
+                        <span className="block font-semibold">{account.customerName}</span>
+                        <span className="block text-xs tabular-nums text-[#78716c]">IDNO {account.customerIdno}</span>
+                      </div>
+                    </div>
                   </Cell>
                   <Cell>
                     <div className="grid gap-1">
@@ -42,15 +77,15 @@ export function PaymentAccountsWorkspace({
                         return (
                           <span key={line.id}>
                             {line.productCode ? `${line.productCode} ` : ""}
-                            {line.description} <span className="tabular-nums text-[#475569]">×{line.quantity}</span>
-                            {vehicle ? <span className="block text-xs text-[#475569]">{vehicle}</span> : null}
+                            {line.description} <span className="tabular-nums text-[#57534e]">×{line.quantity}</span>
+                            {vehicle ? <span className="block text-xs text-[#57534e]">{vehicle}</span> : null}
                           </span>
                         );
                       })}
                     </div>
-                    <span className="mt-2 block text-xs text-[#64748b]">Din {account.warehouse.name}</span>
+                    <span className="mt-2 block text-xs text-[#78716c]">Din {account.warehouse.name}</span>
                   </Cell>
-                  <Cell><Flow account={account} /></Cell>
+                  <Cell><Flow account={account} now={now} /></Cell>
                   <Cell right><span className="tabular-nums font-semibold">{money.format(Number(account.totalGross))} lei</span></Cell>
                   <Cell right>
                     <PaymentAccountRowActions
@@ -73,28 +108,46 @@ export function PaymentAccountsWorkspace({
           </table>
         </div>
         {data.accounts.length === 0 ? (
-          <p className="px-4 py-12 text-center text-sm text-[#475569]">Nu există conturi de plată.</p>
+          <p className="px-4 py-12 text-center text-sm text-[#57534e]">Nu există conturi de plată.</p>
         ) : null}
       </div>
     </section>
   );
 }
 
-function Flow({ account }: { account: PaymentAccountsData["accounts"][number] }) {
-  if (account.cancelledAt) return <StatusBadge tone="red">Anulat</StatusBadge>;
-  const steps = [
-    { label: "Emis", done: true },
-    { label: "Achitat", done: Boolean(account.paidAt) },
-    { label: "Predat", done: Boolean(account.fulfilledAt) },
-  ];
+const DAY = 24 * 60 * 60 * 1000;
+
+/** Un singur status, cel care cere ceva: restanța bate scadența, predarea bate achitarea. */
+function Flow({ account, now }: { account: PaymentAccountsData["accounts"][number]; now: Date }) {
+  if (account.cancelledAt) return <StatusBadge tone="gray">Anulat</StatusBadge>;
+  if (account.fulfilledAt) return <StatusBadge tone="green"><CheckCircle2 aria-hidden="true" />Achitat și predat</StatusBadge>;
+  if (account.paidAt) return <StatusBadge tone="blue"><Truck aria-hidden="true" />Achitat, de predat</StatusBadge>;
+  if (!account.dueDate) return <StatusBadge tone="gray">Emis</StatusBadge>;
+  const days = Math.ceil((account.dueDate.getTime() - now.getTime()) / DAY);
+  if (days < 0) {
+    return <StatusBadge tone="red"><AlertTriangle aria-hidden="true" />Restant de {-days} {-days === 1 ? "zi" : "zile"}</StatusBadge>;
+  }
   return (
-    <div className="grid w-72 grid-cols-3 overflow-hidden rounded-md border border-[#e5e9f0]">
-      {steps.map((step) => (
-        <span key={step.label} className={`border-l border-[#e5e9f0] px-2 py-1.5 text-center text-xs font-semibold first:border-l-0 ${step.done ? "bg-[#eff6ff] text-[#1d4ed8]" : "bg-white text-[#64748b]"}`}>
-          {step.done ? "● " : "○ "}{step.label}
-        </span>
-      ))}
-    </div>
+    <StatusBadge tone={days <= 7 ? "amber" : "gray"}>
+      <CalendarClock aria-hidden="true" />
+      {days === 0 ? "Scadent azi" : `Scadent în ${days} ${days === 1 ? "zi" : "zile"}`}
+    </StatusBadge>
+  );
+}
+
+function Initials({ name }: { name: string }) {
+  const letters = name
+    .replace(/["„”«»]/g, "")
+    .split(/\s+/)
+    .filter((part) => part.length > 1)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  return (
+    <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-full bg-[#ecebe6] text-xs font-semibold text-[#44403c]">
+      {letters || "?"}
+    </span>
   );
 }
 

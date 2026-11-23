@@ -115,7 +115,7 @@ export function PartnerFormDialog({
           className={
             triggerKind === "row"
               ? rowIconButtonCls
-              : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+              : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#1a1917] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#34322e]"
           }
           title={triggerKind === "row" ? triggerLabel : undefined}
           type="button"
@@ -160,9 +160,9 @@ export function PartnerFormDialog({
                 setOpen(false);
               }}
             >
-              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e5e9f0] bg-[#f8fafc] px-5 py-3">
-                <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#0f172a]">
-                  <span className="grid size-8 place-items-center rounded-lg bg-[#2563eb] text-white">
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
+                <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#1a1917]">
+                  <span className="grid size-8 place-items-center rounded-lg bg-[#1a1917] text-white">
                     <Handshake className="size-4" aria-hidden="true" />
                   </span>
                   {partner ? "Editează partener" : "Partener nou"}
@@ -330,7 +330,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`grid content-start gap-1 text-[13px] font-medium text-[#475569] ${className}`}>
+    <label className={`grid content-start gap-1 text-[13px] font-medium text-[#57534e] ${className}`}>
       {label}
       {children}
     </label>
@@ -339,4 +339,4 @@ function Field({
 
 
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e5e9f0] bg-white px-2.5 text-sm outline-none placeholder:text-[#64748b] disabled:bg-[#eef1f6]";
+  "field-control h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm outline-none placeholder:text-[#78716c] disabled:bg-[#f0efeb]";

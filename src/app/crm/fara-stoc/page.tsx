@@ -55,16 +55,16 @@ function UnavailableRestockWorkspace({
         />
       </div>
       <div className="overflow-hidden crm-card">
-        <div className="border-b border-[#e5e9f0] px-4 py-2.5">
-          <h2 className="text-sm font-semibold text-[#0f172a]">Marcate fără stoc</h2>
+        <div className="border-b border-[#e6e4df] px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-[#1a1917]">Marcate fără stoc</h2>
         </div>
         {operations.restockUnavailable.length === 0 ? (
-          <p className="px-3 py-10 text-center text-sm text-[#475569]">Nu sunt produse marcate fără stoc.</p>
+          <p className="px-3 py-10 text-center text-sm text-[#57534e]">Nu sunt produse marcate fără stoc.</p>
         ) : (
         <div className="overflow-x-auto">
           {/* Sub lg codul trece lângă denumire: fără scroll lateral pe telefon. */}
           <table className="crm-table w-full border-collapse text-left text-sm lg:min-w-[980px]">
-            <thead className="border-b border-[#e5e9f0] bg-[#f8fafc]">
+            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
               <tr>
                 <TableHead className="max-lg:hidden">Cod</TableHead>
                 <TableHead>Produs</TableHead>
@@ -75,7 +75,7 @@ function UnavailableRestockWorkspace({
             </thead>
             <tbody>
               {operations.restockUnavailable.map((line) => (
-                  <tr key={line.productId} className="motion-table-row border-t border-[#edf0f5]">
+                  <tr key={line.productId} className="motion-table-row border-t border-[#eeede9]">
                     <TableCell className="font-mono text-xs font-semibold max-lg:hidden">
                       {formatText(line.product.externalCode)}
                     </TableCell>

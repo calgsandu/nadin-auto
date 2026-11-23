@@ -2,19 +2,24 @@ import type { ReactNode } from "react";
 import { groupForSection, sectionLabel, type WorkspaceSectionId } from "@/lib/operations/workspace";
 import { canViewSection } from "@/lib/roles";
 import type { AppRole } from "@/generated/prisma/enums";
-import { HeaderNotifications, SectionTabs } from "./chrome";
+import { SectionTabs } from "./chrome";
 
 /**
- * Antetul secțiunii: titlul mare, acțiunile paginii și clopoțelul „De făcut".
- * Sub-tab-urile grupului apar doar unde meniul nu le arată deja.
+ * Antetul secțiunii: titlul mare, un rând cu cifrele care contează pe pagina
+ * asta (`summary`), secțiunile grupului ca pastile și acțiunile paginii.
+ * Grupurile zilnice au deja câte o pastilă pe secțiune în bara de sus, deci
+ * pe desktop nu-și mai repetă secțiunile aici.
  */
 export function CrmHeader({
   section,
   role,
+  summary,
   children,
 }: {
   section: WorkspaceSectionId;
   role: AppRole;
+  /** Un singur rând, din cifre reale: „3 proforme neachitate, 12 400 lei". */
+  summary?: ReactNode;
   children?: ReactNode;
 }) {
   // Același nume ca în meniu: „Proforme" nu devine „Conturi de plată" pe pagină.
@@ -25,21 +30,21 @@ export function CrmHeader({
   const tabsOnDesktop = hasTabs && group?.display === "tabs";
 
   return (
-    <header className="motion-page px-4 pt-1 lg:px-6 lg:pt-4">
-      <div className="flex min-h-12 flex-wrap items-center gap-x-4 gap-y-2 py-2">
-        <h1 className="text-[1.375rem] font-semibold tracking-tight text-[#0f172a] lg:text-[1.625rem]">{title}</h1>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          {children}
-          <HeaderNotifications />
+    <header className="motion-page px-4 pt-3 lg:px-6 lg:pt-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 py-1">
+        <div className="mr-auto min-w-0">
+          <h1 className="text-[1.625rem] font-medium leading-tight tracking-tight text-[#1a1917] lg:text-[2rem]">
+            {title}
+          </h1>
+          {summary ? <p className="mt-1 text-sm text-[#57534e]">{summary}</p> : null}
         </div>
+        {hasTabs ? (
+          <div className={`max-lg:order-last max-lg:w-full ${tabsOnDesktop ? "" : "lg:hidden"}`}>
+            <SectionTabs role={role} />
+          </div>
+        ) : null}
+        {children ? <div className="flex flex-wrap items-center gap-2">{children}</div> : null}
       </div>
-      {/* Pe desktop secțiunile grupului sunt în meniu, sub grup; tab-urile
-          rămân pentru telefon și pentru meniul restrâns (vezi globals.css). */}
-      {hasTabs ? (
-        <div className={`border-b border-[#e5e9f0] ${tabsOnDesktop ? "crm-header-tabs" : "lg:hidden"}`}>
-          <SectionTabs role={role} />
-        </div>
-      ) : null}
     </header>
   );
 }

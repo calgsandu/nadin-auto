@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Banknote, CalendarRange, Package, ShoppingCart } from "lucide-react";
+import { CalendarRange, ShoppingCart } from "lucide-react";
 import { Suspense } from "react";
 import {
   getOperationsData,
@@ -11,7 +11,7 @@ import { StockSaleDialog } from "@/app/operations/stock-document-dialog";
 import { canCreateSales, canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { DailyMetric, segmentCls, segmentedCls, WorkspaceSkeleton } from "../_components/ui";
+import { HeroPanel, SegmentCount, segmentCls, segmentedCls, WorkspaceSkeleton } from "../_components/ui";
 import {
   RecentDocumentsTable,
   SalesRegisterExport,
@@ -99,6 +99,15 @@ const saleFilters = [
 ] as const;
 type SaleFilterId = (typeof saleFilters)[number]["id"];
 
+/** Bara din blocul negru: din ce s-au strâns banii zilei. */
+const paymentSegments = [
+  { method: "CASH", label: "Numerar", tone: "green" },
+  { method: "CARD", label: "Card", tone: "blue" },
+  { method: "TRANSFER", label: "Transfer", tone: "lilac" },
+  { method: "CREDIT", label: "Pe datorie", tone: "yellow" },
+  { method: null, label: "Nespecificat", tone: "red" },
+] as const;
+
 function SalesWorkspace({
   filter,
   canModify,
@@ -144,23 +153,38 @@ function SalesWorkspace({
         </div>
       </div>
 
-      <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
-        <DailyMetric icon={ShoppingCart}
-          label={isToday ? "Vânzări azi" : "Vânzări în ziua aleasă"}
-          value={formatNumber(sales.length)}
-        />
-        <DailyMetric icon={Package} label="Produse vândute" value={formatNumber(dayProducts)} />
-        <DailyMetric icon={Banknote} label="Total zi" value={`${formatMoney(dayLei)} lei`} />
-        <DailyMetric icon={CalendarRange}
-          label={`Total ${monthName}`}
-          value={`${formatMoney(monthLei)} lei`}
-          hint={`${formatNumber(monthCount)} vânzări în lună`}
-        />
-      </div>
+      <HeroPanel
+        label={isToday ? "Vânzări azi" : `Vânzări, ${salesDayLabelFormat.format(selectedDate)}`}
+        value={`${formatMoney(dayLei)} lei`}
+        note={`${formatNumber(sales.length)} vânzări, ${formatNumber(dayProducts)} produse`}
+        segments={paymentSegments
+          .map(({ method, label, tone }) => {
+            const lei = sales
+              .filter((sale) => (sale.paymentMethod ?? null) === method)
+              .reduce((total, sale) => total + documentTotalLei(sale), 0);
+            return { label, value: `${formatMoney(lei)} lei`, amount: lei, tone };
+          })
+          .filter((segment) => segment.amount > 0)}
+        stats={[
+          {
+            label: `Total ${monthName}`,
+            value: `${formatMoney(monthLei)} lei`,
+            hint: `${formatNumber(monthCount)} vânzări în lună`,
+            icon: CalendarRange,
+            tone: "lilac",
+          },
+          {
+            label: "Vânzare medie azi",
+            value: sales.length > 0 ? `${formatMoney(dayLei / sales.length)} lei` : "—",
+            icon: ShoppingCart,
+            tone: "blue",
+          },
+        ]}
+      />
 
       <div className="grid gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="mr-2 text-sm font-semibold text-[#0f172a] first-letter:uppercase">
+          <h2 className="mr-2 text-sm font-semibold text-[#1a1917] first-letter:uppercase">
             {salesDayLabelFormat.format(selectedDate)}
           </h2>
           <div className={segmentedCls}>
@@ -178,7 +202,7 @@ function SalesWorkspace({
                 href={search ? `/crm/vanzari?${search}` : "/crm/vanzari"}
                 className={segmentCls(active)}
               >
-                {item.label} <span className="tabular-nums opacity-70">{formatNumber(count)}</span>
+                {item.label} <SegmentCount active={active} value={count} />
               </Link>
             );
           })}

@@ -28,10 +28,10 @@ export function AuditDetails({ id }: { id: string }) {
         });
       }}
     >
-      <summary className="cursor-pointer whitespace-nowrap text-right text-xs font-semibold text-[#0f172a] underline decoration-[#2563eb] underline-offset-4">
+      <summary className="cursor-pointer whitespace-nowrap text-right text-xs font-semibold text-[#1a1917] underline decoration-[#1a1917] underline-offset-4">
         Vezi detalii
       </summary>
-      <div className="mt-2 max-h-80 w-[min(36rem,80vw)] overflow-auto rounded-md border border-[#e5e9f0] bg-[#f8fafc] px-3 py-2 text-xs text-[#334155]">
+      <div className="mt-2 max-h-80 w-[min(36rem,80vw)] overflow-auto rounded-md border border-[#e6e4df] bg-[#faf9f7] px-3 py-2 text-xs text-[#44403c]">
         {error ?? (sections ? <Sections sections={sections} /> : "Se încarcă…")}
       </div>
     </details>
@@ -45,13 +45,13 @@ function Sections({ sections }: { sections: AuditViewSection[] }) {
       {sections.map((section, index) => (
         <section key={index}>
           {section.title ? (
-            <h4 className="mb-1 font-semibold text-[#0f172a]">{section.title}</h4>
+            <h4 className="mb-1 font-semibold text-[#1a1917]">{section.title}</h4>
           ) : null}
-          <dl className="divide-y divide-[#edf0f5]">
+          <dl className="divide-y divide-[#eeede9]">
             {section.rows.map((row, rowIndex) => (
               <div key={rowIndex} className="flex justify-between gap-4 py-1">
-                <dt className="min-w-0 text-[#0f172a]">{row.label}</dt>
-                <dd className="shrink-0 text-right tabular-nums text-[#475569]">{row.value}</dd>
+                <dt className="min-w-0 text-[#1a1917]">{row.label}</dt>
+                <dd className="shrink-0 text-right tabular-nums text-[#57534e]">{row.value}</dd>
               </div>
             ))}
           </dl>

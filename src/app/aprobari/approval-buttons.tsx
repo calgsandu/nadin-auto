@@ -60,7 +60,7 @@ export function RejectButton({ operationId }: { operationId: string }) {
   return (
     <form action={formAction} className="grid w-64 gap-1.5 text-left">
       <input type="hidden" name="operationId" value={operationId} />
-      <label className="grid gap-1 text-xs font-semibold text-[#475569]">
+      <label className="grid gap-1 text-xs font-semibold text-[#57534e]">
         Motivul respingerii
         <textarea
           name="reason"
@@ -68,14 +68,14 @@ export function RejectButton({ operationId }: { operationId: string }) {
           required
           autoFocus
           placeholder="Ex.: cantitate sau client greșit"
-          className="w-full rounded-md border border-[#e5e9f0] bg-white px-2 py-1.5 text-xs text-[#0f172a] outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
+          className="w-full rounded-md border border-[#e6e4df] bg-white px-2 py-1.5 text-xs text-[#1a1917] outline-none focus:border-[#1a1917] focus:ring-2 focus:ring-[#1a1917]/20"
         />
       </label>
       <div className="flex justify-end gap-1.5">
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-[#475569] hover:bg-[#f1f4f9]"
+          className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-[#57534e] hover:bg-[#f3f2ef]"
         >
           Renunță
         </button>

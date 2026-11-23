@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, Fragment, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, type ReactNode } from "react";
 import {
   Bell,
   ChevronDown,
-  ChevronsUpDown,
   ClipboardList,
   FileText,
   LogOut,
   Menu,
   PackageMinus,
+  Search,
   ShieldCheck,
   X,
   type LucideIcon,
@@ -20,7 +20,6 @@ import { logoutAction } from "@/app/auth/actions";
 import { RowMenu } from "@/app/components/row-menu";
 import { ChangePasswordDialog } from "@/app/account/change-password-dialog";
 import { TrustedDeviceControl } from "@/app/account/trusted-device-control";
-import { SidebarCollapseButton } from "../sidebar-collapse";
 import { crmSectionHref, sectionFromPathname } from "@/lib/crm/urls";
 import { groupForSection, navigationGroups, sectionLabel } from "@/lib/operations/workspace";
 import { canViewSection } from "@/lib/roles";
@@ -58,8 +57,18 @@ const roleLabels: Record<AppRole, string> = {
 };
 
 
-/** Nav-ul principal; secțiunea activă vine din URL, nu dintr-un prop. */
-export function Sidebar({
+/** Etichete scurte pentru bara de sus, unde fiecare pastilă costă lățime. */
+const pillLabels: Partial<Record<WorkspaceSectionId, string>> = {
+  "la-comanda": "Comenzi",
+};
+
+/**
+ * Bara de sus: sigla, pastilele de navigare, căutarea, clopoțelul și contul.
+ * Grupurile folosite zilnic („list") își arată fiecare secțiune ca pastilă;
+ * celelalte au o singură pastilă, iar secțiunile lor apar în antetul paginii.
+ * Pe telefon pastilele se strâng în butonul „Meniu".
+ */
+export function TopBar({
   role,
   userName,
   userEmail,
@@ -70,16 +79,34 @@ export function Sidebar({
 }) {
   const counts = useContext(NavCountsContext);
   const activeSectionId = sectionFromPathname(usePathname());
-  // Grupurile din meniu se deschid/închid pe click, fără să schimbe pagina;
-  // implicit e deschis doar grupul paginii curente.
-  const [toggledGroups, setToggledGroups] = useState<Record<string, boolean>>({});
-  useSearchShortcut();
+  const focusSearch = useSearchShortcut();
   const visibleGroups = navigationGroups
     .map((group) => ({
       ...group,
       sections: group.sections.filter((section) => canViewSection(role, section)),
     }))
     .filter((group) => group.sections.length > 0);
+  const pills = visibleGroups.flatMap((group) =>
+    group.display === "list" || group.sections.length === 1
+      ? group.sections.map((section) => ({
+          key: section,
+          href: crmSectionHref(section),
+          label: pillLabels[section] ?? sectionLabel(section),
+          icon: sectionIcon(section),
+          active: section === activeSectionId,
+          count: countFor(counts, section),
+        }))
+      : [
+          {
+            key: group.id,
+            href: crmSectionHref(group.sections[0]),
+            label: group.label,
+            icon: menuIcons[group.icon],
+            active: group.sections.includes(activeSectionId),
+            count: group.sections.reduce((sum, section) => sum + countFor(counts, section), 0),
+          },
+        ],
+  );
   const userLabel = userName || userEmail || "Utilizator";
   const initials = userLabel
     .split(/\s+/)
@@ -90,123 +117,71 @@ export function Sidebar({
     .toUpperCase();
 
   return (
-    <nav aria-label="Meniu principal" className="crm-sidebar-nav flex flex-col gap-2 px-3 py-2 lg:h-full lg:gap-0 lg:px-3 lg:py-4">
-      {/* Sigla și numele; butonul de restrângere stă jos, lângă cont. */}
-      <div className="crm-sidebar-brand crm-account flex items-center justify-between gap-2 px-1 pb-1 lg:mb-5 lg:px-1.5 lg:pb-0">
-        <Link href="/crm/produse" className="flex min-w-0 items-center gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#eef4ff]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="" className="h-5 w-7 object-contain" />
-          </span>
-          <span className="crm-nav-label truncate text-[1.0625rem] font-semibold tracking-tight text-[#0f172a]">
-            Nadin Auto
-          </span>
-        </Link>
-        <MobileMenu
-          groups={visibleGroups}
-          activeSectionId={activeSectionId}
-          counts={counts}
-          userLabel={userLabel}
-          roleLabel={roleLabels[role]}
-        />
-      </div>
+    <div className="flex h-16 items-center gap-3 px-4 lg:gap-3 lg:px-6 xl:gap-5">
+      <Link href="/crm/produse" className="flex shrink-0 items-center gap-2.5" aria-label="Nadin Auto">
+        <span className="grid size-9 place-items-center rounded-full bg-[#1a1917]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="" className="h-4 w-6 object-contain brightness-0 invert" />
+        </span>
+        <span className="text-[1.125rem] font-semibold tracking-tight text-[#1a1917] lg:max-xl:hidden">Nadin Auto</span>
+      </Link>
 
-      {/* Desktop: ce se face zilnic e la vedere; grupurile își deschid
-          secțiunile sub ele, ca arbore, când ești într-una din ele. */}
-      <div className="crm-sidebar-links hidden min-h-0 flex-1 overflow-y-auto lg:block">
-        <div className="grid gap-0.5">
-          {visibleGroups.map((group, index) => {
-            const groupActive = group.sections.includes(activeSectionId);
-            const groupOpen = toggledGroups[group.id] ?? groupActive;
-            const caption = index === 0 ? "Lucru zilnic" : group.rare && !visibleGroups[index - 1]?.rare ? "Evidență" : null;
-            return (
-              <Fragment key={group.id}>
-                {caption ? (
-                  <p className={`crm-nav-caption px-3 pb-1.5 text-xs font-medium text-[#94a3b8] ${index === 0 ? "" : "mt-5"}`}>
-                    {caption}
-                  </p>
-                ) : null}
-                {group.display === "list" || group.sections.length === 1 ? (
-                  group.sections.map((section) => {
-                    const count = countFor(counts, section);
-                    return (
-                      <div key={section} className="crm-fly-item" onPointerEnter={placeFlyout} onFocus={placeFlyout} onClick={closeFlyout} onPointerLeave={reopenFlyout}>
-                        <NavLink
-                          active={section === activeSectionId}
-                          badge={count}
-                          href={crmSectionHref(section)}
-                          icon={sectionIcon(section)}
-                          label={sectionLabel(section)}
-                        />
-                        {/* Meniul restrâns: eticheta apare lângă iconiță la hover. */}
-                        <span className="crm-fly crm-fly-pill" aria-hidden="true">
-                          <span className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-[#0f172a] px-2.5 py-1.5 text-sm font-medium text-white shadow-lg">
-                            {sectionLabel(section)}
-                            {count > 0 ? (
-                              <span className="rounded-md bg-white/20 px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums">
-                                {count}
-                              </span>
-                            ) : null}
-                          </span>
-                        </span>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="crm-fly-item" onPointerEnter={placeFlyout} onFocus={placeFlyout} onClick={closeFlyout} onPointerLeave={reopenFlyout}>
-                    <NavLink
-                      active={groupActive}
-                      parent
-                      badge={group.sections.reduce((sum, section) => sum + countFor(counts, section), 0)}
-                      badgeInTree={groupOpen}
-                      highlightBadge={group.sections.includes("aprobari")}
-                      href={crmSectionHref(group.sections[0])}
-                      expanded={groupOpen}
-                      onToggle={() => setToggledGroups((current) => ({ ...current, [group.id]: !groupOpen }))}
-                      icon={menuIcons[group.icon]}
-                      label={group.label}
-                    />
-                    {groupOpen ? (
-                      <div className="crm-nav-sub mb-1.5 ml-[1.375rem] grid gap-0.5 border-l border-[#e5e9f0] pl-2.5">
-                        {group.sections.map((section) => (
-                          <SubLink key={section} section={section} active={section === activeSectionId} count={countFor(counts, section)} />
-                        ))}
-                      </div>
-                    ) : null}
-                    {/* Meniul restrâns: secțiunile grupului într-un meniu lateral. */}
-                    <div className="crm-fly crm-fly-menu">
-                      <div className="grid w-56 gap-0.5 rounded-xl border border-[#e5e9f0] bg-white p-1.5 shadow-[0_12px_32px_-12px_rgb(15_23_42/0.25)]">
-                        <p className="px-2.5 pb-1 pt-1.5 text-sm font-semibold text-[#0f172a]">{group.label}</p>
-                        {group.sections.map((section) => (
-                          <SubLink key={section} section={section} active={section === activeSectionId} count={countFor(counts, section)} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </Fragment>
-            );
-          })}
+      <nav aria-label="Meniu principal" className="mobile-nav-scroll hidden min-w-0 flex-1 overflow-x-auto lg:block">
+        <div className="flex w-max gap-1 py-1 xl:gap-1.5">
+          {pills.map(({ key, href, label, icon: Icon, active, count }) => (
+            <Link
+              key={key}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              aria-label={count > 0 ? `${label} (${count})` : label}
+              className={`motion-nav-link inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-medium xl:px-3.5 ${
+                active
+                  ? "bg-[#1a1917] text-white"
+                  : "border border-[#e6e4df] bg-white text-[#1a1917] hover:border-[#d6d3d1]"
+              }`}
+            >
+              <Icon className={`size-4 shrink-0 max-2xl:hidden ${active ? "text-white" : "text-[#57534e]"}`} aria-hidden="true" />
+              {label}
+              {count > 0 ? (
+                <span
+                  className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold leading-none tabular-nums ${
+                    active ? "bg-white text-[#1a1917]" : "bg-[#1a1917] text-white"
+                  }`}
+                >
+                  {count}
+                </span>
+              ) : null}
+            </Link>
+          ))}
         </div>
-      </div>
+      </nav>
 
-      {/* Cine e logat; acțiunile contului stau într-un meniu. */}
-      <div className="crm-sidebar-account hidden items-center gap-1 border-t border-[#e5e9f0] pt-3 lg:flex">
-        <div className="min-w-0 flex-1">
+      <div className="ml-auto flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          onClick={focusSearch}
+          aria-label="Caută piese (Ctrl K)"
+          title="Caută piese (Ctrl K)"
+          className="grid size-9 place-items-center rounded-full border border-[#e6e4df] bg-white text-[#1a1917] hover:border-[#d6d3d1]"
+        >
+          <Search className="size-4" aria-hidden="true" />
+        </button>
+        <HeaderNotifications />
+        <div className="hidden lg:block">
           <RowMenu
             ariaLabel={`Contul meu: ${userLabel}`}
             label={userLabel}
-            triggerClassName="crm-account-trigger flex w-full items-center gap-2.5 rounded-xl p-1.5 text-left hover:bg-[#f1f4f9]"
+            triggerClassName="flex items-center gap-2.5 rounded-full py-1 pl-1 pr-2 hover:bg-white"
             trigger={
               <>
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#eef4ff] text-xs font-semibold text-[#1d4ed8]">
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#e4e2dc] text-xs font-semibold text-[#1a1917]">
                   {initials || "?"}
                 </span>
-                <span className="crm-account-meta min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold text-[#0f172a]">{userLabel}</span>
-                  <span className="block truncate text-xs text-[#64748b]">{roleLabels[role]}</span>
+                <span className="min-w-0 max-2xl:hidden">
+                  <span className="block max-w-40 truncate text-sm font-semibold leading-tight text-[#1a1917]">{userLabel}</span>
+                  <span className="block text-xs leading-tight text-[#78716c]">{roleLabels[role]}</span>
                 </span>
-                <ChevronsUpDown className="crm-account-meta size-4 shrink-0 text-[#94a3b8]" aria-hidden="true" />
+                <ChevronDown className="size-4 shrink-0 text-[#a8a29e]" aria-hidden="true" />
               </>
             }
           >
@@ -215,9 +190,15 @@ export function Sidebar({
             <LogoutButton />
           </RowMenu>
         </div>
-        <SidebarCollapseButton />
+        <MobileMenu
+          groups={visibleGroups}
+          activeSectionId={activeSectionId}
+          counts={counts}
+          userLabel={userLabel}
+          roleLabel={roleLabels[role]}
+        />
       </div>
-    </nav>
+    </div>
   );
 }
 
@@ -249,13 +230,13 @@ function MobileMenu({
     <div className="lg:hidden">
       <button
         type="button"
-        className="button-secondary relative inline-flex h-9 items-center gap-2 rounded-lg border border-[#e5e9f0] bg-white px-3 text-sm font-semibold text-[#0f172a]"
+        className="relative inline-flex h-9 items-center gap-2 rounded-full border border-[#e6e4df] bg-white px-3.5 text-sm font-semibold text-[#1a1917]"
         onClick={() => dialog.current?.showModal()}
       >
         <Menu className="size-4" aria-hidden="true" />
         Meniu
         {total > 0 ? (
-          <span className="rounded-md bg-[#2563eb] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
+          <span className="rounded-md bg-[#1a1917] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
             {total}
           </span>
         ) : null}
@@ -270,12 +251,12 @@ function MobileMenu({
           if ((event.target as HTMLElement).closest("a, button")) dialog.current?.close();
         }}
       >
-        <div className="sticky top-0 flex items-center justify-between border-b border-[#e5e9f0] bg-white px-4 py-3">
-          <span className="text-[1.0625rem] font-semibold tracking-tight text-[#0f172a]">Meniu</span>
+        <div className="sticky top-0 flex items-center justify-between border-b border-[#e6e4df] bg-white px-4 py-3">
+          <span className="text-[1.0625rem] font-semibold tracking-tight text-[#1a1917]">Meniu</span>
           <button
             type="button"
             aria-label="Închide meniul"
-            className="grid size-9 place-items-center rounded-lg border border-[#e5e9f0] text-[#475569]"
+            className="grid size-9 place-items-center rounded-lg border border-[#e6e4df] text-[#57534e]"
           >
             <X className="size-4" aria-hidden="true" />
           </button>
@@ -298,23 +279,23 @@ function MobileMenu({
             ) : (
               // Grupurile stau strânse; se deschide doar cel al paginii curente.
               <details key={group.id} className="group" open={group.sections.includes(activeSectionId)}>
-                <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-[#475569] [&::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-[#57534e] [&::-webkit-details-marker]:hidden">
                   {(() => {
                     const Icon = menuIcons[group.icon];
-                    return <Icon className="size-[1.125rem] shrink-0 text-[#94a3b8]" aria-hidden="true" />;
+                    return <Icon className="size-[1.125rem] shrink-0 text-[#a8a29e]" aria-hidden="true" />;
                   })()}
-                  <span className="group-open:font-semibold group-open:text-[#0f172a]">{group.label}</span>
+                  <span className="group-open:font-semibold group-open:text-[#1a1917]">{group.label}</span>
                   {(() => {
                     const sum = group.sections.reduce((total, section) => total + countFor(counts, section), 0);
                     return sum > 0 ? (
-                      <span className="rounded-md bg-[#f1f4f9] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-[#475569] group-open:hidden">
+                      <span className="rounded-md bg-[#f3f2ef] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-[#57534e] group-open:hidden">
                         {sum}
                       </span>
                     ) : null;
                   })()}
-                  <ChevronDown className="ml-auto size-4 shrink-0 text-[#94a3b8] transition-transform group-open:rotate-180" aria-hidden="true" />
+                  <ChevronDown className="ml-auto size-4 shrink-0 text-[#a8a29e] transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
-                <div className="mb-1 ml-[1.375rem] grid gap-0.5 border-l border-[#e5e9f0] pl-2.5">
+                <div className="mb-1 ml-[1.375rem] grid gap-0.5 border-l border-[#e6e4df] pl-2.5">
                   {group.sections.map((section) => (
                     <SubLink key={section} section={section} active={section === activeSectionId} count={countFor(counts, section)} />
                   ))}
@@ -323,10 +304,10 @@ function MobileMenu({
             ),
           )}
         </nav>
-        <div className="grid gap-2 border-t border-[#e5e9f0] px-4 py-4">
+        <div className="grid gap-2 border-t border-[#e6e4df] px-4 py-4">
           <p className="text-sm">
-            <span className="font-semibold text-[#0f172a]">{userLabel}</span>
-            <span className="text-[#64748b]"> {roleLabel}</span>
+            <span className="font-semibold text-[#1a1917]">{userLabel}</span>
+            <span className="text-[#78716c]"> {roleLabel}</span>
           </p>
           <div className="flex flex-wrap gap-2">
             <ChangePasswordDialog />
@@ -339,47 +320,18 @@ function MobileMenu({
   );
 }
 
-/**
- * Meniul restrâns: pill-ul și meniul lateral sunt `position: fixed` (lista de
- * linkuri are scroll și le-ar tăia), deci le punem în dreptul rândului când
- * intră mouse-ul sau focusul. Meniul nu iese din ecran pe jos.
- */
-function placeFlyout(event: { currentTarget: HTMLElement }) {
-  const item = event.currentTarget;
-  const fly = item.querySelector<HTMLElement>(":scope > .crm-fly");
-  if (!fly) return;
-  const rect = item.getBoundingClientRect();
-  const top = fly.classList.contains("crm-fly-menu")
-    ? rect.top - 6
-    : rect.top + (rect.height - fly.offsetHeight) / 2;
-  fly.style.top = `${Math.max(8, Math.min(top, window.innerHeight - fly.offsetHeight - 8))}px`;
-}
-
-/**
- * Clic pe o secțiune = alegerea s-a făcut: meniul se închide chiar dacă
- * mouse-ul e încă pe el. Clicul pe rândul grupului (buton) îl lasă deschis.
- */
-function closeFlyout(event: { currentTarget: HTMLElement; target: EventTarget }) {
-  if (!(event.target as HTMLElement).closest("a")) return;
-  event.currentTarget.setAttribute("data-fly-closed", "");
-}
-
-function reopenFlyout(event: { currentTarget: HTMLElement }) {
-  event.currentTarget.removeAttribute("data-fly-closed");
-}
-
 function SubLink({ section, active, count }: { section: WorkspaceSectionId; active: boolean; count: number }) {
   return (
     <Link
       href={crmSectionHref(section)}
       aria-current={active ? "page" : undefined}
       className={`motion-nav-link flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm ${
-        active ? "bg-[#eef4ff] font-semibold text-[#1d4ed8]" : "text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
+        active ? "bg-[#ecebe6] font-semibold text-[#34322e]" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
       }`}
     >
       <span className="truncate">{sectionLabel(section)}</span>
       {count > 0 ? (
-        <span className="ml-auto rounded-md bg-[#2563eb] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
+        <span className="ml-auto rounded-md bg-[#1a1917] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
           {count}
         </span>
       ) : null}
@@ -389,96 +341,37 @@ function SubLink({ section, active, count }: { section: WorkspaceSectionId; acti
 
 function NavLink({
   active,
-  parent = false,
   badge = 0,
-  badgeInTree = false,
-  highlightBadge = false,
   href,
-  expanded,
-  onToggle,
   icon: Icon,
   label,
 }: {
   active: boolean;
-  /** Rând de grup: activ înseamnă „ești într-o secțiune de sub el", nu pastila plină. */
-  parent?: boolean;
   badge?: number;
-  /** Grupul activ: secțiunile (cu contoarele lor) sunt deja în arbore, deci
-   *  suma apare doar cu meniul restrâns, când arborele e ascuns. */
-  badgeInTree?: boolean;
-  /** Albastru = cere atenție (aprobări); gri = doar un număr de lucru. */
-  highlightBadge?: boolean;
   href: string;
-  /** Rând de grup pe desktop: lista de sub el e deschisă. */
-  expanded?: boolean;
-  /** Dat = rândul e buton care deschide/închide lista, nu link spre o pagină. */
-  onToggle?: () => void;
   icon: LucideIcon;
   label: string;
 }) {
-  const filled = active && !parent;
-  const className = `motion-nav-link relative flex min-w-max items-center gap-3 rounded-xl px-3 py-2 text-sm lg:min-w-0 ${
-        filled
-          ? "bg-[#2563eb] font-medium text-white shadow-[0_4px_12px_-4px_rgb(37_99_235/0.5)]"
-          : active
-            ? "crm-nav-parent-active font-semibold text-[#0f172a] max-lg:bg-[#2563eb] max-lg:font-medium max-lg:text-white"
-            : "font-medium text-[#475569] hover:bg-[#f1f4f9] hover:text-[#0f172a]"
-      }`;
-  const content = (
-    <>
-      <Icon
-        className={`size-[1.125rem] shrink-0 ${
-          filled ? "text-white" : active ? "text-[#2563eb] max-lg:text-white" : "text-[#94a3b8]"
-        }`}
-        aria-hidden="true"
-      />
-      <span className="crm-nav-label truncate whitespace-nowrap">{label}</span>
-      {parent ? (
-        <ChevronDown
-          className={`crm-nav-label ml-auto size-4 shrink-0 text-[#94a3b8] transition-transform max-lg:hidden ${(expanded ?? active) ? "rotate-180" : ""}`}
-          aria-hidden="true"
-        />
-      ) : null}
+  return (
+    <Link
+      aria-current={active ? "page" : undefined}
+      aria-label={badge > 0 ? `${label} (${badge})` : label}
+      href={href}
+      className={`motion-nav-link flex items-center gap-3 rounded-full px-3 py-2 text-sm font-medium ${
+        active ? "bg-[#1a1917] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+      }`}
+    >
+      <Icon className={`size-[1.125rem] shrink-0 ${active ? "text-white" : "text-[#a8a29e]"}`} aria-hidden="true" />
+      <span className="truncate">{label}</span>
       {badge > 0 ? (
         <span
-          data-tone={highlightBadge ? "hi" : undefined}
-          data-in-tree={badgeInTree || undefined}
-          className={`crm-nav-badge rounded-md px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums ${parent ? "" : "ml-auto"} ${
-            filled
-              ? "bg-white/20 text-white"
-              : highlightBadge
-                ? "bg-[#2563eb] text-white"
-                : "bg-[#f1f4f9] text-[#475569]"
+          className={`ml-auto grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold leading-none tabular-nums ${
+            active ? "bg-white text-[#1a1917]" : "bg-[#1a1917] text-white"
           }`}
         >
           {badge}
         </span>
       ) : null}
-    </>
-  );
-  const ariaLabel = badge > 0 ? `${label} (${badge})` : label;
-  if (onToggle) {
-    return (
-      <button
-        type="button"
-        aria-current={active ? "true" : undefined}
-        aria-expanded={expanded}
-        aria-label={ariaLabel}
-        className={`${className} w-full text-left`}
-        onClick={onToggle}
-      >
-        {content}
-      </button>
-    );
-  }
-  return (
-    <Link
-      aria-current={active ? (parent ? "true" : "page") : undefined}
-      className={className}
-      href={href}
-      aria-label={ariaLabel}
-    >
-      {content}
     </Link>
   );
 }
@@ -494,7 +387,7 @@ function NavLink({
 function useSearchShortcut() {
   const router = useRouter();
 
-  useEffect(() => {
+  const open = useCallback(() => {
     const focusSearch = () => {
       const input = document.querySelector<HTMLInputElement>("[data-catalog-search]");
       if (!input) return false;
@@ -502,6 +395,17 @@ function useSearchShortcut() {
       input.select();
       return true;
     };
+    if (focusSearch()) return;
+    router.push("/crm/produse");
+    // Pagina vine din server: așteptăm câmpul cel mult câteva secunde.
+    let tries = 0;
+    const wait = window.setInterval(() => {
+      tries += 1;
+      if (focusSearch() || tries > 50) window.clearInterval(wait);
+    }, 100);
+  }, [router]);
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
       const typing =
@@ -518,18 +422,13 @@ function useSearchShortcut() {
       );
       if (drawerOpen) return;
       event.preventDefault();
-      if (focusSearch()) return;
-      router.push("/crm/produse");
-      // Pagina vine din server: așteptăm câmpul cel mult câteva secunde.
-      let tries = 0;
-      const wait = window.setInterval(() => {
-        tries += 1;
-        if (focusSearch() || tries > 50) window.clearInterval(wait);
-      }, 100);
+      open();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [router]);
+  }, [open]);
+
+  return open;
 }
 
 function LogoutButton() {
@@ -539,7 +438,7 @@ function LogoutButton() {
         type="submit"
         aria-label="Ieșire din cont"
         title="Ieșire din cont"
-        className="button-secondary inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#e5e9f0] bg-white px-3 py-2 text-sm font-semibold text-[#475569] hover:border-[#cbd5e1] hover:text-[#0f172a]"
+        className="button-secondary inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#e6e4df] bg-white px-3 py-2 text-sm font-semibold text-[#57534e] hover:border-[#d6d3d1] hover:text-[#1a1917]"
       >
         <LogOut className="size-4" aria-hidden="true" />
         <span>Ieșire</span>
@@ -561,8 +460,8 @@ export function SectionTabs({ role }: { role: AppRole }) {
   if (sections.length <= 1) return null;
 
   return (
-    <nav aria-label="Secțiuni" className="mobile-nav-scroll -mb-px overflow-x-auto">
-      <div className="flex gap-4">
+    <nav aria-label="Secțiuni" className="mobile-nav-scroll max-w-full overflow-x-auto">
+      <div className="flex w-max gap-0.5 rounded-full border border-[#e6e4df] bg-white p-1">
         {sections.map((section) => {
           const active = section === activeSectionId;
           const count = countFor(counts, section);
@@ -571,15 +470,17 @@ export function SectionTabs({ role }: { role: AppRole }) {
               key={section}
               href={crmSectionHref(section)}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 pb-2 pt-1 text-sm font-medium transition-colors ${
-                active
-                  ? "border-[#2563eb] text-[#1d4ed8]"
-                  : "border-transparent text-[#64748b] hover:border-[#cbd5e1] hover:text-[#0f172a]"
+              className={`inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-sm font-medium transition-colors ${
+                active ? "bg-[#1a1917] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
               }`}
             >
               {sectionLabel(section)}
               {count > 0 ? (
-                <span className="rounded-md bg-[#eff6ff] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-[#1d4ed8]">
+                <span
+                  className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold leading-none tabular-nums ${
+                    active ? "bg-white text-[#1a1917]" : "bg-[#ecebe6] text-[#1a1917]"
+                  }`}
+                >
                   {count}
                 </span>
               ) : null}
@@ -613,13 +514,13 @@ export function HeaderNotifications() {
   return (
     <RowMenu ariaLabel={total > 0 ? `De făcut: ${total}` : "Nimic de făcut"} badge={total} icon={Bell} label="De făcut" size="header">
       {visible.length === 0 ? (
-        <p className="px-2.5 py-2 text-sm text-[#475569]">Nimic în așteptare.</p>
+        <p className="px-2.5 py-2 text-sm text-[#57534e]">Nimic în așteptare.</p>
       ) : (
         visible.map((item) => {
           const Icon = item.icon;
           return (
-            <Link key={item.key} href={item.href} className="text-[#0f172a]">
-              <Icon className="size-4 text-[#64748b]" aria-hidden="true" />
+            <Link key={item.key} href={item.href} className="text-[#1a1917]">
+              <Icon className="size-4 text-[#78716c]" aria-hidden="true" />
               <span className="flex-1">{item.label}</span>
               <span className="font-semibold tabular-nums">{countFor(counts, item.key)}</span>
             </Link>

@@ -22,18 +22,18 @@ export default function GlobalError({
 
   return (
     <html lang="ro" className="h-full">
-      <body className="min-h-full bg-[#f1f4f9] text-[#0f172a] antialiased">
+      <body className="min-h-full bg-[#f3f2ef] text-[#1a1917] antialiased">
         <div className="flex min-h-screen items-center justify-center px-6 py-16">
           <div className="w-full max-w-lg">
             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               Aplicația nu a putut porni
             </h1>
-            <p className="mt-3 text-[15px] leading-relaxed text-[#475569]">
+            <p className="mt-3 text-[15px] leading-relaxed text-[#57534e]">
               Reîncarcă pagina; dacă se repetă, trimite codul de mai jos.
             </p>
             <div className="mt-7 flex flex-wrap gap-2.5">
               <button
-                className="rounded-md bg-[#2563eb] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+                className="rounded-md bg-[#1a1917] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#34322e]"
                 type="button"
                 onClick={reset}
               >
@@ -41,7 +41,7 @@ export default function GlobalError({
               </button>
             </div>
             {error.digest ? (
-              <p className="mt-8 border-t border-[#e5e9f0] pt-4 text-xs text-[#64748b]">
+              <p className="mt-8 border-t border-[#e6e4df] pt-4 text-xs text-[#78716c]">
                 Cod: <span className="font-mono">{error.digest}</span>
               </p>
             ) : null}

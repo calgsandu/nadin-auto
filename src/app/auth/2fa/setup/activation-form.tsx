@@ -12,10 +12,10 @@ export function ActivationForm() {
 
   return (
     <form action={action} className="grid gap-4">
-      <label className="grid gap-1.5 text-sm font-medium text-[#334155]">
+      <label className="grid gap-1.5 text-sm font-medium text-[#44403c]">
         Cod unic de activare
         <input
-          className="h-12 rounded-md border border-[#e5e9f0] bg-white px-3 text-center font-mono text-base uppercase tracking-[0.18em] outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30"
+          className="h-12 rounded-md border border-[#e6e4df] bg-white px-3 text-center font-mono text-base uppercase tracking-[0.18em] outline-none focus:border-[#1a1917] focus:ring-2 focus:ring-[#1a1917]/30"
           name="activationCode"
           inputMode="text"
           autoComplete="one-time-code"
@@ -25,7 +25,7 @@ export function ActivationForm() {
           autoFocus
         />
       </label>
-      <p className="text-xs leading-5 text-[#64748b]">
+      <p className="text-xs leading-5 text-[#78716c]">
         Codul expiră în 15 minute și poate fi folosit o singură dată. Cere-l direct administratorului; nu îl trimite în același loc în care păstrezi parola.
       </p>
       {state.message ? (
@@ -36,7 +36,7 @@ export function ActivationForm() {
       <button
         type="submit"
         disabled={pending}
-        className="h-11 rounded-md bg-[#2563eb] text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60"
+        className="h-11 rounded-md bg-[#1a1917] text-sm font-semibold text-white hover:bg-[#34322e] disabled:opacity-60"
       >
         {pending ? "Se verifică..." : "Continuă la configurarea 2FA"}
       </button>
