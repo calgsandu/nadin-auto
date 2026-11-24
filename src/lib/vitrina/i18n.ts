@@ -19,6 +19,14 @@ type CatalogDictionary = {
     inStock: string;
     outOfStock: string;
     local: string;
+    noPhoto: string;
+    inStockCount: (count: number) => string;
+  };
+  model: {
+    categories: string;
+    onlyInStock: string;
+    noneInStock: string;
+    showAll: string;
   };
   home: {
     title: string;
@@ -44,6 +52,11 @@ type CatalogDictionary = {
     results: (count: number) => string;
     emptyQuery: string;
     emptyResults: string;
+    resultsFor: (count: number, query: string, capped: boolean) => string;
+    noResultsFor: (query: string) => string;
+    tryCategory: string;
+    tryBrand: string;
+    clear: string;
   };
   product: {
     code: string;
@@ -53,6 +66,13 @@ type CatalogDictionary = {
     notes: string;
     related: string;
     imageAlt: (description: string) => string;
+    car: string;
+    years: string;
+    referenceImage: string;
+    allPartsFor: (model: string) => string;
+    searchAnother: string;
+    otherPartsFor: string;
+    part: string;
   };
   notFound: {
     title: string;
@@ -94,6 +114,14 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       inStock: "În stoc",
       outOfStock: "La comandă",
       local: "Producție locală",
+      noPhoto: "Fără fotografie",
+      inStockCount: (count) => `${count} în stoc`,
+    },
+    model: {
+      categories: "Categorii de piese",
+      onlyInStock: "Doar în stoc",
+      noneInStock: "Nicio piesă din această categorie nu e acum în stoc.",
+      showAll: "Arată toate piesele",
     },
     home: {
       title: "Piese de caroserie pentru mașina ta.",
@@ -120,6 +148,13 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       results: (count) => `${count} rezultate`,
       emptyQuery: "Introdu cel puțin două caractere pentru a începe căutarea.",
       emptyResults: "Nu am găsit piese pentru această căutare.",
+      resultsFor: (count, query, capped) =>
+        `${count}${capped ? "+" : ""} ${count === 1 ? "rezultat" : "rezultate"} pentru „${query}”`,
+      noResultsFor: (query) =>
+        `Nimic găsit pentru „${query}”. Încearcă un cod, o categorie sau numele modelului.`,
+      tryCategory: "Caută după categorie",
+      tryBrand: "Sau alege mașina",
+      clear: "Șterge",
     },
     product: {
       code: "Cod",
@@ -129,6 +164,13 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       notes: "Detalii",
       related: "Piese similare",
       imageAlt: (description) => description,
+      car: "Mașina",
+      years: "Ani de fabricație",
+      referenceImage: "Imagine de referință a categoriei",
+      allPartsFor: (model) => `Toate piesele pentru ${model}`,
+      searchAnother: "Caută altă piesă",
+      otherPartsFor: "Alte piese pentru",
+      part: "piesă",
     },
     notFound: {
       title: "Piesa nu mai e aici",
@@ -169,6 +211,14 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       inStock: "В наличии",
       outOfStock: "Под заказ",
       local: "Местное производство",
+      noPhoto: "Нет фото",
+      inStockCount: (count) => `${count} в наличии`,
+    },
+    model: {
+      categories: "Категории деталей",
+      onlyInStock: "Только в наличии",
+      noneInStock: "Сейчас нет деталей этой категории в наличии.",
+      showAll: "Показать все детали",
     },
     home: {
       title: "Кузовные детали для вашего автомобиля.",
@@ -195,6 +245,13 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       results: (count) => `${count} ${russianPlural(count, "результат", "результата", "результатов")}`,
       emptyQuery: "Введите не менее двух символов, чтобы начать поиск.",
       emptyResults: "По вашему запросу детали не найдены.",
+      resultsFor: (count, query, capped) =>
+        `${count}${capped ? "+" : ""} ${russianPlural(count, "результат", "результата", "результатов")} по запросу «${query}»`,
+      noResultsFor: (query) =>
+        `По запросу «${query}» ничего не найдено. Попробуйте код, категорию или модель.`,
+      tryCategory: "Искать по категории",
+      tryBrand: "Или выберите автомобиль",
+      clear: "Очистить",
     },
     product: {
       code: "Код",
@@ -204,6 +261,13 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       notes: "Подробности",
       related: "Похожие детали",
       imageAlt: (description) => description,
+      car: "Автомобиль",
+      years: "Годы выпуска",
+      referenceImage: "Изображение категории",
+      allPartsFor: (model) => `Все детали для ${model}`,
+      searchAnother: "Найти другую деталь",
+      otherPartsFor: "Другие детали для",
+      part: "деталь",
     },
     notFound: {
       title: "Этой детали здесь больше нет",

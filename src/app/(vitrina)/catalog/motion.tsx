@@ -74,7 +74,8 @@ export function StaggerGroup({
           y: 0,
           duration: 0.7,
           ease: "power3.out",
-          stagger: 0.06,
+          // Pe liste lungi (sute de piese) toată grila intră în ~0,7 s, nu în zeci de secunde.
+          stagger: Math.min(0.06, 0.7 / items.length),
           scrollTrigger: { trigger: ref.current, start: "top 82%", once: true },
         },
       );

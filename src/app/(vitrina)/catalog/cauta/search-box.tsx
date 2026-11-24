@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   catalogCopy,
   catalogHref,
@@ -12,11 +12,13 @@ export function SearchBox({ locale }: { locale: CatalogLocale }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [value, setValue] = useState(searchParams.get("q") ?? "");
+  const inputRef = useRef<HTMLInputElement>(null);
   const copy = catalogCopy(locale).search;
 
   return (
     <form
-      className="flex gap-3"
+      role="search"
+      className="flex gap-2 rounded-full border border-black/15 bg-white p-1.5 shadow-[0_12px_32px_-24px_rgb(27_26_23_/_0.5)] transition-colors focus-within:border-[#2e90fa]/70 sm:gap-3"
       onSubmit={(event) => {
         event.preventDefault();
         const query = value.trim();
@@ -24,16 +26,49 @@ export function SearchBox({ locale }: { locale: CatalogLocale }) {
         router.push(query ? `${base}?q=${encodeURIComponent(query)}` : base);
       }}
     >
-      <input
-        autoFocus
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        placeholder={copy.placeholder}
-        className="w-full rounded-full border border-black/15 bg-white px-6 py-4 text-base text-[#1b1a17] outline-none transition-colors placeholder:text-[#98948b] focus:border-[#2e90fa]/70"
-      />
+      <label className="flex min-w-0 flex-1 items-center gap-3 pl-4">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          className="size-5 shrink-0 text-[#98948b]"
+          aria-hidden
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+        <span className="sr-only">{copy.button}</span>
+        <input
+          ref={inputRef}
+          autoFocus
+          type="search"
+          enterKeyHint="search"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder={copy.placeholder}
+          className="w-full min-w-0 bg-transparent py-2.5 text-base text-[#1b1a17] outline-none placeholder:text-[#98948b] [&::-webkit-search-cancel-button]:hidden"
+        />
+        {value ? (
+          <button
+            type="button"
+            onClick={() => {
+              setValue("");
+              inputRef.current?.focus();
+            }}
+            className="grid size-8 shrink-0 place-items-center rounded-full text-[#98948b] transition-colors hover:bg-black/5 hover:text-[#1b1a17]"
+            aria-label={copy.clear}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-4" aria-hidden>
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </button>
+        ) : null}
+      </label>
       <button
         type="submit"
-        className="shrink-0 rounded-full bg-[#2e90fa] px-7 py-4 text-sm font-semibold text-white transition-colors hover:bg-[#1b7fe8]"
+        className="shrink-0 rounded-full bg-[#2e90fa] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1b7fe8] sm:px-7"
       >
         {copy.button}
       </button>

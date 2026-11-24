@@ -66,14 +66,15 @@ export default async function BrandPage({
         >
           {brand.name}
         </p>
-        <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-36 md:pb-24 md:pt-44">
+        <div className="relative mx-auto max-w-6xl px-6 pb-14 pt-32 md:pb-24 md:pt-44">
           <Reveal>
-            <p className="text-sm text-[#6f6a61]">
+            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm text-[#6f6a61]">
               <Link href={catalogHref(locale)} className="transition-colors hover:text-[#1b1a17]">
                 {copy.common.catalog}
-              </Link>{" "}
-              / {brand.name}
-            </p>
+              </Link>
+              <span aria-hidden className="text-[#b4afa5]">/</span>
+              <span className="text-[#1b1a17]">{brand.name}</span>
+            </nav>
             <div className="mt-4 flex items-center gap-5">
               {logo ? (
                 <span className="grid size-20 shrink-0 place-items-center rounded-2xl border border-black/10 bg-white p-3 md:size-24">
@@ -97,8 +98,8 @@ export default async function BrandPage({
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
-        <StaggerGroup className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mx-auto max-w-6xl px-6 pb-16 pt-10 md:pb-24 md:pt-16">
+        <StaggerGroup className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           {brand.models.map((model) => {
             const photo = modelImage(brand.slug, model.slug);
             return (
@@ -106,30 +107,46 @@ export default async function BrandPage({
                 key={model.slug}
                 href={catalogHref(locale, `/${brand.slug}/${model.slug}`)}
                 data-stagger
-                className="group overflow-hidden rounded-2xl border border-black/10 bg-white transition-colors hover:border-[#2e90fa]/60"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[#2e90fa]/50 hover:shadow-[0_18px_40px_-24px_rgb(27_26_23_/_0.35)]"
               >
-                {photo ? (
-                  <div className="relative aspect-[4/3] overflow-hidden bg-white">
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#f1f0ec]">
+                  {photo ? (
                     <Image
                       src={photo}
                       alt={`${brand.name} ${model.name}`}
                       fill
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      sizes="(min-width: 1024px) 33vw, 50vw"
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
-                  </div>
-                ) : null}
-                <div className="flex items-center justify-between gap-4 p-6">
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_50%_40%,#ffffff,#ebeae5_75%)] p-4">
+                      {logo ? (
+                        <Image
+                          src={logo}
+                          alt=""
+                          width={96}
+                          height={64}
+                          className="h-10 w-auto object-contain opacity-25 grayscale md:h-14"
+                        />
+                      ) : null}
+                      <span className="max-w-full truncate text-2xl font-bold tracking-tight text-black/15 md:text-4xl">
+                        {model.name}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-1 items-center justify-between gap-3 p-4 md:p-5">
                   <div className="min-w-0">
-                    <p className="truncate text-xl font-semibold tracking-tight group-hover:text-[#2e90fa]">
+                    <p className="truncate text-base font-semibold tracking-tight group-hover:text-[#2e90fa] md:text-xl">
                       {model.name}
                     </p>
-                    <p className="mt-2 text-sm text-[#6f6a61]">
+                    <p className="mt-1 truncate text-xs text-[#6f6a61] md:text-sm">
                       {model.years ?? copy.common.allYears}
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-full border border-black/10 px-3 py-1.5 font-mono text-xs text-[#57534a]">
-                    {numberFormat.format(model.productCount)}
+                  <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-black/10 px-3 py-1.5 text-xs text-[#57534a] transition-colors group-hover:border-[#2e90fa]/40 group-hover:text-[#2e90fa] sm:inline-flex">
+                    <span className="font-mono">{numberFormat.format(model.productCount)}</span>
+                    <span aria-hidden>→</span>
                   </span>
                 </div>
               </Link>

@@ -5,7 +5,9 @@ import { getProductDetails } from "@/lib/vitrina/queries";
 import { productImage, typeImage } from "@/lib/vitrina/images";
 import { LocalBadge } from "@/app/components/local-badge";
 import { Reveal, StaggerGroup } from "../../motion";
+import { PartCard, StockBadge } from "../../part-card";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { catalogCopy, catalogHref } from "@/lib/vitrina/i18n";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
 
@@ -44,108 +46,98 @@ export default async function ProductPage({
   const image = realImage ?? typeImage(product.typeSource);
   const modelHref = catalogHref(locale, `/${product.brand.slug}/${product.model.slug}`);
 
+  const specs: [string, ReactNode][] = [
+    [copy.product.car, `${product.brand.name} ${product.model.name}`],
+    [copy.product.years, product.years ?? copy.common.allYears],
+    [copy.product.compatibility, product.fitLabel],
+    [copy.product.category, product.type],
+  ];
+  if (product.notes) specs.push([copy.product.notes, product.notes]);
+
   return (
     <>
       <section className="mx-auto max-w-6xl px-6 pb-16 pt-32 md:pt-40">
         <Reveal>
-          <p className="text-sm text-[#6f6a61]">
+          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm text-[#6f6a61]">
             <Link href={catalogHref(locale)} className="transition-colors hover:text-[#1b1a17]">
               {copy.common.catalog}
-            </Link>{" "}
-            /{" "}
+            </Link>
+            <span aria-hidden className="text-[#b4afa5]">/</span>
             <Link
               href={catalogHref(locale, `/${product.brand.slug}`)}
               className="transition-colors hover:text-[#1b1a17]"
             >
               {product.brand.name}
-            </Link>{" "}
-            /{" "}
+            </Link>
+            <span aria-hidden className="text-[#b4afa5]">/</span>
             <Link href={modelHref} className="transition-colors hover:text-[#1b1a17]">
               {product.model.name}
-            </Link>{" "}
-            / <span className="font-mono">{product.code ?? (locale === "ru" ? "деталь" : "piesă")}</span>
-          </p>
+            </Link>
+            <span aria-hidden className="text-[#b4afa5]">/</span>
+            <span className="font-mono text-[#1b1a17]">{product.code ?? copy.product.part}</span>
+          </nav>
         </Reveal>
 
-        <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
+        <div className="mt-8 grid grid-cols-1 gap-8 md:mt-10 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
           <Reveal className="relative">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 bg-white">
+            <div
+              className={`relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 ${
+                realImage ? "bg-white" : "bg-[#f1f0ec]"
+              }`}
+            >
               <Image
                 src={image}
                 alt={product.description}
                 fill
                 priority
                 sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
+                className={realImage ? "object-contain p-6 md:p-10" : "object-cover opacity-90"}
               />
               {!realImage ? (
                 <span className="absolute bottom-3 left-3 rounded-full bg-white/85 px-3 py-1.5 text-[11px] text-[#57534a] backdrop-blur">
-                  {locale === "ru" ? "Изображение категории" : "Imagine de referință a categoriei"}
+                  {copy.product.referenceImage}
                 </span>
               ) : null}
             </div>
           </Reveal>
 
           <Reveal delay={0.1}>
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full border border-black/10 px-3 py-1.5 text-xs text-[#57534a]">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <StockBadge locale={locale} inStock={product.inStock} size="md" />
+              <span className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs text-[#57534a]">
                 {product.type}
-              </span>
-              <span
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-                  product.inStock
-                    ? "bg-emerald-600/10 text-emerald-700"
-                    : "bg-black/5 text-[#6f6a61]"
-                }`}
-              >
-                {product.inStock ? copy.common.inStock : copy.common.outOfStock}
               </span>
               {product.isLocal ? <LocalBadge locale={locale} className="!text-[11px] px-3 py-1.5" /> : null}
             </div>
             <h1 className="mt-5 text-3xl font-bold leading-[1.08] tracking-tight md:text-5xl">
               {product.description}
             </h1>
-            <p className="mt-4 font-mono text-lg text-[#2e90fa]">
+            <p className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#2e90fa]/[0.08] px-3 py-1.5 font-mono text-lg font-semibold text-[#1570d6]">
+              <span className="font-sans text-xs font-medium text-[#2e90fa]/80">{copy.product.code}</span>
               {product.code ?? "—"}
             </p>
 
-            <dl className="mt-8 space-y-4 border-t border-black/10 pt-8 text-sm">
-              <div className="flex justify-between gap-6">
-                <dt className="text-[#6f6a61]">{locale === "ru" ? "Автомобиль" : "Mașina"}</dt>
-                <dd className="text-right font-medium">
-                  {product.brand.name} {product.model.name}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-6">
-                <dt className="text-[#6f6a61]">{locale === "ru" ? "Годы выпуска" : "Ani de fabricație"}</dt>
-                <dd className="text-right font-medium">
-                  {product.years ?? copy.common.allYears}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-6">
-                <dt className="text-[#6f6a61]">{copy.product.compatibility}</dt>
-                <dd className="text-right text-sm">{product.fitLabel}</dd>
-              </div>
-              {product.notes ? (
-                <div className="flex justify-between gap-6">
-                  <dt className="text-[#6f6a61]">{copy.product.notes}</dt>
-                  <dd className="text-right">{product.notes}</dd>
+            <dl className="mt-8 divide-y divide-black/10 rounded-2xl border border-black/10 bg-white text-sm">
+              {specs.map(([label, value]) => (
+                <div key={label} className="flex justify-between gap-6 px-5 py-3.5">
+                  <dt className="shrink-0 text-[#6f6a61]">{label}</dt>
+                  <dd className="text-right font-medium">{value}</dd>
                 </div>
-              ) : null}
+              ))}
             </dl>
 
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href={modelHref}
                 className="rounded-full bg-[#2e90fa] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1b7fe8]"
               >
-                {locale === "ru" ? `Все детали для ${product.model.name}` : `Toate piesele pentru ${product.model.name}`}
+                {copy.product.allPartsFor(product.model.name)}
               </Link>
               <Link
                 href={catalogHref(locale, "/cauta")}
-                className="rounded-full border border-black/15 px-6 py-3 text-sm font-semibold transition-colors hover:bg-black/5"
+                className="rounded-full border border-black/15 bg-white px-6 py-3 text-sm font-semibold transition-colors hover:bg-black/5"
               >
-                {locale === "ru" ? "Найти другую деталь" : "Caută altă piesă"}
+                {copy.product.searchAnother}
               </Link>
             </div>
           </Reveal>
@@ -153,32 +145,23 @@ export default async function ProductPage({
       </section>
 
       {product.related.length > 0 ? (
-        <section className="mx-auto max-w-6xl px-6 pb-24 pt-8 md:pb-32">
+        <section className="mx-auto max-w-6xl border-t border-black/10 px-6 pb-24 pt-14 md:pb-32">
           <Reveal>
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
-              {locale === "ru" ? "Другие детали для" : "Alte piese pentru"} {product.brand.name} {product.model.name}
-            </h2>
-          </Reveal>
-          <StaggerGroup className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {product.related.map((entry) => (
+            <div className="flex flex-wrap items-baseline justify-between gap-4">
+              <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+                {copy.product.otherPartsFor} {product.brand.name} {product.model.name}
+              </h2>
               <Link
-                key={entry.id}
-                href={catalogHref(locale, `/piesa/${entry.id}`)}
-                data-stagger
-                className="group rounded-2xl border border-black/10 bg-white p-5 transition-colors hover:border-[#2e90fa]/60"
+                href={modelHref}
+                className="text-sm font-semibold text-[#2e90fa] transition-colors hover:text-[#1b7fe8]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <p className="font-mono text-xs text-[#2e90fa]">
-                    {entry.code ?? "—"}
-                  </p>
-                  <span className="rounded-full border border-black/10 px-2.5 py-1 text-[11px] text-[#57534a]">
-                    {entry.type}
-                  </span>
-                </div>
-                <p className="mt-3 text-base font-medium leading-snug group-hover:text-[#2e90fa]">
-                  {entry.description}
-                </p>
+                {copy.common.all} →
               </Link>
+            </div>
+          </Reveal>
+          <StaggerGroup className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            {product.related.map((entry) => (
+              <PartCard key={entry.id} locale={locale} part={entry} meta={entry.type} />
             ))}
           </StaggerGroup>
         </section>
