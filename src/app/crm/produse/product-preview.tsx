@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Car, Printer, ShoppingCart, Warehouse } from "lucide-react";
+import { Car, ShoppingCart, Warehouse } from "lucide-react";
+import { AddToStickersButton } from "@/app/catalog/add-to-stickers";
 import { CopyCode } from "@/app/components/copy-code";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { drawerPanelClassName } from "@/app/components/operation-drawer";
@@ -98,14 +99,10 @@ export function ProductPreview({
                   <div className="flex flex-wrap gap-2">
                     {canModify ? editButton : null}
                     {canModify ? (
-                      <a
+                      <AddToStickersButton
                         className="button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
-                        href={`/print/labels?ids=${product.id}`}
-                        rel="noreferrer"
-                        target="_blank"
-                      >
-                        <Printer className="size-4" aria-hidden="true" /> Sticker
-                      </a>
+                        items={[{ id: product.id, count: 1 }]}
+                      />
                     ) : null}
                     {canSell ? (
                       <Link

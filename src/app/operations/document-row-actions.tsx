@@ -24,7 +24,7 @@ import { SupplierPicker } from "@/app/partners/supplier-picker";
 import {
   AddedLinesFilter,
   LabelStickerCell,
-  StickerPrintButton,
+  StickerAddButton,
   matchesLineFilter,
 } from "@/app/operations/drawer-line-tools";
 import {
@@ -346,7 +346,7 @@ function EditPanel({
           action={
             <div className="flex flex-wrap items-center gap-2">
               <AddedLinesFilter value={filter} onChange={setFilter} />
-              <StickerPrintButton lines={editableLines} />
+              <StickerAddButton lines={editableLines} />
               <button className={drawerSecondaryButton} type="button" onClick={addLine}>
                 <Plus className="size-4" aria-hidden="true" />
                 Adaugă produs

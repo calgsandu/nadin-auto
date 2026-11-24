@@ -185,7 +185,14 @@ export function hydrateLabelSelection(
   return changed ? hydrated : items;
 }
 
-export function buildLabelPrintQuery(items: LabelSelectionItem[]) {
+export type LabelPrintFormat = { size: "s" | "m" | "l"; layout: "grid" | "roll" };
+
+export const DEFAULT_LABEL_FORMAT: LabelPrintFormat = { size: "l", layout: "grid" };
+
+export function buildLabelPrintQuery(
+  items: LabelSelectionItem[],
+  format: LabelPrintFormat = DEFAULT_LABEL_FORMAT,
+) {
   const query = new URLSearchParams();
   query.set(
     "items",
@@ -199,6 +206,50 @@ export function buildLabelPrintQuery(items: LabelSelectionItem[]) {
   if (alternativeIds.length > 0) {
     query.set("alt", alternativeIds.join(","));
   }
-  query.set("layout", "grid");
+  query.set("size", format.size);
+  query.set("layout", format.layout);
   return query;
+}
+
+/** Ce trimite un punct de intrare (recepție, fișă, rând): doar produsul și câte bucăți. */
+export type LabelAddition = { id: string; count: number };
+
+export function emptyLabelItem(id: string, count = MIN_LABEL_COUNT): LabelSelectionItem {
+  return {
+    id,
+    code: "",
+    alternativeCode: "",
+    name: "",
+    compatibility: "",
+    count: clampLabelCount(count),
+    includeAlternativeCode: false,
+  };
+}
+
+/**
+ * Adaugă în listă: produsul deja trecut își crește numărul (două recepții cu
+ * aceeași piesă = stickere pentru ambele), cel nou intră la coadă.
+ */
+export function addLabelItems(items: LabelSelectionItem[], additions: LabelAddition[]) {
+  const next = [...items];
+  for (const { id, count } of additions) {
+    if (!id.trim() || !(count > 0)) continue;
+    const index = next.findIndex((item) => item.id === id);
+    if (index === -1) next.push(emptyLabelItem(id, count));
+    else next[index] = { ...next[index], count: clampLabelCount(next[index].count + count) };
+  }
+  return next;
+}
+
+/** Completează codul/denumirea venite de la server pentru rândurile adăugate fără ele. */
+export function fillLabelDetails(
+  items: LabelSelectionItem[],
+  details: Omit<LabelSelectionItem, "count" | "includeAlternativeCode">[],
+) {
+  if (details.length === 0) return items;
+  const byId = new Map(details.map((detail) => [detail.id, detail]));
+  return items.map((item) => {
+    const detail = byId.get(item.id);
+    return detail && !item.code && !item.name ? { ...item, ...detail } : item;
+  });
 }

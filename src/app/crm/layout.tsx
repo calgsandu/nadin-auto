@@ -6,6 +6,7 @@ import { getPendingApprovalCount } from "@/lib/audit/queries";
 import { prisma } from "@/lib/prisma";
 import { getReorderList } from "@/lib/operations/reorder";
 import { canReviewOperations, canViewSection, canWriteCatalog } from "@/lib/roles";
+import { StickerTray } from "@/app/catalog/sticker-tray";
 import { CrmChrome, TopBar } from "./_components/chrome";
 
 export const metadata: Metadata = {
@@ -56,7 +57,11 @@ export default async function CrmLayout({
             <TopBar role={appUser.role} userName={appUser.name} userEmail={appUser.email} />
           </div>
         </header>
-        <section className="min-w-0 pb-8">{children}</section>
+        <section className="min-w-0 pb-8">
+          {children}
+          {/* Lista de stickere e a întregului CRM: se umple din orice pagină. */}
+          <StickerTray />
+        </section>
       </main>
     </CrmChrome>
   );

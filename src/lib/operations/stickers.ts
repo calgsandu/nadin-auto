@@ -12,11 +12,12 @@ export function countStickers(lines: StickerLine[]) {
   return stickerLines(lines).reduce((sum, line) => sum + (Number(line.copies) || 0), 0);
 }
 
-/** `items=<produs>:<copii>` pentru /print/labels; gol = nimic de printat. */
-export function buildStickerItems(lines: StickerLine[]) {
-  return stickerLines(lines)
-    .map((line) => `${line.productId}:${Math.max(Number(line.copies) || 1, 1)}`)
-    .join(",");
+/** Ce intră în lista de stickere; copii goale = o etichetă, nu zero. */
+export function stickerAdditions(lines: StickerLine[]) {
+  return stickerLines(lines).map((line) => ({
+    id: line.productId,
+    count: Math.max(Number(line.copies) || 1, 1),
+  }));
 }
 
 /**

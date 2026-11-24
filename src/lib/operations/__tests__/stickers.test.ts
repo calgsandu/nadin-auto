@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import {
-  buildStickerItems,
   countStickers,
   matchesLineFilter,
+  stickerAdditions,
 } from "@/lib/operations/stickers";
 
 const lines = [
@@ -15,8 +15,11 @@ const lines = [
 
 assert.equal(countStickers(lines), 3);
 // copii goale = o etichetă la print, nu zero
-assert.equal(buildStickerItems(lines), "p1:3,p3:1");
-assert.equal(buildStickerItems([{ productId: "p1", sticker: false, copies: "2" }]), "");
+assert.deepEqual(stickerAdditions(lines), [
+  { id: "p1", count: 3 },
+  { id: "p3", count: 1 },
+]);
+assert.deepEqual(stickerAdditions([{ productId: "p1", sticker: false, copies: "2" }]), []);
 
 // Filtrul lasă mereu vizibil rândul încă necompletat.
 assert.equal(matchesLineFilter("", { productId: "p1", label: "Prag" }), true);

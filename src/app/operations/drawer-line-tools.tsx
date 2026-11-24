@@ -1,11 +1,12 @@
 "use client";
 
-import { Printer, Search } from "lucide-react";
+import { Search } from "lucide-react";
+import { AddToStickersButton } from "@/app/catalog/add-to-stickers";
 import { DrawerField, drawerSecondaryButton } from "@/app/components/operation-drawer";
 import {
-  buildStickerItems,
   countStickers,
   matchesLineFilter,
+  stickerAdditions,
   type StickerLine,
 } from "@/lib/operations/stickers";
 
@@ -88,29 +89,13 @@ export function AddedLinesFilter({
   );
 }
 
-/**
- * Butonul „Etichete (N)" — deschide printul pentru rândurile bifate.
- * Link real, nu `window.open`: popupurile programatice sunt blocate în
- * Chromium-urile hardened (Helium), unde butonul părea pur și simplu mort.
- */
-export function StickerPrintButton({ lines }: { lines: StickerLine[] }) {
-  const total = countStickers(lines);
-  const items = buildStickerItems(lines);
-  if (!total || !items) {
-    return (
-      <span aria-disabled="true" className={`${drawerSecondaryButton} opacity-60`}>
-        <Printer className="size-4" aria-hidden="true" /> Etichete (0)
-      </span>
-    );
-  }
+/** „Stickere (N)" — pune rândurile bifate în lista comună de stickere. */
+export function StickerAddButton({ lines }: { lines: StickerLine[] }) {
   return (
-    <a
-      className={drawerSecondaryButton}
-      href={`/print/labels?items=${items}&layout=grid`}
-      rel="noopener"
-      target="_blank"
-    >
-      <Printer className="size-4" aria-hidden="true" /> Etichete ({total})
-    </a>
+    <AddToStickersButton
+      className={`${drawerSecondaryButton} disabled:opacity-60`}
+      items={stickerAdditions(lines)}
+      label={`Stickere (${countStickers(lines)})`}
+    />
   );
 }

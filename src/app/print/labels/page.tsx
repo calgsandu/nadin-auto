@@ -1,60 +1,28 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import type { Prisma } from "@/generated/prisma/client";
 import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
-import { prisma } from "@/lib/prisma";
 import {
   LABEL_BRAND,
   LABEL_COMPATIBILITY_PREFIX,
   LABEL_PHONE,
-  buildCombinedCompatibilityLabel,
   buildPartLabel,
   buildProductCodeLabel,
 } from "@/lib/labels/format";
 import { LABEL_SIZES, type LabelSizeKey } from "@/lib/labels/layout";
+import {
+  buildLabelSlots,
+  labelCompatibility,
+  loadLabelProducts,
+  parseLabelRequest,
+  type LabelProduct,
+} from "@/lib/labels/request";
 import { LabelControls } from "@/app/print/labels/label-controls";
 
 export const dynamic = "force-dynamic";
 
 type LabelsProps = {
-  searchParams: Promise<{
-    ids?: string;
-    copies?: string;
-    items?: string;
-    alt?: string;
-    size?: string;
-    layout?: string;
-    skip?: string;
-  }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 };
-
-const clampCount = (n: number) => Math.min(Math.max(Math.round(n) || 1, 1), 50);
-
-/** `items=id:3,id:2` → Map id→copii. Fallback: `ids=...&copies=N` (linkuri vechi). */
-function parseItems(items?: string, ids?: string, copies?: string) {
-  const map = new Map<string, number>();
-  if (items) {
-    for (const part of items.split(",")) {
-      const [id, n] = part.split(":");
-      if (id.trim()) map.set(id.trim(), clampCount(Number(n)));
-    }
-    return map;
-  }
-  const perProduct = clampCount(Number(copies));
-  for (const id of (ids ?? "").split(",").map((s) => s.trim()).filter(Boolean)) {
-    map.set(id, perProduct);
-  }
-  return map;
-}
-
-function parseAlternativeCodeIds(value?: string) {
-  return new Set(
-    (value ?? "")
-      .split(",")
-      .map((id) => id.trim())
-      .filter(Boolean),
-  );
-}
 
 /** Etichete produse — grilă exactă pe foaia autoadezivă A4 sau rolă (1/pagină). */
 export default async function LabelsPage({ searchParams }: LabelsProps) {
@@ -63,53 +31,18 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
   if (authState.kind !== "AUTHENTICATED") redirect("/auth/2fa/continue");
 
   const params = await searchParams;
-  const counts = parseItems(params.items, params.ids, params.copies);
-  const alternativeCodeIds = parseAlternativeCodeIds(params.alt);
-  const size: LabelSizeKey = params.size === "s" || params.size === "m" ? params.size : "l";
-  const layout = params.layout === "roll" ? "roll" : "grid";
-  const dim = LABEL_SIZES[size];
-  const perSheet = dim.cols * dim.rows;
-  const skip =
-    layout === "grid" ? Math.min(Math.max(Number(params.skip) || 0, 0), perSheet - 1) : 0;
+  const request = parseLabelRequest((key) => params[key]);
+  const { counts, alternativeCodeIds, size, layout, dim, perSheet, skip } = request;
+  const products = await loadLabelProducts([...counts.keys()]);
+  const { labels, sheets } = buildLabelSlots(request, products);
 
-  const fetched = counts.size
-    ? await prisma.product.findMany({
-        where: { id: { in: [...counts.keys()] } },
-        include: productLabelInclude,
-      })
-    : [];
-
-  // păstrează ordinea din URL, nu ordinea din DB
-  const products = [...counts.keys()]
-    .map((id) => fetched.find((p) => p.id === id))
-    .filter((p): p is (typeof fetched)[number] => Boolean(p));
-
-  const labels = products.flatMap((product) =>
-    Array.from({ length: counts.get(product.id) ?? 1 }, (_, copy) => ({
-      product,
-      copy,
-      includeAlternativeCode: alternativeCodeIds.has(product.id),
-      compatibility: buildCombinedCompatibilityLabel(
-        product.productFitments.map(({ fitment }) => ({
-          brandName: fitment.carModel.brand.name,
-          modelName: fitment.carModel.name,
-          yearStart: fitment.yearStart,
-          yearEnd: fitment.yearEnd,
-          yearOpenEnded: fitment.yearOpenEnded,
-        })),
-      ),
-    })),
-  );
-
-  // celule goale la început = poziții deja folosite pe o foaie începută
-  const slots: (typeof labels[number] | null)[] = [
-    ...Array.from({ length: skip }, () => null),
-    ...labels,
-  ];
-  const sheets: (typeof slots)[] = [];
-  for (let i = 0; i < slots.length; i += perSheet) {
-    sheets.push(slots.slice(i, i + perSheet));
-  }
+  // Click pe o celulă din prima foaie = de acolo începe printul (foaie începută).
+  const startHref = (position: number) => {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) if (value) query.set(key, value);
+    query.set("skip", String(position));
+    return `/print/labels?${query.toString()}`;
+  };
 
   return (
     <main className="labels-page min-h-screen bg-[#f6f6f4] p-6 print:bg-white print:p-0">
@@ -142,6 +75,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
+        .label-pick { display: block; color: inherit; text-decoration: none; }
         .label-head > * { min-width: 0; }
         .label-logo { flex: none; }
         .label-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -156,6 +90,8 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
         @media screen {
           .label-sheet { margin: 0 auto 10mm; box-shadow: 0 1px 4px rgba(0,0,0,.12); min-height: 297mm; }
           .label-cell { outline: 1px dashed #d8d6d0; outline-offset: -1px; }
+          .label-pick:hover { outline: 2px solid #1b1a17; outline-offset: -2px; }
+          .label-used { background: repeating-linear-gradient(135deg, #f1f0ec 0 5px, #fff 5px 10px); }
         }
         @media print {
           .labels-toolbar, .labels-empty { display: none !important; }
@@ -176,17 +112,20 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
               : `${sheets.length} ${sheets.length === 1 ? "foaie" : "foi"} A4, ${dim.w}×${dim.h} mm, ${perSheet}/foaie`}
           </p>
           <p className="mt-1 text-xs text-[#8a857c]">
-            În dialogul de print: Scală 100% (nu „Potrivire la pagină”), Margini: Fără.
+            Print: Scală 100%, Margini: Fără. Foaie începută: click pe prima celulă liberă.
           </p>
         </div>
         <LabelControls
           size={size}
           layout={layout}
           skip={skip}
+          perSheet={perSheet}
           items={products.map((p) => ({
             id: p.id,
-            code: p.externalCode ?? "—",
+            code: p.externalCode ?? "",
+            alternativeCode: p.alternativeCode ?? "",
             name: p.description,
+            compatibility: labelCompatibility(p),
             count: counts.get(p.id) ?? 1,
             includeAlternativeCode: alternativeCodeIds.has(p.id),
           }))}
@@ -210,82 +149,49 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
           ))}
         </div>
       ) : (
-        sheets.map((sheet, sheetIndex) => (
-          <div key={sheetIndex} className="label-sheet">
-            {sheet.map((slot, i) =>
-              slot ? (
-                <div key={`${slot.product.id}-${slot.copy}`} className="label-cell">
+        sheets.map((sheet, sheetIndex) => {
+          // Prima foaie are mereu toate celulele: oricare poate fi aleasă ca start.
+          const cells =
+            sheetIndex === 0
+              ? [...sheet, ...Array.from({ length: perSheet - sheet.length }, () => null)]
+              : sheet;
+          return (
+            <div key={sheetIndex} className="label-sheet">
+              {cells.map((slot, i) => {
+                const sticker = slot ? (
                   <LabelSticker
                     product={slot.product}
                     compatibility={slot.compatibility}
                     includeAlternativeCode={slot.includeAlternativeCode}
                     dim={dim}
                   />
-                </div>
-              ) : (
-                <div key={`empty-${i}`} className="label-cell" />
-              ),
-            )}
-          </div>
-        ))
+                ) : null;
+                const key = slot ? `${slot.product.id}-${slot.copy}` : `empty-${i}`;
+                if (sheetIndex > 0) {
+                  return (
+                    <div key={key} className="label-cell">
+                      {sticker}
+                    </div>
+                  );
+                }
+                return (
+                  <a
+                    key={key}
+                    href={startHref(i)}
+                    title={`Începe printul de la poziția ${i + 1}`}
+                    className={`label-cell label-pick${i < skip ? " label-used" : ""}`}
+                  >
+                    {sticker}
+                  </a>
+                );
+              })}
+            </div>
+          );
+        })
       )}
     </main>
   );
 }
-
-type ProductWithRelations = Prisma.ProductGetPayload<{
-  include: {
-    type: true;
-    fitment: {
-      include: {
-        carModel: {
-          include: {
-            brand: true;
-          };
-        };
-      };
-    };
-    productFitments: {
-      include: {
-        fitment: {
-          include: {
-            carModel: {
-              include: {
-                brand: true;
-              };
-            };
-          };
-        };
-      };
-    };
-  };
-}>;
-
-const productLabelInclude = {
-  type: true,
-  fitment: {
-    include: {
-      carModel: {
-        include: {
-          brand: true,
-        },
-      },
-    },
-  },
-  productFitments: {
-    include: {
-      fitment: {
-        include: {
-          carModel: {
-            include: {
-              brand: true,
-            },
-          },
-        },
-      },
-    },
-  },
-} satisfies Prisma.ProductInclude;
 
 function LabelSticker({
   product,
@@ -293,7 +199,7 @@ function LabelSticker({
   includeAlternativeCode,
   dim,
 }: {
-  product: ProductWithRelations;
+  product: LabelProduct;
   compatibility: string;
   includeAlternativeCode: boolean;
   dim: (typeof LABEL_SIZES)[LabelSizeKey];

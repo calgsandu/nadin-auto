@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  addLabelItems,
   buildLabelPrintQuery,
+  emptyLabelItem,
+  fillLabelDetails,
   hydrateLabelSelection,
   parseLabelSelection,
   serializeLabelSelection,
@@ -72,6 +75,38 @@ test("serializes selection and builds the print query", () => {
   assert.deepEqual(parseLabelSelection(serializeLabelSelection(items)), items);
   assert.equal(buildLabelPrintQuery(items).get("items"), "p1:3,p2:1");
   assert.equal(buildLabelPrintQuery(items).get("layout"), "grid");
+  assert.equal(buildLabelPrintQuery(items).get("size"), "l");
+  const roll = buildLabelPrintQuery(items, { size: "s", layout: "roll" });
+  assert.equal(roll.get("size"), "s");
+  assert.equal(roll.get("layout"), "roll");
+});
+
+test("adding from another page merges counts into the shared list", () => {
+  const start = [{ ...emptyLabelItem("p1", 2), code: "A", name: "Aripă" }];
+  const next = addLabelItems(start, [
+    { id: "p1", count: 3 },
+    { id: "p2", count: 1 },
+    { id: "", count: 4 },
+    { id: "p3", count: 0 },
+  ]);
+  // aceeași piesă din două recepții = stickere pentru ambele, metadatele rămân
+  assert.deepEqual(next.map((item) => [item.id, item.count]), [["p1", 5], ["p2", 1]]);
+  assert.equal(next[0].code, "A");
+  assert.equal(addLabelItems(start, [{ id: "p1", count: 80 }])[0].count, 50);
+  assert.equal(start[0].count, 2, "lista veche nu se modifică pe loc");
+});
+
+test("server details fill only rows added without code or name", () => {
+  const items = [emptyLabelItem("p1"), { ...emptyLabelItem("p2"), code: "OLD" }];
+  const details = [
+    { id: "p1", code: "A", alternativeCode: "", name: "Aripă", compatibility: "VW T5" },
+    { id: "p2", code: "NEW", alternativeCode: "", name: "Bară", compatibility: "" },
+  ];
+  const filled = fillLabelDetails(items, details);
+  assert.equal(filled[0].code, "A");
+  assert.equal(filled[0].count, 1);
+  assert.equal(filled[1].code, "OLD");
+  assert.equal(fillLabelDetails(items, []), items);
 });
 
 test("adds and removes a product while preserving its count", () => {

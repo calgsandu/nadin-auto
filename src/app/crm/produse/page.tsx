@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Car, ChevronDown, Printer } from "lucide-react";
+import { Car, ChevronDown } from "lucide-react";
 import { BrandLogo, brandLabel, brandLogoSrc } from "@/app/components/brand-logo";
 import { CopyCode } from "@/app/components/copy-code";
 import { LocalBadge } from "@/app/components/local-badge";
@@ -9,6 +9,7 @@ import { ProductDeleteButton } from "@/app/catalog/product-delete-button";
 import { RowMenu } from "@/app/components/row-menu";
 import { ProductFormDialog, type ProductFormValue } from "@/app/catalog/product-form-dialog";
 import { LabelPicker } from "@/app/catalog/label-picker";
+import { AddToStickersButton } from "@/app/catalog/add-to-stickers";
 import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
 import { normalizeText, searchTerms } from "@/lib/catalog/search-text";
 import { getCatalogData, type CatalogSearchParams } from "@/lib/catalog/queries";
@@ -441,15 +442,7 @@ function ProductRow({
               warehouses={catalog.warehouses}
             />
             <RowMenu label={product.description}>
-              <a
-                href={`/print/labels?ids=${product.id}`}
-                target="_blank"
-                rel="noreferrer"
-                title="Sticker produs (70×50.8mm)"
-                className="text-(--c-ink)"
-              >
-                <Printer className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Sticker
-              </a>
+              <AddToStickersButton items={[{ id: product.id, count: 1 }]} />
               <ProductDeleteButton productId={product.id} label={product.description} />
             </RowMenu>
           </div>

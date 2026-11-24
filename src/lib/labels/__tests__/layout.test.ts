@@ -7,6 +7,7 @@ import {
   buildProductCodeLabel,
 } from "@/lib/labels/format";
 import { LABEL_SIZES } from "@/lib/labels/layout";
+import { parseLabelRequest } from "@/lib/labels/request";
 
 const large = LABEL_SIZES.l;
 
@@ -81,8 +82,8 @@ assert.match(
 assert.doesNotMatch(pageSource, /\.label-model \{[^}]*text-overflow/);
 assert.match(pageSource, /className="label-model label-detail mt-\[1mm\]/);
 assert.match(pageSource, /className="label-part label-detail mt-\[1\.8mm\]/);
-assert.match(pageSource, /productFitments/);
-assert.doesNotMatch(pageSource, /compatibilityByCode/);
+assert.match(pageSource, /parseLabelRequest/);
+assert.match(pageSource, /href=\{startHref\(i\)\}/);
 
 const pdfSource = readFileSync(
   new URL("../../../app/api/export/labels/route.ts", import.meta.url),
@@ -95,14 +96,32 @@ assert.doesNotMatch(pdfSource, /contentShiftX/);
 assert.match(pdfSource, /const detailX = cx \+ dim\.detailOffsetX \* MM;/);
 assert.match(pdfSource, /const detailWidth = cw - dim\.detailOffsetX \* MM;/);
 assert.match(pdfSource, /const modelMaxHeight = modelSize \* 4\.2;/);
-assert.match(pdfSource, /doc\.text\(product\.compatibility,[\s\S]*?lineBreak: true/);
+assert.match(pdfSource, /doc\.text\(compatibility,[\s\S]*?lineBreak: true/);
 assert.doesNotMatch(
   pdfSource,
-  /doc\.text\(product\.compatibility,[\s\S]*?lineBreak: false, ellipsis: true/,
+  /doc\.text\(compatibility,[\s\S]*?lineBreak: false, ellipsis: true/,
 );
-assert.match(pdfSource, /drawLabel\(product, x0 \+ col \* boxW, y0 \+ row \* rowStep\)/);
+assert.match(pdfSource, /drawLabel\(slot, x0 \+ col \* boxW, y0 \+ row \* rowStep\)/);
 assert.match(pdfSource, /y0 \+ row \* rowStep/);
-assert.match(pdfSource, /productFitments/);
-assert.doesNotMatch(pdfSource, /compatibilityByCode/);
+assert.match(pdfSource, /parseLabelRequest/);
+
+// Cererea de print e una: HTML și PDF citesc aceeași parsare.
+const requestSource = readFileSync(new URL("../request.ts", import.meta.url), "utf8");
+assert.match(requestSource, /productFitments/);
+assert.doesNotMatch(requestSource, /compatibilityByCode/);
+
+// Parsarea comună pagină/PDF: linkuri noi (items) și vechi (ids + copies).
+const params = (query: string) => {
+  const search = new URLSearchParams(query);
+  return parseLabelRequest((key) => search.get(key));
+};
+const parsed = params("items=p1:3,p2:99&alt=p2&size=m&skip=40");
+assert.deepEqual([...parsed.counts], [["p1", 3], ["p2", 50]]);
+assert.ok(parsed.alternativeCodeIds.has("p2"));
+assert.equal(parsed.size, "m");
+assert.equal(parsed.skip, 20, "skip rămâne în prima foaie (21 de poziții)");
+assert.deepEqual([...params("ids=a,b&copies=2").counts], [["a", 2], ["b", 2]]);
+assert.equal(params("items=a:1&layout=roll&skip=4").skip, 0);
+assert.equal(params("items=a:1&size=x").size, "l");
 
 console.log("label layout tests passed");

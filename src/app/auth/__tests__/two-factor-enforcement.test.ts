@@ -19,6 +19,7 @@ const protectedActions = [
   "src/app/admin/actions.ts",
   "src/app/aprobari/actions.ts",
   "src/app/catalog/actions.ts",
+  "src/app/catalog/sticker-actions.ts",
   "src/app/external-orders/actions.ts",
   "src/app/istoric/actions.ts",
   "src/app/operations/actions.ts",
@@ -50,7 +51,7 @@ test("CRM and label pages resolve 2FA state before protected queries", () => {
 
   assert.ok(labelsBody.indexOf("getAuthAccessState()") >= 0);
   assert.ok(
-    labelsBody.indexOf("getAuthAccessState()") < labelsBody.indexOf("prisma.product.findMany"),
+    labelsBody.indexOf("getAuthAccessState()") < labelsBody.indexOf("loadLabelProducts("),
   );
 });
 

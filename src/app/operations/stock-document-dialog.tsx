@@ -25,7 +25,7 @@ import {
 } from "@/app/components/operation-drawer";
 import { useDrawerDraft } from "@/app/components/use-drawer-draft";
 import { ProductSearchCombobox } from "@/app/operations/product-search-combobox";
-import { StickerPrintButton, type StickerLine } from "@/app/operations/drawer-line-tools";
+import { StickerAddButton, type StickerLine } from "@/app/operations/drawer-line-tools";
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
 import { SupplierPicker } from "@/app/partners/supplier-picker";
 import { PartnerFormDialog } from "@/app/partners/partner-form-dialog";
@@ -239,9 +239,9 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
               <input name="idempotencyKey" type="hidden" value={draft.token} />
               {printable.length > 0 ? (
                 <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-(--c-green-soft) px-3 py-2 text-sm text-(--c-green)">
-                  <span>Recepția e salvată. Stickere pentru piesele primite:</span>
+                  <span>Recepția e salvată. Piesele primite pot intra în lista de stickere:</span>
                   <div className="flex items-center gap-2">
-                    <StickerPrintButton lines={printable} />
+                    <StickerAddButton lines={printable} />
                     <button
                       aria-label="Ascunde"
                       className="grid size-8 place-items-center rounded-md text-(--c-green) hover:bg-(--c-green-soft)"

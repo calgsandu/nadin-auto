@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
-import { Banknote, Car, ChevronDown, ListPlus, PackageSearch, Pencil, Plus, Printer, Tag, Trash2, Warehouse } from "lucide-react";
+import { Banknote, Car, ChevronDown, ListPlus, PackageSearch, Pencil, Plus, Tag, Trash2, Warehouse } from "lucide-react";
 import {
   createProductAction,
   updateProductAction,
@@ -19,6 +19,7 @@ import {
 } from "@/app/components/operation-drawer";
 import { BrandSelect, ModelSelect } from "@/app/admin/admin-dialogs";
 import { ProductCodeField } from "@/app/catalog/product-code-field";
+import { AddToStickersButton } from "@/app/catalog/add-to-stickers";
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
 
 /**
@@ -375,14 +376,10 @@ export function ProductFormDialog({
                 <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-(--c-green-soft) px-3 py-2 text-sm text-(--c-green)">
                   <span className="min-w-0 truncate">Salvat: {lastSaved.label}</span>
                   <div className="flex items-center gap-2">
-                    <a
+                    <AddToStickersButton
                       className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-green-line) bg-(--c-surface) px-3 py-1.5 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover)"
-                      href={`/print/labels?items=${lastSaved.id}:${Math.max(lastSaved.copies, 1)}&layout=grid`}
-                      rel="noopener"
-                      target="_blank"
-                    >
-                      <Printer className="size-4" aria-hidden="true" /> Sticker ({Math.max(lastSaved.copies, 1)})
-                    </a>
+                      items={[{ id: lastSaved.id, count: Math.max(lastSaved.copies, 1) }]}
+                    />
                     <button
                       aria-label="Ascunde"
                       className="grid size-8 place-items-center rounded-md hover:bg-(--c-green-soft)"

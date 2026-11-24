@@ -10,6 +10,8 @@ const form = source("../product-form-dialog.tsx");
 const actions = source("../actions.ts");
 const crmPage = source("../../crm/produse/page.tsx");
 const labelPicker = source("../label-picker.tsx");
+const stickerTray = source("../sticker-tray.tsx");
+const labelRequest = source("../../../lib/labels/request.ts");
 const htmlLabels = source("../../print/labels/page.tsx");
 const labelControls = source("../../print/labels/label-controls.tsx");
 const pdfLabels = source("../../api/export/labels/route.ts");
@@ -38,22 +40,21 @@ assert.match(
   /data-label-alternative-code=\{product\.alternativeCode \?\? ""\}/,
 );
 assert.match(labelPicker, /box\.dataset\.labelAlternativeCode/);
-assert.match(labelPicker, /setLabelAlternativeCode/);
-assert.match(labelPicker, /Include cod alternativ/);
+assert.match(stickerTray, /setLabelAlternativeCode/);
+assert.match(stickerTray, /Include cod alternativ/);
 assert.match(
   htmlLabels,
   /includeAlternativeCode\s*\?\s*product\.alternativeCode\s*:\s*null/,
 );
-assert.match(htmlLabels, /alt\?: string;/);
-assert.match(htmlLabels, /includeAlternativeCode: alternativeCodeIds\.has\(product\.id\)/);
-assert.match(labelControls, /includeAlternativeCode: boolean;/);
-assert.match(labelControls, /next\.set\("alt"/);
-assert.match(labelControls, /p\.set\("alt"/);
+assert.match(labelRequest, /value\("alt"\)/);
+assert.match(labelRequest, /includeAlternativeCode: request\.alternativeCodeIds\.has\(product\.id\)/);
+assert.match(htmlLabels, /includeAlternativeCode: alternativeCodeIds\.has\(p\.id\)/);
+assert.match(labelControls, /buildLabelPrintQuery/);
 assert.match(
   pdfLabels,
-  /product\.includeAlternativeCode\s*\?\s*product\.alternativeCode\s*:\s*null/,
+  /includeAlternativeCode\s*\?\s*product\.alternativeCode\s*:\s*null/,
 );
-assert.match(pdfLabels, /const alternativeCodeIds = parseAlternativeCodeIds/);
+assert.match(pdfLabels, /parseLabelRequest/);
 assert.match(generatedProduct, /alternativeCode/);
 
 console.log("product alternative code integration tests passed");

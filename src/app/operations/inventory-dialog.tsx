@@ -26,7 +26,7 @@ import { ProductSearchCombobox } from "@/app/operations/product-search-combobox"
 import {
   AddedLinesFilter,
   LabelStickerCell,
-  StickerPrintButton,
+  StickerAddButton,
   matchesLineFilter,
 } from "@/app/operations/drawer-line-tools";
 import { formatDateInputValue } from "@/lib/operations/date-input";
@@ -274,7 +274,7 @@ export function InventoryDialog({
                     </button>
                   ) : null}
                   <AddedLinesFilter value={filter} onChange={setFilter} />
-                  <StickerPrintButton lines={lines} />
+                  <StickerAddButton lines={lines} />
                   <button className={drawerSecondaryButton} type="button" onClick={addLine}>
                     <Plus className="size-4" aria-hidden="true" /> Produs
                   </button>

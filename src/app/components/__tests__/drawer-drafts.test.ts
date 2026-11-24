@@ -90,7 +90,7 @@ for (const file of [
 ]) {
   const source = read(file);
   assert.match(source, /<AddedLinesFilter/, `${file}: lipsește căutarea în cele adăugate`);
-  assert.match(source, /<StickerPrintButton/, `${file}: lipsește butonul de etichete`);
+  assert.match(source, /<StickerAddButton/, `${file}: lipsește butonul de etichete`);
   assert.match(source, /<LabelStickerCell/, `${file}: lipsește bifa de etichetă pe rând`);
   assert.match(source, /matchesLineFilter\(filter, line\)/, `${file}: filtrul nu ascunde rândurile`);
 }
