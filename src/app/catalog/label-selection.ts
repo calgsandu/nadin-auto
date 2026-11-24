@@ -253,3 +253,17 @@ export function fillLabelDetails(
     return detail && !item.code && !item.name ? { ...item, ...detail } : item;
   });
 }
+
+/**
+ * Mută piesa `fromId` pe poziția `toIndex` (drag & drop): în jos ajunge după
+ * ținta peste care a fost lăsată, în sus înaintea ei.
+ */
+export function moveLabelItem<T extends { id: string }>(items: T[], fromId: string, toIndex: number) {
+  const from = items.findIndex((item) => item.id === fromId);
+  const to = Math.min(Math.max(toIndex, 0), items.length - 1);
+  if (from === -1 || from === to) return items;
+  const next = [...items];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+}

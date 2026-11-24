@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { GripVertical } from "lucide-react";
 import {
   buildLabelPrintQuery,
   clampLabelCount,
   MAX_LABEL_COUNT,
+  moveLabelItem,
   type LabelPrintFormat,
   type LabelSelectionItem,
 } from "@/app/catalog/label-selection";
@@ -50,6 +52,9 @@ export function LabelControls({
   const router = useRouter();
   const [printed, setPrinted] = useState(false);
   const [cleared, setCleared] = useState(false);
+  // Piesa trasă acum (din listă sau de pe foaie) și rândul de sub ea.
+  const dragId = useRef<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
 
   // După dialogul de print, butonul care scoate piesele din listă trece în față.
   useEffect(() => {
@@ -64,7 +69,7 @@ export function LabelControls({
     router.replace(`/print/labels?${query.toString()}`);
   }
 
-  function changeItems(nextItems: LabelItem[]) {
+  function changeItems(nextItems: LabelItem[], nextSkip = skip) {
     const pageIds = new Set(items.map((item) => item.id));
     // Piesele adăugate între timp din CRM (alt tab) rămân în listă.
     updateStickers((current) => [
@@ -72,8 +77,76 @@ export function LabelControls({
       ...current.filter((item) => !pageIds.has(item.id)),
     ]);
     setCleared(false);
-    go(nextItems, { size, layout });
+    go(nextItems, { size, layout }, nextSkip);
   }
+
+  // Drag & drop pe foaie: celulele randate pe server au `data-cell` și
+  // `data-sticker-id`. Lăsat peste alt sticker = schimbă ordinea; peste o
+  // celulă hașurată = printul începe de acolo cu piesa asta prima.
+  useEffect(() => {
+    let target: HTMLElement | null = null;
+    const cellAt = (event: Event) =>
+      (event.target as Element | null)?.closest?.<HTMLElement>("[data-cell]") ?? null;
+    const mark = (cell: HTMLElement | null) => {
+      if (target === cell) return;
+      target?.classList.remove("label-drop");
+      target = cell;
+      target?.classList.add("label-drop");
+    };
+
+    function onDragStart(event: DragEvent) {
+      const cell = cellAt(event);
+      const id = cell?.dataset.stickerId;
+      if (!cell || !id) return;
+      dragId.current = id;
+      event.dataTransfer?.setData("text/plain", id);
+      event.dataTransfer?.setDragImage(cell, cell.offsetWidth / 2, cell.offsetHeight / 2);
+      document
+        .querySelectorAll(`[data-sticker-id="${CSS.escape(id)}"]`)
+        .forEach((node) => node.classList.add("label-dragging"));
+    }
+    function onDragOver(event: DragEvent) {
+      if (!dragId.current) return;
+      const cell = cellAt(event);
+      mark(cell);
+      if (cell) event.preventDefault();
+    }
+    function onDrop(event: DragEvent) {
+      const cell = cellAt(event);
+      const from = dragId.current;
+      // Curăță aici, nu doar la dragend: după re-randare celula sursă poate
+      // dispărea și dragend nu mai ajunge la document.
+      onDragEnd();
+      if (!cell || !from) return;
+      event.preventDefault();
+      const toId = cell.dataset.stickerId;
+      const index = Number(cell.dataset.cell);
+      if (toId) {
+        changeItems(moveLabelItem(items, from, items.findIndex((item) => item.id === toId)));
+      } else if (index < skip) {
+        changeItems(moveLabelItem(items, from, 0), index);
+      } else {
+        changeItems(moveLabelItem(items, from, items.length - 1));
+      }
+    }
+    function onDragEnd() {
+      dragId.current = null;
+      mark(null);
+      setOverId(null);
+      document.querySelectorAll(".label-dragging").forEach((node) => node.classList.remove("label-dragging"));
+    }
+
+    document.addEventListener("dragstart", onDragStart);
+    document.addEventListener("dragover", onDragOver);
+    document.addEventListener("drop", onDrop);
+    document.addEventListener("dragend", onDragEnd);
+    return () => {
+      document.removeEventListener("dragstart", onDragStart);
+      document.removeEventListener("dragover", onDragOver);
+      document.removeEventListener("drop", onDrop);
+      document.removeEventListener("dragend", onDragEnd);
+    };
+  });
 
   function changeFormat(format: LabelPrintFormat) {
     saveStickerFormat(format);
@@ -183,8 +256,38 @@ export function LabelControls({
 
       {items.length > 0 ? (
         <div className="max-h-64 divide-y divide-[#f0efec] overflow-y-auto rounded-md border border-[#e8e7e3] bg-white">
-          {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-3 px-3 py-2">
+          {items.map((item, index) => (
+            <div
+              key={item.id}
+              onDragOver={(event) => {
+                if (!dragId.current) return;
+                event.preventDefault();
+                setOverId(dragId.current === item.id ? null : item.id);
+              }}
+              onDrop={(event) => {
+                const from = dragId.current;
+                if (!from) return;
+                event.preventDefault();
+                changeItems(moveLabelItem(items, from, index));
+              }}
+              className={`flex items-center gap-3 py-2 pr-3 pl-1 ${
+                overId === item.id ? "bg-[#eef3fe]" : ""
+              }`}
+            >
+              <span
+                draggable
+                onDragStart={(event) => {
+                  dragId.current = item.id;
+                  event.dataTransfer.setData("text/plain", item.id);
+                  const row = event.currentTarget.parentElement;
+                  if (row) event.dataTransfer.setDragImage(row, 16, row.offsetHeight / 2);
+                }}
+                className="cursor-grab px-1 text-[#a09b91] hover:text-[#1b1a17] active:cursor-grabbing"
+                aria-label={`Trage ca să muți ${item.code || item.name}`}
+                title="Trage ca să schimbi ordinea"
+              >
+                <GripVertical className="size-4" aria-hidden="true" />
+              </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-mono text-xs font-bold text-[#1b1a17]">{item.code || "—"}</p>
                 <p className="truncate text-xs text-[#6f6b63]">{item.name}</p>

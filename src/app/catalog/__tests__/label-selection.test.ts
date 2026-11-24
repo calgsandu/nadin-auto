@@ -6,6 +6,7 @@ import {
   emptyLabelItem,
   fillLabelDetails,
   hydrateLabelSelection,
+  moveLabelItem,
   parseLabelSelection,
   serializeLabelSelection,
   setLabelAlternativeCode,
@@ -205,4 +206,14 @@ test("prints alternative codes only for explicitly enabled products", () => {
     ).has("alt"),
     false,
   );
+});
+
+test("moveLabelItem: down lands after the target, up before it", () => {
+  const items = ["a", "b", "c", "d"].map((id) => ({ id }));
+  const ids = (list: { id: string }[]) => list.map((item) => item.id).join("");
+  assert.equal(ids(moveLabelItem(items, "a", 2)), "bcad");
+  assert.equal(ids(moveLabelItem(items, "d", 1)), "adbc");
+  assert.equal(ids(moveLabelItem(items, "c", 99)), "abdc");
+  assert.equal(moveLabelItem(items, "x", 0), items);
+  assert.equal(moveLabelItem(items, "b", 1), items);
 });

@@ -92,6 +92,9 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
           .label-cell { outline: 1px dashed #d8d6d0; outline-offset: -1px; }
           .label-pick:hover { outline: 2px solid #1b1a17; outline-offset: -2px; }
           .label-used { background: repeating-linear-gradient(135deg, #f1f0ec 0 5px, #fff 5px 10px); }
+          .label-cell[draggable="true"] { cursor: grab; }
+          .label-dragging { opacity: .35; }
+          .label-drop { outline: 2px solid #2563eb !important; outline-offset: -2px; }
         }
         @media print {
           .labels-toolbar, .labels-empty { display: none !important; }
@@ -112,7 +115,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
               : `${sheets.length} ${sheets.length === 1 ? "foaie" : "foi"} A4, ${dim.w}×${dim.h} mm, ${perSheet}/foaie`}
           </p>
           <p className="mt-1 text-xs text-[#8a857c]">
-            Print: Scală 100%, Margini: Fără. Foaie începută: click pe prima celulă liberă.
+            Print: Scală 100%, Margini: Fără. Trage stickerele ca să schimbi ordinea; click pe celulă = de acolo începe.
           </p>
         </div>
         <LabelControls
@@ -167,9 +170,15 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
                   />
                 ) : null;
                 const key = slot ? `${slot.product.id}-${slot.copy}` : `empty-${i}`;
+                // Ținte pentru drag & drop (LabelControls ascultă pe document).
+                const dnd = {
+                  "data-cell": sheetIndex * perSheet + i,
+                  "data-sticker-id": slot?.product.id,
+                  draggable: Boolean(slot),
+                };
                 if (sheetIndex > 0) {
                   return (
-                    <div key={key} className="label-cell">
+                    <div key={key} className="label-cell" {...dnd}>
                       {sticker}
                     </div>
                   );
@@ -177,6 +186,7 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
                 return (
                   <a
                     key={key}
+                    {...dnd}
                     href={startHref(i)}
                     title={`Începe printul de la poziția ${i + 1}`}
                     className={`label-cell label-pick${i < skip ? " label-used" : ""}`}
@@ -227,6 +237,7 @@ function LabelSticker({
             width={612}
             height={408}
             unoptimized
+            draggable={false}
             className="label-logo w-auto"
             style={{ height: `${dim.phone * 1.4}px` }}
           />
