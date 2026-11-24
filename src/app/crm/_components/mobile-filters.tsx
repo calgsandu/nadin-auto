@@ -18,13 +18,13 @@ export function MobileFilters({ active = 0, children }: { active?: number; child
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
         className={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium sm:hidden ${
-          active > 0 ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e6e4df] bg-white text-[#44403c]"
+          active > 0 ? "border-(--c-accent-line) bg-(--c-accent-soft) text-(--c-accent-strong)" : "border-(--c-line) bg-(--c-surface) text-(--c-ink-2)"
         }`}
       >
         <SlidersHorizontal className="size-4" aria-hidden="true" />
         Filtre
         {active > 0 ? (
-          <span className="grid min-w-5 place-items-center rounded-full bg-[#2563eb] px-1 text-xs font-semibold text-white">
+          <span className="grid min-w-5 place-items-center rounded-full bg-(--c-accent) px-1 text-xs font-semibold text-white">
             {active}
           </span>
         ) : null}

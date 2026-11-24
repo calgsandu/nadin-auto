@@ -80,7 +80,7 @@ async function Loader({
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[820px]">
-            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
+            <thead className="border-b border-(--c-line) bg-(--c-surface-2)">
               <tr>
                 <TableHead>Client</TableHead>
                 <TableHead secondary>Contact</TableHead>
@@ -96,11 +96,11 @@ async function Loader({
               {data.customers.map((customer) => (
                 <tr
                   key={customer.id}
-                  className={`motion-table-row border-t border-[#eeede9] align-top hover:bg-[#faf9f7] ${
-                    customer.id === openId ? "bg-[#f3f2ef]" : ""
+                  className={`motion-table-row border-t border-(--c-line-2) align-top hover:bg-(--c-surface-2) ${
+                    customer.id === openId ? "bg-(--c-hover)" : ""
                   }`}
                 >
-                  <TableCell className="font-semibold text-[#1a1917]">
+                  <TableCell className="font-semibold text-(--c-ink)">
                     <Link
                       className="hover:underline"
                       href={crmCustomersHref(customer.id === openId ? undefined : customer.id)}
@@ -108,32 +108,32 @@ async function Loader({
                     >
                       {customer.name}
                     </Link>
-                    <span className="mt-0.5 block text-xs font-normal text-[#57534e]">
+                    <span className="mt-0.5 block text-xs font-normal text-(--c-muted)">
                       {formatNumber(customer.purchases)} vânzări
                       <span className="sm:hidden">, {formatMoney(customer.boughtLei)} lei</span>
                     </span>
                   </TableCell>
-                  <TableCell secondary className="text-[#57534e]">
+                  <TableCell secondary className="text-(--c-muted)">
                     <span className="block">{formatText(customer.phone)}</span>
                     {customer.email ? <span className="mt-0.5 block">{customer.email}</span> : null}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#57534e]">
+                  <TableCell align="right" secondary className="tabular-nums text-(--c-muted)">
                     {customer.discountPercent ? `${customer.discountPercent}%` : "-"}
                   </TableCell>
-                  <TableCell align="right" className="tabular-nums font-semibold text-[#1a1917] max-sm:hidden">
+                  <TableCell align="right" className="tabular-nums font-semibold text-(--c-ink) max-sm:hidden">
                     {formatMoney(customer.boughtLei)}
                   </TableCell>
-                  <TableCell align="right" secondary className="tabular-nums text-[#57534e]">
+                  <TableCell align="right" secondary className="tabular-nums text-(--c-muted)">
                     {formatMoney(customer.paidLei)}
                   </TableCell>
                   <TableCell align="right">
                     {customer.debtLei > 0 ? (
                       <StatusBadge tone="red">{formatMoney(customer.debtLei)} lei</StatusBadge>
                     ) : (
-                      <span className="tabular-nums text-[#57534e]">{customer.debtLei !== 0 ? formatMoney(customer.debtLei) : "-"}</span>
+                      <span className="tabular-nums text-(--c-muted)">{customer.debtLei !== 0 ? formatMoney(customer.debtLei) : "-"}</span>
                     )}
                   </TableCell>
-                  <TableCell secondary className="text-[#57534e]">
+                  <TableCell secondary className="text-(--c-muted)">
                     {customer.lastPurchaseAt ? formatDate(customer.lastPurchaseAt) : "-"}
                   </TableCell>
                   {canModify ? (
@@ -164,7 +164,7 @@ async function Loader({
           </table>
         </div>
         {data.customers.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-[#57534e]">
+          <div className="px-4 py-12 text-center text-sm text-(--c-muted)">
             Niciun client încă. Clienții adăugați la o vânzare apar aici.
           </div>
         ) : null}
@@ -185,10 +185,10 @@ function CustomerCard({
 }) {
   return (
     <div className="motion-card crm-card">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#e6e4df] px-4 py-3">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-(--c-line) px-4 py-3">
         <div>
-          <h2 className="text-base font-semibold text-[#1a1917]">{customer.name}</h2>
-          <p className="mt-0.5 text-xs text-[#57534e]">
+          <h2 className="text-base font-semibold text-(--c-ink)">{customer.name}</h2>
+          <p className="mt-0.5 text-xs text-(--c-muted)">
             {formatText(customer.phone)}
             {customer.discountPercent ? ` · discount ${customer.discountPercent}%` : ""}
             {customer.debtLei > 0 ? ` · datorie ${formatMoney(customer.debtLei)} lei` : ""}
@@ -216,26 +216,26 @@ function CustomerCard({
 
       <div className="grid gap-4 px-4 py-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <h3 className="text-sm font-semibold text-[#1a1917]">Ce a cumpărat</h3>
+          <h3 className="text-sm font-semibold text-(--c-ink)">Ce a cumpărat</h3>
           {detail.sales.length === 0 ? (
-            <p className="mt-2 text-sm text-[#57534e]">Nicio vânzare înregistrată.</p>
+            <p className="mt-2 text-sm text-(--c-muted)">Nicio vânzare înregistrată.</p>
           ) : (
             <ul className="mt-2 grid gap-3">
               {detail.sales.map((sale) => (
-                <li key={sale.id} className="border-t border-[#eeede9] pt-3 first:border-0 first:pt-0">
+                <li key={sale.id} className="border-t border-(--c-line-2) pt-3 first:border-0 first:pt-0">
                   <div className="flex items-baseline justify-between gap-3 text-sm">
-                    <span className="font-semibold text-[#1a1917]">
+                    <span className="font-semibold text-(--c-ink)">
                       Vânzare #{sale.number}
                     </span>
-                    <span className="tabular-nums font-semibold text-[#1a1917]">
+                    <span className="tabular-nums font-semibold text-(--c-ink)">
                       {formatMoney(sale.totalLei)} lei
                     </span>
                   </div>
-                  <p className="text-xs text-[#57534e]">
+                  <p className="text-xs text-(--c-muted)">
                     {formatDate(sale.documentDate)} · {salePaymentMethodLabel(sale.paymentMethod)}
                     {sale.discountPercent ? ` · -${Number(sale.discountPercent)}%` : ""}
                   </p>
-                  <ul className="mt-1 grid gap-0.5 text-xs text-[#57534e]">
+                  <ul className="mt-1 grid gap-0.5 text-xs text-(--c-muted)">
                     {sale.lines.map((line) => (
                       <li key={line.id} className="flex justify-between gap-3">
                         <span>
@@ -256,20 +256,20 @@ function CustomerCard({
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-[#1a1917]">Încasări</h3>
+          <h3 className="text-sm font-semibold text-(--c-ink)">Încasări</h3>
           {detail.payments.length === 0 ? (
-            <p className="mt-2 text-sm text-[#57534e]">Nicio încasare scrisă.</p>
+            <p className="mt-2 text-sm text-(--c-muted)">Nicio încasare scrisă.</p>
           ) : (
             <ul className="mt-2 grid gap-2 text-sm">
               {detail.payments.map((payment) => (
                 <li key={payment.id} className="flex items-baseline justify-between gap-3">
-                  <span className="text-[#57534e]">
+                  <span className="text-(--c-muted)">
                     {formatDate(payment.paidAt)}
                     {payment.notes ? (
                       <span className="block text-xs">{payment.notes}</span>
                     ) : null}
                   </span>
-                  <span className="tabular-nums font-semibold text-[#1a1917]">
+                  <span className="tabular-nums font-semibold text-(--c-ink)">
                     {formatMoney(payment.amount)}
                   </span>
                 </li>
@@ -322,7 +322,7 @@ function ClientsOverview({ customers }: { customers: CustomerRow[] }) {
       {top.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {top.map((customer, index) => (
-            <Link key={customer.id} href={crmCustomersHref(customer.id)} scroll={false} className="rounded-[1.25rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]">
+            <Link key={customer.id} href={crmCustomersHref(customer.id)} scroll={false} className="rounded-[1.25rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--c-accent)">
               <PastelCard
                 tone={cardTones[index]}
                 title={customer.name}

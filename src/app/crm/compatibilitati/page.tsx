@@ -71,13 +71,13 @@ async function Loader({
     >
       {data.fitments.map((f: FitmentRow) => (
         <tr key={f.id} className={adminRowCls}>
-          <TableCell className="font-semibold text-[#1a1917]">
+          <TableCell className="font-semibold text-(--c-ink)">
             {f.label}
-            {f.labelRu ? <p className="mt-1 text-xs font-normal text-[#57534e]">RU: {f.labelRu}</p> : null}
+            {f.labelRu ? <p className="mt-1 text-xs font-normal text-(--c-muted)">RU: {f.labelRu}</p> : null}
           </TableCell>
           <TableCell><BrandName name={f.carModel.brand.name} className="whitespace-nowrap" /> {f.carModel.name}</TableCell>
           <TableCell>{formatYearLabel(f.yearStart, f.yearEnd, f.yearOpenEnded)}</TableCell>
-          <TableCell className="tabular-nums text-[#57534e]">{formatNumber(f._count.products)}</TableCell>
+          <TableCell className="tabular-nums text-(--c-muted)">{formatNumber(f._count.products)}</TableCell>
           {canModify ? (
             <TableCell align="right">
               <RowActions>

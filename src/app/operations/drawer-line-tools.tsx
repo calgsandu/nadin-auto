@@ -28,7 +28,7 @@ export function LabelStickerCell({
 }) {
   return (
     <DrawerField label="Etichete">
-      <div className="flex h-9 items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-2.5">
+      <div className="flex h-9 items-center gap-2 rounded-md border border-(--c-line) bg-(--c-surface) px-2.5">
         <input
           aria-label={`Etichetă pentru produsul ${index + 1}`}
           checked={Boolean(line.sticker)}
@@ -46,7 +46,7 @@ export function LabelStickerCell({
         />
         <input
           aria-label={`Câte etichete pentru produsul ${index + 1}`}
-          className="field-control h-7 w-14 rounded border border-[#e6e4df] bg-white px-2 text-sm outline-none disabled:bg-[#f3f2ef] disabled:text-[#78716c]"
+          className="field-control h-7 w-14 rounded border border-(--c-line) bg-(--c-surface) px-2 text-sm outline-none disabled:bg-(--c-hover) disabled:text-(--c-muted-2)"
           data-enter-skip
           disabled={!line.sticker}
           inputMode="numeric"
@@ -55,7 +55,7 @@ export function LabelStickerCell({
           value={line.copies ?? ""}
           onChange={(event) => onChange({ copies: event.currentTarget.value })}
         />
-        <span className="text-xs text-[#57534e]">buc</span>
+        <span className="text-xs text-(--c-muted)">buc</span>
       </div>
     </DrawerField>
   );
@@ -72,12 +72,12 @@ export function AddedLinesFilter({
   return (
     <div className="relative">
       <Search
-        className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[#57534e]"
+        className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-(--c-muted)"
         aria-hidden="true"
       />
       <input
         aria-label="Caută în produsele adăugate"
-        className="field-control h-9 w-56 rounded-md border border-[#e6e4df] bg-white pl-8 pr-3 text-sm outline-none placeholder:text-[#78716c]"
+        className="field-control h-9 w-56 rounded-md border border-(--c-line) bg-(--c-surface) pl-8 pr-3 text-sm outline-none placeholder:text-(--c-muted-2)"
         data-enter-skip
         placeholder="Caută în cele adăugate"
         type="search"

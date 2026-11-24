@@ -53,7 +53,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${appFont.variable} ${crmFont.variable} ${monoFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[#f6f6f4] text-[#1b1a17]">
+      <body className="min-h-full bg-(--c-bg) text-(--c-ink)">
         {children}
         <Toaster />
       </body>

@@ -263,8 +263,8 @@ export function ProductFormDialog({
             triggerKind === "row"
               ? rowIconButtonCls
               : triggerKind === "secondary"
-                ? "button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3 text-sm font-medium text-[#1a1917] hover:bg-[#f3f2ef]"
-                : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+                ? "button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
+                : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-(--c-accent) px-3.5 py-2 text-sm font-semibold text-white hover:bg-(--c-accent-hover)"
           }
           title={triggerKind === "row" ? triggerLabel : undefined}
           type="button"
@@ -325,9 +325,9 @@ export function ProductFormDialog({
               }
             }}
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
-              <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#1a1917]">
-                <span className="grid size-8 place-items-center rounded-lg bg-[#2563eb] text-white">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
+              <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-(--c-ink)">
+                <span className="grid size-8 place-items-center rounded-lg bg-(--c-accent) text-white">
                   <PackageSearch className="size-4" aria-hidden="true" />
                 </span>
                 {product ? "Editează produs" : "Adaugă produs"}
@@ -336,7 +336,7 @@ export function ProductFormDialog({
                 {/* Doar la produs nou, deschis direct (nu din vânzare/recepție). */}
                 {!product && !controlled ? (
                   <button
-                    className="button-secondary hidden h-9 items-center justify-center gap-1.5 rounded-md border border-[#e6e4df] bg-white px-3 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef] disabled:opacity-60 sm:inline-flex"
+                    className="button-secondary hidden h-9 items-center justify-center gap-1.5 rounded-md border border-(--c-line) bg-(--c-surface) px-3 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover) disabled:opacity-60 sm:inline-flex"
                     disabled={pending}
                     title="Salvează și adaugă altul"
                     aria-label="Salvează și adaugă altul"
@@ -372,11 +372,11 @@ export function ProductFormDialog({
               ) : null}
 
               {lastSaved ? (
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#f0fdf4] px-3 py-2 text-sm text-[#166534]">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-(--c-green-soft) px-3 py-2 text-sm text-(--c-green)">
                   <span className="min-w-0 truncate">Salvat: {lastSaved.label}</span>
                   <div className="flex items-center gap-2">
                     <a
-                      className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#bbf7d0] bg-white px-3 py-1.5 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
+                      className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-green-line) bg-(--c-surface) px-3 py-1.5 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover)"
                       href={`/print/labels?items=${lastSaved.id}:${Math.max(lastSaved.copies, 1)}&layout=grid`}
                       rel="noopener"
                       target="_blank"
@@ -385,7 +385,7 @@ export function ProductFormDialog({
                     </a>
                     <button
                       aria-label="Ascunde"
-                      className="grid size-8 place-items-center rounded-md hover:bg-[#dcfce7]"
+                      className="grid size-8 place-items-center rounded-md hover:bg-(--c-green-soft)"
                       type="button"
                       onClick={() => setLastSaved(null)}
                     >
@@ -448,7 +448,7 @@ export function ProductFormDialog({
                 title="Se potrivește pe"
                 action={
                   <button
-                    className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e6e4df] bg-white px-3 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
+                    className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-line) bg-(--c-surface) px-3 py-2 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover)"
                     type="button"
                     onClick={addFitment}
                   >
@@ -494,7 +494,7 @@ export function ProductFormDialog({
                     onChange={(event) => setSalePrice(event.currentTarget.value)}
                   />
                   {margin !== null ? (
-                    <span className={`text-xs font-normal ${margin < 0 ? "font-medium text-[#b91c1c]" : "text-[#78716c]"}`}>
+                    <span className={`text-xs font-normal ${margin < 0 ? "font-medium text-(--c-red)" : "text-(--c-muted-2)"}`}>
                       {margin < 0 ? "sub cost" : `marjă ${margin}%`}
                     </span>
                   ) : null}
@@ -506,8 +506,8 @@ export function ProductFormDialog({
                 icon={Warehouse}
                 title="Stoc pe depozite"
                 action={
-                  <p className="text-sm text-[#57534e]">
-                    Total <span className="font-semibold tabular-nums text-[#1a1917]">{calculateTotal(warehouseQuantities)}</span> buc.
+                  <p className="text-sm text-(--c-muted)">
+                    Total <span className="font-semibold tabular-nums text-(--c-ink)">{calculateTotal(warehouseQuantities)}</span> buc.
                   </p>
                 }
               >
@@ -535,7 +535,7 @@ export function ProductFormDialog({
                         />
                         {/* La editare: cât era înainte, ca să vezi ce schimbi. */}
                         {product && originalQuantities[warehouse.id] !== (warehouseQuantities[warehouse.id] ?? "0") ? (
-                          <span className="text-xs font-medium text-[#b45309]">era {originalQuantities[warehouse.id]}</span>
+                          <span className="text-xs font-medium text-(--c-amber)">era {originalQuantities[warehouse.id]}</span>
                         ) : null}
                       </Field>
                     </div>
@@ -546,15 +546,15 @@ export function ProductFormDialog({
 
               {/* Ce se completează rar stă strâns; se deschide singur când produsul
                   are deja ceva scris aici. */}
-              <details className="group rounded-lg border border-[#e6e4df] bg-white" open={hasDetails || undefined}>
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-semibold text-[#1a1917] [&::-webkit-details-marker]:hidden">
+              <details className="group rounded-lg border border-(--c-line) bg-(--c-surface)" open={hasDetails || undefined}>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-semibold text-(--c-ink) [&::-webkit-details-marker]:hidden">
                   <span>
                     Mai multe detalii
-                    <span className="ml-2 font-normal text-[#78716c]">cod alternativ, preț EUR, stoc minim, site</span>
+                    <span className="ml-2 font-normal text-(--c-muted-2)">cod alternativ, preț EUR, stoc minim, site</span>
                   </span>
-                  <ChevronDown className="size-4 text-[#78716c] transition-transform group-open:rotate-180" aria-hidden="true" />
+                  <ChevronDown className="size-4 text-(--c-muted-2) transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
-                <div className="grid gap-3 border-t border-[#eeede9] p-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-3 border-t border-(--c-line-2) p-3 sm:grid-cols-2 lg:grid-cols-4">
                   <Field label="Cod alternativ">
                     <input
                       className={inputClassName}
@@ -580,7 +580,7 @@ export function ProductFormDialog({
                       placeholder="3"
                     />
                   </Field>
-                  <label className="flex items-center gap-2 self-end pb-2 text-sm text-[#44403c]">
+                  <label className="flex items-center gap-2 self-end pb-2 text-sm text-(--c-ink-2)">
                     <input name="isLocal" type="checkbox" defaultChecked={product?.isLocal ?? false} />
                     Fabricată local
                   </label>
@@ -646,7 +646,7 @@ function FitmentRow({
   onRemove?: () => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-2 rounded-lg border border-[#ebe9e4] bg-[#faf9f7] px-2.5 py-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6.5rem_6.5rem_8.5rem_2.25rem] lg:items-start">
+    <div className="grid grid-cols-2 gap-2 rounded-lg border border-(--c-line-2) bg-(--c-surface-2) px-2.5 py-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6.5rem_6.5rem_8.5rem_2.25rem] lg:items-start">
       <input
         name={primary ? "yearOpenEnded" : "extraYearOpenEnded"}
         type="hidden"
@@ -697,7 +697,7 @@ function FitmentRow({
         />
       </Field>
       <div className="flex items-center gap-3 lg:mt-8">
-        <label className="flex items-center gap-1.5 whitespace-nowrap text-sm text-[#44403c]">
+        <label className="flex items-center gap-1.5 whitespace-nowrap text-sm text-(--c-ink-2)">
           <input
             checked={value.yearOpenEnded}
             type="checkbox"
@@ -714,7 +714,7 @@ function FitmentRow({
       {onRemove ? (
         <button
           aria-label="Șterge compatibilitatea"
-          className="button-danger grid size-9 place-items-center justify-self-end rounded-md border border-[#e6e4df] bg-white text-[#991b1b] hover:border-[#dc2626] hover:bg-[#fef2f2] lg:mt-6 lg:justify-self-auto"
+          className="button-danger grid size-9 place-items-center justify-self-end rounded-md border border-(--c-line) bg-(--c-surface) text-(--c-red) hover:border-(--c-red) hover:bg-(--c-red-soft) lg:mt-6 lg:justify-self-auto"
           title="Șterge mașina"
           type="button"
           onClick={onRemove}
@@ -755,7 +755,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`grid content-start gap-1 text-[13px] font-medium text-[#57534e] ${className}`}>
+    <label className={`grid content-start gap-1 text-[13px] font-medium text-(--c-muted) ${className}`}>
       {label}
       {children}
     </label>
@@ -768,7 +768,7 @@ const NEW_TYPE = "__new";
 const formatLei = (value: number) => new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 2 }).format(value);
 
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm outline-none placeholder:text-[#78716c] disabled:bg-[#f0efeb]";
+  "field-control h-9 w-full rounded-md border border-(--c-line) bg-(--c-surface) px-2.5 text-sm outline-none placeholder:text-(--c-muted-2) disabled:bg-(--c-line-2)";
 
 function getWarehouseQuantities(
   product: ProductFormValue | undefined,

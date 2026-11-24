@@ -14,11 +14,11 @@ export function BrandLogo({ name, className = "size-6" }: { name: string; classN
   const src = brandLogoSrc(name);
   return src ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt="" loading="lazy" className={`${className} shrink-0 object-contain`} />
+    <img src={src} alt="" loading="lazy" className={`${className} shrink-0 object-contain dark:rounded-sm dark:bg-white dark:p-px`} />
   ) : (
     <span
       aria-hidden="true"
-      className={`${className} grid shrink-0 place-items-center rounded-md bg-[#f3f2ef] text-[0.6875rem] font-semibold text-[#78716c]`}
+      className={`${className} grid shrink-0 place-items-center rounded-md bg-(--c-hover) text-[0.6875rem] font-semibold text-(--c-muted-2)`}
     >
       {name.slice(0, 1)}
     </span>

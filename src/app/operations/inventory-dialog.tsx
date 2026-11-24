@@ -205,8 +205,8 @@ export function InventoryDialog({
       <button
         className={
           prefill
-            ? "button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e6e4df] bg-white px-3 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
-            : "button-primary inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+            ? "button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-line) bg-(--c-surface) px-3 py-2 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover)"
+            : "button-primary inline-flex items-center gap-1.5 rounded-md bg-(--c-accent) px-3 py-2 text-sm font-semibold text-white hover:bg-(--c-accent-hover)"
         }
         type="button"
         onClick={openDialog}
@@ -231,13 +231,13 @@ export function InventoryDialog({
               title="Detalii"
               action={
                 summary.products > 0 ? (
-                  <p className="flex flex-wrap items-center gap-x-3 text-sm text-[#57534e]">
+                  <p className="flex flex-wrap items-center gap-x-3 text-sm text-(--c-muted)">
                     <span>
-                      <span className="font-semibold tabular-nums text-[#1a1917]">{summary.products}</span> produse
+                      <span className="font-semibold tabular-nums text-(--c-ink)">{summary.products}</span> produse
                     </span>
-                    <span className="font-semibold tabular-nums text-[#166534]">+{summary.plus} buc.</span>
-                    <span className="font-semibold tabular-nums text-[#b91c1c]">−{summary.minus} buc.</span>
-                    <span className="text-[#78716c]">față de sistem</span>
+                    <span className="font-semibold tabular-nums text-(--c-green)">+{summary.plus} buc.</span>
+                    <span className="font-semibold tabular-nums text-(--c-red)">−{summary.minus} buc.</span>
+                    <span className="text-(--c-muted-2)">față de sistem</span>
                   </p>
                 ) : null
               }
@@ -298,7 +298,7 @@ export function InventoryDialog({
             </DrawerSection>
 
             <details className="group">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-[#57534e] hover:text-[#1a1917] [&::-webkit-details-marker]:hidden">
+              <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-(--c-muted) hover:text-(--c-ink) [&::-webkit-details-marker]:hidden">
                 <Plus className="size-4 group-open:rotate-45" aria-hidden="true" /> Notițe
               </summary>
               <textarea
@@ -349,7 +349,7 @@ const InventoryLineRow = memo(function InventoryLineRow({
       style={hidden ? { display: "none" } : undefined}
     >
       <div>
-        <p className="line-label mb-1 text-[13px] font-medium leading-5 text-[#57534e]">Produs</p>
+        <p className="line-label mb-1 text-[13px] font-medium leading-5 text-(--c-muted)">Produs</p>
         <ProductSearchCombobox
           showHint={false}
           initialProduct={line.productId ? { id: line.productId, label: line.label } : null}
@@ -406,14 +406,14 @@ function CountDifference({ system, counted }: { system: number | null; counted: 
   if (system === null) return null;
   const value = Number(counted);
   if (counted === "" || !Number.isFinite(value)) {
-    return <span className="text-xs font-normal text-[#78716c]">în sistem: {system}</span>;
+    return <span className="text-xs font-normal text-(--c-muted-2)">în sistem: {system}</span>;
   }
   const difference = value - system;
   if (difference === 0) {
-    return <span className="text-xs font-normal text-[#78716c]">la fel ca în sistem</span>;
+    return <span className="text-xs font-normal text-(--c-muted-2)">la fel ca în sistem</span>;
   }
   return (
-    <span className={`text-xs font-medium ${difference > 0 ? "text-[#166534]" : "text-[#b91c1c]"}`}>
+    <span className={`text-xs font-medium ${difference > 0 ? "text-(--c-green)" : "text-(--c-red)"}`}>
       {difference > 0 ? `+${difference}` : `−${-difference}`} față de sistem ({system})
     </span>
   );

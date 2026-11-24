@@ -14,10 +14,12 @@ import {
 } from "recharts";
 import type { StatsData } from "@/lib/stats/queries";
 
-const BLUE = "#2563eb";
-const GREEN = "#15803d";
-const GRID = "#eeede9";
-const AXIS = "#57534e";
+// Variabilele temei: SVG-ul Recharts le citește și pe tema închisă.
+const BLUE = "var(--c-accent)";
+const SOFT = "var(--c-chart-soft)";
+const GREEN = "var(--c-green)";
+const GRID = "var(--c-line-2)";
+const AXIS = "var(--c-muted)";
 
 const money = new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 0 });
 
@@ -28,8 +30,8 @@ function fmt(value: number) {
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="overflow-hidden crm-card">
-      <div className="border-b border-[#e6e4df] px-4 py-2.5">
-        <h2 className="text-sm font-semibold text-[#1a1917]">{title}</h2>
+      <div className="border-b border-(--c-line) px-4 py-2.5">
+        <h2 className="text-sm font-semibold text-(--c-ink)">{title}</h2>
       </div>
       <div className="px-2 py-3 sm:px-3">{children}</div>
     </div>
@@ -39,7 +41,9 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
 // ponytail: default recharts tooltip is enough; light restyle only.
 const tooltipStyle = {
   borderRadius: 10,
-  border: "1px solid #e6e4df",
+  border: "1px solid var(--c-line)",
+  backgroundColor: "var(--c-surface)",
+  color: "var(--c-ink)",
   fontSize: 12,
 } as const;
 
@@ -120,7 +124,7 @@ export function MonthlyChart({
             tickFormatter={(v: number) => money.format(v)}
           />
           <Tooltip formatter={(v) => fmt(Number(v))} contentStyle={tooltipStyle} />
-          <Bar dataKey="Venit" fill="#8ec5fc" radius={[4, 4, 0, 0]} maxBarSize={40} />
+          <Bar dataKey="Venit" fill={SOFT} radius={[4, 4, 0, 0]} maxBarSize={40} />
           {canModify ? (
             <Line
               dataKey="Profit"
@@ -163,7 +167,7 @@ export function TopProductsChart({ rows }: { rows: StatsData["topProducts"] }) {
           <Tooltip contentStyle={tooltipStyle} formatter={(v) => `${Number(v)} buc.`} />
           <Bar dataKey="Cantitate" radius={[0, 4, 4, 0]} maxBarSize={22}>
             {data.map((_, i) => (
-              <Cell key={i} fill={i === 0 ? BLUE : "#8ec5fc"} />
+              <Cell key={i} fill={i === 0 ? BLUE : SOFT} />
             ))}
           </Bar>
         </BarChart>

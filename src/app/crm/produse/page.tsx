@@ -90,7 +90,7 @@ async function ProductSummary({ catalogPromise }: { catalogPromise: Promise<Cata
   return (
     <>
       {formatNumber(stockSummary.inStock + stockSummary.low)} piese în stoc,{" "}
-      <Link className="underline decoration-[#d6d3d1] underline-offset-4 hover:text-[#1a1917]" href="/crm/produse?stoc=mic">
+      <Link className="underline decoration-(--c-line-strong) underline-offset-4 hover:text-(--c-ink)" href="/crm/produse?stoc=mic">
         {formatNumber(stockSummary.low)} aproape terminate
       </Link>
       , {formatNumber(stockSummary.out)} lipsă.
@@ -108,7 +108,7 @@ async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cat
     crmCatalogPageHref({ ...params, brand, model, fitment: undefined, page: undefined });
   const row = (active: boolean) =>
     `flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm ${
-      active ? "bg-[#eef4ff] font-semibold text-[#1d4ed8]" : "text-[#44403c] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+      active ? "bg-(--c-accent-soft) font-semibold text-(--c-accent-strong)" : "text-(--c-ink-2) hover:bg-(--c-hover) hover:text-(--c-ink)"
     }`;
 
   return (
@@ -117,7 +117,7 @@ async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cat
       className="products-brand-tree crm-card sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto p-2 max-xl:hidden"
     >
       <Link href={href()} className={row(!params.brand)} aria-current={!params.brand ? "page" : undefined}>
-        <span className="grid size-6 shrink-0 place-items-center rounded-md bg-[#f3f2ef] text-[#78716c]">
+        <span className="grid size-6 shrink-0 place-items-center rounded-md bg-(--c-hover) text-(--c-muted-2)">
           <Car className="size-3.5" aria-hidden="true" />
         </span>
         <span>Toate mașinile</span>
@@ -136,12 +136,12 @@ async function BrandTreeLoader({ catalogPromise }: { catalogPromise: Promise<Cat
                 <BrandLogo name={brand.name} />
                 <span className="min-w-0 flex-1 truncate">{brandLabel(brand.name)}</span>
                 <ChevronDown
-                  className={`size-3.5 shrink-0 text-[#a8a29e] transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
+                  className={`size-3.5 shrink-0 text-(--c-faint) transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
                   aria-hidden="true"
                 />
               </Link>
               {open && models.length > 0 ? (
-                <ul className="crm-tree-submenu my-1 ml-5 grid gap-0.5 border-l border-[#e6e4df] pl-2">
+                <ul className="crm-tree-submenu my-1 ml-5 grid gap-0.5 border-l border-(--c-line) pl-2">
                   {models.map((model) => {
                     const active = model.id === params.model;
                     return (
@@ -232,7 +232,7 @@ function ProductWorkspace({
           />
           <div className="overflow-x-auto">
             <table className="crm-table crm-table-compact w-full table-fixed border-collapse text-left text-sm lg:table-auto lg:min-w-[720px]">
-              <thead className="border-y border-[#e6e4df] bg-[#faf9f7] max-lg:hidden">
+              <thead className="border-y border-(--c-line) bg-(--c-surface-2) max-lg:hidden">
                 <tr>
                   {canModify ? (
                     <TableHead className="max-lg:hidden">
@@ -268,14 +268,14 @@ function ProductWorkspace({
             </table>
           </div>
           {catalog.products.length === 0 ? (
-            <div className="px-4 py-14 text-center text-sm text-[#57534e]">
+            <div className="px-4 py-14 text-center text-sm text-(--c-muted)">
               Nu am găsit nimic.{" "}
-              <Link className="font-medium text-[#2563eb] hover:underline" href={crmSectionHref("produse")}>
+              <Link className="font-medium text-(--c-accent) hover:underline" href={crmSectionHref("produse")}>
                 Resetează filtrele
               </Link>
             </div>
           ) : null}
-          <div className="border-t border-[#e6e4df] px-4 py-3">
+          <div className="border-t border-(--c-line) px-4 py-3">
             <Pagination
               page={page}
               pageCount={pageCount}
@@ -308,10 +308,10 @@ function StockCount({
   // Același prag ca filtrul „aproape terminate": minStock, implicit 3.
   const [tone, label] =
     value <= 0
-      ? ["bg-[#fef2f2] text-[#b91c1c]", "Fără stoc"]
+      ? ["bg-(--c-red-soft) text-(--c-red)", "Fără stoc"]
       : value <= (minStock ?? 3)
-        ? ["bg-[#eef4ff] text-[#1d4ed8]", "Aproape terminat"]
-        : ["bg-[#ecfdf3] text-[#15803d]", "În stoc"];
+        ? ["bg-(--c-accent-soft) text-(--c-accent-strong)", "Aproape terminat"]
+        : ["bg-(--c-green-soft) text-(--c-green)", "În stoc"];
   return (
     <span
       title={label}
@@ -363,7 +363,7 @@ function ProductRow({
   }));
 
   return (
-    <tr className="motion-table-row border-t border-[#eeede9] hover:bg-[#faf9f7]">
+    <tr className="motion-table-row border-t border-(--c-line-2) hover:bg-(--c-surface-2)">
       {canModify ? (
         <TableCell className="w-10 max-lg:hidden">
           <input
@@ -376,19 +376,19 @@ function ProductRow({
               .map((compatibility) => `${compatibility.title}, ani ${compatibility.years}`)
               .join(" • ")}
             aria-label={`Selectează ${product.description} pentru sticker`}
-            className="size-4 cursor-pointer rounded accent-[#2563eb]"
+            className="size-4 cursor-pointer rounded accent-(--c-accent)"
           />
         </TableCell>
       ) : null}
       <TableCell className="whitespace-nowrap max-lg:hidden">
         {/* Codul e cheia piesei: îl afișăm primul și mai vizibil decât denumirea. */}
         {product.externalCode ? (
-          <CopyCode code={product.externalCode} className="font-mono text-[0.9375rem] font-bold text-[#292524]" />
+          <CopyCode code={product.externalCode} className="font-mono text-[0.9375rem] font-bold text-(--c-ink-2)" />
         ) : (
-          <span className="text-[#d6d3d1]">—</span>
+          <span className="text-(--c-line-strong)">—</span>
         )}
         {product.alternativeCode ? (
-          <p className="mt-0.5 font-mono text-xs text-[#a8a29e]">{product.alternativeCode}</p>
+          <p className="mt-0.5 font-mono text-xs text-(--c-faint)">{product.alternativeCode}</p>
         ) : null}
       </TableCell>
       <TableCell>
@@ -396,13 +396,13 @@ function ProductRow({
             denumirea și mașinile. Un rând în minus = mai multe piese pe ecran. */}
         <div className="mb-0.5 flex items-center justify-between gap-3 lg:hidden">
           {product.externalCode ? (
-            <CopyCode code={product.externalCode} className="min-w-0 truncate font-mono text-lg font-bold text-[#292524]" />
+            <CopyCode code={product.externalCode} className="min-w-0 truncate font-mono text-lg font-bold text-(--c-ink-2)" />
           ) : (
-            <span className="text-sm text-[#a8a29e]">fără cod</span>
+            <span className="text-sm text-(--c-faint)">fără cod</span>
           )}
           <span className="flex shrink-0 items-center gap-2">
-            <span className="text-[0.9375rem] font-semibold tabular-nums text-[#1a1917]">
-              {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-[#a8a29e]">fără preț</span>}
+            <span className="text-[0.9375rem] font-semibold tabular-nums text-(--c-ink)">
+              {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-(--c-faint)">fără preț</span>}
             </span>
             <StockCount stock={product.stock} minStock={product.minStock} unit />
           </span>
@@ -424,7 +424,7 @@ function ProductRow({
             />
           }
         >
-          <span className="block text-sm text-[#292524] hover:text-[#2563eb]">
+          <span className="block text-sm text-(--c-ink-2) hover:text-(--c-accent)">
             {product.description}
             {product.isLocal ? <LocalBadge className="ml-2 align-middle" /> : null}
           </span>
@@ -440,12 +440,12 @@ function ProductRow({
         <StockCount stock={product.stock} minStock={product.minStock} />
       </TableCell>
       {canModify ? (
-        <TableCell align="right" secondary className="whitespace-nowrap tabular-nums text-[#78716c]">
-          {product.costLei != null ? <Lei value={product.costLei} /> : <span className="text-[#d6d3d1]">—</span>}
+        <TableCell align="right" secondary className="whitespace-nowrap tabular-nums text-(--c-muted-2)">
+          {product.costLei != null ? <Lei value={product.costLei} /> : <span className="text-(--c-line-strong)">—</span>}
         </TableCell>
       ) : null}
-      <TableCell align="right" className="whitespace-nowrap text-[0.9375rem] font-semibold tabular-nums text-[#1a1917] max-lg:hidden">
-        {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-[#d6d3d1]">—</span>}
+      <TableCell align="right" className="whitespace-nowrap text-[0.9375rem] font-semibold tabular-nums text-(--c-ink) max-lg:hidden">
+        {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-(--c-line-strong)">—</span>}
       </TableCell>
       {canModify ? (
         <TableCell align="right" className="max-lg:hidden">
@@ -465,9 +465,9 @@ function ProductRow({
                 target="_blank"
                 rel="noreferrer"
                 title="Sticker produs (70×50.8mm)"
-                className="text-[#1a1917]"
+                className="text-(--c-ink)"
               >
-                <Printer className="size-4 text-[#78716c]" aria-hidden="true" /> Sticker
+                <Printer className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Sticker
               </a>
               <ProductDeleteButton productId={product.id} label={product.description} />
             </RowMenu>
@@ -483,7 +483,7 @@ function ProductRow({
 function Lei({ value }: { value: Parameters<typeof formatMoney>[0] }) {
   return (
     <>
-      {formatMoney(value)} <span className="text-[0.85em] font-normal text-[#a8a29e]">lei</span>
+      {formatMoney(value)} <span className="text-[0.85em] font-normal text-(--c-faint)">lei</span>
     </>
   );
 }
@@ -496,14 +496,14 @@ function CarLines({
   lines: { title: string; years: string; brand: string | null }[];
   compact?: boolean;
 }) {
-  if (lines.length === 0) return <span className="text-[#d6d3d1]">—</span>;
+  if (lines.length === 0) return <span className="text-(--c-line-strong)">—</span>;
   return (
     <ul className="space-y-1 text-sm">
       {lines.map((line, index) => (
         <li key={`${line.title}:${line.years}:${index}`} className={`flex items-center gap-2 ${compact ? "min-w-0 flex-wrap" : ""}`}>
           {line.brand ? <BrandLogo name={line.brand} className="size-5" /> : null}
-          {line.title ? <span className={`${compact ? "min-w-0 break-words" : "whitespace-nowrap"} text-[#44403c]`}>{line.title}</span> : null}
-          <span className="whitespace-nowrap tabular-nums text-[#a8a29e]">{line.years}</span>
+          {line.title ? <span className={`${compact ? "min-w-0 break-words" : "whitespace-nowrap"} text-(--c-ink-2)`}>{line.title}</span> : null}
+          <span className="whitespace-nowrap tabular-nums text-(--c-faint)">{line.years}</span>
         </li>
       ))}
     </ul>

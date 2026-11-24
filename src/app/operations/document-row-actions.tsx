@@ -368,7 +368,7 @@ function EditPanel({
             />
           ))}
           {editableLines.length === 0 ? (
-            <div className="rounded-md border border-dashed border-[#e6e4df] px-3 py-6 text-center text-sm text-[#57534e]">
+            <div className="rounded-md border border-dashed border-(--c-line) px-3 py-6 text-center text-sm text-(--c-muted)">
               Adaugă cel puțin un produs.
             </div>
           ) : null}
@@ -417,7 +417,7 @@ const EditLineRow = memo(function EditLineRow({
     <div
       className={`${drawerLineClassName} ${
         isExternal
-          ? "line-keep-labels border-[#dbeafe] md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.25rem]"
+          ? "line-keep-labels border-(--c-accent-line) md:grid-cols-[minmax(0,1fr)_7rem_7rem_8rem_2.25rem]"
           : isInventory
             ? "md:grid-cols-[minmax(0,1fr)_8rem_11rem_2.25rem]"
             : "md:grid-cols-[minmax(0,1fr)_7rem_8rem_11rem_2.25rem]"
@@ -425,7 +425,7 @@ const EditLineRow = memo(function EditLineRow({
       style={hidden ? { display: "none" } : undefined}
     >
       <div>
-        <p className={`line-label mb-1 text-xs font-semibold leading-5 ${isExternal ? "text-[#1d4ed8]" : "text-[#57534e]"}`}>
+        <p className={`line-label mb-1 text-xs font-semibold leading-5 ${isExternal ? "text-(--c-accent-strong)" : "text-(--c-muted)"}`}>
           {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : `Produs ${index + 1}`}
         </p>
         {isExternal ? (

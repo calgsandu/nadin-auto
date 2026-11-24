@@ -100,9 +100,9 @@ function DetailsPanel({
           onClick={onClose}
         />
         <aside className={drawerPanelClassName}>
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
             <div>
-              <h2 className="mt-1 text-lg font-semibold tracking-tight text-[#1a1917]">
+              <h2 className="mt-1 text-lg font-semibold tracking-tight text-(--c-ink)">
                 {details.typeLabel} #{details.number}
               </h2>
             </div>
@@ -110,7 +110,7 @@ function DetailsPanel({
           </div>
 
           <div className="grid gap-4 px-5 py-4">
-            <dl className="grid gap-x-6 gap-y-1.5 rounded-lg border border-[#e6e4df] bg-white p-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
+            <dl className="grid gap-x-6 gap-y-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) p-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
               <MetaItem label="Data documentului" value={details.date} />
               <MetaItem label="Depozit" value={details.warehouse} />
               <MetaItem
@@ -139,12 +139,12 @@ function DetailsPanel({
             </dl>
 
             <div className="overflow-hidden crm-card">
-              <div className="border-b border-[#e6e4df] bg-[#f3f2ef] px-3.5 py-2 text-sm font-semibold text-[#1a1917]">
+              <div className="border-b border-(--c-line) bg-(--c-hover) px-3.5 py-2 text-sm font-semibold text-(--c-ink)">
                 Produse ({details.lines.length})
               </div>
               <div className="overflow-x-auto">
                 <table className="crm-table w-full min-w-[520px] border-collapse text-left text-sm">
-                  <thead className="border-b border-[#e6e4df] bg-[#faf9f7] text-xs text-[#57534e]">
+                  <thead className="border-b border-(--c-line) bg-(--c-surface-2) text-xs text-(--c-muted)">
                     <tr>
                       <th className="px-3 py-2 font-semibold">Cod</th>
                       <th className="px-3 py-2 font-semibold">Produs</th>
@@ -155,12 +155,12 @@ function DetailsPanel({
                   </thead>
                   <tbody>
                     {details.lines.map((line) => (
-                      <tr key={line.id} className="border-t border-[#eeede9]">
+                      <tr key={line.id} className="border-t border-(--c-line-2)">
                         <td className="px-3 py-2 font-mono text-xs">{line.code ?? "—"}</td>
                         <td className="px-3 py-2">
                           {line.description}
                           {line.vehicle ? (
-                            <span className="mt-0.5 block text-xs text-[#57534e]">
+                            <span className="mt-0.5 block text-xs text-(--c-muted)">
                               {line.vehicle}
                             </span>
                           ) : null}
@@ -175,13 +175,13 @@ function DetailsPanel({
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="border-t border-[#e6e4df] bg-[#faf9f7] text-sm">
+                  <tfoot className="border-t border-(--c-line) bg-(--c-surface-2) text-sm">
                     {details.showVat ? (
                       <tr>
-                        <td colSpan={4} className="px-3 py-2 text-right text-[#57534e]">
+                        <td colSpan={4} className="px-3 py-2 text-right text-(--c-muted)">
                           TVA inclus (÷6)
                         </td>
-                        <td className="px-3 py-2 text-right tabular-nums text-[#57534e]">
+                        <td className="px-3 py-2 text-right tabular-nums text-(--c-muted)">
                           {money.format(tva)}
                         </td>
                       </tr>
@@ -203,19 +203,19 @@ function DetailsPanel({
               <div className="flex flex-wrap gap-2">
                 <a
                   href={`/api/export/document/${details.id}/pdf`}
-                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3.5 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
+                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-(--c-line) bg-(--c-surface) px-3.5 py-2 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover)"
                 >
                   <FileText className="size-4" aria-hidden="true" /> PDF intern
                 </a>
                 <a
                   href={`/api/export/invoice/${details.id}`}
-                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3.5 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
+                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-(--c-line) bg-(--c-surface) px-3.5 py-2 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover)"
                 >
                   <Download className="size-4" aria-hidden="true" /> Excel intern
                 </a>
                 <Link
                   href={`/crm/istoric?doc=${details.id}`}
-                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3.5 py-2 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
+                  className="button-secondary inline-flex items-center gap-2 rounded-md border border-(--c-line) bg-(--c-surface) px-3.5 py-2 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover)"
                 >
                   <History className="size-4" aria-hidden="true" /> Istoric modificări
                 </Link>
@@ -231,8 +231,8 @@ function DetailsPanel({
 function MetaItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-sm text-[#78716c]">{label}</dt>
-      <dd className="mt-0.5 text-[#1a1917]">{value}</dd>
+      <dt className="text-sm text-(--c-muted-2)">{label}</dt>
+      <dd className="mt-0.5 text-(--c-ink)">{value}</dd>
     </div>
   );
 }

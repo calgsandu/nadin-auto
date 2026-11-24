@@ -70,7 +70,7 @@ export function CatalogFilters({
 
   const pill = (active: boolean) =>
     `field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
-      active ? "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]" : "border-[#e6e4df] bg-white text-[#44403c]"
+      active ? "border-(--c-accent-line) bg-(--c-accent-soft) text-(--c-accent-strong)" : "border-(--c-line) bg-(--c-surface) text-(--c-ink-2)"
     }`;
   const select = "min-w-0 max-w-40 cursor-pointer bg-transparent font-medium outline-none";
 
@@ -79,15 +79,15 @@ export function CatalogFilters({
       <div className="relative min-w-0 flex-1 sm:w-60 sm:flex-none">
         <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
           {searching ? (
-            <LoaderCircle className="size-4 animate-spin text-[#2563eb]" aria-hidden="true" />
+            <LoaderCircle className="size-4 animate-spin text-(--c-accent)" aria-hidden="true" />
           ) : (
-            <Search className="size-4 text-[#78716c]" aria-hidden="true" />
+            <Search className="size-4 text-(--c-muted-2)" aria-hidden="true" />
           )}
         </span>
         <input
           aria-label="Caută cod, mașină, piesă"
           autoComplete="off"
-          className="field-control h-9 w-full rounded-lg border border-[#e6e4df] bg-white pl-8 pr-12 text-sm outline-none placeholder:text-[#78716c]"
+          className="field-control h-9 w-full rounded-lg border border-(--c-line) bg-(--c-surface) pl-8 pr-12 text-sm outline-none placeholder:text-(--c-muted-2)"
           data-catalog-search
           enterKeyHint="search"
           placeholder="Cod, mașină, piesă"
@@ -101,7 +101,7 @@ export function CatalogFilters({
           }}
         />
         {/* Scurtătura de la tastatură, ca s-o vadă lumea (vezi Sidebar). */}
-        <kbd className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-[#e6e4df] bg-white px-1 font-sans text-xs text-[#78716c] sm:block">
+        <kbd className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-(--c-line) bg-(--c-surface) px-1 font-sans text-xs text-(--c-muted-2) sm:block">
           Ctrl K
         </kbd>
       </div>
@@ -179,7 +179,7 @@ export function CatalogFilters({
         onApply={updateParam}
         placeholder="An"
         inputMode="numeric"
-        icon={<CalendarDays className="size-4 text-[#78716c]" aria-hidden="true" />}
+        icon={<CalendarDays className="size-4 text-(--c-muted-2)" aria-hidden="true" />}
         className="w-24"
       />
       <label className={pill(Boolean(searchParams.get("stoc")))}>
@@ -210,7 +210,7 @@ export function CatalogFilters({
       </MobileFilters>
       {searchParams.toString() ? (
         <button
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-(--c-muted) hover:bg-(--c-hover) hover:text-(--c-ink)"
           type="button"
           onClick={() => {
             window.clearTimeout(timer.current);
@@ -253,7 +253,7 @@ function TextFilterInput({
       {icon ? <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">{icon}</span> : null}
       <input
         aria-label={placeholder}
-        className={`field-control h-9 w-full rounded-lg border border-[#e6e4df] bg-white text-sm outline-none placeholder:text-[#78716c] ${icon ? "pl-8 pr-3" : "px-3"}`}
+        className={`field-control h-9 w-full rounded-lg border border-(--c-line) bg-(--c-surface) text-sm outline-none placeholder:text-(--c-muted-2) ${icon ? "pl-8 pr-3" : "px-3"}`}
         defaultValue={value}
         inputMode={inputMode}
         onBlur={(event) => apply(event.currentTarget.value)}

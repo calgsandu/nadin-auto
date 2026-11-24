@@ -14,14 +14,14 @@ const initialState = { ok: false, message: "", version: 0 };
 
 function salePaymentMethodTone(value: SalePaymentMethodStatus) {
   return value === "CASH"
-    ? "border-[#86efac] bg-[#f0fdf4] text-[#166534]"
+    ? "border-(--c-green-line) bg-(--c-green-soft) text-(--c-green)"
     : value === "CARD"
-      ? "border-[#93c5fd] bg-[#eff6ff] text-[#1d4ed8]"
+      ? "border-(--c-accent-line) bg-(--c-accent-soft) text-(--c-accent-strong)"
       : value === "CREDIT"
-        ? "border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]"
+        ? "border-(--c-red-line) bg-(--c-red-soft) text-(--c-red)"
         : value === "TRANSFER"
-          ? "border-[#fcd34d] bg-[#fffbeb] text-[#92400e]"
-          : "border-[#d6d3d1] bg-[#faf9f7] text-[#57534e]";
+          ? "border-(--c-amber-line) bg-(--c-amber-soft) text-(--c-amber)"
+          : "border-(--c-line-strong) bg-(--c-surface-2) text-(--c-muted)";
 }
 
 export function SalePaymentMethodBadge({

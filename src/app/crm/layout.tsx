@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getAuthAccessState } from "@/lib/auth/two-factor/access-state";
 import { getPendingApprovalCount } from "@/lib/audit/queries";
 import { prisma } from "@/lib/prisma";
-import { lowStockWhere } from "@/lib/catalog/queries";
+import { getReorderList } from "@/lib/operations/reorder";
 import { canReviewOperations, canViewSection, canWriteCatalog } from "@/lib/roles";
 import { CrmChrome, TopBar } from "./_components/chrome";
 
@@ -28,7 +29,7 @@ export default async function CrmLayout({
   const appUser = authState.primary.appUser;
   const role = appUser.role;
   // Contoarele din meniu și din clopoțel: doar ce poate deschide rolul.
-  const [aprobari, deAdus, proforme, stocMic] = await Promise.all([
+  const [aprobari, deAdus, proforme, deComandat] = await Promise.all([
     canReviewOperations(role) ? getPendingApprovalCount() : 0,
     canViewSection(role, "de-adus")
       ? prisma.restockTask.count({ where: { status: "PENDING", warehouse: { name: "Pavilion 110A" } } })
@@ -36,16 +37,21 @@ export default async function CrmLayout({
     canViewSection(role, "conturi-plata")
       ? prisma.paymentAccount.count({ where: { status: "ISSUED", paidAt: null } })
       : 0,
-    // Piesele aproape terminate — doar pentru cine comandă marfă.
-    canWriteCatalog(role) ? prisma.product.count({ where: lowStockWhere }) : 0,
+    // Piesele vândute care se termină — doar pentru cine comandă marfă.
+    canWriteCatalog(role) && canViewSection(role, "de-comandat")
+      ? getReorderList().then((groups) => groups.reduce((sum, group) => sum + group.items.length, 0))
+      : 0,
   ]);
 
+  // Tema aleasă din bara de sus; implicit deschisă.
+  const theme = (await cookies()).get("nadin-theme")?.value === "dark" ? "dark" : "light";
+
   return (
-    <CrmChrome counts={{ aprobari, "de-adus": deAdus, "conturi-plata": proforme, "stoc-mic": stocMic }}>
-      <main className="crm-main min-h-[100dvh] bg-[#efeeea]">
+    <CrmChrome counts={{ aprobari, "de-adus": deAdus, "conturi-plata": proforme, "de-comandat": deComandat }}>
+      <main data-theme={theme} className="crm-main min-h-[100dvh] bg-(--c-bg)">
         {/* Bara de sus stă pe același fundal ca pagina; fără blur: un
             `backdrop-filter` ar prinde drawerele `fixed` din ea. */}
-        <header className="sticky top-0 z-40 border-b border-[#e6e4df] bg-[#efeeea] lg:border-b-0">
+        <header className="sticky top-0 z-40 border-b border-(--c-line) bg-(--c-bg) lg:border-b-0">
           <div>
             <TopBar role={appUser.role} userName={appUser.name} userEmail={appUser.email} />
           </div>

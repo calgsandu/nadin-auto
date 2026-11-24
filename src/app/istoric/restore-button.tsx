@@ -35,7 +35,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={status.pending}
-      className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#bbf7d0] px-3 py-1.5 text-xs font-semibold text-[#15803d] hover:bg-[#f0fdf4] disabled:opacity-60"
+      className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-green-line) px-3 py-1.5 text-xs font-semibold text-(--c-green) hover:bg-(--c-green-soft) disabled:opacity-60"
     >
       <RotateCcw className="size-3.5" aria-hidden="true" />
       {status.pending ? "..." : "Restaurează"}

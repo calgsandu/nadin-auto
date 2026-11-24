@@ -74,7 +74,7 @@ export function InventoryHistoryLines({ entries }: { entries: InventoryHistoryEn
       {entries.map((entry) => (
         <span
           key={entry.number}
-          className={`flex items-center gap-1 ${isRecent(entry.date) ? "font-medium text-[#b45309]" : "text-[#78716c]"}`}
+          className={`flex items-center gap-1 ${isRecent(entry.date) ? "font-medium text-(--c-amber)" : "text-(--c-muted-2)"}`}
           title={`Inventar #${entry.number}${isRecent(entry.date) ? " — numărat deja de curând" : ""}`}
         >
           <History className="size-3 shrink-0" aria-hidden="true" />

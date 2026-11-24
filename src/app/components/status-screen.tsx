@@ -24,13 +24,13 @@ export function StatusScreen({
   return (
     <div className="flex min-h-[70vh] items-center justify-center px-6 py-16">
       <div className="w-full max-w-lg">
-        <h1 className="text-3xl font-semibold tracking-tight text-[#1a1917] sm:text-4xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-(--c-ink) sm:text-4xl">
           {title}
         </h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-[#57534e]">{message}</p>
+        <p className="mt-3 text-[15px] leading-relaxed text-(--c-muted)">{message}</p>
         {actions ? <div className="mt-7 flex flex-wrap gap-2.5">{actions}</div> : null}
         {detail ? (
-          <p className="mt-8 border-t border-[#e6e4df] pt-4 text-xs text-[#78716c]">
+          <p className="mt-8 border-t border-(--c-line) pt-4 text-xs text-(--c-muted-2)">
             {detailLabel}: <span className="font-mono">{detail}</span>
           </p>
         ) : null}
@@ -40,9 +40,9 @@ export function StatusScreen({
 }
 
 export const statusPrimaryButton =
-  "button-primary rounded-md bg-[#2563eb] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1d4ed8]";
+  "button-primary rounded-md bg-(--c-accent) px-4 py-2.5 text-sm font-semibold text-white hover:bg-(--c-accent-hover)";
 export const statusSecondaryButton =
-  "button-secondary rounded-md border border-[#e6e4df] bg-white px-4 py-2.5 text-sm font-semibold text-[#1a1917] hover:bg-[#f3f2ef]";
+  "button-secondary rounded-md border border-(--c-line) bg-(--c-surface) px-4 py-2.5 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover)";
 
 export function StatusLink({ href, label }: { href: string; label: string }) {
   return (

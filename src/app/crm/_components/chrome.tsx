@@ -10,9 +10,11 @@ import {
   FileText,
   LogOut,
   Menu,
+  Moon,
   PackageMinus,
   Search,
   ShieldCheck,
+  Sun,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -32,7 +34,7 @@ import type { WorkspaceSectionId } from "@/lib/operations/workspace";
  * se citesc o singură dată, în layout-ul CRM-ului. Layout-ul supraviețuiește
  * navigării între secțiuni, deci nu costă o interogare la fiecare tab.
  */
-export type NavCounts = Partial<Record<"aprobari" | "de-adus" | "conturi-plata" | "stoc-mic", number>>;
+export type NavCounts = Partial<Record<"aprobari" | "de-adus" | "conturi-plata" | "de-comandat", number>>;
 
 const NavCountsContext = createContext<NavCounts>({});
 
@@ -119,11 +121,11 @@ export function TopBar({
   return (
     <div className="flex h-16 items-center gap-3 px-4 lg:gap-3 lg:px-6 xl:gap-5">
       <Link href="/crm/produse" className="flex shrink-0 items-center gap-2.5" aria-label="Nadin Auto">
-        <span className="grid size-9 place-items-center rounded-full bg-[#eef4ff]">
+        <span className="grid size-9 place-items-center rounded-full bg-(--c-accent-soft) dark:bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="" className="h-4 w-6 object-contain" />
         </span>
-        <span className="text-[1.125rem] font-semibold tracking-tight text-[#1a1917] lg:max-xl:hidden">Nadin Auto</span>
+        <span className="text-[1.125rem] font-semibold tracking-tight text-(--c-ink) lg:max-xl:hidden">Nadin Auto</span>
       </Link>
 
       <nav aria-label="Meniu principal" className="mobile-nav-scroll hidden min-w-0 flex-1 overflow-x-auto lg:block">
@@ -136,16 +138,16 @@ export function TopBar({
               aria-label={count > 0 ? `${label} (${count})` : label}
               className={`motion-nav-link inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-medium xl:px-3.5 ${
                 active
-                  ? "bg-[#2563eb] text-white shadow-[0_4px_12px_-4px_rgb(37_99_235/0.5)]"
-                  : "border border-[#e6e4df] bg-white text-[#1a1917] hover:border-[#d6d3d1]"
+                  ? "bg-(--c-accent) text-white shadow-[0_4px_12px_-4px_rgb(37_99_235/0.5)]"
+                  : "border border-(--c-line) bg-(--c-surface) text-(--c-ink) hover:border-(--c-line-strong)"
               }`}
             >
-              <Icon className={`size-4 shrink-0 max-2xl:hidden ${active ? "text-white" : "text-[#57534e]"}`} aria-hidden="true" />
+              <Icon className={`size-4 shrink-0 max-2xl:hidden ${active ? "text-white" : "text-(--c-muted)"}`} aria-hidden="true" />
               {label}
               {count > 0 ? (
                 <span
                   className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold leading-none tabular-nums ${
-                    active ? "bg-white text-[#1d4ed8]" : "bg-[#2563eb] text-white"
+                    active ? "bg-(--c-surface) text-(--c-accent-strong)" : "bg-(--c-accent) text-white"
                   }`}
                 >
                   {count}
@@ -156,32 +158,33 @@ export function TopBar({
         </div>
       </nav>
 
-      <div className="ml-auto flex shrink-0 items-center gap-2">
+      <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
         <button
           type="button"
           onClick={focusSearch}
           aria-label="Caută piese (Ctrl K)"
           title="Caută piese (Ctrl K)"
-          className="grid size-9 place-items-center rounded-full border border-[#e6e4df] bg-white text-[#1a1917] hover:border-[#d6d3d1]"
+          className="grid size-9 place-items-center rounded-full border border-(--c-line) bg-(--c-surface) text-(--c-ink) hover:border-(--c-line-strong)"
         >
           <Search className="size-4" aria-hidden="true" />
         </button>
+        <ThemeToggle />
         <HeaderNotifications />
         <div className="hidden lg:block">
           <RowMenu
             ariaLabel={`Contul meu: ${userLabel}`}
             label={userLabel}
-            triggerClassName="flex items-center gap-2.5 rounded-full py-1 pl-1 pr-2 hover:bg-white"
+            triggerClassName="flex items-center gap-2.5 rounded-full py-1 pl-1 pr-2 hover:bg-(--c-surface)"
             trigger={
               <>
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#eef4ff] text-xs font-semibold text-[#1d4ed8]">
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-(--c-accent-soft) text-xs font-semibold text-(--c-accent-strong)">
                   {initials || "?"}
                 </span>
                 <span className="min-w-0 max-2xl:hidden">
-                  <span className="block max-w-40 truncate text-sm font-semibold leading-tight text-[#1a1917]">{userLabel}</span>
-                  <span className="block text-xs leading-tight text-[#78716c]">{roleLabels[role]}</span>
+                  <span className="block max-w-40 truncate text-sm font-semibold leading-tight text-(--c-ink)">{userLabel}</span>
+                  <span className="block text-xs leading-tight text-(--c-muted-2)">{roleLabels[role]}</span>
                 </span>
-                <ChevronDown className="size-4 shrink-0 text-[#a8a29e]" aria-hidden="true" />
+                <ChevronDown className="size-4 shrink-0 text-(--c-faint)" aria-hidden="true" />
               </>
             }
           >
@@ -230,13 +233,13 @@ function MobileMenu({
     <div className="lg:hidden">
       <button
         type="button"
-        className="relative inline-flex h-9 items-center gap-2 rounded-full border border-[#e6e4df] bg-white px-3.5 text-sm font-semibold text-[#1a1917]"
+        className="relative inline-flex h-9 items-center gap-2 rounded-full border border-(--c-line) bg-(--c-surface) px-3.5 text-sm font-semibold text-(--c-ink)"
         onClick={() => dialog.current?.showModal()}
       >
         <Menu className="size-4" aria-hidden="true" />
-        Meniu
+        <span className="max-sm:sr-only">Meniu</span>
         {total > 0 ? (
-          <span className="rounded-md bg-[#2563eb] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
+          <span className="rounded-md bg-(--c-accent) px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
             {total}
           </span>
         ) : null}
@@ -244,19 +247,19 @@ function MobileMenu({
       <dialog
         ref={dialog}
         aria-label="Meniu"
-        className="crm-mobile-menu m-0 h-dvh max-h-none w-full max-w-none bg-white p-0 backdrop:bg-black/30"
+        className="crm-mobile-menu m-0 h-dvh max-h-none w-full max-w-none bg-(--c-surface) p-0 backdrop:bg-black/30"
         // Orice alegere (secțiune, parolă, ieșire) închide meniul. Dialogul de
         // parolă se deschide prin portal și ar rămâne sub un <dialog> modal.
         onClick={(event) => {
           if ((event.target as HTMLElement).closest("a, button")) dialog.current?.close();
         }}
       >
-        <div className="sticky top-0 flex items-center justify-between border-b border-[#e6e4df] bg-white px-4 py-3">
-          <span className="text-[1.0625rem] font-semibold tracking-tight text-[#1a1917]">Meniu</span>
+        <div className="sticky top-0 flex items-center justify-between border-b border-(--c-line) bg-(--c-surface) px-4 py-3">
+          <span className="text-[1.0625rem] font-semibold tracking-tight text-(--c-ink)">Meniu</span>
           <button
             type="button"
             aria-label="Închide meniul"
-            className="grid size-9 place-items-center rounded-lg border border-[#e6e4df] text-[#57534e]"
+            className="grid size-9 place-items-center rounded-lg border border-(--c-line) text-(--c-muted)"
           >
             <X className="size-4" aria-hidden="true" />
           </button>
@@ -279,23 +282,23 @@ function MobileMenu({
             ) : (
               // Grupurile stau strânse; se deschide doar cel al paginii curente.
               <details key={group.id} className="group" open={group.sections.includes(activeSectionId)}>
-                <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-[#57534e] [&::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--c-muted) [&::-webkit-details-marker]:hidden">
                   {(() => {
                     const Icon = menuIcons[group.icon];
-                    return <Icon className="size-[1.125rem] shrink-0 text-[#a8a29e]" aria-hidden="true" />;
+                    return <Icon className="size-[1.125rem] shrink-0 text-(--c-faint)" aria-hidden="true" />;
                   })()}
-                  <span className="group-open:font-semibold group-open:text-[#1a1917]">{group.label}</span>
+                  <span className="group-open:font-semibold group-open:text-(--c-ink)">{group.label}</span>
                   {(() => {
                     const sum = group.sections.reduce((total, section) => total + countFor(counts, section), 0);
                     return sum > 0 ? (
-                      <span className="rounded-md bg-[#f3f2ef] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-[#57534e] group-open:hidden">
+                      <span className="rounded-md bg-(--c-hover) px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-(--c-muted) group-open:hidden">
                         {sum}
                       </span>
                     ) : null;
                   })()}
-                  <ChevronDown className="ml-auto size-4 shrink-0 text-[#a8a29e] transition-transform group-open:rotate-180" aria-hidden="true" />
+                  <ChevronDown className="ml-auto size-4 shrink-0 text-(--c-faint) transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
-                <div className="mb-1 ml-[1.375rem] grid gap-0.5 border-l border-[#e6e4df] pl-2.5">
+                <div className="mb-1 ml-[1.375rem] grid gap-0.5 border-l border-(--c-line) pl-2.5">
                   {group.sections.map((section) => (
                     <SubLink key={section} section={section} active={section === activeSectionId} count={countFor(counts, section)} />
                   ))}
@@ -304,10 +307,10 @@ function MobileMenu({
             ),
           )}
         </nav>
-        <div className="grid gap-2 border-t border-[#e6e4df] px-4 py-4">
+        <div className="grid gap-2 border-t border-(--c-line) px-4 py-4">
           <p className="text-sm">
-            <span className="font-semibold text-[#1a1917]">{userLabel}</span>
-            <span className="text-[#78716c]"> {roleLabel}</span>
+            <span className="font-semibold text-(--c-ink)">{userLabel}</span>
+            <span className="text-(--c-muted-2)"> {roleLabel}</span>
           </p>
           <div className="flex flex-wrap gap-2">
             <ChangePasswordDialog />
@@ -326,12 +329,12 @@ function SubLink({ section, active, count }: { section: WorkspaceSectionId; acti
       href={crmSectionHref(section)}
       aria-current={active ? "page" : undefined}
       className={`motion-nav-link flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm ${
-        active ? "bg-[#eef4ff] font-semibold text-[#1d4ed8]" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+        active ? "bg-(--c-accent-soft) font-semibold text-(--c-accent-strong)" : "text-(--c-muted) hover:bg-(--c-hover) hover:text-(--c-ink)"
       }`}
     >
       <span className="truncate">{sectionLabel(section)}</span>
       {count > 0 ? (
-        <span className="ml-auto rounded-md bg-[#2563eb] px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
+        <span className="ml-auto rounded-md bg-(--c-accent) px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums text-white">
           {count}
         </span>
       ) : null}
@@ -358,15 +361,15 @@ function NavLink({
       aria-label={badge > 0 ? `${label} (${badge})` : label}
       href={href}
       className={`motion-nav-link flex items-center gap-3 rounded-full px-3 py-2 text-sm font-medium ${
-        active ? "bg-[#2563eb] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+        active ? "bg-(--c-accent) text-white" : "text-(--c-muted) hover:bg-(--c-hover) hover:text-(--c-ink)"
       }`}
     >
-      <Icon className={`size-[1.125rem] shrink-0 ${active ? "text-white" : "text-[#a8a29e]"}`} aria-hidden="true" />
+      <Icon className={`size-[1.125rem] shrink-0 ${active ? "text-white" : "text-(--c-faint)"}`} aria-hidden="true" />
       <span className="truncate">{label}</span>
       {badge > 0 ? (
         <span
           className={`ml-auto grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold leading-none tabular-nums ${
-            active ? "bg-white text-[#1d4ed8]" : "bg-[#2563eb] text-white"
+            active ? "bg-(--c-surface) text-(--c-accent-strong)" : "bg-(--c-accent) text-white"
           }`}
         >
           {badge}
@@ -438,7 +441,7 @@ function LogoutButton() {
         type="submit"
         aria-label="Ieșire din cont"
         title="Ieșire din cont"
-        className="button-secondary inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#e6e4df] bg-white px-3 py-2 text-sm font-semibold text-[#57534e] hover:border-[#d6d3d1] hover:text-[#1a1917]"
+        className="button-secondary inline-flex w-full items-center justify-center gap-2 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 py-2 text-sm font-semibold text-(--c-muted) hover:border-(--c-line-strong) hover:text-(--c-ink)"
       >
         <LogOut className="size-4" aria-hidden="true" />
         <span>Ieșire</span>
@@ -461,7 +464,7 @@ export function SectionTabs({ role }: { role: AppRole }) {
 
   return (
     <nav aria-label="Secțiuni" className="mobile-nav-scroll max-w-full overflow-x-auto">
-      <div className="flex w-max gap-0.5 rounded-full border border-[#e6e4df] bg-white p-1">
+      <div className="flex w-max gap-0.5 rounded-full border border-(--c-line) bg-(--c-surface) p-1">
         {sections.map((section) => {
           const active = section === activeSectionId;
           const count = countFor(counts, section);
@@ -471,14 +474,14 @@ export function SectionTabs({ role }: { role: AppRole }) {
               href={crmSectionHref(section)}
               aria-current={active ? "page" : undefined}
               className={`inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-sm font-medium transition-colors ${
-                active ? "bg-[#2563eb] text-white" : "text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]"
+                active ? "bg-(--c-accent) text-white" : "text-(--c-muted) hover:bg-(--c-hover) hover:text-(--c-ink)"
               }`}
             >
               {sectionLabel(section)}
               {count > 0 ? (
                 <span
                   className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-semibold leading-none tabular-nums ${
-                    active ? "bg-white text-[#1d4ed8]" : "bg-[#eef4ff] text-[#1d4ed8]"
+                    active ? "bg-(--c-surface) text-(--c-accent-strong)" : "bg-(--c-accent-soft) text-(--c-accent-strong)"
                   }`}
                 >
                   {count}
@@ -496,31 +499,52 @@ export function SectionTabs({ role }: { role: AppRole }) {
  * Clopoțelul din antet: tot ce așteaptă o mână de om, cu legătura spre locul
  * unde se rezolvă. Numărul de pe el e suma contoarelor.
  */
+/**
+ * Tema închisă/deschisă. Schimbă atributul pe loc (fără reîncărcare) și ține
+ * alegerea într-un cookie, ca layout-ul s-o randeze direct la următoarea vizită.
+ */
+function ThemeToggle() {
+  const toggle = () => {
+    const main = document.querySelector(".crm-main");
+    const next = main?.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    main?.setAttribute("data-theme", next);
+    document.cookie = `nadin-theme=${next}; path=/; max-age=31536000; samesite=lax`;
+  };
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label="Schimbă tema"
+      title="Schimbă tema"
+      className="grid size-9 place-items-center rounded-full border border-(--c-line) bg-(--c-surface) text-(--c-ink) hover:border-(--c-line-strong)"
+    >
+      <Moon className="size-4 dark:hidden" aria-hidden="true" />
+      <Sun className="hidden size-4 dark:block" aria-hidden="true" />
+    </button>
+  );
+}
+
 export function HeaderNotifications() {
   const counts = useContext(NavCountsContext);
   const items = [
     { key: "aprobari", label: "Operațiuni de aprobat", icon: ShieldCheck, href: crmSectionHref("aprobari") },
     { key: "de-adus", label: "Piese de adus în 110A", icon: ClipboardList, href: crmSectionHref("de-adus") },
     { key: "conturi-plata", label: "Proforme neachitate", icon: FileText, href: crmSectionHref("conturi-plata") },
-    { key: "stoc-mic", label: "Piese aproape terminate", icon: PackageMinus, href: "/crm/produse?stoc=mic" },
+    { key: "de-comandat", label: "Piese de comandat", icon: PackageMinus, href: crmSectionHref("de-comandat") },
   ] as const;
-  // „Aproape terminate" e o listă de urmărit, nu o sarcină a zilei: apare în
-  // meniu, dar nu umflă numărul de pe clopoțel.
-  const total = items
-    .filter((item) => item.key !== "stoc-mic")
-    .reduce((sum, item) => sum + countFor(counts, item.key), 0);
+  const total = items.reduce((sum, item) => sum + countFor(counts, item.key), 0);
   const visible = items.filter((item) => countFor(counts, item.key) > 0);
 
   return (
     <RowMenu ariaLabel={total > 0 ? `De făcut: ${total}` : "Nimic de făcut"} badge={total} icon={Bell} label="De făcut" size="header">
       {visible.length === 0 ? (
-        <p className="px-2.5 py-2 text-sm text-[#57534e]">Nimic în așteptare.</p>
+        <p className="px-2.5 py-2 text-sm text-(--c-muted)">Nimic în așteptare.</p>
       ) : (
         visible.map((item) => {
           const Icon = item.icon;
           return (
-            <Link key={item.key} href={item.href} className="text-[#1a1917]">
-              <Icon className="size-4 text-[#78716c]" aria-hidden="true" />
+            <Link key={item.key} href={item.href} className="text-(--c-ink)">
+              <Icon className="size-4 text-(--c-muted-2)" aria-hidden="true" />
               <span className="flex-1">{item.label}</span>
               <span className="font-semibold tabular-nums">{countFor(counts, item.key)}</span>
             </Link>

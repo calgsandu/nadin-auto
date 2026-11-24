@@ -184,7 +184,7 @@ function SalesWorkspace({
 
       <div className="grid gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="mr-2 text-sm font-semibold text-[#1a1917] first-letter:uppercase">
+          <h2 className="mr-2 text-sm font-semibold text-(--c-ink) first-letter:uppercase">
             {salesDayLabelFormat.format(selectedDate)}
           </h2>
           <div className={segmentedCls}>

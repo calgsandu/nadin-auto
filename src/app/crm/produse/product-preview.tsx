@@ -71,24 +71,24 @@ export function ProductPreview({
               onClick={() => setOpen(false)}
             />
             <aside aria-label={product.description} className={drawerPanelClassName.replace("md:max-w-[90vw]", "md:max-w-2xl")}>
-              <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
+              <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
                 <div className="min-w-0">
                   {product.code ? (
-                    <p className="font-mono text-xl font-bold text-[#1a1917]">
+                    <p className="font-mono text-xl font-bold text-(--c-ink)">
                       <CopyCode code={product.code} />
                       {product.alternativeCode ? (
-                        <span className="ml-2 text-sm font-medium text-[#78716c]">{product.alternativeCode}</span>
+                        <span className="ml-2 text-sm font-medium text-(--c-muted-2)">{product.alternativeCode}</span>
                       ) : null}
                     </p>
                   ) : null}
-                  <h2 className="text-lg font-semibold tracking-tight text-[#1a1917]">{product.description}</h2>
-                  <p className="text-sm text-[#57534e]">{product.type}</p>
+                  <h2 className="text-lg font-semibold tracking-tight text-(--c-ink)">{product.description}</h2>
+                  <p className="text-sm text-(--c-muted)">{product.type}</p>
                 </div>
                 <CloseIconButton onClick={() => setOpen(false)} />
               </div>
 
               <div className="grid gap-4 px-5 py-4">
-                <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl bg-[#2563eb] p-4 text-white">
+                <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl bg-(--c-accent) p-4 text-white">
                   <div>
                     <p className="text-sm text-white/70">Preț de vânzare</p>
                     <p className="text-3xl font-semibold tracking-tight tabular-nums">
@@ -99,7 +99,7 @@ export function ProductPreview({
                     {canModify ? editButton : null}
                     {canModify ? (
                       <a
-                        className="button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-[#e6e4df] bg-white px-3 text-sm font-medium text-[#1a1917] hover:bg-[#f3f2ef]"
+                        className="button-secondary inline-flex h-10 items-center gap-2 rounded-md border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
                         href={`/print/labels?ids=${product.id}`}
                         rel="noreferrer"
                         target="_blank"
@@ -109,7 +109,7 @@ export function ProductPreview({
                     ) : null}
                     {canSell ? (
                       <Link
-                        className="inline-flex h-10 items-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+                        className="inline-flex h-10 items-center gap-2 rounded-md bg-(--c-accent) px-4 text-sm font-semibold text-white hover:bg-(--c-accent-hover)"
                         href={`/crm/vanzari?nou=1&produs=${product.id}`}
                       >
                         <ShoppingCart className="size-4" aria-hidden="true" /> Vinde
@@ -119,41 +119,41 @@ export function ProductPreview({
                 </div>
 
                 <section className="crm-card">
-                  <h3 className="flex items-center gap-2.5 border-b border-[#eeede9] px-4 py-2.5 text-sm font-semibold text-[#1a1917]">
-                    <span className="grid size-7 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
+                  <h3 className="flex items-center gap-2.5 border-b border-(--c-line-2) px-4 py-2.5 text-sm font-semibold text-(--c-ink)">
+                    <span className="grid size-7 place-items-center rounded-lg bg-(--c-accent-soft) text-(--c-accent)">
                       <Car className="size-4" aria-hidden="true" />
                     </span>
                     Se potrivește pe
                   </h3>
-                  <ul className="divide-y divide-[#f3f2ef]">
+                  <ul className="divide-y divide-(--c-hover)">
                     {product.compatibilities.map((compatibility) => (
                       <li
                         key={`${compatibility.title}:${compatibility.years}`}
                         className="flex items-center justify-between gap-3 px-4 py-2 text-sm"
                       >
-                        <span className="flex items-center gap-2.5 font-medium text-[#1a1917]">
+                        <span className="flex items-center gap-2.5 font-medium text-(--c-ink)">
                           {compatibility.logo ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={compatibility.logo} alt="" className="size-5 shrink-0 object-contain" />
+                            <img src={compatibility.logo} alt="" className="size-5 shrink-0 object-contain dark:rounded-sm dark:bg-white dark:p-px" />
                           ) : null}
                           {compatibility.title}
                         </span>
-                        <span className="text-[#57534e]">{compatibility.years}</span>
+                        <span className="text-(--c-muted)">{compatibility.years}</span>
                       </li>
                     ))}
                   </ul>
                 </section>
 
                 <section className="crm-card">
-                  <h3 className="flex items-center justify-between border-b border-[#eeede9] px-4 py-2.5 text-sm font-semibold text-[#1a1917]">
+                  <h3 className="flex items-center justify-between border-b border-(--c-line-2) px-4 py-2.5 text-sm font-semibold text-(--c-ink)">
                     <span className="flex items-center gap-2.5">
-                      <span className="grid size-7 place-items-center rounded-lg bg-[#eff6ff] text-[#2563eb]">
+                      <span className="grid size-7 place-items-center rounded-lg bg-(--c-accent-soft) text-(--c-accent)">
                         <Warehouse className="size-4" aria-hidden="true" />
                       </span>
                       Stoc pe depozite
                     </span>
-                    <span className="font-normal text-[#57534e]">
-                      total <span className="font-semibold text-[#1a1917]">{product.total}</span> buc.
+                    <span className="font-normal text-(--c-muted)">
+                      total <span className="font-semibold text-(--c-ink)">{product.total}</span> buc.
                     </span>
                   </h3>
                   <ul className="grid sm:grid-cols-2">
@@ -161,12 +161,12 @@ export function ProductPreview({
                     {[...product.stocks].sort((a, b) => b.quantity - a.quantity).map((stock) => (
                       <li
                         key={stock.id}
-                        className="flex items-center justify-between gap-3 border-b border-[#f3f2ef] px-4 py-2 text-sm"
+                        className="flex items-center justify-between gap-3 border-b border-(--c-hover) px-4 py-2 text-sm"
                       >
-                        <span className="text-[#44403c]">{stock.name}</span>
+                        <span className="text-(--c-ink-2)">{stock.name}</span>
                         <span
                           className={`min-w-8 rounded-md px-1.5 text-center font-semibold tabular-nums ${
-                            stock.quantity > 0 ? "bg-[#f0fdf4] text-[#166534]" : "text-[#a8a29e]"
+                            stock.quantity > 0 ? "bg-(--c-green-soft) text-(--c-green)" : "text-(--c-faint)"
                           }`}
                         >
                           {stock.quantity}
@@ -177,7 +177,7 @@ export function ProductPreview({
                 </section>
 
                 {product.notes ? (
-                  <p className="crm-card p-4 text-sm text-[#1a1917]">{product.notes}</p>
+                  <p className="crm-card p-4 text-sm text-(--c-ink)">{product.notes}</p>
                 ) : null}
               </div>
             </aside>

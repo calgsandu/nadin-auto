@@ -64,7 +64,7 @@ export function PartnerLedgerButton({
   return (
     <>
       <button
-        className="button-secondary button-icon-book inline-flex items-center gap-1.5 rounded-md border border-[#e6e4df] px-3 py-1.5 text-xs font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
+        className="button-secondary button-icon-book inline-flex items-center gap-1.5 rounded-md border border-(--c-line) px-3 py-1.5 text-xs font-semibold text-(--c-ink) hover:bg-(--c-hover)"
         type="button"
         onClick={() => {
           // Starea se curăță aici, nu în efect: o redeschidere după o eroare de
@@ -82,11 +82,11 @@ export function PartnerLedgerButton({
           onClose={() => setOpen(false)}
         >
           <div className="grid gap-4 px-5 py-4">
-            <div className="flex items-baseline justify-between gap-4 rounded-md border border-[#e6e4df] bg-white px-4 py-3">
-              <span className="text-sm font-medium text-[#44403c]">Sold curent</span>
+            <div className="flex items-baseline justify-between gap-4 rounded-md border border-(--c-line) bg-(--c-surface) px-4 py-3">
+              <span className="text-sm font-medium text-(--c-ink-2)">Sold curent</span>
               <span
                 className={`tabular-nums text-lg font-semibold ${
-                  balanceLei > 0 ? "text-[#b91c1c]" : "text-[#166534]"
+                  balanceLei > 0 ? "text-(--c-red)" : "text-(--c-green)"
                 }`}
               >
                 {money.format(balanceLei)} lei
@@ -94,11 +94,11 @@ export function PartnerLedgerButton({
             </div>
 
             {failed ? (
-              <p className="text-sm text-[#b91c1c]">Fișa nu s-a putut încărca.</p>
+              <p className="text-sm text-(--c-red)">Fișa nu s-a putut încărca.</p>
             ) : entries === null ? (
-              <p className="text-sm text-[#57534e]">Se încarcă...</p>
+              <p className="text-sm text-(--c-muted)">Se încarcă...</p>
             ) : entries.length === 0 ? (
-              <p className="text-sm text-[#57534e]">
+              <p className="text-sm text-(--c-muted)">
                 Nicio mișcare: partenerul n-are vânzări neîncasate și nici încasări.
               </p>
             ) : (
@@ -106,15 +106,15 @@ export function PartnerLedgerButton({
                 {entries.map((entry) => (
                   <li
                     key={`${entry.kind}-${entry.id}`}
-                    className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-md border border-[#eeede9] bg-white px-3 py-2.5"
+                    className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-md border border-(--c-line-2) bg-(--c-surface) px-3 py-2.5"
                   >
-                    <span className="text-sm text-[#1a1917]">{entry.label}</span>
-                    <span className="text-xs text-[#57534e]">
+                    <span className="text-sm text-(--c-ink)">{entry.label}</span>
+                    <span className="text-xs text-(--c-muted)">
                       {day.format(new Date(entry.date))}
                     </span>
                     <span
                       className={`ml-auto tabular-nums text-sm font-semibold ${
-                        entry.amountLei > 0 ? "text-[#b91c1c]" : "text-[#166534]"
+                        entry.amountLei > 0 ? "text-(--c-red)" : "text-(--c-green)"
                       }`}
                     >
                       {entry.amountLei > 0 ? "+" : ""}
@@ -170,7 +170,7 @@ function DeleteButton() {
   const status = useFormStatus();
   return (
     <button
-      className="text-xs font-semibold text-[#b91c1c] underline underline-offset-2 hover:no-underline disabled:opacity-60"
+      className="text-xs font-semibold text-(--c-red) underline underline-offset-2 hover:no-underline disabled:opacity-60"
       disabled={status.pending}
       type="submit"
     >

@@ -75,9 +75,9 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
             );
           })}
         </div>
-        <p className="text-sm text-[#57534e]">
-          <span className="font-semibold tabular-nums text-[#1a1917]">{formatNumber(data.stocks.length)}</span> poziții,{" "}
-          <span className="font-semibold tabular-nums text-[#1a1917]">{formatNumber(totalQuantity)}</span> bucăți
+        <p className="text-sm text-(--c-muted)">
+          <span className="font-semibold tabular-nums text-(--c-ink)">{formatNumber(data.stocks.length)}</span> poziții,{" "}
+          <span className="font-semibold tabular-nums text-(--c-ink)">{formatNumber(totalQuantity)}</span> bucăți
         </p>
         {canModify ? (
           <div className="ml-auto flex flex-wrap gap-2">
@@ -97,22 +97,22 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
         <summary className="cursor-pointer list-none px-4 py-3 marker:content-none">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="font-semibold text-[#1a1917]">
+              <h2 className="font-semibold text-(--c-ink)">
                 Stoc în sistem — {data.selected?.name ?? "fără depozit"}
               </h2>
-              <p className="mt-1 text-sm text-[#57534e]">
+              <p className="mt-1 text-sm text-(--c-muted)">
                 {formatNumber(data.stocks.length)} poziții, {formatNumber(totalQuantity)} bucăți
               </p>
             </div>
             <ChevronDown
-              className="size-5 shrink-0 text-[#78716c] transition-transform group-open:rotate-180"
+              className="size-5 shrink-0 text-(--c-muted-2) transition-transform group-open:rotate-180"
               aria-label="Arată / ascunde"
             />
           </div>
         </summary>
-        <div className="overflow-x-auto border-t border-[#e6e4df]">
+        <div className="overflow-x-auto border-t border-(--c-line)">
           <table className="crm-table w-full min-w-[900px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
+            <thead className="border-b border-(--c-line) bg-(--c-surface-2)">
               <tr>
                 <TableHead>Cod</TableHead>
                 <TableHead>Produs</TableHead>
@@ -123,7 +123,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
             <tbody>
               {data.stocks.length > 0 ? (
                 data.stocks.map((row) => (
-                  <tr key={row.id} className="motion-table-row border-t border-[#eeede9] hover:bg-[#faf9f7]">
+                  <tr key={row.id} className="motion-table-row border-t border-(--c-line-2) hover:bg-(--c-surface-2)">
                     <TableCell className="font-mono text-xs font-semibold">
                       {formatText(row.product.externalCode)}
                     </TableCell>
@@ -141,7 +141,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
                 ))
               ) : (
                 <tr>
-                  <td className="px-3 py-10 text-center text-[#57534e]" colSpan={4}>
+                  <td className="px-3 py-10 text-center text-(--c-muted)" colSpan={4}>
                     Nu există stoc înregistrat în acest depozit.
                   </td>
                 </tr>
@@ -184,7 +184,7 @@ function InventoryOperationsTable({
         <FilterField icon={<CalendarDays />} label="De la" active={Boolean(filters.from)}>
           <input className={filterControlCls} type="date" name="from" defaultValue={filters.from} />
         </FilterField>
-        <span className="text-[#a8a29e]" aria-hidden="true">–</span>
+        <span className="text-(--c-faint)" aria-hidden="true">–</span>
         <FilterField icon={<CalendarDays />} label="Până la" active={Boolean(filters.to)}>
           <input className={filterControlCls} type="date" name="to" defaultValue={filters.to} />
         </FilterField>
@@ -194,15 +194,15 @@ function InventoryOperationsTable({
           <div className="ml-auto flex gap-2">
             <a
               href={`/api/export/inventory?${exportQuery}`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e6e4df] bg-white px-3 text-sm font-medium text-[#1a1917] hover:bg-[#f3f2ef]"
+              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
             >
-              <Download className="size-4 text-[#78716c]" aria-hidden="true" /> Toate (Excel)
+              <Download className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (Excel)
             </a>
             <a
               href={`/api/export/inventory?${exportQuery}&format=pdf`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e6e4df] bg-white px-3 text-sm font-medium text-[#1a1917] hover:bg-[#f3f2ef]"
+              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
             >
-              <FileText className="size-4 text-[#78716c]" aria-hidden="true" /> Toate (PDF)
+              <FileText className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (PDF)
             </a>
           </div>
         ) : null}
@@ -210,12 +210,12 @@ function InventoryOperationsTable({
       </form>
 
       <div className="overflow-hidden crm-card">
-        <div className="border-b border-[#e6e4df] px-4 py-2.5">
-          <h2 className="text-sm font-semibold text-[#1a1917]">Inventare efectuate</h2>
+        <div className="border-b border-(--c-line) px-4 py-2.5">
+          <h2 className="text-sm font-semibold text-(--c-ink)">Inventare efectuate</h2>
         </div>
         <div className="overflow-x-auto">
         <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[860px]">
-          <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
+          <thead className="border-b border-(--c-line) bg-(--c-surface-2)">
             <tr>
               <TableHead className="max-sm:hidden">Data</TableHead>
               <TableHead>Document</TableHead>
@@ -234,17 +234,17 @@ function InventoryOperationsTable({
                 const minus = operation.lines.reduce((sum, line) => sum + Math.min(line.quantity, 0), 0);
                 const docLines = toDocLines(operation);
                 return (
-                  <tr key={operation.id} className="motion-table-row border-t border-[#eeede9] hover:bg-[#faf9f7]">
+                  <tr key={operation.id} className="motion-table-row border-t border-(--c-line-2) hover:bg-(--c-surface-2)">
                     <TableCell className="max-sm:hidden">{formatDate(operation.documentDate)}</TableCell>
                     <TableCell className="font-semibold">
                       Inventar #{operation.number}
-                      <span className="block text-xs font-normal text-[#57534e] sm:hidden">{formatDate(operation.documentDate)}</span>
+                      <span className="block text-xs font-normal text-(--c-muted) sm:hidden">{formatDate(operation.documentDate)}</span>
                     </TableCell>
                     <TableCell align="right" secondary className="tabular-nums">{formatNumber(operation.lines.length)}</TableCell>
-                    <TableCell align="right" secondary className="tabular-nums text-[#15803d]">{plus > 0 ? `+${plus}` : "—"}</TableCell>
-                    <TableCell align="right" secondary className="tabular-nums text-[#b91c1c]">{minus < 0 ? minus : "—"}</TableCell>
+                    <TableCell align="right" secondary className="tabular-nums text-(--c-green)">{plus > 0 ? `+${plus}` : "—"}</TableCell>
+                    <TableCell align="right" secondary className="tabular-nums text-(--c-red)">{minus < 0 ? minus : "—"}</TableCell>
                     <TableCell align="right" className="tabular-nums font-semibold">{signedNumber(plus + minus)}</TableCell>
-                    <TableCell secondary className="text-[#57534e]">
+                    <TableCell secondary className="text-(--c-muted)">
                       {operation.notes?.replace(/^Inventar:?\s*/, "") || "—"}
                     </TableCell>
                     <TableCell align="right">
@@ -254,13 +254,13 @@ function InventoryOperationsTable({
                           <>
                             <a
                               href={`/api/export/inventory/${operation.id}`}
-                              className="button-secondary max-sm:hidden! inline-flex items-center gap-1.5 rounded-md border border-[#e6e4df] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
+                              className="button-secondary max-sm:hidden! inline-flex items-center gap-1.5 rounded-md border border-(--c-line) bg-(--c-surface) px-2.5 py-1.5 text-xs font-semibold text-(--c-ink) hover:bg-(--c-hover)"
                             >
                               <Download className="size-3.5" aria-hidden="true" /> Excel
                             </a>
                             <a
                               href={`/api/export/inventory/${operation.id}?format=pdf`}
-                              className="button-secondary max-sm:hidden! inline-flex items-center gap-1.5 rounded-md border border-[#e6e4df] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#1a1917] hover:bg-[#f3f2ef]"
+                              className="button-secondary max-sm:hidden! inline-flex items-center gap-1.5 rounded-md border border-(--c-line) bg-(--c-surface) px-2.5 py-1.5 text-xs font-semibold text-(--c-ink) hover:bg-(--c-hover)"
                             >
                               <FileText className="size-3.5" aria-hidden="true" /> PDF
                             </a>
@@ -285,7 +285,7 @@ function InventoryOperationsTable({
               })
             ) : (
               <tr>
-                <td className="px-3 py-10 text-center text-[#57534e]" colSpan={8}>
+                <td className="px-3 py-10 text-center text-(--c-muted)" colSpan={8}>
                   Nu există inventare salvate pentru filtrele curente.
                 </td>
               </tr>

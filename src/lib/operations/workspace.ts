@@ -12,6 +12,7 @@ export type WorkspaceSectionId =
   | "depozite"
   | "furnizori"
   | "clienti"
+  | "de-comandat"
   | "personal"
   | "branduri"
   | "modele"
@@ -49,6 +50,7 @@ export type MenuIconName =
   | "History"
   | "Layers"
   | "MapPin"
+  | "PackageMinus"
   | "PackagePlus"
   | "PackageSearch"
   | "PackageX"
@@ -143,6 +145,11 @@ export const workspaceSections: WorkspaceSection[] = [
     id: "clienti",
     title: "Clienți",
     description: "Ce a cumpărat fiecare client, cât a plătit, ce datorează și ce discount are.",
+  },
+  {
+    id: "de-comandat",
+    title: "De comandat",
+    description: "Piesele vândute care se termină, grupate pe furnizor.",
   },
   {
     id: "personal",
@@ -291,6 +298,12 @@ export const navigationEntries: NavigationEntry[] = [
     icon: "Users",
   },
   {
+    section: "de-comandat",
+    label: "De comandat",
+    description: "Vândute și pe terminate",
+    icon: "PackageMinus",
+  },
+  {
     section: "personal",
     label: "Personal",
     description: "Utilizatori și roluri",
@@ -426,9 +439,9 @@ export const navigationGroups: NavGroup[] = [
   {
     id: "furnizori",
     label: "Parteneri",
-    description: "Clienți și furnizori",
+    description: "Clienți, furnizori, de comandat",
     icon: "Handshake",
-    sections: ["clienti", "furnizori"],
+    sections: ["clienti", "furnizori", "de-comandat"],
     display: "tabs",
   },
   {

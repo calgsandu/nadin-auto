@@ -53,12 +53,12 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
       <form action="/crm/preturi" method="get" className="flex flex-wrap items-center gap-2">
         <label className="relative w-full sm:w-72">
           <Search
-            className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-[#78716c]"
+            className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-(--c-muted-2)"
             aria-hidden="true"
           />
           <span className="sr-only">Caută produs</span>
           <input
-            className="field-control h-9 w-full rounded-lg border border-[#e6e4df] bg-white pl-8 pr-3 text-sm text-[#1a1917] outline-none placeholder:text-[#78716c]"
+            className="field-control h-9 w-full rounded-lg border border-(--c-line) bg-(--c-surface) pl-8 pr-3 text-sm text-(--c-ink) outline-none placeholder:text-(--c-muted-2)"
             type="search"
             name="q"
             defaultValue={data.filters.q}
@@ -72,7 +72,7 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[900px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e6e4df] bg-[#faf9f7]">
+            <thead className="border-b border-(--c-line) bg-(--c-surface-2)">
               <tr>
                 <TableHead secondary>Când</TableHead>
                 <TableHead>Produs</TableHead>
@@ -84,20 +84,20 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
             </thead>
             <tbody>
               {data.changes.map((change) => (
-                <tr key={change.id} className="motion-table-row border-t border-[#eeede9] align-top hover:bg-[#faf9f7]">
-                  <TableCell secondary className="whitespace-nowrap text-xs tabular-nums text-[#57534e]">
+                <tr key={change.id} className="motion-table-row border-t border-(--c-line-2) align-top hover:bg-(--c-surface-2)">
+                  <TableCell secondary className="whitespace-nowrap text-xs tabular-nums text-(--c-muted)">
                     {dateTimeFormat.format(change.createdAt)}
                   </TableCell>
                   <TableCell>
-                    <p className="font-medium text-[#1a1917]">{change.description}</p>
+                    <p className="font-medium text-(--c-ink)">{change.description}</p>
                     {change.code ? (
-                      <p className="mt-0.5 text-xs tabular-nums text-[#57534e]">{change.code}</p>
+                      <p className="mt-0.5 text-xs tabular-nums text-(--c-muted)">{change.code}</p>
                     ) : null}
                   </TableCell>
                   <PriceCell before={change.costBefore} after={change.costAfter} unit="lei" />
                   <PriceCell before={change.saleBefore} after={change.saleAfter} unit="lei" />
                   <PriceCell before={change.euroBefore} after={change.euroAfter} unit="EUR" secondary />
-                  <TableCell secondary className="text-[#57534e]">
+                  <TableCell secondary className="text-(--c-muted)">
                     {formatText(change.changedByName)}
                   </TableCell>
                 </tr>
@@ -106,7 +106,7 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
           </table>
         </div>
         {data.changes.length === 0 ? (
-          <div className="px-4 py-12 text-center text-sm text-[#57534e]">
+          <div className="px-4 py-12 text-center text-sm text-(--c-muted)">
             {data.filters.q
               ? "Niciun produs cu acest nume și-a schimbat prețul."
               : "Nicio schimbare de preț înregistrată încă. Se scriu automat la fiecare editare de produs."}
@@ -138,7 +138,7 @@ function PriceCell({
 }) {
   if (before === after) {
     return (
-      <TableCell align="right" secondary={secondary} className="tabular-nums text-[#a8a29e]">
+      <TableCell align="right" secondary={secondary} className="tabular-nums text-(--c-faint)">
         —
       </TableCell>
     );
@@ -150,18 +150,18 @@ function PriceCell({
 
   return (
     <TableCell align="right" secondary={secondary} className="tabular-nums">
-      <span className="text-[#78716c]">
+      <span className="text-(--c-muted-2)">
         {before === null ? "—" : formatMoney(before)}
       </span>
-      <span className="mx-1 text-[#a8a29e]">→</span>
+      <span className="mx-1 text-(--c-faint)">→</span>
       <span
-        className={`font-semibold ${rose ? "text-[#b91c1c]" : fell ? "text-[#15803d]" : "text-[#1a1917]"}`}
+        className={`font-semibold ${rose ? "text-(--c-red)" : fell ? "text-(--c-green)" : "text-(--c-ink)"}`}
       >
         {after === null ? "—" : formatMoney(after)}
       </span>
-      <span className="ml-1 text-xs text-[#78716c]">{unit}</span>
+      <span className="ml-1 text-xs text-(--c-muted-2)">{unit}</span>
       {delta !== null && before !== null && before !== 0 ? (
-        <p className="mt-0.5 text-xs text-[#78716c]">
+        <p className="mt-0.5 text-xs text-(--c-muted-2)">
           {delta > 0 ? "+" : ""}
           {formatMoney(delta)} ({delta > 0 ? "+" : ""}
           {Math.round((delta / before) * 100)}%)

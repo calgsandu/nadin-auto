@@ -1,6 +1,7 @@
 import { AlertTriangle, CalendarClock, CheckCircle2, PackageCheck, Truck } from "lucide-react";
 import { HeroPanel, StatusBadge } from "@/app/crm/_components/ui";
 import { PaymentAccountRowActions } from "@/app/payment-accounts/payment-account-row-actions";
+import { CopyMessage } from "@/app/crm/_components/copy-message";
 import type { PaymentAccountsData } from "@/lib/payment-accounts/queries";
 import { vehicleLabel } from "@/lib/catalog/vehicle-label";
 
@@ -48,25 +49,25 @@ export function PaymentAccountsWorkspace({
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[1040px] border-collapse text-left text-sm">
-            <thead className="border-b border-[#e6e4df] bg-[#faf9f7] text-xs text-[#57534e]">
+            <thead className="border-b border-(--c-line) bg-(--c-surface-2) text-xs text-(--c-muted)">
               <tr>
                 <Head>Cont</Head><Head>Client</Head><Head>Marfă</Head><Head>Status</Head><Head right>Total</Head><Head right>Documente</Head>
               </tr>
             </thead>
             <tbody>
               {data.accounts.map((account) => (
-                <tr key={account.id} className="border-t border-[#eeede9] align-top hover:bg-[#faf9f7]">
+                <tr key={account.id} className="border-t border-(--c-line-2) align-top hover:bg-(--c-surface-2)">
                   <Cell>
                     <span className="font-semibold">#{account.number}</span>
-                    <span className="mt-1 block text-xs text-[#57534e]">{date.format(account.issueDate)}</span>
-                    {account.dueDate ? <span className="block text-xs text-[#78716c]">scadent {date.format(account.dueDate)}</span> : null}
+                    <span className="mt-1 block text-xs text-(--c-muted)">{date.format(account.issueDate)}</span>
+                    {account.dueDate ? <span className="block text-xs text-(--c-muted-2)">scadent {date.format(account.dueDate)}</span> : null}
                   </Cell>
                   <Cell>
                     <div className="flex items-center gap-3">
                       <Initials name={account.customerName} />
                       <div className="min-w-0">
                         <span className="block font-semibold">{account.customerName}</span>
-                        <span className="block text-xs tabular-nums text-[#78716c]">IDNO {account.customerIdno}</span>
+                        <span className="block text-xs tabular-nums text-(--c-muted-2)">IDNO {account.customerIdno}</span>
                       </div>
                     </div>
                   </Cell>
@@ -77,15 +78,20 @@ export function PaymentAccountsWorkspace({
                         return (
                           <span key={line.id}>
                             {line.productCode ? `${line.productCode} ` : ""}
-                            {line.description} <span className="tabular-nums text-[#57534e]">×{line.quantity}</span>
-                            {vehicle ? <span className="block text-xs text-[#57534e]">{vehicle}</span> : null}
+                            {line.description} <span className="tabular-nums text-(--c-muted)">×{line.quantity}</span>
+                            {vehicle ? <span className="block text-xs text-(--c-muted)">{vehicle}</span> : null}
                           </span>
                         );
                       })}
                     </div>
-                    <span className="mt-2 block text-xs text-[#78716c]">Din {account.warehouse.name}</span>
+                    <span className="mt-2 block text-xs text-(--c-muted-2)">Din {account.warehouse.name}</span>
                   </Cell>
-                  <Cell><Flow account={account} now={now} /></Cell>
+                  <Cell>
+                    <Flow account={account} now={now} />
+                    {!account.cancelledAt && !account.paidAt && account.dueDate && account.dueDate <= soon ? (
+                      <CopyMessage className="mt-2" label="Amintește clientului" text={reminderText(account, now)} phone={account.customerPhone} />
+                    ) : null}
+                  </Cell>
                   <Cell right><span className="tabular-nums font-semibold">{money.format(Number(account.totalGross))} lei</span></Cell>
                   <Cell right>
                     <PaymentAccountRowActions
@@ -108,7 +114,7 @@ export function PaymentAccountsWorkspace({
           </table>
         </div>
         {data.accounts.length === 0 ? (
-          <p className="px-4 py-12 text-center text-sm text-[#57534e]">Nu există conturi de plată.</p>
+          <p className="px-4 py-12 text-center text-sm text-(--c-muted)">Nu există conturi de plată.</p>
         ) : null}
       </div>
     </section>
@@ -116,6 +122,22 @@ export function PaymentAccountsWorkspace({
 }
 
 const DAY = 24 * 60 * 60 * 1000;
+
+/** Textul mementoului, gata de trimis pe Viber/SMS. */
+function reminderText(account: PaymentAccountsData["accounts"][number], now: Date) {
+  const due = account.dueDate!;
+  const late = Math.floor((now.getTime() - due.getTime()) / DAY);
+  const term =
+    late > 0
+      ? `Termenul de plată (${date.format(due)}) a fost depășit cu ${late} ${late === 1 ? "zi" : "zile"}.`
+      : `Termenul de plată este ${date.format(due)}.`;
+  return [
+    "Bună ziua!",
+    `Vă reamintim de contul de plată nr. ${account.number} din ${date.format(account.issueDate)}, în sumă de ${money.format(Number(account.totalGross))} lei. ${term}`,
+    "Dacă ați achitat deja, vă rugăm să ignorați acest mesaj. Mulțumim!",
+    "Nadin Auto",
+  ].join("\n");
+}
 
 /** Un singur status, cel care cere ceva: restanța bate scadența, predarea bate achitarea. */
 function Flow({ account, now }: { account: PaymentAccountsData["accounts"][number]; now: Date }) {
@@ -145,7 +167,7 @@ function Initials({ name }: { name: string }) {
     .join("")
     .toUpperCase();
   return (
-    <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-full bg-[#ecebe6] text-xs font-semibold text-[#44403c]">
+    <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-full bg-(--c-line-2) text-xs font-semibold text-(--c-ink-2)">
       {letters || "?"}
     </span>
   );

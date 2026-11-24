@@ -115,7 +115,7 @@ export function PartnerFormDialog({
           className={
             triggerKind === "row"
               ? rowIconButtonCls
-              : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+              : "button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-(--c-accent) px-3.5 py-2 text-sm font-semibold text-white hover:bg-(--c-accent-hover)"
           }
           title={triggerKind === "row" ? triggerLabel : undefined}
           type="button"
@@ -160,9 +160,9 @@ export function PartnerFormDialog({
                 setOpen(false);
               }}
             >
-              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
-                <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-[#1a1917]">
-                  <span className="grid size-8 place-items-center rounded-lg bg-[#2563eb] text-white">
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
+                <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-(--c-ink)">
+                  <span className="grid size-8 place-items-center rounded-lg bg-(--c-accent) text-white">
                     <Handshake className="size-4" aria-hidden="true" />
                   </span>
                   {partner ? "Editează partener" : "Partener nou"}
@@ -255,7 +255,7 @@ export function PartnerFormDialog({
                     placeholder="ex. 1006600052073"
                     onChange={(event) => setIdno(event.currentTarget.value)}
                   />
-                  {idnoProblem ? <span className="text-xs font-medium text-[#b45309]">{idnoProblem}</span> : null}
+                  {idnoProblem ? <span className="text-xs font-medium text-(--c-amber)">{idnoProblem}</span> : null}
                 </Field>
                 <Field label="Cod TVA">
                   <input
@@ -282,7 +282,7 @@ export function PartnerFormDialog({
                     placeholder="MD..."
                     onChange={(event) => setIban(event.currentTarget.value)}
                   />
-                  {ibanProblem ? <span className="text-xs font-medium text-[#b45309]">{ibanProblem}</span> : null}
+                  {ibanProblem ? <span className="text-xs font-medium text-(--c-amber)">{ibanProblem}</span> : null}
                 </Field>
                 <Field label="Banca">
                   <input
@@ -330,7 +330,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <label className={`grid content-start gap-1 text-[13px] font-medium text-[#57534e] ${className}`}>
+    <label className={`grid content-start gap-1 text-[13px] font-medium text-(--c-muted) ${className}`}>
       {label}
       {children}
     </label>
@@ -339,4 +339,4 @@ function Field({
 
 
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm outline-none placeholder:text-[#78716c] disabled:bg-[#f0efeb]";
+  "field-control h-9 w-full rounded-md border border-(--c-line) bg-(--c-surface) px-2.5 text-sm outline-none placeholder:text-(--c-muted-2) disabled:bg-(--c-line-2)";

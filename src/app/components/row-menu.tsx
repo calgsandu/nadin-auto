@@ -101,7 +101,7 @@ export function RowMenu({
         aria-label={ariaLabel ?? `Mai multe acțiuni: ${label}`}
         className={
           triggerClassName ??
-          `button-secondary relative grid place-items-center rounded-md border border-[#e6e4df] bg-white text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917] ${
+          `button-secondary relative grid place-items-center rounded-md border border-(--c-line) bg-(--c-surface) text-(--c-muted) hover:bg-(--c-hover) hover:text-(--c-ink) ${
             size === "header" ? "size-9 rounded-lg" : "size-7"
           }`
         }
@@ -113,7 +113,7 @@ export function RowMenu({
           <>
             <Icon className="size-4" aria-hidden="true" />
             {badge > 0 ? (
-              <span className="absolute -right-1.5 -top-1.5 min-w-4 rounded-full bg-[#2563eb] px-1 text-[10px] font-bold leading-4 tabular-nums text-white">
+              <span className="absolute -right-1.5 -top-1.5 min-w-4 rounded-full bg-(--c-accent) px-1 text-[10px] font-bold leading-4 tabular-nums text-white">
                 {badge}
               </span>
             ) : null}
@@ -124,7 +124,7 @@ export function RowMenu({
         ? createPortal(
             <div
               ref={panelRef}
-              className="row-menu-panel motion-popover fixed z-[45] grid min-w-44 gap-0.5 rounded-lg border border-[#e6e4df] bg-white p-1 shadow-lg"
+              className="row-menu-panel motion-popover fixed z-[45] grid min-w-44 gap-0.5 rounded-lg border border-(--c-line) bg-(--c-surface) p-1 shadow-lg"
               role="menu"
               style={open ? position : { display: "none" }}
               // Un click pe o acțiune închide meniul; dialogul ei rămâne deschis.

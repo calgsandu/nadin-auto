@@ -73,9 +73,9 @@ function ApprovalList({
 }) {
   return (
     <section className="grid gap-3">
-      <h2 className="text-base font-semibold text-[#1a1917]">{title}</h2>
+      <h2 className="text-base font-semibold text-(--c-ink)">{title}</h2>
       {entries.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#d8d5ce] bg-white px-5 py-12 text-center text-sm text-[#57534e]">
+        <div className="rounded-xl border border-dashed border-(--c-line) bg-(--c-surface) px-5 py-12 text-center text-sm text-(--c-muted)">
           {empty}
         </div>
       ) : (
@@ -98,14 +98,14 @@ function ApprovalCard({
 }) {
   return (
     <article className="overflow-hidden crm-card">
-      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[#eeede9] px-4 py-3.5">
+      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-(--c-line-2) px-4 py-3.5">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <ModeBadge mode={mode} />
             <StatusBadge tone="gray">{entry.kind === "SALE" ? "Vânzare" : "Predare cont"}</StatusBadge>
           </div>
-          <h3 className="mt-2 font-semibold text-[#1a1917]">{entry.summary}</h3>
-          <p className="mt-1 text-xs text-[#78716c]">
+          <h3 className="mt-2 font-semibold text-(--c-ink)">{entry.summary}</h3>
+          <p className="mt-1 text-xs text-(--c-muted-2)">
             {entry.requestedByName || entry.requestedByEmail || "Utilizator"},{" "}
             {dateTimeFormat.format(entry.createdAt)}
           </p>
@@ -146,9 +146,9 @@ function ApprovalCard({
           )}
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-[#eeede9]">
+        <div className="overflow-x-auto rounded-lg border border-(--c-line-2)">
           <table className="crm-table w-full min-w-[620px] border-collapse text-left text-sm">
-            <thead className="bg-[#faf9f7] text-xs text-[#57534e]">
+            <thead className="bg-(--c-surface-2) text-xs text-(--c-muted)">
               <tr>
                 <th className="px-3 py-2 font-semibold">Produs</th>
                 <th className="px-3 py-2 text-right font-semibold">Cantitate</th>
@@ -158,7 +158,7 @@ function ApprovalCard({
             </thead>
             <tbody>
               {entry.details.lines.map((line) => (
-                <tr key={line.productId} className="border-t border-[#eeede9]">
+                <tr key={line.productId} className="border-t border-(--c-line-2)">
                   <td className="px-3 py-2.5 font-medium">{line.productLabel}</td>
                   <td className="px-3 py-2.5 text-right tabular-nums">
                     {line.quantity}
@@ -176,13 +176,13 @@ function ApprovalCard({
         </div>
 
         {entry.lastError ? (
-          <p role="alert" className="rounded-lg bg-[#fff1f1] px-3 py-2 text-sm text-[#b42318]">
+          <p role="alert" className="rounded-lg bg-(--c-red-soft) px-3 py-2 text-sm text-(--c-red)">
             Ultima încercare nu a putut fi aplicată: {entry.lastError}
           </p>
         ) : null}
 
         {mode === "rejected" && entry.reviewNote ? (
-          <p className="rounded-lg bg-[#fff1f1] px-3 py-2 text-sm text-[#b42318]">
+          <p className="rounded-lg bg-(--c-red-soft) px-3 py-2 text-sm text-(--c-red)">
             Motiv: {entry.reviewNote}
           </p>
         ) : null}
@@ -191,7 +191,7 @@ function ApprovalCard({
           <div className="flex justify-end">
             <Link
               href={`/crm/istoric?doc=${entry.appliedEntityId}`}
-              className="text-sm font-semibold text-[#1d4ed8] underline decoration-[#84adff] underline-offset-4"
+              className="text-sm font-semibold text-(--c-accent-strong) underline decoration-(--c-accent-line) underline-offset-4"
             >
               Vezi documentul în istoric
             </Link>
@@ -205,8 +205,8 @@ function ApprovalCard({
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-medium text-[#78716c]">{label}</p>
-      <p className="mt-1 font-medium text-[#1a1917]">{value}</p>
+      <p className="text-xs font-medium text-(--c-muted-2)">{label}</p>
+      <p className="mt-1 font-medium text-(--c-ink)">{value}</p>
     </div>
   );
 }

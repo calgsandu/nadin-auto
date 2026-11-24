@@ -33,7 +33,7 @@ function ForgetDeviceButton() {
       title={label}
       aria-label={label}
       disabled={pending}
-      className="button-secondary inline-flex items-center justify-center gap-2 rounded-lg border border-[#e6e4df] bg-white px-3 py-2 text-sm font-semibold text-[#57534e] hover:text-[#1a1917] disabled:opacity-60"
+      className="button-secondary inline-flex items-center justify-center gap-2 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 py-2 text-sm font-semibold text-(--c-muted) hover:text-(--c-ink) disabled:opacity-60"
     >
       {pending ? "…" : <MonitorX className="size-4" aria-hidden="true" />}
       {label}

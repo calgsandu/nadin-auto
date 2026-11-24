@@ -33,10 +33,10 @@ export function CrmHeader({
     <header className="motion-page px-4 pt-3 lg:px-6 lg:pt-4">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3 py-1">
         <div className="mr-auto min-w-0">
-          <h1 className="text-[1.625rem] font-medium leading-tight tracking-tight text-[#1a1917] lg:text-[2rem]">
+          <h1 className="text-[1.625rem] font-medium leading-tight tracking-tight text-(--c-ink) lg:text-[2rem]">
             {title}
           </h1>
-          {summary ? <p className="mt-1 text-sm text-[#57534e]">{summary}</p> : null}
+          {summary ? <p className="mt-1 text-sm text-(--c-muted)">{summary}</p> : null}
         </div>
         {hasTabs ? (
           <div className={`max-lg:order-last max-lg:w-full ${tabsOnDesktop ? "" : "lg:hidden"}`}>

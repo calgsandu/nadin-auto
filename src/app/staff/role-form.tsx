@@ -19,7 +19,7 @@ export function RoleForm({ userId, currentRole }: { userId: string; currentRole:
   return (
     <form action={formAction} className="flex items-center gap-2">
       <input name="userId" type="hidden" value={userId} />
-      <select className="field-control h-9 rounded-md border border-[#e6e4df] bg-white px-2 text-sm outline-none" name="role" defaultValue={currentRole}>
+      <select className="field-control h-9 rounded-md border border-(--c-line) bg-(--c-surface) px-2 text-sm outline-none" name="role" defaultValue={currentRole}>
         {ROLE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select>
       <SaveButton />
@@ -29,5 +29,5 @@ export function RoleForm({ userId, currentRole }: { userId: string; currentRole:
 
 function SaveButton() {
   const { pending } = useFormStatus();
-  return <button className="button-secondary rounded-md border border-[#e6e4df] bg-white px-3 py-1.5 text-xs font-semibold text-[#1a1917] hover:bg-[#f3f2ef] disabled:opacity-60" disabled={pending} type="submit">{pending ? "..." : "Salvează"}</button>;
+  return <button className="button-secondary rounded-md border border-(--c-line) bg-(--c-surface) px-3 py-1.5 text-xs font-semibold text-(--c-ink) hover:bg-(--c-hover) disabled:opacity-60" disabled={pending} type="submit">{pending ? "..." : "Salvează"}</button>;
 }

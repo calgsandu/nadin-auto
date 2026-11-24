@@ -55,7 +55,7 @@ export function ProductCodeField({
         onChange={(event) => check(event.currentTarget.value)}
       />
       {duplicate ? (
-        <span className="text-xs font-medium text-[#b45309]">Codul există deja: {duplicate.label}</span>
+        <span className="text-xs font-medium text-(--c-amber)">Codul există deja: {duplicate.label}</span>
       ) : null}
     </>
   );

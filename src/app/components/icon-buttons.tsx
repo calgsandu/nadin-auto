@@ -9,17 +9,17 @@ import type { ComponentProps } from "react";
 
 /** Pătrat mic, contur — pentru acțiunile de pe rânduri (editează, detalii, PDF…). */
 export const rowIconButtonCls =
-  "button-secondary relative inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[#e6e4df] bg-white text-[#44403c] hover:bg-[#f3f2ef] hover:text-[#1a1917] disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
+  "button-secondary relative inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-(--c-line) bg-(--c-surface) text-(--c-ink-2) hover:bg-(--c-hover) hover:text-(--c-ink) disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
 
 /** Același pătrat, roșu — pentru ștergere. */
 export const rowDangerIconButtonCls =
-  "button-secondary relative inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-[#fca5a5] bg-white text-[#b91c1c] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
+  "button-secondary relative inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-(--c-red-line) bg-(--c-surface) text-(--c-red) hover:bg-(--c-red-soft) disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-4";
 
 const closeCls =
-  "button-secondary inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-[#e6e4df] bg-white text-[#57534e] hover:bg-[#f3f2ef] hover:text-[#1a1917]";
+  "button-secondary inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-(--c-line) bg-(--c-surface) text-(--c-muted) hover:bg-(--c-hover) hover:text-(--c-ink)";
 
 const saveCls =
-  "button-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60";
+  "button-primary inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md bg-(--c-accent) px-3.5 text-sm font-semibold text-white hover:bg-(--c-accent-hover) disabled:cursor-not-allowed disabled:opacity-60";
 
 export function CloseIconButton({
   label = "Închide",

@@ -7,12 +7,12 @@
  */
 export default function Loading() {
   return (
-    <div aria-busy="true" aria-live="polite" className="min-h-[100dvh] bg-[#f3f2ef]">
+    <div aria-busy="true" aria-live="polite" className="min-h-[100dvh] bg-(--c-hover)">
       <span className="sr-only">Se încarcă</span>
-      <div className="h-14 border-b border-[#e6e4df] bg-white" />
+      <div className="h-14 border-b border-(--c-line) bg-(--c-surface)" />
       <div className="mx-auto grid max-w-6xl gap-3 p-4 lg:p-6">
-        <div className="skeleton-pulse h-8 w-48 rounded-md bg-[#eeede9]" />
-        <div className="skeleton-pulse h-64 rounded-xl bg-[#f0efeb]" />
+        <div className="skeleton-pulse h-8 w-48 rounded-md bg-(--c-line-2)" />
+        <div className="skeleton-pulse h-64 rounded-xl bg-(--c-line-2)" />
       </div>
     </div>
   );

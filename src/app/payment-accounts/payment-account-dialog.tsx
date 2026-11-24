@@ -53,7 +53,7 @@ const emptyLine = (id: number): EditableLine => ({
 
 const initialState: PaymentAccountActionState = { ok: false, message: "" };
 const inputClassName =
-  "field-control h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm text-[#1a1917] outline-none placeholder:text-[#78716c] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/25";
+  "field-control h-9 w-full rounded-md border border-(--c-line) bg-(--c-surface) px-2.5 text-sm text-(--c-ink) outline-none placeholder:text-(--c-muted-2) focus:border-(--c-accent) focus:ring-2 focus:ring-(--c-accent)/25";
 
 export function PaymentAccountDialog({
   customers,
@@ -135,7 +135,7 @@ export function PaymentAccountDialog({
   return (
     <>
       <button
-        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-(--c-accent) px-3.5 py-2 text-sm font-semibold text-white hover:bg-(--c-accent-hover)"
         type="button"
         onClick={() => {
           setMounted(true);
@@ -182,7 +182,7 @@ export function PaymentAccountDialog({
                       </select>
                       <button
                         aria-label="Client nou"
-                        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-[#e6e4df] bg-white text-[#1a1917] hover:bg-[#f3f2ef]"
+                        className="button-secondary grid size-9 shrink-0 place-items-center rounded-md border border-(--c-line) bg-(--c-surface) text-(--c-ink) hover:bg-(--c-hover)"
                         title="Client nou"
                         type="button"
                         onClick={() => setCustomerForm(true)}
@@ -192,7 +192,7 @@ export function PaymentAccountDialog({
                     </div>
                     {/* Fără IDNO și adresă contul nu se poate emite: spunem pe loc. */}
                     {selectedCustomer && (!selectedCustomer.idno || !selectedCustomer.address) ? (
-                      <span className="text-xs font-medium text-[#b45309]">
+                      <span className="text-xs font-medium text-(--c-amber)">
                         Lipsește {!selectedCustomer.idno ? "IDNO-ul" : "adresa"} — completează fișa clientului.
                       </span>
                     ) : null}
@@ -238,10 +238,10 @@ export function PaymentAccountDialog({
                       return (
                         <div
                           key={line.id}
-                          className="motion-line-item grid gap-2 rounded-lg border border-[#ebe9e4] bg-[#faf9f7] px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_8rem_8rem_2.25rem] md:items-start"
+                          className="motion-line-item grid gap-2 rounded-lg border border-(--c-line-2) bg-(--c-surface-2) px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_8rem_8rem_2.25rem] md:items-start"
                         >
                           <div>
-                            <p className="line-label mb-1 text-[13px] font-medium leading-5 text-[#57534e]">Produs</p>
+                            <p className="line-label mb-1 text-[13px] font-medium leading-5 text-(--c-muted)">Produs</p>
                             <ProductSearchCombobox
                               showHint={false}
                               initialProduct={
@@ -284,7 +284,7 @@ export function PaymentAccountDialog({
                             />
                           </Field>
                           <Field label="Sumă">
-                            <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-[#1a1917]">
+                            <div className="flex h-9 items-center justify-end whitespace-nowrap px-1 text-sm font-semibold tabular-nums text-(--c-ink)">
                               {money(calculated.gross)} lei
                             </div>
                           </Field>

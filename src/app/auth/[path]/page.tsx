@@ -13,7 +13,7 @@ export default async function AuthPage({
   if (path === "sign-up") redirect("/auth/sign-in");
 
   return (
-    <main className="auth-shell flex min-h-screen items-center justify-center bg-[#efeeea] px-4 py-10">
+    <main className="auth-shell flex min-h-screen items-center justify-center bg-(--c-bg) px-4 py-10">
       {path === "sign-in" ? (
         <LoginForm />
       ) : (

@@ -26,6 +26,7 @@ const expectedSections = [
   "depozite",
   "furnizori",
   "clienti",
+  "de-comandat",
   "personal",
   "branduri",
   "modele",

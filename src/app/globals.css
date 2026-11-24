@@ -22,6 +22,90 @@
   --duration-drawer: 320ms;
 }
 
+/* `dark:` = tema închisă a CRM-ului: `data-theme` stă pe `.crm-main` (din cookie,
+   în layout-ul CRM), iar `:has` o întinde și peste dialogurile din portal. */
+@custom-variant dark (&:where(:root:has(.crm-main[data-theme="dark"]) *));
+
+/*
+ * Culorile CRM-ului, ca variabile: clasele folosesc `bg-(--c-surface)` etc.,
+ * nu hex-uri, ca tema închisă să fie doar alt set de valori. Valorile
+ * deschise stau pe :root (și componentele comune cu vitrina le văd), cele
+ * închise doar pe paginile CRM-ului.
+ */
+:root {
+  --c-bg: #efeeea;
+  --c-surface: #ffffff;
+  --c-surface-2: #faf9f7;
+  --c-hover: #f3f2ef;
+  --c-line-2: #eeede9;
+  --c-line: #e6e4df;
+  --c-line-strong: #d6d3d1;
+  --c-ink: #1a1917;
+  --c-ink-2: #44403c;
+  --c-muted: #57534e;
+  --c-muted-2: #78716c;
+  --c-faint: #a8a29e;
+  --c-accent: #2563eb;
+  --c-accent-hover: #1d4ed8;
+  --c-accent-strong: #1d4ed8;
+  --c-accent-soft: #eff6ff;
+  --c-accent-line: #bfdbfe;
+  --c-red: #b91c1c;
+  --c-red-soft: #fef2f2;
+  --c-red-line: #fecaca;
+  --c-green: #166534;
+  --c-green-soft: #f0fdf4;
+  --c-green-line: #bbf7d0;
+  --c-amber: #92400e;
+  --c-amber-soft: #fffbeb;
+  --c-amber-line: #fde68a;
+  /* Blocul cu cifra mare: negru pe deschis, gri-cărbune pe închis. */
+  --c-hero: #1a1917;
+  --c-chart-soft: #8ec5fc;
+}
+
+:root:has(.crm-main[data-theme="dark"]) {
+  color-scheme: dark;
+  --c-bg: #121211;
+  --c-surface: #1b1a18;
+  --c-surface-2: #201f1d;
+  --c-hover: #282724;
+  --c-line-2: #262523;
+  --c-line: #302e2b;
+  --c-line-strong: #44413c;
+  --c-ink: #f2f1ee;
+  --c-ink-2: #d9d6d0;
+  --c-muted: #b3aea6;
+  --c-muted-2: #908b83;
+  --c-faint: #6c675f;
+  --c-accent: #3b82f6;
+  --c-accent-hover: #2563eb;
+  --c-accent-strong: #93b4fb;
+  --c-accent-soft: #172036;
+  --c-accent-line: #2a3c63;
+  --c-red: #f87171;
+  --c-red-soft: #2b1716;
+  --c-red-line: #5a2925;
+  --c-green: #4ade80;
+  --c-green-soft: #12241a;
+  --c-green-line: #1f4a2c;
+  --c-amber: #fbbf24;
+  --c-amber-soft: #2a2211;
+  --c-amber-line: #5a4613;
+  --c-hero: #23221f;
+  --c-chart-soft: #2f5ea8;
+}
+
+/* Fișele pastel rămân deschise și pe tema închisă: în ele textul e închis. */
+.crm-on-light {
+  --c-ink: #1a1917;
+  --c-ink-2: #44403c;
+  --c-muted: #57534e;
+  --c-muted-2: #78716c;
+  --c-surface: #ffffff;
+  color: var(--c-ink);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -42,18 +126,18 @@
  * `.crm-main`. Fontul e Outfit (vitrina rămâne pe Manrope).
  */
 :root:has(.crm-main) {
-  --background: #efeeea;
-  --foreground: #1a1917;
-  --accent: #2563eb;
-  --border: #e6e4df;
-  --ring: #2563eb;
+  --background: var(--c-bg);
+  --foreground: var(--c-ink);
+  --accent: var(--c-accent);
+  --border: var(--c-line);
+  --ring: var(--c-accent);
 }
 
 /* Pe body, nu pe `.crm-main`: drawerele și meniurile sunt portate în body.
    Outfit n-are chirilice; textul în rusă se afișează cu fontul de rezervă.
    Paginile de autentificare (`.auth-shell`) folosesc același font și fundal. */
 :root:has(.crm-main, .auth-shell) body {
-  background: #efeeea;
+  background: var(--c-bg);
   font-family: var(--font-crm), var(--font-app), ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -81,13 +165,18 @@
 
 /* Suprafața standard: tabel, panou, cifre-cheie. Un singur chenar pe lucru. */
 .crm-card {
-  border: 1px solid #e9e7e2;
+  border: 1px solid var(--c-line);
   border-radius: 1.25rem;
-  background: #fff;
+  background: var(--c-surface);
 }
 
 /* Linia din blocul negru. Nelayerizat: altfel `* { border-color }` din UI-ul
    Neon Auth (vezi `--border`) o face hairline deschis, adică albă pe negru. */
+/* Pe blocul negru textul secundar e gri deschis pe ambele teme. */
+.crm-hero {
+  --c-faint: #a8a29e;
+}
+
 .crm-hero-rule {
   border-color: rgb(255 255 255 / 10%);
 }
@@ -275,12 +364,12 @@ details > summary svg {
   /* Doar bordura se închide la hover: cardurile și tabelele care „săreau"
      sub cursor dădeau senzația de pagină care se mișcă. */
   .motion-card:hover {
-    border-color: #d6d3d1;
+    border-color: var(--c-line-strong);
   }
 
   .motion-line-item:hover {
-    border-color: #d6d3d1;
-    background-color: #fff;
+    border-color: var(--c-line-strong);
+    background-color: var(--c-surface);
   }
 }
 
@@ -516,7 +605,7 @@ details > summary svg {
 
 .row-menu-panel :is(button, a):hover:not(:disabled),
 .row-menu-panel :is(button, a):focus-visible {
-  background: #f3f2ef;
+  background: var(--c-hover);
   outline: none;
 }
 
@@ -540,16 +629,16 @@ details > summary svg {
 .stat-strip {
   gap: 1px;
   overflow: hidden;
-  border: 1px solid #e6e4df;
+  border: 1px solid var(--c-line);
   border-radius: 1rem;
-  background: #e6e4df;
+  background: var(--c-line);
   box-shadow: 0 1px 2px rgb(26 25 23 / 4%);
 }
 
 .stat-strip > * {
   border: 0 !important;
   border-radius: 0 !important;
-  background: #fff;
+  background: var(--c-surface);
 }
 
 /* Pe telefon cifrele stau câte 2 (sau 3, când sunt fix trei) pe rând, nu una sub alta. */
@@ -569,8 +658,8 @@ details > summary svg {
 
 /* Rândul bifat (stickere) iese în evidență, cu bara albastră în stânga. */
 .crm-table tr:has(input[data-label-id]:checked) {
-  background: #eff6ff;
-  box-shadow: inset 3px 0 0 #2563eb;
+  background: var(--c-accent-soft);
+  box-shadow: inset 3px 0 0 var(--c-accent);
 }
 
 /* Iconițele butoanelor de rând (Editează, Detalii, Încasează, Fișă), tot din CSS. */

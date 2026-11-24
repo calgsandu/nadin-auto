@@ -26,7 +26,7 @@ export function ApproveButton({ operationId }: { operationId: string }) {
         icon={Check}
         idleLabel="Aprobă și aplică"
         pendingLabel="Se aplică…"
-        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#bbf7d0] bg-white px-3 py-1.5 text-xs font-semibold text-[#15803d] hover:bg-[#f0fdf4] disabled:cursor-wait disabled:opacity-60"
+        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-green-line) bg-(--c-surface) px-3 py-1.5 text-xs font-semibold text-(--c-green) hover:bg-(--c-green-soft) disabled:cursor-wait disabled:opacity-60"
       />
       <ActionFeedback state={state} />
     </form>
@@ -49,7 +49,7 @@ export function RejectButton({ operationId }: { operationId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#fecaca] bg-white px-3 py-1.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2]"
+        className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-red-line) bg-(--c-surface) px-3 py-1.5 text-xs font-semibold text-(--c-red) hover:bg-(--c-red-soft)"
       >
         <X className="size-3.5" aria-hidden="true" />
         Respinge
@@ -60,7 +60,7 @@ export function RejectButton({ operationId }: { operationId: string }) {
   return (
     <form action={formAction} className="grid w-64 gap-1.5 text-left">
       <input type="hidden" name="operationId" value={operationId} />
-      <label className="grid gap-1 text-xs font-semibold text-[#57534e]">
+      <label className="grid gap-1 text-xs font-semibold text-(--c-muted)">
         Motivul respingerii
         <textarea
           name="reason"
@@ -68,14 +68,14 @@ export function RejectButton({ operationId }: { operationId: string }) {
           required
           autoFocus
           placeholder="Ex.: cantitate sau client greșit"
-          className="w-full rounded-md border border-[#e6e4df] bg-white px-2 py-1.5 text-xs text-[#1a1917] outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
+          className="w-full rounded-md border border-(--c-line) bg-(--c-surface) px-2 py-1.5 text-xs text-(--c-ink) outline-none focus:border-(--c-accent) focus:ring-2 focus:ring-(--c-accent)/20"
         />
       </label>
       <div className="flex justify-end gap-1.5">
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-[#57534e] hover:bg-[#f3f2ef]"
+          className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-(--c-muted) hover:bg-(--c-hover)"
         >
           Renunță
         </button>
@@ -83,7 +83,7 @@ export function RejectButton({ operationId }: { operationId: string }) {
           icon={X}
           idleLabel="Confirmă respingerea"
           pendingLabel="Se respinge…"
-          className="inline-flex items-center gap-1.5 rounded-md bg-[#b91c1c] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#991b1b] disabled:cursor-wait disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-md bg-(--c-red) px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-(--c-red) disabled:cursor-wait disabled:opacity-60"
         />
       </div>
     </form>

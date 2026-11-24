@@ -16,20 +16,20 @@ export function CurrencyWidget({ valueLei, rates }: { valueLei: number; rates: E
   return (
     <div className="motion-card crm-card p-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium text-[#57534e]">Valoare stoc (preț vânzare)</p>
+        <p className="text-sm font-medium text-(--c-muted)">Valoare stoc (preț vânzare)</p>
         <select
           value={currency}
           onChange={(e) => setCurrency(e.target.value as Currency)}
-          className="h-8 rounded-md border border-[#e6e4df] bg-white px-2 text-sm outline-none"
+          className="h-8 rounded-md border border-(--c-line) bg-(--c-surface) px-2 text-sm outline-none"
         >
           <option value="MDL">MDL (lei)</option>
           <option value="EUR">EUR</option>
           <option value="USD">USD</option>
         </select>
       </div>
-      <p className="mt-2 tabular-nums text-2xl font-semibold text-[#1a1917]">{format(converted, currency)}</p>
-      <div className="mt-3 border-t border-[#eeede9] pt-3 text-xs text-[#57534e]">
-        <p className="font-semibold text-[#44403c]" title={rates.reason}>
+      <p className="mt-2 tabular-nums text-2xl font-semibold text-(--c-ink)">{format(converted, currency)}</p>
+      <div className="mt-3 border-t border-(--c-line-2) pt-3 text-xs text-(--c-muted)">
+        <p className="font-semibold text-(--c-ink-2)" title={rates.reason}>
           Curs valutar {rates.source === "live" ? "(live)" : "(aproximativ)"}
         </p>
         <p className="mt-1">1 EUR = {rates.EUR.toFixed(2)} lei, 1 USD = {rates.USD.toFixed(2)} lei</p>

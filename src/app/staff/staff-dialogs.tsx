@@ -29,7 +29,7 @@ export function CreateStaffDialog() {
   return (
     <>
       <button
-        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
+        className="button-primary button-add inline-flex items-center gap-1.5 rounded-md bg-(--c-accent) px-3.5 py-2 text-sm font-semibold text-white hover:bg-(--c-accent-hover)"
         type="button"
         onClick={() => setOpen(true)}
       >
@@ -179,7 +179,7 @@ function IssueTwoFactorActivationDrawer({
         <form action={formAction} className="grid gap-5">
           <input type="hidden" name="userId" value={userId} />
           <input type="hidden" name="username" value={username} />
-          <div className="rounded-lg border border-[#facc15] bg-[#fefce8] p-4 text-sm leading-6 text-[#854d0e]">
+          <div className="rounded-lg border border-(--c-amber-line) bg-(--c-amber-soft) p-4 text-sm leading-6 text-(--c-amber)">
             Un cod nou îl invalidează pe cel emis anterior și orice configurare QR nefinalizată.
           </div>
           <DrawerActions onClose={onClose} submitLabel="Emite cod 2FA" />
@@ -215,7 +215,7 @@ function ResetTwoFactorDrawer({
         <form action={formAction} className="grid gap-5">
           <input type="hidden" name="userId" value={userId} />
           <input type="hidden" name="username" value={username} />
-          <div className="rounded-lg border border-[#fca5a5] bg-[#fef2f2] p-4 text-sm leading-6 text-[#991b1b]">
+          <div className="rounded-lg border border-(--c-red-line) bg-(--c-red-soft) p-4 text-sm leading-6 text-(--c-red)">
             Resetarea invalidează toate sesiunile 2FA și dispozitivele memorate. Utilizatorul
             va trebui să configureze din nou aplicația de autentificare.
           </div>
@@ -263,9 +263,9 @@ function StaffDrawer({ title, onClose, children }: { title: string; onClose: () 
       <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
         <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={onClose} />
         <aside className={drawerPanelClassName}>
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#e6e4df] bg-[#faf9f7] px-5 py-3">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-[#1a1917]">{title}</h2>
+              <h2 className="text-lg font-semibold tracking-tight text-(--c-ink)">{title}</h2>
             </div>
             <CloseIconButton onClick={onClose} />
           </div>
@@ -290,7 +290,7 @@ function PasswordField({ value, onChange }: { value: string; onChange: (value: s
           value={value}
           onChange={(event) => onChange(event.target.value)}
         />
-        <button className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e6e4df] bg-white px-3 text-xs font-semibold" type="button" onClick={() => onChange(generatePassword())}>
+        <button className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-line) bg-(--c-surface) px-3 text-xs font-semibold" type="button" onClick={() => onChange(generatePassword())}>
           <Wand2 className="size-3.5" aria-hidden="true" />
           Generează
         </button>
@@ -303,13 +303,13 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
   const [copied, setCopied] = useState(false);
   return (
     <div className="grid gap-4">
-      <div className="rounded-lg border border-[#7cb8f5] bg-[#eff6ff] p-4 text-sm text-[#194185]">
+      <div className="rounded-lg border border-(--c-accent-line) bg-(--c-accent-soft) p-4 text-sm text-(--c-accent-strong)">
         Copiază parola acum. După închiderea ferestrei nu mai poate fi afișată.
       </div>
-      <div className="flex items-center gap-2 rounded-lg border border-[#e6e4df] bg-white p-3">
+      <div className="flex items-center gap-2 rounded-lg border border-(--c-line) bg-(--c-surface) p-3">
         <code className="min-w-0 flex-1 break-all font-mono text-sm">{password}</code>
         <button
-          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e6e4df] px-3 py-2 text-xs font-semibold"
+          className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-line) px-3 py-2 text-xs font-semibold"
           type="button"
           onClick={async () => {
             await navigator.clipboard.writeText(password);
@@ -320,7 +320,7 @@ function RevealedPassword({ password, onClose }: { password: string; onClose: ()
           {copied ? "Copiat" : "Copiază"}
         </button>
       </div>
-      <button className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
+      <button className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-(--c-accent) px-3.5 py-2 text-sm font-semibold text-white" type="button" onClick={onClose}>
         <Check className="size-4" aria-hidden="true" />
         Am salvat parola
       </button>
@@ -344,16 +344,16 @@ function RevealedActivationCode({
   });
   return (
     <div className="grid gap-4">
-      <div className="rounded-lg border border-[#7cb8f5] bg-[#eff6ff] p-4 text-sm leading-6 text-[#194185]">
+      <div className="rounded-lg border border-(--c-accent-line) bg-(--c-accent-soft) p-4 text-sm leading-6 text-(--c-accent-strong)">
         Comunică acest cod separat, ideal personal. După închiderea ferestrei nu mai poate fi afișat.
       </div>
-      <div className="rounded-lg border border-[#e6e4df] bg-white p-3">
+      <div className="rounded-lg border border-(--c-line) bg-(--c-surface) p-3">
         <div className="flex items-center gap-2">
           <code className="min-w-0 flex-1 break-all font-mono text-base font-semibold tracking-[0.12em]">
             {code}
           </code>
           <button
-            className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-[#e6e4df] px-3 py-2 text-xs font-semibold"
+            className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-line) px-3 py-2 text-xs font-semibold"
             type="button"
             onClick={async () => {
               await navigator.clipboard.writeText(code);
@@ -364,10 +364,10 @@ function RevealedActivationCode({
           {copied ? "Copiat" : "Copiază"}
           </button>
         </div>
-        <p className="mt-2 text-xs text-[#57534e]">Expiră la {expiryLabel}.</p>
+        <p className="mt-2 text-xs text-(--c-muted)">Expiră la {expiryLabel}.</p>
       </div>
       <button
-        className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-[#2563eb] px-3.5 py-2 text-sm font-semibold text-white"
+        className="button-primary inline-flex items-center gap-1.5 justify-self-end rounded-md bg-(--c-accent) px-3.5 py-2 text-sm font-semibold text-white"
         type="button"
         onClick={onClose}
       >
@@ -380,7 +380,7 @@ function RevealedActivationCode({
 
 function DrawerActions({ onClose, submitLabel }: { onClose: () => void; submitLabel: string }) {
   return (
-    <div className="flex justify-end gap-2 border-t border-[#e6e4df] pt-5">
+    <div className="flex justify-end gap-2 border-t border-(--c-line) pt-5">
       <CloseIconButton label="Anulează" onClick={onClose} />
       <PendingSubmit label={submitLabel} />
     </div>
@@ -394,15 +394,15 @@ function PendingSubmit({ label }: { label: string }) {
 
 function ActiveSubmit({ active }: { active: boolean }) {
   const { pending } = useFormStatus();
-  return <button className={`button-secondary rounded-md border px-3 py-1.5 text-xs font-semibold disabled:opacity-60 ${active ? "border-[#fca5a5] text-[#b91c1c]" : "border-[#86efac] text-[#166534]"}`} disabled={pending} type="submit">{pending ? "..." : active ? "Dezactivează" : "Reactivează"}</button>;
+  return <button className={`button-secondary rounded-md border px-3 py-1.5 text-xs font-semibold disabled:opacity-60 ${active ? "border-(--c-red-line) text-(--c-red)" : "border-(--c-green-line) text-(--c-green)"}`} disabled={pending} type="submit">{pending ? "..." : active ? "Dezactivează" : "Reactivează"}</button>;
 }
 
 function RowButton({ onClick, children }: { onClick: () => void; children: ReactNode }) {
-  return <button className="button-secondary rounded-md border border-[#e6e4df] bg-white px-3 py-2 text-xs font-semibold text-[#1a1917] hover:bg-[#f3f2ef]" type="button" onClick={onClick}>{children}</button>;
+  return <button className="button-secondary rounded-md border border-(--c-line) bg-(--c-surface) px-3 py-2 text-xs font-semibold text-(--c-ink) hover:bg-(--c-hover)" type="button" onClick={onClick}>{children}</button>;
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
-  return <label className="grid gap-1 text-sm font-medium text-[#44403c]">{label}{children}</label>;
+  return <label className="grid gap-1 text-sm font-medium text-(--c-ink-2)">{label}{children}</label>;
 }
 
 function generatePassword() {
@@ -412,4 +412,4 @@ function generatePassword() {
   return Array.from(bytes, (value) => alphabet[value % alphabet.length]).join("");
 }
 
-const inputClassName = "field-control h-9 w-full rounded-md border border-[#e6e4df] bg-white px-2.5 text-sm outline-none placeholder:text-[#78716c]";
+const inputClassName = "field-control h-9 w-full rounded-md border border-(--c-line) bg-(--c-surface) px-2.5 text-sm outline-none placeholder:text-(--c-muted-2)";
