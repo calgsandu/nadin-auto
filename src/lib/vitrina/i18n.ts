@@ -34,6 +34,10 @@ type CatalogDictionary = {
     categoryTitle: string;
     categoryAccent: string;
     brandsTitle: string;
+    popularTitle: string;
+    popularLead: string;
+    allBrands: string;
+    quickSearch: string;
     explainer: string;
     warehouseAlt: string;
     stats: {
@@ -129,6 +133,10 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       categoryTitle: "Ce ține mașina",
       categoryAccent: "întreagă",
       brandsTitle: "Alege marca. Vezi tot ce avem.",
+      popularTitle: "Modelele pentru care avem cele mai multe piese",
+      popularLead: "Microbuze, utilitare și autoturisme — de la caroserie la optică.",
+      allBrands: "Toate mărcile",
+      quickSearch: "Căutate des:",
       explainer:
         "Fiecare piesă din catalog e legată de model și anii de fabricație — alegi mașina și vezi exact ce avem pentru ea.",
       warehouseAlt: "Depozitul Nadin Auto",
@@ -226,6 +234,10 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       categoryTitle: "Всё, что сохраняет автомобиль",
       categoryAccent: "целым",
       brandsTitle: "Выберите марку и посмотрите наш ассортимент.",
+      popularTitle: "Модели, для которых у нас больше всего деталей",
+      popularLead: "Микроавтобусы, коммерческие и легковые автомобили — от кузова до оптики.",
+      allBrands: "Все марки",
+      quickSearch: "Часто ищут:",
       explainer:
         "Каждая деталь связана с моделью и годами выпуска — выберите автомобиль и сразу увидите подходящие позиции.",
       warehouseAlt: "Склад Nadin Auto",

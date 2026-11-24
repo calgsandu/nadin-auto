@@ -80,6 +80,60 @@ export const getShowroomData = cache(async (locale: CatalogLocale = "ro"): Promi
   };
 });
 
+export type PopularModel = {
+  brand: string;
+  brandSlug: string;
+  name: string;
+  slug: string;
+  productCount: number;
+  years: string | null;
+};
+
+/** Modelele cu cele mai multe piese, pentru vitrina de pe prima pagină. */
+export const getPopularModels = cache(
+  async (locale: CatalogLocale = "ro", limit = 12): Promise<PopularModel[]> => {
+    const rows = await prisma.$queryRaw<
+      {
+        brand: string;
+        model: string;
+        products: bigint;
+        y0: number | null;
+        y1: number | null;
+        open: boolean | null;
+      }[]
+    >`
+      SELECT b.name AS brand, cm.name AS model,
+        COUNT(DISTINCT pf."productId") AS products,
+        MIN(vf."yearStart") AS y0,
+        MAX(vf."yearEnd") AS y1,
+        BOOL_OR(vf."yearOpenEnded") AS open
+      FROM "CarModel" cm
+      JOIN "Brand" b ON b.id = cm."brandId"
+      JOIN "VehicleFitment" vf ON vf."carModelId" = cm.id
+      JOIN "ProductFitment" pf ON pf."fitmentId" = vf.id
+      GROUP BY b.name, cm.name
+      ORDER BY products DESC, cm.name ASC
+      LIMIT ${limit}
+    `;
+    const copy = catalogCopy(locale).common;
+    return rows.map((row) => {
+      let years: string | null = null;
+      if (row.y0 != null) {
+        const to = row.open ? copy.present : row.y1 != null ? String(row.y1) : null;
+        years = to ? `${row.y0} – ${to}` : copy.fromYear(row.y0);
+      }
+      return {
+        brand: row.brand,
+        brandSlug: slugify(row.brand),
+        name: row.model,
+        slug: slugify(row.model),
+        productCount: Number(row.products),
+        years,
+      };
+    });
+  },
+);
+
 export type BrandModel = {
   id: string;
   name: string;

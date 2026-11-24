@@ -8,7 +8,13 @@ import {
   type CatalogLocale,
 } from "@/lib/vitrina/i18n";
 
-export function SearchBox({ locale }: { locale: CatalogLocale }) {
+export function SearchBox({
+  locale,
+  autoFocus = true,
+}: {
+  locale: CatalogLocale;
+  autoFocus?: boolean;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [value, setValue] = useState(searchParams.get("q") ?? "");
@@ -42,7 +48,7 @@ export function SearchBox({ locale }: { locale: CatalogLocale }) {
         <span className="sr-only">{copy.button}</span>
         <input
           ref={inputRef}
-          autoFocus
+          autoFocus={autoFocus}
           type="search"
           enterKeyHint="search"
           value={value}
