@@ -1,7 +1,12 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { buildCombinedCompatibilityLabel } from "@/lib/labels/format";
-import { LABEL_SIZES, type LabelSizeKey } from "@/lib/labels/layout";
+import {
+  LABEL_SIZES,
+  decodeLabelCells,
+  placeLabels,
+  type LabelSizeKey,
+} from "@/lib/labels/layout";
 
 /**
  * Cererea de print, aceeași pentru pagina HTML și pentru PDF: până acum fiecare
@@ -42,7 +47,10 @@ export function parseLabelRequest(get: (key: string) => string | null | undefine
   const skip =
     layout === "grid" ? Math.min(Math.max(Number(value("skip")) || 0, 0), perSheet - 1) : 0;
 
-  return { counts, alternativeCodeIds, size, layout, dim, perSheet, skip };
+  // Așezarea liberă contează doar pe foaie; rola merge oricum la rând.
+  const placed = layout === "grid" ? decodeLabelCells(value("cells"), [...counts.keys()]) : null;
+
+  return { counts, alternativeCodeIds, size, layout, dim, perSheet, skip, placed };
 }
 
 const fitmentInclude = { include: { carModel: { include: { brand: true } } } } as const;
@@ -84,24 +92,36 @@ export type LabelSlot = {
   includeAlternativeCode: boolean;
 };
 
-/** Fiecare copie = un sticker; `skip` celule goale în față pe foaia începută. */
+/**
+ * Celula fiecărui sticker (vezi `placeLabels`). Foile sunt mereu pline: o
+ * celulă goală e un loc unde poți trage un sticker.
+ */
 export function buildLabelSlots(request: LabelRequest, products: LabelProduct[]) {
-  const labels: LabelSlot[] = products.flatMap((product) => {
-    const compatibility = labelCompatibility(product);
-    return Array.from({ length: request.counts.get(product.id) ?? 1 }, (_, copy) => ({
+  const byId = new Map(products.map((product) => [product.id, product]));
+  const cells = placeLabels(
+    products.map((product) => ({ id: product.id, count: request.counts.get(product.id) ?? 1 })),
+    request.placed,
+    request.skip,
+  );
+  const compatibility = new Map(products.map((product) => [product.id, labelCompatibility(product)]));
+  const copies = new Map<string, number>();
+  const slots: (LabelSlot | null)[] = cells.map((id) => {
+    const product = id ? byId.get(id) : undefined;
+    if (!product) return null;
+    const copy = copies.get(product.id) ?? 0;
+    copies.set(product.id, copy + 1);
+    return {
       product,
       copy,
-      compatibility,
+      compatibility: compatibility.get(product.id) ?? "",
       includeAlternativeCode: request.alternativeCodeIds.has(product.id),
-    }));
+    };
   });
-  const slots: (LabelSlot | null)[] = [
-    ...Array.from({ length: request.skip }, () => null),
-    ...labels,
-  ];
+  const labels = slots.filter((slot) => slot !== null);
   const sheets: (LabelSlot | null)[][] = [];
-  for (let i = 0; i < slots.length; i += request.perSheet) {
-    sheets.push(slots.slice(i, i + request.perSheet));
+  for (let i = 0; i < Math.max(slots.length, 1); i += request.perSheet) {
+    const sheet = slots.slice(i, i + request.perSheet);
+    sheets.push([...sheet, ...Array.from({ length: request.perSheet - sheet.length }, () => null)]);
   }
-  return { labels, sheets };
+  return { labels, sheets, cells };
 }

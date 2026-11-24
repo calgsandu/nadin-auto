@@ -32,17 +32,9 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
 
   const params = await searchParams;
   const request = parseLabelRequest((key) => params[key]);
-  const { counts, alternativeCodeIds, size, layout, dim, perSheet, skip } = request;
+  const { counts, alternativeCodeIds, size, layout, dim, perSheet } = request;
   const products = await loadLabelProducts([...counts.keys()]);
-  const { labels, sheets } = buildLabelSlots(request, products);
-
-  // Click pe o celulă din prima foaie = de acolo începe printul (foaie începută).
-  const startHref = (position: number) => {
-    const query = new URLSearchParams();
-    for (const [key, value] of Object.entries(params)) if (value) query.set(key, value);
-    query.set("skip", String(position));
-    return `/print/labels?${query.toString()}`;
-  };
+  const { labels, sheets, cells } = buildLabelSlots(request, products);
 
   return (
     <main className="labels-page min-h-screen bg-[#f6f6f4] p-6 print:bg-white print:p-0">
@@ -75,7 +67,6 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
-        .label-pick { display: block; color: inherit; text-decoration: none; }
         .label-head > * { min-width: 0; }
         .label-logo { flex: none; }
         .label-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -90,8 +81,6 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
         @media screen {
           .label-sheet { margin: 0 auto 10mm; box-shadow: 0 1px 4px rgba(0,0,0,.12); min-height: 297mm; }
           .label-cell { outline: 1px dashed #d8d6d0; outline-offset: -1px; }
-          .label-pick:hover { outline: 2px solid #1b1a17; outline-offset: -2px; }
-          .label-used { background: repeating-linear-gradient(135deg, #f1f0ec 0 5px, #fff 5px 10px); }
           .label-cell[draggable="true"] { cursor: grab; }
           .label-dragging { opacity: .35; }
           .label-drop { outline: 2px solid #2563eb !important; outline-offset: -2px; }
@@ -115,14 +104,14 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
               : `${sheets.length} ${sheets.length === 1 ? "foaie" : "foi"} A4, ${dim.w}×${dim.h} mm, ${perSheet}/foaie`}
           </p>
           <p className="mt-1 text-xs text-[#8a857c]">
-            Print: Scală 100%, Margini: Fără. Trage stickerele ca să schimbi ordinea; click pe celulă = de acolo începe.
+            Print: Scală 100%, Margini: Fără. Trage orice sticker în orice celulă, și pe cele goale.
           </p>
         </div>
         <LabelControls
           size={size}
           layout={layout}
-          skip={skip}
           perSheet={perSheet}
+          cells={cells}
           items={products.map((p) => ({
             id: p.id,
             code: p.externalCode ?? "",
@@ -152,52 +141,30 @@ export default async function LabelsPage({ searchParams }: LabelsProps) {
           ))}
         </div>
       ) : (
-        sheets.map((sheet, sheetIndex) => {
-          // Prima foaie are mereu toate celulele: oricare poate fi aleasă ca start.
-          const cells =
-            sheetIndex === 0
-              ? [...sheet, ...Array.from({ length: perSheet - sheet.length }, () => null)]
-              : sheet;
-          return (
-            <div key={sheetIndex} className="label-sheet">
-              {cells.map((slot, i) => {
-                const sticker = slot ? (
+        labels.length > 0 &&
+        sheets.map((sheet, sheetIndex) => (
+          <div key={sheetIndex} className="label-sheet">
+            {sheet.map((slot, i) => (
+              // Ținte pentru drag & drop (LabelControls ascultă pe document).
+              <div
+                key={slot ? `${slot.product.id}-${slot.copy}` : `empty-${sheetIndex}-${i}`}
+                className="label-cell"
+                data-cell={sheetIndex * perSheet + i}
+                data-sticker-id={slot?.product.id}
+                draggable={Boolean(slot)}
+              >
+                {slot ? (
                   <LabelSticker
                     product={slot.product}
                     compatibility={slot.compatibility}
                     includeAlternativeCode={slot.includeAlternativeCode}
                     dim={dim}
                   />
-                ) : null;
-                const key = slot ? `${slot.product.id}-${slot.copy}` : `empty-${i}`;
-                // Ținte pentru drag & drop (LabelControls ascultă pe document).
-                const dnd = {
-                  "data-cell": sheetIndex * perSheet + i,
-                  "data-sticker-id": slot?.product.id,
-                  draggable: Boolean(slot),
-                };
-                if (sheetIndex > 0) {
-                  return (
-                    <div key={key} className="label-cell" {...dnd}>
-                      {sticker}
-                    </div>
-                  );
-                }
-                return (
-                  <a
-                    key={key}
-                    {...dnd}
-                    href={startHref(i)}
-                    title={`Începe printul de la poziția ${i + 1}`}
-                    className={`label-cell label-pick${i < skip ? " label-used" : ""}`}
-                  >
-                    {sticker}
-                  </a>
-                );
-              })}
-            </div>
-          );
-        })
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ))
       )}
     </main>
   );

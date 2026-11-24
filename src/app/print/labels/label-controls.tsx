@@ -2,16 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { GripVertical } from "lucide-react";
 import {
   buildLabelPrintQuery,
   clampLabelCount,
   MAX_LABEL_COUNT,
-  moveLabelItem,
   type LabelPrintFormat,
   type LabelSelectionItem,
 } from "@/app/catalog/label-selection";
 import { saveStickerFormat, updateStickers } from "@/app/catalog/sticker-store";
+import { encodeLabelCells } from "@/lib/labels/layout";
 
 const SIZES = [
   { value: "s", label: "Mic (52×30 mm)" },
@@ -39,22 +38,22 @@ const stepper =
 export function LabelControls({
   size,
   layout,
-  skip,
   perSheet,
+  cells,
   items,
 }: {
   size: LabelPrintFormat["size"];
   layout: LabelPrintFormat["layout"];
-  skip: number;
   perSheet: number;
+  /** Ce piesă stă în fiecare celulă (vezi `placeLabels`); null = goală. */
+  cells: (string | null)[];
   items: LabelItem[];
 }) {
   const router = useRouter();
   const [printed, setPrinted] = useState(false);
   const [cleared, setCleared] = useState(false);
-  // Piesa trasă acum (din listă sau de pe foaie) și rândul de sub ea.
-  const dragId = useRef<string | null>(null);
-  const [overId, setOverId] = useState<string | null>(null);
+  // Celula din care e tras stickerul acum.
+  const dragFrom = useRef<number | null>(null);
 
   // După dialogul de print, butonul care scoate piesele din listă trece în față.
   useEffect(() => {
@@ -63,13 +62,22 @@ export function LabelControls({
     return () => window.removeEventListener("afterprint", onAfterPrint);
   }, []);
 
-  function go(nextItems: LabelItem[], format: LabelPrintFormat, nextSkip = skip) {
+  // null = așezare de la zero (la schimbarea formatului celulele nu mai corespund).
+  function labelsQuery(nextItems: LabelItem[], format: LabelPrintFormat, nextCells: (string | null)[] | null) {
     const query = buildLabelPrintQuery(nextItems, format);
-    if (format.layout === "grid" && nextSkip > 0) query.set("skip", String(nextSkip));
-    router.replace(`/print/labels?${query.toString()}`);
+    if (format.layout === "grid" && nextCells) {
+      query.set("cells", encodeLabelCells(nextCells, nextItems.map((item) => item.id)));
+    }
+    return query.toString();
   }
 
-  function changeItems(nextItems: LabelItem[], nextSkip = skip) {
+  function go(nextItems: LabelItem[], format: LabelPrintFormat, nextCells: (string | null)[] | null) {
+    router.replace(`/print/labels?${labelsQuery(nextItems, format, nextCells)}`, { scroll: false });
+  }
+
+  const first = Math.max(cells.findIndex((id) => id !== null), 0);
+
+  function changeItems(nextItems: LabelItem[]) {
     const pageIds = new Set(items.map((item) => item.id));
     // Piesele adăugate între timp din CRM (alt tab) rămân în listă.
     updateStickers((current) => [
@@ -77,12 +85,13 @@ export function LabelControls({
       ...current.filter((item) => !pageIds.has(item.id)),
     ]);
     setCleared(false);
-    go(nextItems, { size, layout }, nextSkip);
+    // Așezarea rămâne; serverul pune bucățile noi după ultimul sticker.
+    go(nextItems, { size, layout }, cells);
   }
 
   // Drag & drop pe foaie: celulele randate pe server au `data-cell` și
-  // `data-sticker-id`. Lăsat peste alt sticker = schimbă ordinea; peste o
-  // celulă hașurată = printul începe de acolo cu piesa asta prima.
+  // `data-sticker-id`. Stickerul lăsat într-o celulă goală se mută acolo;
+  // peste alt sticker, cele două schimbă locul.
   useEffect(() => {
     let target: HTMLElement | null = null;
     const cellAt = (event: Event) =>
@@ -96,43 +105,36 @@ export function LabelControls({
 
     function onDragStart(event: DragEvent) {
       const cell = cellAt(event);
-      const id = cell?.dataset.stickerId;
-      if (!cell || !id) return;
-      dragId.current = id;
-      event.dataTransfer?.setData("text/plain", id);
+      if (!cell?.dataset.stickerId) return;
+      dragFrom.current = Number(cell.dataset.cell);
+      event.dataTransfer?.setData("text/plain", cell.dataset.stickerId);
       event.dataTransfer?.setDragImage(cell, cell.offsetWidth / 2, cell.offsetHeight / 2);
-      document
-        .querySelectorAll(`[data-sticker-id="${CSS.escape(id)}"]`)
-        .forEach((node) => node.classList.add("label-dragging"));
+      cell.classList.add("label-dragging");
     }
     function onDragOver(event: DragEvent) {
-      if (!dragId.current) return;
+      if (dragFrom.current === null) return;
       const cell = cellAt(event);
       mark(cell);
       if (cell) event.preventDefault();
     }
     function onDrop(event: DragEvent) {
       const cell = cellAt(event);
-      const from = dragId.current;
+      const from = dragFrom.current;
       // Curăță aici, nu doar la dragend: după re-randare celula sursă poate
       // dispărea și dragend nu mai ajunge la document.
       onDragEnd();
-      if (!cell || !from) return;
+      if (!cell || from === null) return;
       event.preventDefault();
-      const toId = cell.dataset.stickerId;
-      const index = Number(cell.dataset.cell);
-      if (toId) {
-        changeItems(moveLabelItem(items, from, items.findIndex((item) => item.id === toId)));
-      } else if (index < skip) {
-        changeItems(moveLabelItem(items, from, 0), index);
-      } else {
-        changeItems(moveLabelItem(items, from, items.length - 1));
-      }
+      const to = Number(cell.dataset.cell);
+      if (to === from) return;
+      const next = [...cells];
+      while (next.length <= Math.max(from, to)) next.push(null);
+      [next[from], next[to]] = [next[to], next[from]];
+      go(items, { size, layout }, next);
     }
     function onDragEnd() {
-      dragId.current = null;
+      dragFrom.current = null;
       mark(null);
-      setOverId(null);
       document.querySelectorAll(".label-dragging").forEach((node) => node.classList.remove("label-dragging"));
     }
 
@@ -150,7 +152,7 @@ export function LabelControls({
 
   function changeFormat(format: LabelPrintFormat) {
     saveStickerFormat(format);
-    go(items, format);
+    go(items, format, null);
   }
 
   function setCount(id: string, count: number) {
@@ -163,11 +165,7 @@ export function LabelControls({
     setCleared(true);
   }
 
-  const pdfHref = () => {
-    const query = buildLabelPrintQuery(items, { size, layout });
-    if (layout === "grid" && skip > 0) query.set("skip", String(skip));
-    return `/api/export/labels?${query.toString()}`;
-  };
+  const pdfHref = () => `/api/export/labels?${labelsQuery(items, { size, layout }, cells)}`;
 
   return (
     <div className="flex w-full max-w-xl flex-col gap-3 lg:w-auto">
@@ -212,10 +210,14 @@ export function LabelControls({
               type="number"
               min={1}
               max={perSheet}
-              value={skip + 1}
+              value={first + 1}
               onChange={(event) => {
+                // Mută tot blocul, cu golurile lui, ca primul sticker să stea aici.
                 const position = Math.min(Math.max(Number(event.target.value) || 1, 1), perSheet);
-                go(items, { size, layout }, position - 1);
+                go(items, { size, layout }, [
+                  ...Array.from({ length: position - 1 }, () => null),
+                  ...cells.slice(first),
+                ]);
               }}
               className={`w-20 ${field}`}
             />
@@ -256,38 +258,8 @@ export function LabelControls({
 
       {items.length > 0 ? (
         <div className="max-h-64 divide-y divide-[#f0efec] overflow-y-auto rounded-md border border-[#e8e7e3] bg-white">
-          {items.map((item, index) => (
-            <div
-              key={item.id}
-              onDragOver={(event) => {
-                if (!dragId.current) return;
-                event.preventDefault();
-                setOverId(dragId.current === item.id ? null : item.id);
-              }}
-              onDrop={(event) => {
-                const from = dragId.current;
-                if (!from) return;
-                event.preventDefault();
-                changeItems(moveLabelItem(items, from, index));
-              }}
-              className={`flex items-center gap-3 py-2 pr-3 pl-1 ${
-                overId === item.id ? "bg-[#eef3fe]" : ""
-              }`}
-            >
-              <span
-                draggable
-                onDragStart={(event) => {
-                  dragId.current = item.id;
-                  event.dataTransfer.setData("text/plain", item.id);
-                  const row = event.currentTarget.parentElement;
-                  if (row) event.dataTransfer.setDragImage(row, 16, row.offsetHeight / 2);
-                }}
-                className="cursor-grab px-1 text-[#a09b91] hover:text-[#1b1a17] active:cursor-grabbing"
-                aria-label={`Trage ca să muți ${item.code || item.name}`}
-                title="Trage ca să schimbi ordinea"
-              >
-                <GripVertical className="size-4" aria-hidden="true" />
-              </span>
+          {items.map((item) => (
+            <div key={item.id} className="flex items-center gap-3 px-3 py-2">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-mono text-xs font-bold text-[#1b1a17]">{item.code || "—"}</p>
                 <p className="truncate text-xs text-[#6f6b63]">{item.name}</p>

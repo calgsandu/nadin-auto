@@ -6,7 +6,7 @@ import {
   buildCombinedCompatibilityLabel,
   buildProductCodeLabel,
 } from "@/lib/labels/format";
-import { LABEL_SIZES } from "@/lib/labels/layout";
+import { LABEL_SIZES, decodeLabelCells, encodeLabelCells, placeLabels } from "@/lib/labels/layout";
 import { parseLabelRequest } from "@/lib/labels/request";
 
 const large = LABEL_SIZES.l;
@@ -83,7 +83,7 @@ assert.doesNotMatch(pageSource, /\.label-model \{[^}]*text-overflow/);
 assert.match(pageSource, /className="label-model label-detail mt-\[1mm\]/);
 assert.match(pageSource, /className="label-part label-detail mt-\[1\.8mm\]/);
 assert.match(pageSource, /parseLabelRequest/);
-assert.match(pageSource, /href=\{startHref\(i\)\}/);
+assert.match(pageSource, /data-cell=\{sheetIndex \* perSheet \+ i\}/);
 
 const pdfSource = readFileSync(
   new URL("../../../app/api/export/labels/route.ts", import.meta.url),
@@ -123,5 +123,22 @@ assert.equal(parsed.skip, 20, "skip rămâne în prima foaie (21 de poziții)");
 assert.deepEqual([...params("ids=a,b&copies=2").counts], [["a", 2], ["b", 2]]);
 assert.equal(params("items=a:1&layout=roll&skip=4").skip, 0);
 assert.equal(params("items=a:1&size=x").size, "l");
+
+// Așezarea liberă: goluri oriunde, bucățile noi după ultimul sticker.
+const ab = [{ id: "a", count: 2 }, { id: "b", count: 1 }];
+assert.deepEqual(placeLabels(ab, null, 2), [null, null, "a", "a", "b"]);
+assert.deepEqual(placeLabels(ab, ["b", null, "a", null, "a", null]), ["b", null, "a", null, "a"]);
+assert.deepEqual(
+  placeLabels([{ id: "a", count: 1 }, { id: "b", count: 2 }], ["b", null, "a", "a"]),
+  ["b", null, "a", "b"],
+  "copia a doua de a dispare, b nou intră după ultimul sticker",
+);
+assert.deepEqual(placeLabels(ab, ["x", "a"]), [null, "a", "a", "b"], "piesă scoasă = celulă goală");
+const ids = ["a", "b"];
+assert.equal(encodeLabelCells(["b", null, "a", "x"], ids), "1..0.");
+assert.deepEqual(decodeLabelCells("1..0.", ids), ["b", null, "a", null]);
+assert.equal(decodeLabelCells(null, ids), null);
+assert.deepEqual(params("items=a:1,b:1&cells=.1.0").placed, [null, "b", "a"]);
+assert.equal(params("items=a:1&cells=0&layout=roll").placed, null);
 
 console.log("label layout tests passed");
