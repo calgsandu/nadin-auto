@@ -28,6 +28,16 @@ type CatalogDictionary = {
     noneInStock: string;
     showAll: string;
   };
+  picker: {
+    byCar: string;
+    byText: string;
+    brand: string;
+    model: string;
+    chooseBrand: string;
+    chooseModel: string;
+    allModels: string;
+    show: string;
+  };
   home: {
     title: string;
     chooseBrand: string;
@@ -126,6 +136,16 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       onlyInStock: "Doar în stoc",
       noneInStock: "Nicio piesă din această categorie nu e acum în stoc.",
       showAll: "Arată toate piesele",
+    },
+    picker: {
+      byCar: "După mașină",
+      byText: "După cod sau denumire",
+      brand: "Marca",
+      model: "Modelul",
+      chooseBrand: "Alege marca",
+      chooseModel: "Alege modelul",
+      allModels: "Toate modelele",
+      show: "Vezi piesele",
     },
     home: {
       title: "Piese de caroserie pentru mașina ta.",
@@ -227,6 +247,16 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       onlyInStock: "Только в наличии",
       noneInStock: "Сейчас нет деталей этой категории в наличии.",
       showAll: "Показать все детали",
+    },
+    picker: {
+      byCar: "По автомобилю",
+      byText: "По коду или названию",
+      brand: "Марка",
+      model: "Модель",
+      chooseBrand: "Выберите марку",
+      chooseModel: "Выберите модель",
+      allModels: "Все модели",
+      show: "Показать детали",
     },
     home: {
       title: "Кузовные детали для вашего автомобиля.",

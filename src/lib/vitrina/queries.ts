@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/vitrina/slug";
+import { displayName } from "@/lib/vitrina/display-name";
 import {
   catalogCopy,
   localizedValue,
@@ -53,7 +54,7 @@ export const getShowroomData = cache(async (locale: CatalogLocale = "ro"): Promi
   const brands = brandRows
     .filter((row) => Number(row.products) > 0)
     .map((row) => ({
-      name: row.name,
+      name: displayName(row.name),
       slug: slugify(row.name),
       modelCount: Number(row.models),
       productCount: Number(row.products),
@@ -123,9 +124,9 @@ export const getPopularModels = cache(
         years = to ? `${row.y0} – ${to}` : copy.fromYear(row.y0);
       }
       return {
-        brand: row.brand,
+        brand: displayName(row.brand),
         brandSlug: slugify(row.brand),
-        name: row.model,
+        name: displayName(row.model),
         slug: slugify(row.model),
         productCount: Number(row.products),
         years,
@@ -133,6 +134,36 @@ export const getPopularModels = cache(
     });
   },
 );
+
+export type VehicleIndexBrand = {
+  name: string;
+  slug: string;
+  models: { name: string; slug: string }[];
+};
+
+/** Mărcile și modelele care au piese, pentru selectorul „Marcă → Model” din hero. */
+export const getVehicleIndex = cache(async (): Promise<VehicleIndexBrand[]> => {
+  const rows = await prisma.$queryRaw<{ brand: string; model: string }[]>`
+    SELECT DISTINCT b.name AS brand, cm.name AS model
+    FROM "CarModel" cm
+    JOIN "Brand" b ON b.id = cm."brandId"
+    JOIN "VehicleFitment" vf ON vf."carModelId" = cm.id
+    JOIN "ProductFitment" pf ON pf."fitmentId" = vf.id
+  `;
+  const brands = new Map<string, VehicleIndexBrand>();
+  for (const row of rows) {
+    const slug = slugify(row.brand);
+    if (!brands.has(slug)) brands.set(slug, { name: displayName(row.brand), slug, models: [] });
+    brands.get(slug)!.models.push({ name: displayName(row.model), slug: slugify(row.model) });
+  }
+  const collator = new Intl.Collator("ro", { numeric: true, sensitivity: "base" });
+  return [...brands.values()]
+    .map((brand) => ({
+      ...brand,
+      models: brand.models.sort((a, b) => collator.compare(a.name, b.name)),
+    }))
+    .sort((a, b) => collator.compare(a.name, b.name));
+});
 
 export type BrandModel = {
   id: string;
@@ -181,12 +212,18 @@ export const getBrandData = cache(async (brandSlug: string, locale: CatalogLocal
         const to = open ? copy.present : ends.length > 0 ? String(Math.max(...ends)) : null;
         years = to ? `${from} – ${to}` : copy.fromYear(from);
       }
-      return { id: model.id, name: model.name, slug: slugify(model.name), productCount, years };
+      return {
+        id: model.id,
+        name: displayName(model.name),
+        slug: slugify(model.name),
+        productCount,
+        years,
+      };
     })
     .filter((entry) => entry.productCount > 0)
     .sort((a, b) => b.productCount - a.productCount || a.name.localeCompare(b.name));
 
-  return { name: brand.name, slug: brandSlug, models: entries };
+  return { name: displayName(brand.name), slug: brandSlug, models: entries };
 });
 
 export type PublicProduct = {
@@ -354,8 +391,8 @@ export const getProductDetails = cache(
       typeSource: product.type.name,
       fitLabel: localizedValue(locale, fitment.label, fitment.labelRu),
       years,
-      brand: { name: carModel.brand.name, slug: slugify(carModel.brand.name) },
-      model: { name: carModel.name, slug: slugify(carModel.name) },
+      brand: { name: displayName(carModel.brand.name), slug: slugify(carModel.brand.name) },
+      model: { name: displayName(carModel.name), slug: slugify(carModel.name) },
       related: related.map((entry) => ({
         ...localizePublicProduct(entry, locale),
         type: localizedValue(locale, entry.type.name, entry.type.nameRu),
@@ -431,9 +468,9 @@ export async function searchPublicProducts(
   return products.map((product) => ({
     ...localizePublicProduct(product, locale),
     type: localizedValue(locale, product.type.name, product.type.nameRu),
-    brand: product.fitment.carModel.brand.name,
+    brand: displayName(product.fitment.carModel.brand.name),
     brandSlug: slugify(product.fitment.carModel.brand.name),
-    model: product.fitment.carModel.name,
+    model: displayName(product.fitment.carModel.name),
     modelSlug: slugify(product.fitment.carModel.name),
   }));
 }

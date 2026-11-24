@@ -1,9 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Suspense } from "react";
-import { getPopularModels, getShowroomData } from "@/lib/vitrina/queries";
+import { getPopularModels, getShowroomData, getVehicleIndex } from "@/lib/vitrina/queries";
 import { brandLogo, modelImage } from "@/lib/vitrina/images";
-import { SearchBox } from "./cauta/search-box";
+import { VehicleFinder } from "./vehicle-finder";
 import {
   catalogCopy,
   catalogHref,
@@ -30,9 +29,10 @@ export default async function CatalogPage() {
   const locale = await getRequestCatalogLocale();
   const copy = catalogCopy(locale);
   const numberFormat = catalogNumberFormat(locale);
-  const [{ totals, brands, types }, popularRows] = await Promise.all([
+  const [{ totals, brands, types }, popularRows, vehicleIndex] = await Promise.all([
     getShowroomData(locale),
     getPopularModels(locale, 40),
+    getVehicleIndex(),
   ]);
   // Doar modelele cu poză (e o vitrină, un card gol ar strica rândul) și cel
   // mult două pe marcă, altfel primele opt ar fi aproape numai Mercedes.
@@ -78,14 +78,12 @@ export default async function CatalogPage() {
           >
             {copy.home.title}
           </h1>
-          <div data-hero className="mx-auto mt-10 max-w-2xl text-left">
-            <Suspense>
-              <SearchBox locale={locale} autoFocus={false} />
-            </Suspense>
+          <div data-hero className="mx-auto mt-10 max-w-3xl">
+            <VehicleFinder locale={locale} brands={vehicleIndex} />
           </div>
           <div
             data-hero
-            className="mx-auto mt-5 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-sm"
+            className="mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-center gap-2 text-sm"
           >
             <span className="text-white/75">{copy.home.quickSearch}</span>
             {quickTypes.map((type) => (
@@ -97,12 +95,6 @@ export default async function CatalogPage() {
                 {type.name}
               </Link>
             ))}
-            <Link
-              href="#marci"
-              className="rounded-full bg-white px-3 py-1 font-semibold text-[#1b1a17] transition-colors hover:bg-white/90"
-            >
-              {copy.home.chooseBrand} ↓
-            </Link>
           </div>
         </HeroIntro>
       </section>
