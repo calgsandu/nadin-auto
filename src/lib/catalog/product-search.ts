@@ -15,6 +15,10 @@ export type ProductSearchResult = {
   stock: number;
   /** Stocul pe fiecare depozit — vânzarea avertizează când locația aleasă nu ajunge. */
   stocks?: { warehouseId: string; quantity: number }[];
+  /** Bucățile etichetei, pentru căutarea din bara de sus (afișare pe rânduri). */
+  code?: string | null;
+  description?: string;
+  vehicles?: string;
 };
 
 export type ProductSearchLabelInput = ProductFitmentsInfo & {
@@ -69,6 +73,9 @@ export function toProductSearchResult(
     salePriceLei: formatFormValue(product.salePriceLei),
     stock: product.stock ?? 0,
     stocks: product.warehouseStocks?.map(({ warehouseId, quantity }) => ({ warehouseId, quantity })),
+    code: product.externalCode?.trim() || null,
+    description: product.description,
+    vehicles: vehicleLabels(product) ?? "",
   };
 }
 

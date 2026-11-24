@@ -7,6 +7,7 @@ import type { Brand, CarModel, ProductType, VehicleFitment } from "@/generated/p
 import { formatCompatibilityYears } from "@/lib/catalog/compatibility-display";
 import { crmCatalogFilterHref } from "@/lib/crm/urls";
 import { MobileFilters } from "@/app/crm/_components/mobile-filters";
+import { CATALOG_SEARCH_EVENT } from "@/app/crm/_components/search-palette";
 
 type CatalogFiltersProps = {
   brands: Brand[];
@@ -29,6 +30,17 @@ export function CatalogFilters({
   const timer = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  // Căutarea din bara de sus aduce termenul aici; câmpul rămâne montat între
+  // căutări, deci n-ar citi singur noul `q` din adresă.
+  useEffect(() => {
+    const onSet = (event: Event) => {
+      window.clearTimeout(timer.current);
+      setQuery(String((event as CustomEvent).detail ?? ""));
+    };
+    window.addEventListener(CATALOG_SEARCH_EVENT, onSet);
+    return () => window.removeEventListener(CATALOG_SEARCH_EVENT, onSet);
+  }, []);
 
   /** Căutarea filtrează pe loc, cu o mică pauză ca să nu cerem fiecare literă. */
   function changeQuery(value: string) {

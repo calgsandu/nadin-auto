@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useRef, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { createContext, useContext, useRef, type ReactNode } from "react";
 import {
   Bell,
   ChevronDown,
@@ -12,7 +12,6 @@ import {
   Menu,
   Moon,
   PackageMinus,
-  Search,
   ShieldCheck,
   Sun,
   X,
@@ -26,6 +25,7 @@ import { crmSectionHref, sectionFromPathname } from "@/lib/crm/urls";
 import { groupForSection, navigationGroups, sectionLabel } from "@/lib/operations/workspace";
 import { canViewSection } from "@/lib/roles";
 import { menuIcons, sectionIcon } from "./section-icons";
+import { SearchPalette } from "./search-palette";
 import type { AppRole } from "@/generated/prisma/enums";
 import type { WorkspaceSectionId } from "@/lib/operations/workspace";
 
@@ -81,7 +81,6 @@ export function TopBar({
 }) {
   const counts = useContext(NavCountsContext);
   const activeSectionId = sectionFromPathname(usePathname());
-  const focusSearch = useSearchShortcut();
   const visibleGroups = navigationGroups
     .map((group) => ({
       ...group,
@@ -159,15 +158,7 @@ export function TopBar({
       </nav>
 
       <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-        <button
-          type="button"
-          onClick={focusSearch}
-          aria-label="Caută piese (Ctrl K)"
-          title="Caută piese (Ctrl K)"
-          className="grid size-9 place-items-center rounded-full border border-(--c-line) bg-(--c-surface) text-(--c-ink) hover:border-(--c-line-strong)"
-        >
-          <Search className="size-4" aria-hidden="true" />
-        </button>
+        <SearchPalette />
         <ThemeToggle />
         <HeaderNotifications />
         <div className="hidden lg:block">
@@ -377,61 +368,6 @@ function NavLink({
       ) : null}
     </Link>
   );
-}
-
-/**
- * Căutarea de piese, mereu la îndemână: duce în Produse cu termenul scris.
- * Ctrl+K (sau ⌘K) o focusează de oriunde din CRM.
- */
-/**
- * Ctrl+K (sau „/" când nu scrii într-un câmp) duce în căutarea din Produse, de
- * oriunde din CRM. Cu un panou deschis nu face nimic: ar pierde ciorna din ochi.
- */
-function useSearchShortcut() {
-  const router = useRouter();
-
-  const open = useCallback(() => {
-    const focusSearch = () => {
-      const input = document.querySelector<HTMLInputElement>("[data-catalog-search]");
-      if (!input) return false;
-      input.focus();
-      input.select();
-      return true;
-    };
-    if (focusSearch()) return;
-    router.push("/crm/produse");
-    // Pagina vine din server: așteptăm câmpul cel mult câteva secunde.
-    let tries = 0;
-    const wait = window.setInterval(() => {
-      tries += 1;
-      if (focusSearch() || tries > 50) window.clearInterval(wait);
-    }, 100);
-  }, [router]);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement;
-      const typing =
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        target.isContentEditable;
-      const shortcut =
-        ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") ||
-        (event.key === "/" && !typing && !event.ctrlKey && !event.metaKey && !event.altKey);
-      if (!shortcut) return;
-      const drawerOpen = Array.from(document.querySelectorAll<HTMLElement>(".motion-drawer-backdrop")).some(
-        (backdrop) => backdrop.style.display !== "none",
-      );
-      if (drawerOpen) return;
-      event.preventDefault();
-      open();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
-
-  return open;
 }
 
 function LogoutButton() {

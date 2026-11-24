@@ -30,7 +30,7 @@ export function CrmHeader({
   const tabsOnDesktop = hasTabs && group?.display === "tabs";
 
   return (
-    <header className="motion-page px-4 pt-3 lg:px-6 lg:pt-4">
+    <header className="motion-page px-4 pt-2 lg:px-6 lg:pt-1">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3 py-1">
         <div className="mr-auto min-w-0">
           <h1 className="text-[1.625rem] font-medium leading-tight tracking-tight text-(--c-ink) lg:text-[2rem]">

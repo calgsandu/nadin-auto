@@ -54,11 +54,6 @@ export default async function ProductsPage({
       <CrmHeader
         section="produse"
         role={appUser.role}
-        summary={
-          <Suspense fallback={null}>
-            <ProductSummary catalogPromise={catalogPromise} />
-          </Suspense>
-        }
       >
         <ExportLink href="/api/export/products" label="Export Excel" />
         {canModify ? (
@@ -80,20 +75,6 @@ export default async function ProductsPage({
           </Suspense>
         </div>
       </div>
-    </>
-  );
-}
-
-/** Rândul de sub titlu: starea stocului pe tot catalogul, cu legături spre filtre. */
-async function ProductSummary({ catalogPromise }: { catalogPromise: Promise<CatalogData> }) {
-  const { stockSummary } = await catalogPromise;
-  return (
-    <>
-      {formatNumber(stockSummary.inStock + stockSummary.low)} piese în stoc,{" "}
-      <Link className="underline decoration-(--c-line-strong) underline-offset-4 hover:text-(--c-ink)" href="/crm/produse?stoc=mic">
-        {formatNumber(stockSummary.low)} aproape terminate
-      </Link>
-      , {formatNumber(stockSummary.out)} lipsă.
     </>
   );
 }
