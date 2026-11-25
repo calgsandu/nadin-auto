@@ -250,7 +250,6 @@ export type PublicProduct = {
   id: string;
   code: string | null;
   description: string;
-  inStock: boolean;
   isLocal: boolean;
   fitLabel: string;
 };
@@ -260,7 +259,6 @@ type LocalizablePublicProductRow = {
   externalCode: string | null;
   description: string;
   descriptionRu: string | null;
-  stock: number | null;
   isLocal: boolean;
   fitment: { label: string; labelRu: string | null };
 };
@@ -273,7 +271,6 @@ export function localizePublicProduct(
     id: product.id,
     code: product.externalCode,
     description: localizedValue(locale, product.description, product.descriptionRu),
-    inStock: (product.stock ?? 0) > 0,
     isLocal: product.isLocal,
     fitLabel: localizedValue(locale, product.fitment.label, product.fitment.labelRu),
   };
@@ -332,7 +329,6 @@ export type ProductDetails = {
   code: string | null;
   description: string;
   notes: string | null;
-  inStock: boolean;
   isLocal: boolean;
   type: string;
   typeSource: string;
@@ -405,7 +401,6 @@ export const getProductDetails = cache(
         locale === "ru"
           ? product.notesRu?.trim() || product.notes
           : product.notes,
-      inStock: (product.stock ?? 0) > 0,
       isLocal: product.isLocal,
       type: localizedValue(locale, product.type.name, product.type.nameRu),
       typeSource: product.type.name,

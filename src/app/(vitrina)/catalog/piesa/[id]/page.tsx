@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getProductDetails } from "@/lib/vitrina/queries";
 import { productImage } from "@/lib/vitrina/images";
 import { Reveal, StaggerGroup } from "../../motion";
-import { PartCard, PartPlaceholder, StockBadge } from "../../part-card";
+import { PartCard, PartPlaceholder } from "../../part-card";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { catalogCopy, catalogHref } from "@/lib/vitrina/i18n";
@@ -101,13 +101,9 @@ export default async function ProductPage({
             <p className="mt-2 text-[15px] text-(--c-muted)">
               {copy.product.code} <span className="font-mono text-(--c-ink)">{product.code ?? "—"}</span>
             </p>
-            <StockBadge
-              locale={locale}
-              inStock={product.inStock}
-              isLocal={product.isLocal}
-              size="md"
-              className="mt-3"
-            />
+            {product.isLocal ? (
+              <p className="mt-1 text-[15px] text-(--c-muted)">{copy.common.local}</p>
+            ) : null}
 
             <dl className="mt-6 divide-y divide-(--c-line) rounded-[1.25rem] border border-(--c-line) bg-(--c-surface) text-[15px]">
               {specs.map(([label, value]) => (

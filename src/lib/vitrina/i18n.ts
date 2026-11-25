@@ -16,17 +16,11 @@ type CatalogDictionary = {
     parts: (count: number) => string;
     models: (count: number) => string;
     brands: (count: number) => string;
-    inStock: string;
-    outOfStock: string;
     local: string;
     noPhoto: string;
-    inStockCount: (count: number) => string;
   };
   model: {
     categories: string;
-    onlyInStock: string;
-    noneInStock: string;
-    showAll: string;
   };
   picker: {
     byCar: string;
@@ -125,17 +119,11 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       parts: (count) => `${count} ${count === 1 ? "piesă" : "piese"}`,
       models: (count) => `${count} ${count === 1 ? "model" : "modele"}`,
       brands: (count) => `${count} ${count === 1 ? "marcă" : "mărci"}`,
-      inStock: "În stoc",
-      outOfStock: "La comandă",
       local: "Producție locală",
       noPhoto: "Fără fotografie",
-      inStockCount: (count) => `${count} în stoc`,
     },
     model: {
       categories: "Categorii de piese",
-      onlyInStock: "Doar în stoc",
-      noneInStock: "Nicio piesă din această categorie nu e acum în stoc.",
-      showAll: "Arată toate piesele",
     },
     picker: {
       byCar: "După mașină",
@@ -236,17 +224,11 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
       parts: (count) => `${count} ${russianPlural(count, "деталь", "детали", "деталей")}`,
       models: (count) => `${count} ${russianPlural(count, "модель", "модели", "моделей")}`,
       brands: (count) => `${count} ${russianPlural(count, "марка", "марки", "марок")}`,
-      inStock: "В наличии",
-      outOfStock: "Под заказ",
       local: "Местное производство",
       noPhoto: "Нет фото",
-      inStockCount: (count) => `${count} в наличии`,
     },
     model: {
       categories: "Категории деталей",
-      onlyInStock: "Только в наличии",
-      noneInStock: "Сейчас нет деталей этой категории в наличии.",
-      showAll: "Показать все детали",
     },
     picker: {
       byCar: "По автомобилю",

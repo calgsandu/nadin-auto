@@ -20,7 +20,6 @@ export function PartCard({
     id: string;
     code: string | null;
     description: string;
-    inStock: boolean;
     isLocal: boolean;
     fitLabel?: string;
   };
@@ -60,7 +59,9 @@ export function PartCard({
           {subtitle ? (
             <p className="line-clamp-1 text-[13px] text-(--c-muted-2)">{subtitle}</p>
           ) : null}
-          <StockBadge locale={locale} inStock={part.inStock} isLocal={part.isLocal} className="mt-1" />
+          {part.isLocal ? (
+            <p className="mt-1 text-[13px] text-(--c-muted)">{catalogCopy(locale).common.local}</p>
+          ) : null}
         </div>
       </div>
     </Link>
@@ -82,33 +83,5 @@ export function PartPlaceholder({ locale }: { locale: CatalogLocale }) {
         <span className="text-xs text-(--c-faint)">{catalogCopy(locale).common.noPhoto}</span>
       </div>
     </div>
-  );
-}
-
-/**
- * Disponibilitatea ca text simplu: verde dacă e pe stoc, gri dacă se aduce
- * la comandă. Piesele fabricate local o spun în aceeași propoziție.
- */
-export function StockBadge({
-  locale,
-  inStock,
-  isLocal = false,
-  size = "sm",
-  className = "",
-}: {
-  locale: CatalogLocale;
-  inStock: boolean;
-  isLocal?: boolean;
-  size?: "sm" | "md";
-  className?: string;
-}) {
-  const copy = catalogCopy(locale).common;
-  return (
-    <p className={`${size === "md" ? "text-[15px]" : "text-[13px]"} ${className}`}>
-      <span className={inStock ? "font-medium text-(--c-green)" : "text-(--c-muted)"}>
-        {inStock ? copy.inStock : copy.outOfStock}
-      </span>
-      {isLocal ? <span className="text-(--c-muted)">, {copy.local.toLowerCase()}</span> : null}
-    </p>
   );
 }

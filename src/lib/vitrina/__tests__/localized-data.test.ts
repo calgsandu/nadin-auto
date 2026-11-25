@@ -6,7 +6,6 @@ const row = {
   externalCode: "A1",
   description: "Prag stânga",
   descriptionRu: "Левый порог",
-  stock: 2,
   isLocal: false,
   fitment: { label: "toți anii", labelRu: "все годы" },
 };

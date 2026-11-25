@@ -42,9 +42,9 @@ export default async function ModelPage({
   searchParams,
 }: {
   params: Promise<{ brand: string; model: string }>;
-  searchParams: Promise<{ tip?: string; stoc?: string }>;
+  searchParams: Promise<{ tip?: string }>;
 }) {
-  const [{ brand: brandSlug, model: modelSlug }, { tip, stoc }, locale] = await Promise.all([
+  const [{ brand: brandSlug, model: modelSlug }, { tip }, locale] = await Promise.all([
     params,
     searchParams,
     getRequestCatalogLocale(),
@@ -53,25 +53,14 @@ export default async function ModelPage({
   const data = await getModelData(brandSlug, modelSlug, locale);
   if (!data) notFound();
 
-  const onlyInStock = stoc === "1";
-  const activeGroups = data.groups
-    .filter((group) => !tip || group.slug === tip)
-    .map((group) => ({
-      ...group,
-      products: onlyInStock ? group.products.filter((product) => product.inStock) : group.products,
-    }))
-    .filter((group) => group.products.length > 0);
+  // Un tip necunoscut în URL (link vechi) arată toate piesele, nu o pagină goală.
+  const selected = data.groups.filter((group) => group.slug === tip);
+  const activeGroups = selected.length > 0 ? selected : data.groups;
   const photo = modelImage(data.brand.slug, data.model.slug);
   const base = catalogHref(locale, `/${data.brand.slug}/${data.model.slug}`);
-  const hrefFor = (next: { tip?: string | null; stoc?: boolean }) => {
-    const query = new URLSearchParams();
-    const nextTip = next.tip === undefined ? tip : next.tip;
-    const nextStoc = next.stoc === undefined ? onlyInStock : next.stoc;
-    if (nextTip) query.set("tip", nextTip);
-    if (nextStoc) query.set("stoc", "1");
-    const search = query.toString();
-    return search ? `${base}?${search}` : base;
-  };
+  const hrefFor = (nextTip: string | null) =>
+    nextTip ? `${base}?tip=${encodeURIComponent(nextTip)}` : base;
+  const activeTip = selected.length > 0 ? tip : undefined;
   // Filtrele sunt taburi de text cu linie sub cel activ, nu pastile.
   const tab = (active: boolean) =>
     `-mb-px shrink-0 whitespace-nowrap border-b-2 py-3.5 text-[15px] transition-colors ${
@@ -127,75 +116,38 @@ export default async function ModelPage({
             aria-label={copy.model.categories}
             className="flex min-w-0 flex-1 gap-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            <Link href={hrefFor({ tip: null })} className={tab(!tip)} scroll={false}>
+            <Link href={hrefFor(null)} className={tab(!activeTip)} scroll={false}>
               {copy.common.all}
             </Link>
             {data.groups.map((group) => (
               <Link
                 key={group.slug}
-                href={hrefFor({ tip: group.slug })}
-                className={tab(tip === group.slug)}
+                href={hrefFor(group.slug)}
+                className={tab(activeTip === group.slug)}
                 scroll={false}
               >
                 {group.type}
               </Link>
             ))}
           </nav>
-          <Link
-            href={hrefFor({ stoc: !onlyInStock })}
-            scroll={false}
-            role="checkbox"
-            aria-checked={onlyInStock}
-            className="flex shrink-0 items-center gap-2 py-3.5 text-[15px] text-(--c-muted) transition-colors hover:text-(--c-ink)"
-          >
-            <span
-              aria-hidden
-              className={`grid size-4 place-items-center rounded border transition-colors ${
-                onlyInStock
-                  ? "border-(--c-accent) bg-(--c-accent) text-white"
-                  : "border-(--c-line-strong) bg-(--c-surface)"
-              }`}
-            >
-              {onlyInStock ? (
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" className="size-3">
-                  <path d="m3.5 8.5 3 3 6-7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              ) : null}
-            </span>
-            <span className="hidden sm:inline">{copy.model.onlyInStock}</span>
-            <span className="sm:hidden">{copy.common.inStock}</span>
-          </Link>
         </div>
       </div>
 
       <section className="mx-auto max-w-6xl px-6 pb-20 pt-10 md:pb-24 md:pt-12">
-        {activeGroups.length === 0 ? (
-          <div className="rounded-[1.25rem] border border-(--c-line) bg-(--c-surface) px-6 py-14 text-center">
-            <p className="text-[15px] text-(--c-muted)">{copy.model.noneInStock}</p>
-            <Link
-              href={hrefFor({ stoc: false })}
-              scroll={false}
-              className="mt-5 inline-flex rounded-full bg-(--c-accent) px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-(--c-accent-hover)"
-            >
-              {copy.model.showAll}
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-12 md:space-y-16">
-            {activeGroups.map((group) => (
-              <div key={group.slug} id={group.slug} className="scroll-mt-36">
-                <Reveal>
-                  <h2 className="text-[1.375rem] font-medium tracking-tight md:text-2xl">{group.type}</h2>
-                </Reveal>
-                <StaggerGroup className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-                  {group.products.map((product) => (
-                    <PartCard key={product.id} locale={locale} part={product} />
-                  ))}
-                </StaggerGroup>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="space-y-12 md:space-y-16">
+          {activeGroups.map((group) => (
+            <div key={group.slug} id={group.slug} className="scroll-mt-36">
+              <Reveal>
+                <h2 className="text-[1.375rem] font-medium tracking-tight md:text-2xl">{group.type}</h2>
+              </Reveal>
+              <StaggerGroup className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+                {group.products.map((product) => (
+                  <PartCard key={product.id} locale={locale} part={product} />
+                ))}
+              </StaggerGroup>
+            </div>
+          ))}
+        </div>
       </section>
     </>
   );
