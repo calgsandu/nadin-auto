@@ -7,21 +7,26 @@
  * literele singure (C-3, H-200) și abrevierile cunoscute (BMW, CRV, MPV…).
  */
 const KEEP_UPPER = new Set([
-  "BMW", "CRV", "HR", "MPV", "ML", "LT", "RAV", "GTI", "TDI", "SUV", "HB", "MX", "CX", "XC", "DS",
+  "BMW", "CR", "CRV", "HR", "MPV", "ML", "LT", "RAV", "GTI", "TDI", "SUV", "HB", "MX", "CX", "XC",
+  "DS", "AX", "VAZ", "GAZ", "UAZ", "ZAZ",
 ]);
+// Literele mari care pot apărea în nume, inclusiv diacriticele românești și
+// chirilica (fără flag-ul `u`, pe care ținta TypeScript a proiectului nu-l are).
+const UPPER_LETTER = /[A-ZĂÂÎȘȚŞŢА-ЯЁ]/;
+const NOT_ALNUM = /[^A-Z0-9ĂÂÎȘȚŞŢА-ЯЁ]/g;
 const ROMAN = /^(I|II|III|IV|V|VI|VII|VIII|IX|X)$/;
 
 function formatPart(part: string): string {
   if (!part) return part;
   const upper = part.toUpperCase();
-  const core = upper.replace(/[^A-Z0-9]/g, "");
+  const core = upper.replace(NOT_ALNUM, "");
   if (/\d/.test(core) || ROMAN.test(core) || core.length <= 1 || KEEP_UPPER.has(core)) {
     return upper;
   }
   // Numele deja scrise cu litere mici/mixte („Golf”, „Vito”) rămân cum sunt.
   if (part !== upper) return part;
   // Prima literă mare, chiar și după o paranteză: „(XSARA” → „(Xsara”.
-  const first = upper.search(/[A-Z]/);
+  const first = upper.search(UPPER_LETTER);
   return upper.slice(0, first + 1) + upper.slice(first + 1).toLowerCase();
 }
 

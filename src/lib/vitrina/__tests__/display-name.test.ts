@@ -23,6 +23,13 @@ const cases: [string, string][] = [
   ["ML W163", "ML W163"],
   ["BUS 207-410", "Bus 207-410"],
   ["Golf", "Golf"],
+  ["CR-V I", "CR-V I"],
+  ["AX", "AX"],
+  ["VAZ", "VAZ"],
+  ["NIVA 2121-21213", "Niva 2121-21213"],
+  ["ȘTERGĂTOARE", "Ștergătoare"],
+  ["LUBRIFIANȚI", "Lubrifianți"],
+  ["SPRINTER 906 (DELFIN)", "Sprinter 906 (Delfin)"],
 ];
 for (const [input, expected] of cases) assert.equal(displayName(input), expected, input);
 
