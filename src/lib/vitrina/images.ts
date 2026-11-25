@@ -34,23 +34,6 @@ export function productImage(code: string | null): string | null {
   return null;
 }
 
-const TYPE_IMAGES: [RegExp, string][] = [
-  [/prag/i, "/vitrina/praguri.jpg"],
-  [/arca|arc[aă] arip|aripa|arip[aă]/i, "/vitrina/aripa.jpg"],
-  [/far|stop|semnaliz|ilumin|reflector|gabarit/i, "/vitrina/far.jpg"],
-  [/panou|podea|capot|portier|capac|tapiterie|consol/i, "/vitrina/panou.jpg"],
-  [/carenaj|scut|protec/i, "/vitrina/carenaj.jpg"],
-  [/sticl|geam|oglind/i, "/vitrina/sticla.jpg"],
-];
-
-/** Imagine generică de categorie — fallback când nu există poza piesei. */
-export function typeImage(typeName: string): string {
-  for (const [pattern, image] of TYPE_IMAGES) {
-    if (pattern.test(typeName)) return image;
-  }
-  return "/vitrina/depozit.jpg";
-}
-
 // ponytail: cache brand-logo filenames per process like product files
 let logoCache: Set<string> | null = null;
 const LOGO_DIR = path.join(process.cwd(), "public", "branduri");

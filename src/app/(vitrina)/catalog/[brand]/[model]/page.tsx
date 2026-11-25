@@ -132,7 +132,7 @@ export default async function ModelPage({
           </Reveal>
           {photo ? (
             <Reveal delay={0.1}>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 bg-white shadow-[0_30px_60px_-40px_rgb(27_26_23_/_0.45)]">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 bg-white">
                 <Image
                   src={photo}
                   alt={`${data.brand.name} ${data.model.name}`}

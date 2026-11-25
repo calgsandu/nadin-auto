@@ -2,10 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getProductDetails } from "@/lib/vitrina/queries";
-import { productImage, typeImage } from "@/lib/vitrina/images";
+import { productImage } from "@/lib/vitrina/images";
 import { LocalBadge } from "@/app/components/local-badge";
 import { Reveal, StaggerGroup } from "../../motion";
-import { PartCard, StockBadge } from "../../part-card";
+import { PartCard, PartPlaceholder, StockBadge } from "../../part-card";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { catalogCopy, catalogHref } from "@/lib/vitrina/i18n";
@@ -43,7 +43,6 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const realImage = productImage(product.code);
-  const image = realImage ?? typeImage(product.typeSource);
   const modelHref = catalogHref(locale, `/${product.brand.slug}/${product.model.slug}`);
 
   const specs: [string, ReactNode][] = [
@@ -85,19 +84,18 @@ export default async function ProductPage({
                 realImage ? "bg-white" : "bg-[#f1f0ec]"
               }`}
             >
-              <Image
-                src={image}
-                alt={product.description}
-                fill
-                priority
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className={realImage ? "object-contain p-6 md:p-10" : "object-cover opacity-90"}
-              />
-              {!realImage ? (
-                <span className="absolute bottom-3 left-3 rounded-full bg-white/85 px-3 py-1.5 text-[11px] text-[#57534a] backdrop-blur">
-                  {copy.product.referenceImage}
-                </span>
-              ) : null}
+              {realImage ? (
+                <Image
+                  src={realImage}
+                  alt={product.description}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-contain p-6 md:p-10"
+                />
+              ) : (
+                <PartPlaceholder locale={locale} />
+              )}
             </div>
           </Reveal>
 

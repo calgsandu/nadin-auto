@@ -81,6 +81,26 @@ export const getShowroomData = cache(async (locale: CatalogLocale = "ro"): Promi
   };
 });
 
+/**
+ * Codurile pieselor din fiecare categorie (după numele din baza de date), ca
+ * prima pagină să-și aleagă pentru fiecare categorie o poză reală de piesă.
+ */
+export const getTypeSampleCodes = cache(async (): Promise<Map<string, string[]>> => {
+  const rows = await prisma.product.findMany({
+    where: { externalCode: { not: null } },
+    select: { externalCode: true, type: { select: { name: true } } },
+    orderBy: { description: "asc" },
+  });
+  const codes = new Map<string, string[]>();
+  for (const row of rows) {
+    if (!row.externalCode) continue;
+    const list = codes.get(row.type.name) ?? [];
+    list.push(row.externalCode);
+    codes.set(row.type.name, list);
+  }
+  return codes;
+});
+
 export type PopularModel = {
   brand: string;
   brandSlug: string;

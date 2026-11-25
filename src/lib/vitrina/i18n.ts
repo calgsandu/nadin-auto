@@ -41,9 +41,10 @@ type CatalogDictionary = {
   home: {
     title: string;
     chooseBrand: string;
-    categoryTitle: string;
-    categoryAccent: string;
+    categoriesTitle: string;
+    categoriesLead: string;
     brandsTitle: string;
+    brandsLead: string;
     popularTitle: string;
     popularLead: string;
     allBrands: string;
@@ -56,7 +57,6 @@ type CatalogDictionary = {
       models: string;
       categories: string;
     };
-    categories: Record<"Prag" | "Aripa" | "Stop", string>;
   };
   search: {
     title: string;
@@ -150,11 +150,12 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
     home: {
       title: "Piese de caroserie pentru mașina ta.",
       chooseBrand: "Alege marca",
-      categoryTitle: "Ce ține mașina",
-      categoryAccent: "întreagă",
-      brandsTitle: "Alege marca. Vezi tot ce avem.",
-      popularTitle: "Modelele pentru care avem cele mai multe piese",
-      popularLead: "Microbuze, utilitare și autoturisme — de la caroserie la optică.",
+      categoriesTitle: "Piese după categorie",
+      categoriesLead: "Caroserie, optică și accesorii, grupate pe tipuri.",
+      brandsTitle: "Alege marca mașinii",
+      brandsLead: "Vezi toate modelele și piesele disponibile pentru fiecare marcă.",
+      popularTitle: "Modele populare",
+      popularLead: "Microbuze, utilitare și autoturisme pentru care avem cele mai multe piese.",
       allBrands: "Toate mărcile",
       quickSearch: "Căutate des:",
       explainer:
@@ -166,7 +167,6 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
         models: "modele acoperite",
         categories: "categorii de piese",
       },
-      categories: { Prag: "Praguri", Aripa: "Aripi", Stop: "Optică" },
     },
     search: {
       title: "Caută piesa potrivită.",
@@ -261,11 +261,12 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
     home: {
       title: "Кузовные детали для вашего автомобиля.",
       chooseBrand: "Выбрать марку",
-      categoryTitle: "Всё, что сохраняет автомобиль",
-      categoryAccent: "целым",
-      brandsTitle: "Выберите марку и посмотрите наш ассортимент.",
-      popularTitle: "Модели, для которых у нас больше всего деталей",
-      popularLead: "Микроавтобусы, коммерческие и легковые автомобили — от кузова до оптики.",
+      categoriesTitle: "Детали по категориям",
+      categoriesLead: "Кузов, оптика и аксессуары, сгруппированные по типам.",
+      brandsTitle: "Выберите марку автомобиля",
+      brandsLead: "Все модели и детали, доступные для каждой марки.",
+      popularTitle: "Популярные модели",
+      popularLead: "Микроавтобусы, коммерческие и легковые автомобили, для которых у нас больше всего деталей.",
       allBrands: "Все марки",
       quickSearch: "Часто ищут:",
       explainer:
@@ -277,7 +278,6 @@ const dictionaries: Record<CatalogLocale, CatalogDictionary> = {
         models: "моделей автомобилей",
         categories: "категорий деталей",
       },
-      categories: { Prag: "Пороги", Aripa: "Крылья", Stop: "Оптика" },
     },
     search: {
       title: "Найдите подходящую деталь.",

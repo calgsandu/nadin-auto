@@ -24,7 +24,7 @@ export function SearchBox({
   return (
     <form
       role="search"
-      className="flex gap-2 rounded-full border border-black/15 bg-white p-1.5 shadow-[0_12px_32px_-24px_rgb(27_26_23_/_0.5)] transition-colors focus-within:border-[#2e90fa]/70 sm:gap-3"
+      className="flex gap-2 rounded-full border border-black/15 bg-white p-1.5 transition-colors focus-within:border-[#2e90fa]/70 sm:gap-3"
       onSubmit={(event) => {
         event.preventDefault();
         const query = value.trim();

@@ -107,7 +107,7 @@ export default async function BrandPage({
                 key={model.slug}
                 href={catalogHref(locale, `/${brand.slug}/${model.slug}`)}
                 data-stagger
-                className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[#2e90fa]/50 hover:shadow-[0_18px_40px_-24px_rgb(27_26_23_/_0.35)]"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-colors hover:border-[#2e90fa]/60"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-[#f1f0ec]">
                   {photo ? (

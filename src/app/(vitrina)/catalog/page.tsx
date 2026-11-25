@@ -1,38 +1,62 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getPopularModels, getShowroomData, getVehicleIndex } from "@/lib/vitrina/queries";
-import { brandLogo, modelImage } from "@/lib/vitrina/images";
+import type { ReactNode } from "react";
+import {
+  getPopularModels,
+  getShowroomData,
+  getTypeSampleCodes,
+  getVehicleIndex,
+} from "@/lib/vitrina/queries";
+import { brandLogo, modelImage, productImage } from "@/lib/vitrina/images";
 import { VehicleFinder } from "./vehicle-finder";
+import { PartPlaceholder } from "./part-card";
 import {
   catalogCopy,
   catalogHref,
   catalogNumberFormat,
 } from "@/lib/vitrina/i18n";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
-import {
-  HeroIntro,
-  Reveal,
-  ScaleImage,
-  ScrubWords,
-  StaggerGroup,
-} from "./motion";
+import { HeroIntro, Reveal, StaggerGroup } from "./motion";
 
 export const revalidate = 3600;
 
-const CATEGORY_CARDS = [
-  { match: "Prag" as const, image: "/vitrina/praguri.jpg" },
-  { match: "Aripa" as const, image: "/vitrina/aripa.jpg" },
-  { match: "Stop" as const, image: "/vitrina/far.jpg" },
-] as const;
+/** Câte categorii primesc card cu poză; restul rămân ca etichete dedesubt. */
+const CATEGORY_TILES = 8;
+
+/** Titlul unei secțiuni: simplu, de mărime potrivită, cu o frază de context. */
+function SectionHeading({
+  title,
+  lead,
+  action,
+}: {
+  title: string;
+  lead?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <Reveal>
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl font-bold tracking-tight md:text-[2.25rem] md:leading-tight">
+            {title}
+          </h2>
+          {lead ? <p className="mt-2 text-[15px] text-[#6f6a61] md:text-base">{lead}</p> : null}
+        </div>
+        {action}
+      </div>
+    </Reveal>
+  );
+}
 
 export default async function CatalogPage() {
   const locale = await getRequestCatalogLocale();
   const copy = catalogCopy(locale);
   const numberFormat = catalogNumberFormat(locale);
-  const [{ totals, brands, types }, popularRows, vehicleIndex] = await Promise.all([
+  const [{ totals, brands, types }, popularRows, vehicleIndex, sampleCodes] = await Promise.all([
     getShowroomData(locale),
     getPopularModels(locale, 40),
     getVehicleIndex(),
+    getTypeSampleCodes(),
   ]);
   // Doar modelele cu poză (e o vitrină, un card gol ar strica rândul) și cel
   // mult două pe marcă, altfel primele opt ar fi aproape numai Mercedes.
@@ -48,8 +72,19 @@ export default async function CatalogPage() {
     })
     .slice(0, 8);
   const quickTypes = types.slice(0, 5);
-  const cardTypes = new Set(CATEGORY_CARDS.map((card) => card.match));
-  const chipTypes = types.filter((type) => !cardTypes.has(type.sourceName as (typeof CATEGORY_CARDS)[number]["match"])).slice(0, 18);
+  // Fiecare categorie principală primește poza reală a uneia dintre piesele ei.
+  const tileTypes = types.slice(0, CATEGORY_TILES).map((type) => {
+    const codes = sampleCodes.get(type.sourceName) ?? [];
+    let photo: string | null = null;
+    for (const code of codes) {
+      photo = productImage(code);
+      if (photo) break;
+    }
+    return { ...type, photo };
+  });
+  const chipTypes = types.slice(CATEGORY_TILES, CATEGORY_TILES + 18);
+  const searchHref = (query: string) =>
+    `${catalogHref(locale, "/cauta")}?q=${encodeURIComponent(query)}`;
 
   return (
     <>
@@ -62,7 +97,8 @@ export default async function CatalogPage() {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(14,19,27,0.30)_0%,rgba(14,19,27,0.42)_45%,rgba(14,19,27,0.62)_100%)]" />
+        {/* Un voal uniform, fără gradient spre negru: doar cât textul alb să se citească. */}
+        <div className="absolute inset-0 bg-[#16202c]/45" />
         <HeroIntro className="relative mx-auto w-full max-w-6xl px-6 pb-20 pt-36 text-center md:pb-28">
           <p
             data-hero
@@ -74,7 +110,7 @@ export default async function CatalogPage() {
           </p>
           <h1
             data-hero
-            className="mx-auto mt-6 max-w-5xl text-balance text-[clamp(2.6rem,6vw,5.25rem)] font-bold leading-[1.02] tracking-tight text-white [text-shadow:0_2px_24px_rgb(0_0_0_/_0.35)]"
+            className="mx-auto mt-6 max-w-4xl text-balance text-[clamp(2.25rem,5vw,4.25rem)] font-bold leading-[1.05] tracking-tight text-white"
           >
             {copy.home.title}
           </h1>
@@ -89,7 +125,7 @@ export default async function CatalogPage() {
             {quickTypes.map((type) => (
               <Link
                 key={type.slug}
-                href={`${catalogHref(locale, "/cauta")}?q=${encodeURIComponent(type.name)}`}
+                href={searchHref(type.name)}
                 className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-white backdrop-blur transition-colors hover:bg-white/25"
               >
                 {type.name}
@@ -133,30 +169,26 @@ export default async function CatalogPage() {
       </section>
 
       {popular.length > 0 ? (
-        <section className="mx-auto max-w-6xl px-6 pb-8 pt-20 md:pt-28">
-          <Reveal>
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <div className="max-w-2xl">
-                <h2 className="text-3xl font-bold leading-[1.08] tracking-tight md:text-5xl">
-                  {copy.home.popularTitle}
-                </h2>
-                <p className="mt-4 text-base text-[#6f6a61] md:text-lg">{copy.home.popularLead}</p>
-              </div>
+        <section className="mx-auto max-w-6xl px-6 pb-4 pt-16 md:pt-24">
+          <SectionHeading
+            title={copy.home.popularTitle}
+            lead={copy.home.popularLead}
+            action={
               <Link
                 href="#marci"
                 className="rounded-full border border-black/15 bg-white px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-black/5"
               >
                 {copy.home.allBrands} →
               </Link>
-            </div>
-          </Reveal>
-          <StaggerGroup className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            }
+          />
+          <StaggerGroup className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {popular.map((model, index) => (
               <Link
                 key={`${model.brandSlug}/${model.slug}`}
                 href={catalogHref(locale, `/${model.brandSlug}/${model.slug}`)}
                 data-stagger
-                className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[#2e90fa]/50 hover:shadow-[0_18px_40px_-24px_rgb(27_26_23_/_0.35)]"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-colors hover:border-[#2e90fa]/60"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-[#f1f0ec]">
                   <Image
@@ -188,13 +220,9 @@ export default async function CatalogPage() {
         </section>
       ) : null}
 
-      <section id="marci" className="mx-auto max-w-6xl scroll-mt-28 px-6 py-16 md:py-24">
-        <Reveal>
-          <h2 className="max-w-4xl text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
-            {copy.home.brandsTitle}
-          </h2>
-        </Reveal>
-        <StaggerGroup className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+      <section id="marci" className="mx-auto max-w-6xl scroll-mt-28 px-6 py-14 md:py-20">
+        <SectionHeading title={copy.home.brandsTitle} lead={copy.home.brandsLead} />
+        <StaggerGroup className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
           {brands.map((brand) => {
             const logo = brandLogo(brand.slug);
             return (
@@ -229,54 +257,50 @@ export default async function CatalogPage() {
         </StaggerGroup>
       </section>
 
-      <section id="categorii" className="mx-auto max-w-6xl scroll-mt-28 px-6 py-16 md:py-24">
-        <Reveal>
-          <h2 className="max-w-4xl text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
-            {copy.home.categoryTitle}{" "}<span className="text-[#2e90fa]">{copy.home.categoryAccent}</span>.
-          </h2>
-        </Reveal>
-        <StaggerGroup className="mt-10 grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-6 md:grid-rows-2">
-          {CATEGORY_CARDS.map((card, index) => {
-            const type = types.find((entry) => entry.sourceName === card.match);
-            const big = index === 0;
-            const title = copy.home.categories[card.match];
-            return (
-              <Link
-                key={card.match}
-                href={`${catalogHref(locale, "/cauta")}?q=${encodeURIComponent(locale === "ru" ? title : card.match)}`}
-                data-stagger
-                className={`group relative overflow-hidden rounded-3xl border border-black/10 ${
-                  big ? "md:col-span-4 md:row-span-2 min-h-96" : "md:col-span-2 min-h-56"
+      <section id="categorii" className="mx-auto max-w-6xl scroll-mt-28 px-6 pb-14 pt-4 md:pb-20 md:pt-6">
+        <SectionHeading title={copy.home.categoriesTitle} lead={copy.home.categoriesLead} />
+        <StaggerGroup className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+          {tileTypes.map((type) => (
+            <Link
+              key={type.slug}
+              href={searchHref(type.name)}
+              data-stagger
+              className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-colors hover:border-[#2e90fa]/60"
+            >
+              <div
+                className={`relative aspect-[4/3] overflow-hidden border-b border-black/5 ${
+                  type.photo ? "bg-white" : "bg-[#f1f0ec]"
                 }`}
               >
-                <Image
-                  src={card.image}
-                  alt={title}
-                  fill
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  className="object-cover opacity-80 transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-6">
-                  <span className={`font-bold tracking-tight text-white ${big ? "text-3xl md:text-4xl" : "text-xl"}`}>
-                    {title}
-                  </span>
-                  {type ? (
-                    <span className="font-mono text-sm text-[#2e90fa]">
-                      {numberFormat.format(type.count)}
-                    </span>
-                  ) : null}
-                </div>
-              </Link>
-            );
-          })}
+                {type.photo ? (
+                  <Image
+                    src={type.photo}
+                    alt={type.name}
+                    fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                    className="object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-105"
+                  />
+                ) : (
+                  <PartPlaceholder locale={locale} />
+                )}
+              </div>
+              <div className="flex items-center justify-between gap-3 p-3.5 sm:p-4">
+                <p className="truncate text-base font-semibold tracking-tight group-hover:text-[#2e90fa]">
+                  {type.name}
+                </p>
+                <span className="shrink-0 font-mono text-xs text-[#6f6a61]">
+                  {numberFormat.format(type.count)}
+                </span>
+              </div>
+            </Link>
+          ))}
         </StaggerGroup>
-        <Reveal className="mt-8 flex flex-wrap gap-2.5" delay={0.1}>
+        <Reveal className="mt-6 flex flex-wrap gap-2.5" delay={0.1}>
           {chipTypes.map((type) => (
             <Link
               key={type.slug}
-              href={`${catalogHref(locale, "/cauta")}?q=${encodeURIComponent(type.name)}`}
-              className="rounded-full border border-black/10 px-4 py-2 text-sm text-[#57534a] transition-colors hover:border-[#2e90fa]/60 hover:text-[#1b1a17]"
+              href={searchHref(type.name)}
+              className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm text-[#57534a] transition-colors hover:border-[#2e90fa]/60 hover:text-[#1b1a17]"
             >
               {type.name}
               <span className="ml-2 font-mono text-xs text-[#98948b]">
@@ -287,41 +311,38 @@ export default async function CatalogPage() {
         </Reveal>
       </section>
 
-      <section className="mx-auto max-w-4xl px-6 py-20 text-center md:py-28">
-        <ScrubWords
-          className="text-3xl font-semibold leading-snug tracking-tight md:text-5xl"
-          text={copy.home.explainer}
-        />
-      </section>
-
-      <section className="relative">
-        <ScaleImage className="mx-auto max-w-7xl px-4 md:px-6">
-          <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 md:aspect-[21/9]">
+      <section className="mx-auto max-w-6xl px-6 pb-16 md:pb-24">
+        <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
+          <Reveal className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-black/10 bg-[#f1f0ec] lg:aspect-auto">
             <Image
               src="/vitrina/depozit.jpg"
               alt={copy.home.warehouseAlt}
               fill
-              sizes="100vw"
+              sizes="(min-width: 1024px) 55vw, 100vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-6 p-8 md:grid-cols-4 md:p-12">
+          </Reveal>
+          <Reveal delay={0.1} className="flex flex-col justify-between gap-6 rounded-2xl border border-black/10 bg-white p-6 md:p-8">
+            <p className="text-lg font-semibold leading-snug tracking-tight md:text-xl">
+              {copy.home.explainer}
+            </p>
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-5">
               {[
                 [numberFormat.format(totals.products), copy.home.stats.products],
                 [String(totals.brands), copy.home.stats.brands],
                 [String(totals.models), copy.home.stats.models],
                 [String(totals.types), copy.home.stats.categories],
               ].map(([value, label]) => (
-                <div key={label}>
-                  <p className="text-3xl font-bold tracking-tight text-[#6db5fc] md:text-5xl">
+                <div key={label} className="flex flex-col-reverse border-t border-black/10 pt-3">
+                  <dt className="mt-0.5 text-sm text-[#6f6a61]">{label}</dt>
+                  <dd className="text-2xl font-bold tracking-tight text-[#1570d6] md:text-3xl">
                     {value}
-                  </p>
-                  <p className="mt-1 text-xs text-white/75 md:text-sm">{label}</p>
+                  </dd>
                 </div>
               ))}
-            </div>
-          </div>
-        </ScaleImage>
+            </dl>
+          </Reveal>
+        </div>
       </section>
     </>
   );

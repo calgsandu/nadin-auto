@@ -50,7 +50,7 @@ export function VehicleFinder({
     }`;
 
   return (
-    <div className="rounded-[28px] border border-white/40 bg-white/95 p-2.5 text-left shadow-[0_30px_80px_-30px_rgb(0_0_0_/_0.55)] backdrop-blur-xl sm:p-3">
+    <div className="rounded-[28px] border border-white/40 bg-white p-2.5 text-left backdrop-blur-xl sm:p-3">
       <div role="tablist" className="flex gap-1 p-1">
         <button
           type="button"

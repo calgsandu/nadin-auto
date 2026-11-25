@@ -73,12 +73,12 @@ export default async function VitrinaLayout({
       <main className="w-full max-w-full overflow-x-hidden">{children}</main>
 
       <footer className="border-t border-black/10">
-        <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
-          <p className="max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:py-20">
+          <p className="max-w-2xl text-2xl font-bold tracking-tight md:text-[2.25rem] md:leading-tight">
             {copy.footer.question}{" "}
-            <span className="text-[#2e90fa]">{copy.footer.answer}</span>
+            <span className="text-[#1570d6]">{copy.footer.answer}</span>
           </p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          <div className="mt-6 flex flex-wrap items-center gap-4">
             <Link
               href={catalogHref(locale, "/cauta")}
               className="rounded-full bg-[#2e90fa] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1b7fe8]"
