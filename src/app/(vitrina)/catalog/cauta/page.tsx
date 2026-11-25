@@ -81,15 +81,15 @@ export default async function SearchPage({
         <div className="mt-12 space-y-12 border-t border-black/10 pt-10">
           <div>
             <h2 className="text-lg font-semibold tracking-tight">{copy.search.tryCategory}</h2>
-            <div className="mt-4 flex flex-wrap gap-2.5">
+            <div className="mt-3 grid grid-cols-2 gap-x-8 border-t border-black/10 sm:grid-cols-3 lg:grid-cols-4">
               {showroom.types.slice(0, 16).map((type) => (
                 <Link
                   key={type.slug}
                   href={`${catalogHref(locale, "/cauta")}?q=${encodeURIComponent(type.name)}`}
-                  className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm text-[#57534a] transition-colors hover:border-[#2e90fa]/60 hover:text-[#1b1a17]"
+                  className="group flex items-baseline justify-between gap-3 border-b border-black/10 py-3 text-[15px]"
                 >
-                  {type.name}
-                  <span className="ml-2 font-mono text-xs text-[#98948b]">
+                  <span className="truncate text-[#1b1a17] group-hover:text-[#1570d6]">{type.name}</span>
+                  <span className="shrink-0 font-mono text-xs text-[#98948b]">
                     {numberFormat.format(type.count)}
                   </span>
                 </Link>

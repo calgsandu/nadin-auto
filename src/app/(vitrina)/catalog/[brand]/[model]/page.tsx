@@ -115,18 +115,17 @@ export default async function ModelPage({
               {data.brand.name}{" "}
               <span className="text-[#2e90fa]">{data.model.name}</span>
             </h1>
-            <div className="mt-6 flex flex-wrap gap-2.5 text-sm">
-              <span className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 text-[#57534a]">
-                {data.model.years ?? copy.common.allYears}
-              </span>
-              <span className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 text-[#57534a]">
-                {copy.common.parts(total)}
-              </span>
+            <div className="mt-4 flex flex-wrap items-center gap-x-2 text-base text-[#57534a]">
+              <span>{data.model.years ?? copy.common.allYears}</span>
+              <span aria-hidden className="text-[#b4afa5]">·</span>
+              <span>{copy.common.parts(total)}</span>
               {inStockTotal > 0 ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1.5 font-medium text-emerald-700 ring-1 ring-emerald-600/15">
-                  <span aria-hidden className="size-1.5 rounded-full bg-emerald-500" />
-                  {copy.common.inStockCount(inStockTotal)}
-                </span>
+                <>
+                  <span aria-hidden className="text-[#b4afa5]">·</span>
+                  <span className="font-medium text-emerald-700">
+                    {copy.common.inStockCount(inStockTotal)}
+                  </span>
+                </>
               ) : null}
             </div>
           </Reveal>

@@ -16,7 +16,13 @@ import {
   catalogNumberFormat,
 } from "@/lib/vitrina/i18n";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
-import { HeroIntro, Reveal, StaggerGroup } from "./motion";
+import {
+  HeroIntro,
+  Reveal,
+  ScaleImage,
+  ScrubWords,
+  StaggerGroup,
+} from "./motion";
 
 export const revalidate = 3600;
 
@@ -100,11 +106,7 @@ export default async function CatalogPage() {
         {/* Un voal uniform, fără gradient spre negru: doar cât textul alb să se citească. */}
         <div className="absolute inset-0 bg-[#16202c]/45" />
         <HeroIntro className="relative mx-auto w-full max-w-6xl px-6 pb-20 pt-36 text-center md:pb-28">
-          <p
-            data-hero
-            className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-sm text-white/90 backdrop-blur"
-          >
-            <span aria-hidden className="size-1.5 rounded-full bg-[#6db5fc]" />
+          <p data-hero className="text-sm font-medium text-white/85 md:text-base">
             {copy.common.parts(totals.products)} · {copy.common.brands(totals.brands)} ·{" "}
             {copy.common.models(totals.models)}
           </p>
@@ -119,14 +121,14 @@ export default async function CatalogPage() {
           </div>
           <div
             data-hero
-            className="mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-center gap-2 text-sm"
+            className="mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm"
           >
-            <span className="text-white/75">{copy.home.quickSearch}</span>
+            <span className="text-white/70">{copy.home.quickSearch}</span>
             {quickTypes.map((type) => (
               <Link
                 key={type.slug}
                 href={searchHref(type.name)}
-                className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-white backdrop-blur transition-colors hover:bg-white/25"
+                className="font-medium text-white underline decoration-white/40 underline-offset-4 transition-colors hover:decoration-white"
               >
                 {type.name}
               </Link>
@@ -176,7 +178,7 @@ export default async function CatalogPage() {
             action={
               <Link
                 href="#marci"
-                className="rounded-full border border-black/15 bg-white px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-black/5"
+                className="text-sm font-semibold text-[#1570d6] transition-colors hover:text-[#1b1a17]"
               >
                 {copy.home.allBrands} →
               </Link>
@@ -207,12 +209,9 @@ export default async function CatalogPage() {
                       {model.name}
                     </p>
                     <p className="mt-0.5 truncate text-xs text-[#98948b]">
-                      {model.years ?? copy.common.allYears}
+                      {model.years ?? copy.common.allYears} · {copy.common.parts(model.productCount)}
                     </p>
                   </div>
-                  <span className="hidden shrink-0 rounded-full bg-[#2e90fa]/10 px-2.5 py-1 font-mono text-xs font-semibold text-[#1570d6] sm:inline">
-                    {numberFormat.format(model.productCount)}
-                  </span>
                 </div>
               </Link>
             ))}
@@ -295,15 +294,19 @@ export default async function CatalogPage() {
             </Link>
           ))}
         </StaggerGroup>
-        <Reveal className="mt-6 flex flex-wrap gap-2.5" delay={0.1}>
+        {/* Restul categoriilor: o listă simplă pe coloane, fără chenare rotunjite. */}
+        <Reveal
+          className="mt-8 grid grid-cols-2 gap-x-8 border-t border-black/10 sm:grid-cols-3 lg:grid-cols-4"
+          delay={0.1}
+        >
           {chipTypes.map((type) => (
             <Link
               key={type.slug}
               href={searchHref(type.name)}
-              className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm text-[#57534a] transition-colors hover:border-[#2e90fa]/60 hover:text-[#1b1a17]"
+              className="group flex items-baseline justify-between gap-3 border-b border-black/10 py-3 text-[15px]"
             >
-              {type.name}
-              <span className="ml-2 font-mono text-xs text-[#98948b]">
+              <span className="truncate text-[#1b1a17] group-hover:text-[#1570d6]">{type.name}</span>
+              <span className="shrink-0 font-mono text-xs text-[#98948b]">
                 {numberFormat.format(type.count)}
               </span>
             </Link>
@@ -311,38 +314,41 @@ export default async function CatalogPage() {
         </Reveal>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-16 md:pb-24">
-        <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-          <Reveal className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-black/10 bg-[#f1f0ec] lg:aspect-auto">
+      <section className="mx-auto max-w-4xl px-6 py-20 text-center md:py-28">
+        <ScrubWords
+          className="text-3xl font-semibold leading-snug tracking-tight md:text-5xl"
+          text={copy.home.explainer}
+        />
+      </section>
+
+      <section className="relative">
+        <ScaleImage className="mx-auto max-w-7xl px-4 md:px-6">
+          <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 md:aspect-[21/9]">
             <Image
               src="/vitrina/depozit.jpg"
               alt={copy.home.warehouseAlt}
               fill
-              sizes="(min-width: 1024px) 55vw, 100vw"
+              sizes="100vw"
               className="object-cover"
             />
-          </Reveal>
-          <Reveal delay={0.1} className="flex flex-col justify-between gap-6 rounded-2xl border border-black/10 bg-white p-6 md:p-8">
-            <p className="text-lg font-semibold leading-snug tracking-tight md:text-xl">
-              {copy.home.explainer}
-            </p>
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-5">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-6 p-8 md:grid-cols-4 md:p-12">
               {[
                 [numberFormat.format(totals.products), copy.home.stats.products],
                 [String(totals.brands), copy.home.stats.brands],
                 [String(totals.models), copy.home.stats.models],
                 [String(totals.types), copy.home.stats.categories],
               ].map(([value, label]) => (
-                <div key={label} className="flex flex-col-reverse border-t border-black/10 pt-3">
-                  <dt className="mt-0.5 text-sm text-[#6f6a61]">{label}</dt>
-                  <dd className="text-2xl font-bold tracking-tight text-[#1570d6] md:text-3xl">
+                <div key={label}>
+                  <p className="text-3xl font-bold tracking-tight text-[#6db5fc] md:text-5xl">
                     {value}
-                  </dd>
+                  </p>
+                  <p className="mt-1 text-xs text-white/75 md:text-sm">{label}</p>
                 </div>
               ))}
-            </dl>
-          </Reveal>
-        </div>
+            </div>
+          </div>
+        </ScaleImage>
       </section>
     </>
   );

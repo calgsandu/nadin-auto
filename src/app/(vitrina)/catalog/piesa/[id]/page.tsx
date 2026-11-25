@@ -100,18 +100,17 @@ export default async function ProductPage({
           </Reveal>
 
           <Reveal delay={0.1}>
-            <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
               <StockBadge locale={locale} inStock={product.inStock} size="md" />
-              <span className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs text-[#57534a]">
-                {product.type}
-              </span>
-              {product.isLocal ? <LocalBadge locale={locale} className="!text-[11px] px-3 py-1.5" /> : null}
+              <span aria-hidden className="text-[#b4afa5]">·</span>
+              <span className="text-[#57534a]">{product.type}</span>
+              {product.isLocal ? <LocalBadge locale={locale} /> : null}
             </div>
             <h1 className="mt-5 text-3xl font-bold leading-[1.08] tracking-tight md:text-5xl">
               {product.description}
             </h1>
-            <p className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#2e90fa]/[0.08] px-3 py-1.5 font-mono text-lg font-semibold text-[#1570d6]">
-              <span className="font-sans text-xs font-medium text-[#2e90fa]/80">{copy.product.code}</span>
+            <p className="mt-3 flex items-baseline gap-2 font-mono text-lg font-semibold text-[#1570d6]">
+              <span className="font-sans text-sm font-medium text-[#6f6a61]">{copy.product.code}</span>
               {product.code ?? "—"}
             </p>
 

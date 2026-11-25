@@ -54,9 +54,6 @@ export function PartCard({
         ) : (
           <PartPlaceholder locale={locale} />
         )}
-        <span className="absolute left-2.5 top-2.5">
-          <StockBadge locale={locale} inStock={part.inStock} />
-        </span>
       </div>
       <div className="flex flex-1 flex-col p-3.5 sm:p-4">
         <div className="flex items-center justify-between gap-2">
@@ -68,11 +65,12 @@ export function PartCard({
         <p className="mt-1.5 line-clamp-2 text-sm font-medium leading-snug text-[#1b1a17] group-hover:text-[#2e90fa] sm:text-[15px]">
           {part.description}
         </p>
-        {subtitle ? (
-          <p className="mt-auto line-clamp-1 pt-2 text-xs text-[#6f6a61] sm:text-[13px]">
-            {subtitle}
-          </p>
-        ) : null}
+        <div className="mt-auto pt-2">
+          {subtitle ? (
+            <p className="line-clamp-1 text-xs text-[#6f6a61] sm:text-[13px]">{subtitle}</p>
+          ) : null}
+          <StockBadge locale={locale} inStock={part.inStock} className="mt-1.5" />
+        </div>
       </div>
     </Link>
   );
@@ -98,25 +96,24 @@ export function PartPlaceholder({ locale }: { locale: CatalogLocale }) {
   );
 }
 
+/** Disponibilitatea ca text simplu cu un punct colorat, fără chenar sau fundal. */
 export function StockBadge({
   locale,
   inStock,
   size = "sm",
+  className = "",
 }: {
   locale: CatalogLocale;
   inStock: boolean;
   size?: "sm" | "md";
+  className?: string;
 }) {
   const copy = catalogCopy(locale).common;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full font-semibold backdrop-blur ${
-        size === "md" ? "px-3 py-1.5 text-xs" : "px-2 py-1 text-[11px]"
-      } ${
-        inStock
-          ? "bg-emerald-50/95 text-emerald-700 ring-1 ring-emerald-600/15"
-          : "bg-white/90 text-[#6f6a61] ring-1 ring-black/10"
-      }`}
+      className={`flex items-center gap-1.5 font-semibold ${
+        size === "md" ? "text-sm" : "text-xs"
+      } ${inStock ? "text-emerald-700" : "text-[#6f6a61]"} ${className}`}
     >
       <span
         aria-hidden

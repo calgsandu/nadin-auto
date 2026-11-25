@@ -5,11 +5,7 @@ import { getBrandData, getShowroomData } from "@/lib/vitrina/queries";
 import { brandLogo, modelImage } from "@/lib/vitrina/images";
 import { Reveal, StaggerGroup } from "../motion";
 import type { Metadata } from "next";
-import {
-  catalogCopy,
-  catalogHref,
-  catalogNumberFormat,
-} from "@/lib/vitrina/i18n";
+import { catalogCopy, catalogHref } from "@/lib/vitrina/i18n";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
 
 export const revalidate = 3600;
@@ -50,7 +46,6 @@ export default async function BrandPage({
     getRequestCatalogLocale(),
   ]);
   const copy = catalogCopy(locale);
-  const numberFormat = catalogNumberFormat(locale);
   const brand = await getBrandData(brandSlug, locale);
   if (!brand || brand.models.length === 0) notFound();
 
@@ -141,12 +136,14 @@ export default async function BrandPage({
                       {model.name}
                     </p>
                     <p className="mt-1 truncate text-xs text-[#6f6a61] md:text-sm">
-                      {model.years ?? copy.common.allYears}
+                      {model.years ?? copy.common.allYears} · {copy.common.parts(model.productCount)}
                     </p>
                   </div>
-                  <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-black/10 px-3 py-1.5 text-xs text-[#57534a] transition-colors group-hover:border-[#2e90fa]/40 group-hover:text-[#2e90fa] sm:inline-flex">
-                    <span className="font-mono">{numberFormat.format(model.productCount)}</span>
-                    <span aria-hidden>→</span>
+                  <span
+                    aria-hidden
+                    className="hidden shrink-0 text-lg text-[#b4afa5] transition-colors group-hover:text-[#2e90fa] sm:inline"
+                  >
+                    →
                   </span>
                 </div>
               </Link>
