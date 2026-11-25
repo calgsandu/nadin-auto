@@ -16,7 +16,7 @@ export function LanguageSwitcher({ locale }: { locale: CatalogLocale }) {
     <a
       href={switchCatalogLocale(pathname, search, targetLocale)}
       hrefLang={targetLocale}
-      className="rounded-full border border-black/10 bg-white/70 px-3 py-2 text-xs font-bold tracking-wide text-[#57534a] transition-colors hover:border-[#2e90fa]/50 hover:text-[#1b1a17]"
+      className="text-sm font-medium text-(--c-muted) transition-colors hover:text-(--c-ink)"
       aria-label={locale === "ru" ? "Переключить на румынский" : "Schimbă în limba rusă"}
     >
       {locale === "ru" ? "RO" : "RU"}

@@ -6,12 +6,10 @@ import { brandLogo } from "@/lib/vitrina/images";
 import { SearchBox } from "./search-box";
 import { PartCard } from "../part-card";
 import type { Metadata } from "next";
-import { catalogCopy, catalogHref, catalogNumberFormat } from "@/lib/vitrina/i18n";
+import { catalogCopy, catalogHref } from "@/lib/vitrina/i18n";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
 
 export const dynamic = "force-dynamic";
-
-const SEARCH_LIMIT = 80;
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestCatalogLocale();
@@ -37,40 +35,39 @@ export default async function SearchPage({
     getRequestCatalogLocale(),
   ]);
   const copy = catalogCopy(locale);
-  const numberFormat = catalogNumberFormat(locale);
   const query = q?.trim() ?? "";
   const hits = query ? await searchPublicProducts(query, locale) : [];
   // Sugestiile apar doar când nu e nimic de arătat: fără căutare sau fără rezultate.
   const showroom = hits.length === 0 ? await getShowroomData(locale) : null;
 
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-24 pt-32 md:pt-44">
+    <section className="mx-auto max-w-6xl px-6 pb-24 pt-28 md:pt-36">
       <div className="max-w-3xl">
-        <h1 className="text-4xl font-bold tracking-tight md:text-6xl">{copy.search.title}</h1>
-        <p className="mt-4 text-[#6f6a61] md:text-lg">{copy.search.description}</p>
-        <div className="mt-8">
+        <h1 className="text-[1.625rem] font-medium leading-tight tracking-tight lg:text-[2rem]">
+          {copy.search.title}
+        </h1>
+        <p className="mt-1.5 text-[15px] text-(--c-muted)">{copy.search.description}</p>
+        <div className="mt-6">
           <Suspense>
             <SearchBox key={query} locale={locale} />
           </Suspense>
         </div>
       </div>
 
-      {query ? (
-        <p className="mt-10 text-sm text-[#6f6a61]" aria-live="polite">
-          {hits.length === 0
-            ? copy.search.noResultsFor(query)
-            : copy.search.resultsFor(hits.length, query, hits.length === SEARCH_LIMIT)}
+      {query && hits.length === 0 ? (
+        <p className="mt-8 text-[15px] text-(--c-muted)" aria-live="polite">
+          {copy.search.noResultsFor(query)}
         </p>
       ) : null}
 
       {hits.length > 0 ? (
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {hits.map((hit, index) => (
             <PartCard
               key={hit.id}
               locale={locale}
               part={hit}
-              meta={`${hit.brand} ${hit.model} · ${hit.type}`}
+              meta={`${hit.brand} ${hit.model}, ${hit.type.toLowerCase()}`}
               priority={index < 4}
             />
           ))}
@@ -78,26 +75,23 @@ export default async function SearchPage({
       ) : null}
 
       {showroom ? (
-        <div className="mt-12 space-y-12 border-t border-black/10 pt-10">
+        <div className="mt-12 space-y-12 border-t border-(--c-line) pt-10">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight">{copy.search.tryCategory}</h2>
-            <div className="mt-3 grid grid-cols-2 gap-x-8 border-t border-black/10 sm:grid-cols-3 lg:grid-cols-4">
+            <h2 className="text-lg font-medium tracking-tight">{copy.search.tryCategory}</h2>
+            <div className="mt-3 grid grid-cols-2 gap-x-8 border-t border-(--c-line) sm:grid-cols-3 lg:grid-cols-4">
               {showroom.types.slice(0, 16).map((type) => (
                 <Link
                   key={type.slug}
                   href={`${catalogHref(locale, "/cauta")}?q=${encodeURIComponent(type.name)}`}
-                  className="group flex items-baseline justify-between gap-3 border-b border-black/10 py-3 text-[15px]"
+                  className="truncate border-b border-(--c-line) py-3 text-[15px] transition-colors hover:text-(--c-accent)"
                 >
-                  <span className="truncate text-[#1b1a17] group-hover:text-[#1570d6]">{type.name}</span>
-                  <span className="shrink-0 font-mono text-xs text-[#98948b]">
-                    {numberFormat.format(type.count)}
-                  </span>
+                  {type.name}
                 </Link>
               ))}
             </div>
           </div>
           <div>
-            <h2 className="text-lg font-semibold tracking-tight">{copy.search.tryBrand}</h2>
+            <h2 className="text-lg font-medium tracking-tight">{copy.search.tryBrand}</h2>
             <div className="mt-4 grid grid-cols-3 gap-2.5 sm:grid-cols-4 md:grid-cols-6">
               {showroom.brands.map((brand) => {
                 const logo = brandLogo(brand.slug);
@@ -106,7 +100,7 @@ export default async function SearchPage({
                     key={brand.slug}
                     href={catalogHref(locale, `/${brand.slug}`)}
                     title={brand.name}
-                    className="group flex h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border border-black/10 bg-white p-3 transition-colors hover:border-[#2e90fa]/60"
+                    className="group flex h-20 flex-col items-center justify-center gap-1.5 rounded-[1.25rem] border border-(--c-line) bg-(--c-surface) p-3 transition-colors hover:border-(--c-accent)/50"
                   >
                     {logo ? (
                       <Image
@@ -117,7 +111,7 @@ export default async function SearchPage({
                         className="h-7 w-full object-contain"
                       />
                     ) : null}
-                    <span className="max-w-full truncate text-xs font-medium text-[#57534a] group-hover:text-[#2e90fa]">
+                    <span className="max-w-full truncate text-xs font-medium text-(--c-muted) group-hover:text-(--c-accent)">
                       {brand.name}
                     </span>
                   </Link>

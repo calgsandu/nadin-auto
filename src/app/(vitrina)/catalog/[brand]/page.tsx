@@ -49,51 +49,39 @@ export default async function BrandPage({
   const brand = await getBrandData(brandSlug, locale);
   if (!brand || brand.models.length === 0) notFound();
 
-  const total = brand.models.reduce((sum, model) => sum + model.productCount, 0);
   const logo = brandLogo(brand.slug);
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-black/10">
-        <p
-          aria-hidden
-          className="pointer-events-none absolute -bottom-8 left-0 select-none whitespace-nowrap text-[22vw] font-bold leading-none tracking-tighter text-black/[0.04]"
-        >
-          {brand.name}
-        </p>
-        <div className="relative mx-auto max-w-6xl px-6 pb-14 pt-32 md:pb-24 md:pt-44">
+      <section className="border-b border-(--c-line)">
+        <div className="mx-auto max-w-6xl px-6 pb-10 pt-28 md:pb-14 md:pt-32">
           <Reveal>
-            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm text-[#6f6a61]">
-              <Link href={catalogHref(locale)} className="transition-colors hover:text-[#1b1a17]">
+            <nav aria-label="Breadcrumb" className="text-sm text-(--c-muted)">
+              <Link href={catalogHref(locale)} className="transition-colors hover:text-(--c-ink)">
                 {copy.common.catalog}
               </Link>
-              <span aria-hidden className="text-[#b4afa5]">/</span>
-              <span className="text-[#1b1a17]">{brand.name}</span>
             </nav>
-            <div className="mt-4 flex items-center gap-5">
+            <div className="mt-3 flex items-center gap-4">
               {logo ? (
-                <span className="grid size-20 shrink-0 place-items-center rounded-2xl border border-black/10 bg-white p-3 md:size-24">
+                <span className="grid size-16 shrink-0 place-items-center rounded-[1.25rem] border border-(--c-line) bg-(--c-surface) p-2.5 md:size-20">
                   <Image
                     src={logo}
-                    alt={brand.name}
-                    width={96}
-                    height={96}
-                    className="h-14 w-full object-contain md:h-18"
+                    alt=""
+                    width={80}
+                    height={80}
+                    className="h-11 w-full object-contain md:h-14"
                   />
                 </span>
               ) : null}
-              <h1 className="text-5xl font-bold tracking-tight md:text-7xl">
+              <h1 className="text-[2rem] font-medium leading-tight tracking-tight md:text-5xl">
                 {brand.name}
               </h1>
             </div>
-            <p className="mt-4 text-base text-[#57534a] md:text-lg">
-              {copy.common.models(brand.models.length)}, {copy.common.parts(total)}
-            </p>
           </Reveal>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-16 pt-10 md:pb-24 md:pt-16">
+      <section className="mx-auto max-w-6xl px-6 pb-16 pt-10 md:pb-24 md:pt-12">
         <StaggerGroup className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           {brand.models.map((model) => {
             const photo = modelImage(brand.slug, model.slug);
@@ -102,49 +90,38 @@ export default async function BrandPage({
                 key={model.slug}
                 href={catalogHref(locale, `/${brand.slug}/${model.slug}`)}
                 data-stagger
-                className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-colors hover:border-[#2e90fa]/60"
+                className="group flex flex-col overflow-hidden rounded-[1.25rem] border border-(--c-line) bg-(--c-surface) transition-colors hover:border-(--c-accent)/50"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#f1f0ec]">
+                <div className="relative aspect-[4/3] overflow-hidden bg-(--c-surface-2)">
                   {photo ? (
                     <Image
                       src={photo}
                       alt={`${brand.name} ${model.name}`}
                       fill
                       sizes="(min-width: 1024px) 33vw, 50vw"
-                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      className="object-cover"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_50%_40%,#ffffff,#ebeae5_75%)] p-4">
+                    <div className="absolute inset-0 grid place-items-center">
                       {logo ? (
                         <Image
                           src={logo}
                           alt=""
                           width={96}
                           height={64}
-                          className="h-10 w-auto object-contain opacity-25 grayscale md:h-14"
+                          className="h-12 w-auto object-contain opacity-20 grayscale"
                         />
                       ) : null}
-                      <span className="max-w-full truncate text-2xl font-bold tracking-tight text-black/15 md:text-4xl">
-                        {model.name}
-                      </span>
                     </div>
                   )}
                 </div>
-                <div className="flex flex-1 items-center justify-between gap-3 p-4 md:p-5">
-                  <div className="min-w-0">
-                    <p className="truncate text-base font-semibold tracking-tight group-hover:text-[#2e90fa] md:text-xl">
-                      {model.name}
-                    </p>
-                    <p className="mt-1 truncate text-xs text-[#6f6a61] md:text-sm">
-                      {model.years ?? copy.common.allYears} · {copy.common.parts(model.productCount)}
-                    </p>
-                  </div>
-                  <span
-                    aria-hidden
-                    className="hidden shrink-0 text-lg text-[#b4afa5] transition-colors group-hover:text-[#2e90fa] sm:inline"
-                  >
-                    →
-                  </span>
+                <div className="p-4">
+                  <p className="truncate text-[17px] font-medium tracking-tight group-hover:text-(--c-accent)">
+                    {model.name}
+                  </p>
+                  <p className="mt-0.5 truncate text-[13px] text-(--c-muted-2)">
+                    {model.years ?? copy.common.allYears}
+                  </p>
                 </div>
               </Link>
             );

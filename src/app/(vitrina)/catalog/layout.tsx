@@ -28,10 +28,12 @@ export default async function VitrinaLayout({
   return (
     <div
       lang={locale}
-      className="min-h-screen bg-[#f6f6f4] text-[#1b1a17] selection:bg-[#2e90fa] selection:text-white"
+      // Același font și aceeași paletă ca CRM-ul (Outfit n-are chirilice: rusa cade pe Manrope).
+      style={{ fontFamily: "var(--font-crm), var(--font-app), ui-sans-serif, system-ui, sans-serif" }}
+      className="min-h-screen bg-(--c-bg) text-(--c-ink) selection:bg-(--c-accent) selection:text-white"
     >
-      <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
-        <nav className="flex w-full max-w-3xl items-center justify-between gap-2 rounded-full border border-black/10 bg-white/70 py-2 pl-2.5 pr-2 backdrop-blur-xl sm:pl-3">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-(--c-line) bg-(--c-bg)/95 backdrop-blur">
+        <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link href={catalogHref(locale)} className="flex items-center gap-2.5">
             <Image
               src="/logo.png"
@@ -40,29 +42,29 @@ export default async function VitrinaLayout({
               height={32}
               className="h-7 w-10 shrink-0 object-contain sm:h-8 sm:w-12"
             />
-            <span className="whitespace-nowrap text-[15px] font-bold sm:text-base">Nadin Auto</span>
+            <span className="whitespace-nowrap text-base font-medium">Nadin Auto</span>
           </Link>
-          <div className="hidden items-center gap-1 text-sm text-[#57534a] sm:flex">
+          <div className="hidden items-center gap-6 text-[15px] text-(--c-muted) sm:flex">
             <Link
               href={catalogHref(locale, "#marci")}
-              className="rounded-full px-3 py-1.5 transition-colors hover:bg-black/5 hover:text-[#1b1a17]"
+              className="transition-colors hover:text-(--c-ink)"
             >
               {copy.nav.brands}
             </Link>
             <Link
               href={catalogHref(locale, "#categorii")}
-              className="rounded-full px-3 py-1.5 transition-colors hover:bg-black/5 hover:text-[#1b1a17]"
+              className="transition-colors hover:text-(--c-ink)"
             >
               {copy.nav.categories}
             </Link>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <Suspense fallback={null}>
               <LanguageSwitcher locale={locale} />
             </Suspense>
             <Link
               href={catalogHref(locale, "/cauta")}
-              className="whitespace-nowrap rounded-full bg-[#1b1a17] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-black sm:px-4"
+              className="whitespace-nowrap rounded-full bg-(--c-accent) px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-(--c-accent-hover)"
             >
               {copy.nav.search}
             </Link>
@@ -72,21 +74,20 @@ export default async function VitrinaLayout({
 
       <main className="w-full max-w-full overflow-x-hidden">{children}</main>
 
-      <footer className="border-t border-black/10">
-        <div className="mx-auto max-w-6xl px-6 py-14 md:py-20">
-          <p className="max-w-2xl text-2xl font-bold tracking-tight md:text-[2.25rem] md:leading-tight">
-            {copy.footer.question}{" "}
-            <span className="text-[#1570d6]">{copy.footer.answer}</span>
+      <footer className="border-t border-(--c-line)">
+        <div className="mx-auto max-w-6xl px-6 py-12 md:py-16">
+          <p className="max-w-2xl text-2xl font-medium tracking-tight md:text-[2rem] md:leading-tight">
+            {copy.footer.question} {copy.footer.answer}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-4">
             <Link
               href={catalogHref(locale, "/cauta")}
-              className="rounded-full bg-[#2e90fa] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1b7fe8]"
+              className="rounded-full bg-(--c-accent) px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-(--c-accent-hover)"
             >
               {copy.footer.search}
             </Link>
           </div>
-          <div className="mt-16 flex flex-col gap-2 border-t border-black/10 pt-8 text-sm text-[#6f6a61] md:flex-row md:items-center md:justify-between">
+          <div className="mt-16 flex flex-col gap-2 border-t border-(--c-line) pt-8 text-sm text-(--c-muted) md:flex-row md:items-center md:justify-between">
             <p>
               © {new Date().getFullYear()} {COMPANY.legalName}
             </p>
@@ -95,7 +96,7 @@ export default async function VitrinaLayout({
                 in CRM sau pe fluxul de autentificare. */}
             <a
               href="https://tasta.dev"
-              className="group inline-flex items-center gap-1.5 transition-colors hover:text-[#1b1a17]"
+              className="group inline-flex items-center gap-1.5 transition-colors hover:text-(--c-ink)"
             >
               <span>Aplicație de</span>
               <svg

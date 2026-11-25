@@ -10,26 +10,16 @@ import {
 import { brandLogo, modelImage, productImage } from "@/lib/vitrina/images";
 import { VehicleFinder } from "./vehicle-finder";
 import { PartPlaceholder } from "./part-card";
-import {
-  catalogCopy,
-  catalogHref,
-  catalogNumberFormat,
-} from "@/lib/vitrina/i18n";
+import { catalogCopy, catalogHref } from "@/lib/vitrina/i18n";
 import { getRequestCatalogLocale } from "@/lib/vitrina/request-locale";
-import {
-  HeroIntro,
-  Reveal,
-  ScaleImage,
-  ScrubWords,
-  StaggerGroup,
-} from "./motion";
+import { HeroIntro, Reveal, ScaleImage, ScrubWords, StaggerGroup } from "./motion";
 
 export const revalidate = 3600;
 
-/** Câte categorii primesc card cu poză; restul rămân ca etichete dedesubt. */
+/** Câte categorii primesc card cu poză; restul rămân ca listă simplă dedesubt. */
 const CATEGORY_TILES = 8;
 
-/** Titlul unei secțiuni: simplu, de mărime potrivită, cu o frază de context. */
+/** Titlul unei secțiuni, ca antetele din CRM: greutate medie, o frază de context. */
 function SectionHeading({
   title,
   lead,
@@ -41,12 +31,12 @@ function SectionHeading({
 }) {
   return (
     <Reveal>
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="max-w-2xl">
-          <h2 className="text-2xl font-bold tracking-tight md:text-[2.25rem] md:leading-tight">
+          <h2 className="text-[1.625rem] font-medium leading-tight tracking-tight lg:text-[2rem]">
             {title}
           </h2>
-          {lead ? <p className="mt-2 text-[15px] text-[#6f6a61] md:text-base">{lead}</p> : null}
+          {lead ? <p className="mt-1.5 text-[15px] text-(--c-muted)">{lead}</p> : null}
         </div>
         {action}
       </div>
@@ -57,8 +47,7 @@ function SectionHeading({
 export default async function CatalogPage() {
   const locale = await getRequestCatalogLocale();
   const copy = catalogCopy(locale);
-  const numberFormat = catalogNumberFormat(locale);
-  const [{ totals, brands, types }, popularRows, vehicleIndex, sampleCodes] = await Promise.all([
+  const [{ brands, types }, popularRows, vehicleIndex, sampleCodes] = await Promise.all([
     getShowroomData(locale),
     getPopularModels(locale, 40),
     getVehicleIndex(),
@@ -88,13 +77,13 @@ export default async function CatalogPage() {
     }
     return { ...type, photo };
   });
-  const chipTypes = types.slice(CATEGORY_TILES, CATEGORY_TILES + 18);
+  const listTypes = types.slice(CATEGORY_TILES, CATEGORY_TILES + 18);
   const searchHref = (query: string) =>
     `${catalogHref(locale, "/cauta")}?q=${encodeURIComponent(query)}`;
 
   return (
     <>
-      <section className="relative flex min-h-[92svh] items-end overflow-hidden">
+      <section className="relative flex min-h-[88svh] items-end overflow-hidden">
         <Image
           src="/vitrina/hero.jpg"
           alt=""
@@ -103,16 +92,12 @@ export default async function CatalogPage() {
           sizes="100vw"
           className="object-cover"
         />
-        {/* Un voal uniform, fără gradient spre negru: doar cât textul alb să se citească. */}
+        {/* Un voal uniform, doar cât textul alb să se citească pe poza deschisă. */}
         <div className="absolute inset-0 bg-[#16202c]/45" />
-        <HeroIntro className="relative mx-auto w-full max-w-6xl px-6 pb-20 pt-36 text-center md:pb-28">
-          <p data-hero className="text-sm font-medium text-white/85 md:text-base">
-            {copy.common.parts(totals.products)} · {copy.common.brands(totals.brands)} ·{" "}
-            {copy.common.models(totals.models)}
-          </p>
+        <HeroIntro className="relative mx-auto w-full max-w-6xl px-6 pb-20 pt-32 text-center md:pb-28">
           <h1
             data-hero
-            className="mx-auto mt-6 max-w-4xl text-balance text-[clamp(2.25rem,5vw,4.25rem)] font-bold leading-[1.05] tracking-tight text-white"
+            className="mx-auto max-w-4xl text-balance text-[clamp(2.25rem,5vw,4rem)] font-medium leading-[1.08] tracking-tight text-white"
           >
             {copy.home.title}
           </h1>
@@ -128,7 +113,7 @@ export default async function CatalogPage() {
               <Link
                 key={type.slug}
                 href={searchHref(type.name)}
-                className="font-medium text-white underline decoration-white/40 underline-offset-4 transition-colors hover:decoration-white"
+                className="text-white underline decoration-white/40 underline-offset-4 transition-colors hover:decoration-white"
               >
                 {type.name}
               </Link>
@@ -137,7 +122,7 @@ export default async function CatalogPage() {
         </HeroIntro>
       </section>
 
-      <section className="overflow-hidden border-y border-black/10 py-8" aria-hidden>
+      <section className="overflow-hidden border-b border-(--c-line) py-8" aria-hidden>
         <div className="flex w-max animate-[vitrina-marquee_70s_linear_infinite] gap-4">
           {[0, 1].map((copy) => (
             <div key={copy} className="flex gap-4">
@@ -146,7 +131,7 @@ export default async function CatalogPage() {
                 return (
                   <span
                     key={`${copy}-${brand.slug}`}
-                    className="grid h-16 w-28 shrink-0 place-items-center rounded-2xl border border-black/10 bg-white p-3.5"
+                    className="grid h-16 w-28 shrink-0 place-items-center rounded-[1.25rem] border border-(--c-line) bg-(--c-surface) p-3.5"
                     title={brand.name}
                   >
                     {logo ? (
@@ -158,9 +143,7 @@ export default async function CatalogPage() {
                         className="h-9 w-full object-contain"
                       />
                     ) : (
-                      <span className="text-base font-semibold text-[#1b1a17]">
-                        {brand.name}
-                      </span>
+                      <span className="text-base font-medium">{brand.name}</span>
                     )}
                   </span>
                 );
@@ -171,14 +154,14 @@ export default async function CatalogPage() {
       </section>
 
       {popular.length > 0 ? (
-        <section className="mx-auto max-w-6xl px-6 pb-4 pt-16 md:pt-24">
+        <section className="mx-auto max-w-6xl px-6 pt-16 md:pt-24">
           <SectionHeading
             title={copy.home.popularTitle}
             lead={copy.home.popularLead}
             action={
               <Link
                 href="#marci"
-                className="text-sm font-semibold text-[#1570d6] transition-colors hover:text-[#1b1a17]"
+                className="text-sm font-medium text-(--c-accent) transition-colors hover:text-(--c-accent-hover)"
               >
                 {copy.home.allBrands} →
               </Link>
@@ -190,28 +173,26 @@ export default async function CatalogPage() {
                 key={`${model.brandSlug}/${model.slug}`}
                 href={catalogHref(locale, `/${model.brandSlug}/${model.slug}`)}
                 data-stagger
-                className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-colors hover:border-[#2e90fa]/60"
+                className="group flex flex-col overflow-hidden rounded-[1.25rem] border border-(--c-line) bg-(--c-surface) transition-colors hover:border-(--c-accent)/50"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#f1f0ec]">
+                <div className="relative aspect-[4/3] overflow-hidden bg-(--c-surface-2)">
                   <Image
                     src={model.photo}
                     alt={`${model.brand} ${model.name}`}
                     fill
                     priority={index < 4}
                     sizes="(min-width: 1024px) 25vw, 50vw"
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    className="object-cover"
                   />
                 </div>
-                <div className="flex flex-1 items-end justify-between gap-3 p-3.5 sm:p-4">
-                  <div className="min-w-0">
-                    <p className="truncate text-xs text-[#6f6a61]">{model.brand}</p>
-                    <p className="mt-0.5 truncate text-base font-semibold tracking-tight group-hover:text-[#2e90fa] md:text-lg">
-                      {model.name}
-                    </p>
-                    <p className="mt-0.5 truncate text-xs text-[#98948b]">
-                      {model.years ?? copy.common.allYears} · {copy.common.parts(model.productCount)}
-                    </p>
-                  </div>
+                <div className="p-4">
+                  <p className="truncate text-[13px] text-(--c-muted)">{model.brand}</p>
+                  <p className="truncate text-[17px] font-medium tracking-tight group-hover:text-(--c-accent)">
+                    {model.name}
+                  </p>
+                  <p className="mt-0.5 truncate text-[13px] text-(--c-muted-2)">
+                    {model.years ?? copy.common.allYears}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -219,9 +200,9 @@ export default async function CatalogPage() {
         </section>
       ) : null}
 
-      <section id="marci" className="mx-auto max-w-6xl scroll-mt-28 px-6 py-14 md:py-20">
+      <section id="marci" className="mx-auto max-w-6xl scroll-mt-24 px-6 pt-16 md:pt-24">
         <SectionHeading title={copy.home.brandsTitle} lead={copy.home.brandsLead} />
-        <StaggerGroup className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+        <StaggerGroup className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {brands.map((brand) => {
             const logo = brandLogo(brand.slug);
             return (
@@ -229,34 +210,29 @@ export default async function CatalogPage() {
                 key={brand.slug}
                 href={catalogHref(locale, `/${brand.slug}`)}
                 data-stagger
-                className="group rounded-2xl border border-black/10 bg-white p-4 transition-colors hover:border-[#2e90fa]/60 hover:bg-[#2e90fa]/5 sm:p-5"
+                className="group flex items-center gap-3 rounded-[1.25rem] border border-(--c-line) bg-(--c-surface) px-4 py-4 transition-colors hover:border-(--c-accent)/50"
               >
-                <div className="flex min-w-0 flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
-                  {logo ? (
-                    <span className="grid size-9 shrink-0 place-items-center sm:size-11">
-                      <Image
-                        src={logo}
-                        alt={brand.name}
-                        width={44}
-                        height={44}
-                        className="h-8 w-full object-contain"
-                      />
-                    </span>
-                  ) : null}
-                  <p className="min-w-0 text-sm font-semibold leading-tight tracking-tight group-hover:text-[#2e90fa] sm:text-base">
-                    {brand.name}
-                  </p>
-                </div>
-                <p className="mt-3 text-sm text-[#6f6a61]">
-                  {copy.common.models(brand.modelCount)}, {copy.common.parts(brand.productCount)}
-                </p>
+                {logo ? (
+                  <span className="grid size-10 shrink-0 place-items-center">
+                    <Image
+                      src={logo}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="h-8 w-full object-contain"
+                    />
+                  </span>
+                ) : null}
+                <span className="min-w-0 text-[15px] font-medium leading-tight group-hover:text-(--c-accent)">
+                  {brand.name}
+                </span>
               </Link>
             );
           })}
         </StaggerGroup>
       </section>
 
-      <section id="categorii" className="mx-auto max-w-6xl scroll-mt-28 px-6 pb-14 pt-4 md:pb-20 md:pt-6">
+      <section id="categorii" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-16 md:py-24">
         <SectionHeading title={copy.home.categoriesTitle} lead={copy.home.categoriesLead} />
         <StaggerGroup className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {tileTypes.map((type) => (
@@ -264,66 +240,55 @@ export default async function CatalogPage() {
               key={type.slug}
               href={searchHref(type.name)}
               data-stagger
-              className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-colors hover:border-[#2e90fa]/60"
+              className="group flex flex-col overflow-hidden rounded-[1.25rem] border border-(--c-line) bg-(--c-surface) transition-colors hover:border-(--c-accent)/50"
             >
-              <div
-                className={`relative aspect-[4/3] overflow-hidden border-b border-black/5 ${
-                  type.photo ? "bg-white" : "bg-[#f1f0ec]"
-                }`}
-              >
+              <div className="relative aspect-[4/3] overflow-hidden border-b border-(--c-line-2) bg-white">
                 {type.photo ? (
                   <Image
                     src={type.photo}
                     alt={type.name}
                     fill
                     sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-                    className="object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-105"
+                    className="object-contain p-4"
                   />
                 ) : (
                   <PartPlaceholder locale={locale} />
                 )}
               </div>
-              <div className="flex items-center justify-between gap-3 p-3.5 sm:p-4">
-                <p className="truncate text-base font-semibold tracking-tight group-hover:text-[#2e90fa]">
-                  {type.name}
-                </p>
-                <span className="shrink-0 font-mono text-xs text-[#6f6a61]">
-                  {numberFormat.format(type.count)}
-                </span>
-              </div>
+              <p className="truncate p-4 text-[15px] font-medium group-hover:text-(--c-accent)">
+                {type.name}
+              </p>
             </Link>
           ))}
         </StaggerGroup>
-        {/* Restul categoriilor: o listă simplă pe coloane, fără chenare rotunjite. */}
-        <Reveal
-          className="mt-8 grid grid-cols-2 gap-x-8 border-t border-black/10 sm:grid-cols-3 lg:grid-cols-4"
-          delay={0.1}
-        >
-          {chipTypes.map((type) => (
-            <Link
-              key={type.slug}
-              href={searchHref(type.name)}
-              className="group flex items-baseline justify-between gap-3 border-b border-black/10 py-3 text-[15px]"
-            >
-              <span className="truncate text-[#1b1a17] group-hover:text-[#1570d6]">{type.name}</span>
-              <span className="shrink-0 font-mono text-xs text-[#98948b]">
-                {numberFormat.format(type.count)}
-              </span>
-            </Link>
-          ))}
-        </Reveal>
+        {listTypes.length > 0 ? (
+          <Reveal
+            className="mt-8 grid grid-cols-2 gap-x-8 border-t border-(--c-line) sm:grid-cols-3 lg:grid-cols-4"
+            delay={0.1}
+          >
+            {listTypes.map((type) => (
+              <Link
+                key={type.slug}
+                href={searchHref(type.name)}
+                className="truncate border-b border-(--c-line) py-3 text-[15px] transition-colors hover:text-(--c-accent)"
+              >
+                {type.name}
+              </Link>
+            ))}
+          </Reveal>
+        ) : null}
       </section>
 
-      <section className="mx-auto max-w-4xl px-6 py-20 text-center md:py-28">
+      <section className="mx-auto max-w-4xl px-6 pb-16 text-center md:pb-24">
         <ScrubWords
-          className="text-3xl font-semibold leading-snug tracking-tight md:text-5xl"
+          className="text-2xl font-medium leading-snug tracking-tight md:text-4xl"
           text={copy.home.explainer}
         />
       </section>
 
-      <section className="relative">
+      <section className="relative pb-16 md:pb-24">
         <ScaleImage className="mx-auto max-w-7xl px-4 md:px-6">
-          <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 md:aspect-[21/9]">
+          <div className="relative aspect-video overflow-hidden rounded-[1.25rem] border border-(--c-line) md:aspect-[21/9]">
             <Image
               src="/vitrina/depozit.jpg"
               alt={copy.home.warehouseAlt}
@@ -331,22 +296,6 @@ export default async function CatalogPage() {
               sizes="100vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-6 p-8 md:grid-cols-4 md:p-12">
-              {[
-                [numberFormat.format(totals.products), copy.home.stats.products],
-                [String(totals.brands), copy.home.stats.brands],
-                [String(totals.models), copy.home.stats.models],
-                [String(totals.types), copy.home.stats.categories],
-              ].map(([value, label]) => (
-                <div key={label}>
-                  <p className="text-3xl font-bold tracking-tight text-[#6db5fc] md:text-5xl">
-                    {value}
-                  </p>
-                  <p className="mt-1 text-xs text-white/75 md:text-sm">{label}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </ScaleImage>
       </section>

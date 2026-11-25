@@ -24,7 +24,7 @@ export function SearchBox({
   return (
     <form
       role="search"
-      className="flex gap-2 rounded-full border border-black/15 bg-white p-1.5 transition-colors focus-within:border-[#2e90fa]/70 sm:gap-3"
+      className="flex items-center gap-2"
       onSubmit={(event) => {
         event.preventDefault();
         const query = value.trim();
@@ -32,14 +32,14 @@ export function SearchBox({
         router.push(query ? `${base}?q=${encodeURIComponent(query)}` : base);
       }}
     >
-      <label className="flex min-w-0 flex-1 items-center gap-3 pl-4">
+      <label className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-(--c-line) bg-(--c-surface) pl-4 pr-1.5 transition-colors focus-within:border-(--c-accent)/70">
         <svg
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
-          className="size-5 shrink-0 text-[#98948b]"
+          className="size-5 shrink-0 text-(--c-muted-2)"
           aria-hidden
         >
           <circle cx="11" cy="11" r="7" />
@@ -54,7 +54,7 @@ export function SearchBox({
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder={copy.placeholder}
-          className="w-full min-w-0 bg-transparent py-2.5 text-base text-[#1b1a17] outline-none placeholder:text-[#98948b] [&::-webkit-search-cancel-button]:hidden"
+          className="w-full min-w-0 bg-transparent text-base text-(--c-ink) outline-none placeholder:text-(--c-muted-2) [&::-webkit-search-cancel-button]:hidden"
         />
         {value ? (
           <button
@@ -63,7 +63,7 @@ export function SearchBox({
               setValue("");
               inputRef.current?.focus();
             }}
-            className="grid size-8 shrink-0 place-items-center rounded-full text-[#98948b] transition-colors hover:bg-black/5 hover:text-[#1b1a17]"
+            className="grid size-8 shrink-0 place-items-center rounded-full text-(--c-muted-2) transition-colors hover:bg-(--c-hover) hover:text-(--c-ink)"
             aria-label={copy.clear}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-4" aria-hidden>
@@ -74,7 +74,7 @@ export function SearchBox({
       </label>
       <button
         type="submit"
-        className="shrink-0 rounded-full bg-[#2e90fa] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1b7fe8] sm:px-7"
+        className="h-12 shrink-0 rounded-full bg-(--c-accent) px-6 text-sm font-medium text-white transition-colors hover:bg-(--c-accent-hover)"
       >
         {copy.button}
       </button>
