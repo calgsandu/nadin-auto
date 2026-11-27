@@ -100,6 +100,7 @@ function DeliverControl({ orderId }: { orderId: string }) {
         <OperationDrawer
           open={open}
           title="Livrează comanda"
+          modal="sm"
           onClose={() => setOpen(false)}
         >
           <form className={drawerFormClassName} onSubmit={onSubmit}>

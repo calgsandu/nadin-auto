@@ -4,7 +4,7 @@ import { Check, Copy, Wand2 } from "lucide-react";
 import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
-import { drawerPanelClassName } from "@/app/components/operation-drawer";
+import { modalBackdropClassName, modalHeaderClassName, modalPanelClassName } from "@/app/components/operation-drawer";
 import { useActionToast } from "@/app/components/action-toast";
 import {
   createStaffUserAction,
@@ -260,16 +260,14 @@ export function StaffActiveButton({ userId, active, label }: { userId: string; a
 function StaffDrawer({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   return (
     <DrawerPortal>
-      <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
+      <div className={modalBackdropClassName}>
         <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={onClose} />
-        <aside className={drawerPanelClassName}>
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
-            <div>
-              <h2 className="text-lg font-semibold tracking-tight text-(--c-ink)">{title}</h2>
-            </div>
+        <aside className={modalPanelClassName("sm")}>
+          <div className={modalHeaderClassName(true)}>
+            <h2 className="text-lg font-semibold text-(--c-ink)">{title}</h2>
             <CloseIconButton onClick={onClose} />
           </div>
-          <div className="px-6 py-6">{children}</div>
+          <div className="px-5 py-5">{children}</div>
         </aside>
       </div>
     </DrawerPortal>

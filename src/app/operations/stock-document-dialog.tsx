@@ -303,7 +303,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                   </button>
                 }
               >
-                <div className="grid gap-1.5">
+                <div className="grid">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
                     // Costul nou înlocuiește costul din fișă; arătăm doar când chiar diferă.
@@ -311,7 +311,7 @@ export function StockDocumentDialog({ warehouses, suppliers, openFromUrl }: Stoc
                     return (
                     <div
                       key={line.id}
-                      className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-(--c-line-2) bg-(--c-surface-2) px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
+                      className="motion-line-item line-phone-row grid gap-2 border-t border-(--c-line-2) py-2.5 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start"
                     >
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-(--c-ink-2)">Produs</p>
@@ -584,11 +584,11 @@ export function StockTransferDialog({
                   </button>
                 }
               >
-                <div className="grid gap-1.5">
+                <div className="grid">
                   {lines.map((line, index) => (
                     <div
                       key={line.id}
-                      className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-(--c-line-2) bg-(--c-surface-2) px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
+                      className="motion-line-item line-phone-row grid gap-2 border-t border-(--c-line-2) py-2.5 md:grid-cols-[minmax(0,1fr)_7rem_2.25rem] md:items-start"
                     >
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-(--c-ink-2)">Produs</p>
@@ -1006,13 +1006,13 @@ export function StockSaleDialog({
                   </div>
                 }
               >
-                <div className="grid gap-1.5">
+                <div className="grid">
                   {lines.map((line, index) => {
                     const lineVal = (Number(line.qty) || 0) * (Number(line.price) || 0);
                     if (line.external) {
                       const marja = ((Number(line.price) || 0) - (Number(line.cost) || 0)) * (Number(line.qty) || 0);
                       return (
-                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 rounded-lg border border-(--c-accent-line) bg-(--c-accent-soft) px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_13rem_5rem_6.5rem_7.5rem_2.25rem] md:items-start">
+                        <div key={line.id} className="motion-line-item line-keep-labels grid gap-2 border-t border-(--c-line-2) bg-(--c-accent-soft) px-2.5 py-2.5 md:grid-cols-[minmax(0,1fr)_7rem_13rem_5rem_6.5rem_7.5rem_2.25rem] md:items-start">
                           <Field label="Piesă externă">
                             <input name="productId" type="hidden" value="" />
                             <input
@@ -1106,7 +1106,7 @@ export function StockSaleDialog({
                       : undefined;
                     const betterWarehouse = warehouses.find((warehouse) => warehouse.id === betterStock?.warehouseId);
                     return (
-                    <div key={line.id} className="motion-line-item line-phone-row grid gap-2 rounded-lg border border-(--c-line-2) bg-(--c-surface-2) px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
+                    <div key={line.id} className="motion-line-item line-phone-row grid gap-2 border-t border-(--c-line-2) py-2.5 md:grid-cols-[minmax(0,1fr)_5rem_7.5rem_8rem_2.25rem] md:items-start">
                       <div>
                         <p className="line-label mb-1 text-sm font-medium text-(--c-ink-2)">Produs</p>
                         <input name="externalName" type="hidden" value="" />

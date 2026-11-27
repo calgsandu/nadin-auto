@@ -245,6 +245,7 @@ function CorrectionForm({
         <OperationDrawer
           open={open}
           title={`Corectează contul #${number}`}
+          modal="sm"
           onClose={() => setOpen(false)}
         >
           <form className={drawerFormClassName} onSubmit={onSubmit}>

@@ -13,10 +13,13 @@ import { CloseIconButton, IconLabel, rowIconButtonCls, SaveButton } from "@/app/
 import {
   DrawerCard,
   drawerBoundaryProps,
-  drawerPanelClassName,
   handleEnterNavigation,
   useDrawerAction,
-  useDrawerStackChild,
+  useModalFocus,
+  DrawerModalScope,
+  modalBackdropClassName,
+  modalHeaderClassName,
+  modalPanelClassName,
 } from "@/app/components/operation-drawer";
 
 export type PartnerFormValue = {
@@ -89,9 +92,9 @@ export function PartnerFormDialog({
     setIban(partner?.iban ?? "");
     if (saved.created) onCreated?.(saved.created);
   });
-  // Cât timp formularul ăsta e deschis, dialogul din care s-a plecat se ascunde.
-  useDrawerStackChild(open);
   const formRef = useRef<HTMLFormElement>(null);
+  // Modalul stă peste dialogul din care s-a plecat (ex. vânzarea), care rămâne în spate.
+  useModalFocus(formRef, open);
   // Aceleași reguli ca pe server, dar spuse pe loc, nu abia la salvare.
   const [idno, setIdno] = useState(partner?.idno ?? "");
   const [iban, setIban] = useState(partner?.iban ?? "");
@@ -135,7 +138,7 @@ export function PartnerFormDialog({
       {mounted ? (
         <DrawerPortal locked={open}>
           <div
-            className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
+            className={modalBackdropClassName}
             style={open ? undefined : { display: "none" }}
             {...drawerBoundaryProps}
           >
@@ -146,7 +149,7 @@ export function PartnerFormDialog({
               onClick={() => setOpen(false)}
             />
             <aside
-              className={drawerPanelClassName}
+              className={modalPanelClassName("lg")}
               onKeyDown={(event) => {
                 // Ca în celelalte panouri: Ctrl+Enter salvează, Esc închide.
                 if ((event.ctrlKey || event.metaKey) && (event.key === "Enter" || event.key.toLowerCase() === "s")) {
@@ -160,8 +163,8 @@ export function PartnerFormDialog({
                 setOpen(false);
               }}
             >
-              <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
-                <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-(--c-ink)">
+              <div className={modalHeaderClassName(true)}>
+                <h2 className="flex items-center gap-2.5 text-lg font-semibold text-(--c-ink)">
                   <span className="grid size-8 place-items-center rounded-lg bg-(--c-accent) text-white">
                     <Handshake className="size-4" aria-hidden="true" />
                   </span>
@@ -177,6 +180,7 @@ export function PartnerFormDialog({
                 </div>
               </div>
 
+              <DrawerModalScope>
               <form
                 ref={formRef}
                 onSubmit={onSubmit}
@@ -312,6 +316,7 @@ export function PartnerFormDialog({
                   />
                 </Field>
               </form>
+              </DrawerModalScope>
             </aside>
           </div>
         </DrawerPortal>

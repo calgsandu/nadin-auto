@@ -155,13 +155,13 @@ export function ReturnDialog({ sales }: { sales: ReturnableSale[] }) {
                         </button>
                       }
                     >
-                      <div className="grid gap-1.5">
+                      <div className="grid">
                         {sale.lines.map((line) => {
                           const qty = Number(quantities[line.productId]) || 0;
                           return (
                             <div
                               key={line.productId}
-                              className="grid gap-2 rounded-lg border border-(--c-line-2) bg-(--c-surface-2) px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_7rem_8rem] md:items-center"
+                              className="grid gap-2 border-t border-(--c-line-2) py-2.5 md:grid-cols-[minmax(0,1fr)_7rem_8rem] md:items-center"
                             >
                               <input type="hidden" name="productId" value={line.productId} />
                               <div className="min-w-0">

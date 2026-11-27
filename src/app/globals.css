@@ -142,24 +142,14 @@
 }
 
 /* Rădăcina în rem strânge sau lărgește tot CRM-ul proporțional. Telefonul
-   rămâne pe 16px: acolo contează țintele de atingere. */
+   rămâne pe 16px: acolo contează țintele de atingere. Pe laptop scade lin cu
+   lățimea ȘI cu înălțimea ferestrei (laptopurile vechi au ~650px utili în
+   înălțime): 16px pe monitor mare, ~13px pe 1366×768, minim 12px. */
 @media (min-width: 1024px) {
   :root:has(.crm-main) {
-    font-size: 14px;
+    font-size: clamp(12px, min(0.875vw + 1.3px, 0.97vh + 6.3px), 16px);
     --text-xs: 0.8125rem;
     --text-xs--line-height: 1.35;
-  }
-}
-
-@media (min-width: 1280px) {
-  :root:has(.crm-main) {
-    font-size: 15px;
-  }
-}
-
-@media (min-width: 1680px) {
-  :root:has(.crm-main) {
-    font-size: 16px;
   }
 }
 
@@ -288,6 +278,31 @@ a {
   will-change: transform;
 }
 
+.motion-modal-backdrop {
+  animation: fade-in var(--duration-base) ease-out both;
+}
+
+/* Formularul unui modal cu secțiuni: secțiunile merg de la margine la margine,
+   restul (notițe, mesaje) păstrează marginile obișnuite. */
+.drawer-modal form:has(> [data-modal-section]) {
+  gap: 0;
+  padding: 0;
+}
+
+.drawer-modal form:has(> [data-modal-section]) > :not([data-modal-section]) {
+  margin: 1rem;
+}
+
+@media (min-width: 640px) {
+  .drawer-modal form:has(> [data-modal-section]) > :not([data-modal-section]) {
+    margin: 1rem 1.25rem;
+  }
+}
+
+.motion-modal-panel {
+  animation: modal-enter var(--duration-drawer) var(--ease-drawer) both;
+}
+
 .motion-line-item {
   animation: line-enter 190ms var(--ease-out-soft) both;
   position: relative;
@@ -367,10 +382,6 @@ details > summary svg {
     border-color: var(--c-line-strong);
   }
 
-  .motion-line-item:hover {
-    border-color: var(--c-line-strong);
-    background-color: var(--c-surface);
-  }
 }
 
 @keyframes content-enter {
@@ -404,6 +415,24 @@ details > summary svg {
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

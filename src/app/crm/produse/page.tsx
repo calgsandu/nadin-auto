@@ -9,7 +9,6 @@ import { ProductDeleteButton } from "@/app/catalog/product-delete-button";
 import { RowMenu } from "@/app/components/row-menu";
 import { ProductFormDialog, type ProductFormValue } from "@/app/catalog/product-form-dialog";
 import { LabelPicker } from "@/app/catalog/label-picker";
-import { AddToStickersButton } from "@/app/catalog/add-to-stickers";
 import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
 import { normalizeText, searchTerms } from "@/lib/catalog/search-text";
 import { getCatalogData, type CatalogSearchParams } from "@/lib/catalog/queries";
@@ -442,7 +441,6 @@ function ProductRow({
               warehouses={catalog.warehouses}
             />
             <RowMenu label={product.description}>
-              <AddToStickersButton items={[{ id: product.id, count: 1 }]} />
               <ProductDeleteButton productId={product.id} label={product.description} />
             </RowMenu>
           </div>

@@ -33,20 +33,13 @@ export async function getCountedProducts(warehouseId: string, since: string) {
   });
   if (documents.length === 0) return {} as Record<string, CountedProduct>;
 
-  const logs = await prisma.auditLog.findMany({
-    where: {
-      entity: "StockDocument",
-      action: "CREATE",
-      entityId: { in: documents.map((document) => document.id) },
-    },
-    select: { entityId: true, details: true },
-  });
-  const detailsByDocument = new Map(logs.map((log) => [log.entityId, log.details]));
+  const detailsByDocument = await countDetailsByDocument(documents.map((document) => document.id));
 
   const counted: Record<string, CountedProduct> = {};
   for (const document of documents) {
     const date = document.documentDate.toISOString().slice(0, 10);
-    for (const entry of countsFromAuditDetails(detailsByDocument.get(document.id))) {
+    // Snapshot-urile vin cel mai nou în față; invers, ca ultima numărătoare să rămână.
+    for (const entry of countsFromAuditDetails(detailsByDocument.get(document.id)).reverse()) {
       counted[entry.productId] = { date, counted: entry.counted };
     }
   }
@@ -105,15 +98,7 @@ export async function getInventoryHistory(productIds: string[], warehouseId: str
   });
   if (documents.length === 0) return history;
 
-  const logs = await prisma.auditLog.findMany({
-    where: {
-      entity: "StockDocument",
-      action: "CREATE",
-      entityId: { in: documents.map((document) => document.id) },
-    },
-    select: { entityId: true, details: true },
-  });
-  const detailsByDocument = new Map(logs.map((log) => [log.entityId, log.details]));
+  const detailsByDocument = await countDetailsByDocument(documents.map((document) => document.id));
 
   for (const productId of productIds) {
     const entries: InventoryHistoryEntry[] = [];
@@ -134,4 +119,27 @@ export function defaultCountSince(now = new Date()) {
   const date = new Date(now);
   date.setDate(date.getDate() - 30);
   return date.toISOString().slice(0, 10);
+}
+
+/**
+ * Snapshot-urile de numărătoare ale fiecărui document, din istoric. Inventarul
+ * din fișa produsului primește poziții pe parcursul zilei (UPDATE după CREATE),
+ * deci snapshot-urile se lipesc în ordine: la același produs câștigă ultimul.
+ */
+async function countDetailsByDocument(documentIds: string[]) {
+  const logs = await prisma.auditLog.findMany({
+    where: { entity: "StockDocument", action: { in: ["CREATE", "UPDATE"] }, entityId: { in: documentIds } },
+    select: { entityId: true, details: true },
+    orderBy: { createdAt: "asc" },
+  });
+  const merged = new Map<string, { counts: unknown[] }>();
+  for (const log of logs) {
+    const counts = (log.details as { counts?: unknown } | null)?.counts;
+    if (!log.entityId || !Array.isArray(counts)) continue;
+    const entry = merged.get(log.entityId) ?? { counts: [] };
+    // Cel mai nou în față: `historyEntryFor` ia prima potrivire.
+    entry.counts = [...counts, ...entry.counts];
+    merged.set(log.entityId, entry);
+  }
+  return merged;
 }

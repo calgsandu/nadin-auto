@@ -88,7 +88,7 @@ export function CatalogFilters({
 
   return (
     <section className="flex flex-wrap items-center gap-2 p-3">
-      <div className="relative min-w-0 flex-1 sm:w-60 sm:flex-none">
+      <div className="relative min-w-0 flex-1 sm:max-w-sm">
         <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
           {searching ? (
             <LoaderCircle className="size-4 animate-spin text-(--c-accent)" aria-hidden="true" />
@@ -117,7 +117,7 @@ export function CatalogFilters({
           Ctrl K
         </kbd>
       </div>
-      <MobileFilters active={activeFilters}>
+      <MobileFilters active={activeFilters} everywhere>
       <label className={`${pill(Boolean(searchParams.get("brand")))} catalog-car-select xl:hidden`}>
         <Tag className="size-4 shrink-0 opacity-70" aria-hidden="true" />
         <span className="sr-only">Brand</span>

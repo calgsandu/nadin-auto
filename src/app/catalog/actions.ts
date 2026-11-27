@@ -22,6 +22,11 @@ import {
   parseWarehouseStockAssignments,
   type WarehouseStockAssignment,
 } from "@/lib/catalog/warehouse-stock";
+import {
+  readStockReason,
+  recordProductStockChanges,
+  stockChanges,
+} from "@/lib/catalog/product-stock-documents";
 
 export type CatalogActionState = {
   ok: boolean;
@@ -47,6 +52,9 @@ export async function createProductAction(
     const user = await requireCatalogWrite();
     const input = await parseProductForm(formData);
     const warehouseAssignments = await parseWarehouseAssignments(formData);
+    const stockReason = readStockReason(formData.get("stockReason"));
+    // Validat înainte de orice scriere: stocul pus pe un produs nou e inventar sau marfă adusă.
+    const changes = stockChanges(new Map(), warehouseAssignments, stockReason);
     const fitment = await findOrCreateFitment(input);
     const fitmentIds = await resolveFitmentIds(fitment.id, input.extraFitments);
     const type = await findOrCreateType(input.typeId, input.newTypeName);
@@ -82,6 +90,14 @@ export async function createProductAction(
         skipDuplicates: true,
       });
       const after = await saveWarehouseStocks(tx, created.id, warehouseAssignments);
+      await recordProductStockChanges(tx, user, {
+        productId: created.id,
+        reason: stockReason,
+        changes,
+        costLei: input.costLei,
+        documentId: readString(formData, "stockDocumentId") || null,
+        partnerId: readString(formData, "stockPartnerId") || null,
+      });
 
       await logAuditRequired(tx, user, {
         action: "CREATE",
@@ -134,6 +150,7 @@ export async function updateProductAction(
 
     const input = await parseProductForm(formData);
     const warehouseAssignments = await parseWarehouseAssignments(formData);
+    const stockReason = readStockReason(formData.get("stockReason"));
     const fitment = await findOrCreateFitment(input);
     const fitmentIds = await resolveFitmentIds(fitment.id, input.extraFitments);
     const type = await findOrCreateType(input.typeId, input.newTypeName);
@@ -144,6 +161,11 @@ export async function updateProductAction(
         include: { warehouseStocks: { include: { warehouse: { select: { name: true } } } } },
       });
       if (!before) throw new Error("Produsul nu există.");
+      const changes = stockChanges(
+        new Map(before.warehouseStocks.map((row) => [row.warehouseId, row.quantity])),
+        warehouseAssignments,
+        stockReason,
+      );
 
       const updated = await tx.product.update({
         where: { id: productId },
@@ -173,6 +195,14 @@ export async function updateProductAction(
         skipDuplicates: true,
       });
       const after = await saveWarehouseStocks(tx, productId, warehouseAssignments);
+      await recordProductStockChanges(tx, user, {
+        productId,
+        reason: stockReason,
+        changes,
+        costLei: input.costLei,
+        documentId: readString(formData, "stockDocumentId") || null,
+        partnerId: readString(formData, "stockPartnerId") || null,
+      });
       await recordPriceChange(tx, productId, before, updated, user);
 
       await logAuditRequired(tx, user, {

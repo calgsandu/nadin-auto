@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
-import { Banknote, Car, ChevronDown, ListPlus, PackageSearch, Pencil, Plus, Tag, Trash2, Warehouse } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Banknote, Car, ChevronDown, ClipboardCheck, ListPlus, PackagePlus, PackageSearch, Pencil, Plus, SlidersHorizontal, Tag, Trash2, Warehouse } from "lucide-react";
 import {
   createProductAction,
   updateProductAction,
@@ -10,17 +10,23 @@ import {
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { CloseIconButton, IconLabel, rowIconButtonCls, SaveButton } from "@/app/components/icon-buttons";
 import {
-  DrawerCard,
   drawerBoundaryProps,
-  drawerPanelClassName,
   handleEnterNavigation,
+  ModalSection as Section,
+  ModalSectionTitle as SectionTitle,
+  modalBackdropClassName,
+  modalHeaderClassName,
+  modalPanelClassName,
+  modalSectionGridClassName,
   useDrawerAction,
-  useDrawerStackChild,
+  useModalFocus,
 } from "@/app/components/operation-drawer";
 import { BrandSelect, ModelSelect } from "@/app/admin/admin-dialogs";
 import { ProductCodeField } from "@/app/catalog/product-code-field";
 import { AddToStickersButton } from "@/app/catalog/add-to-stickers";
 import type { ProductSearchResult } from "@/lib/catalog/product-search";
+import type { StockReason } from "@/lib/catalog/product-stock-documents";
+import type { StockTargets } from "@/app/api/catalog/stock-targets/route";
 
 /**
  * Doar câmpurile folosite de formular, nu modelele Prisma întregi: aceleași
@@ -145,6 +151,14 @@ export function ProductFormDialog({
   const [salePrice, setSalePrice] = useState(product?.salePriceLei ?? "");
   // „+ Tip nou…" ales din listă: apare câmpul pentru numele tipului.
   const [newType, setNewType] = useState(false);
+  // De unde vine stocul schimbat. Nu se golește la „Încă unul": piesele unui
+  // inventar sau ale unei recepții se introduc una după alta.
+  const [stockReason, setStockReason] = useState<StockReason | "">("");
+  // Documentul ales (gol = cel de azi din fișe) și furnizorul recepției noi;
+  // rămân și ele la „Încă unul", ca piesele să intre în același document.
+  const [stockDocumentId, setStockDocumentId] = useState("");
+  const [stockPartnerId, setStockPartnerId] = useState("");
+  const [stockTargets, setStockTargets] = useState<StockTargets | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const action = product ? updateProductAction : createProductAction;
   // Fără resetul automat al React: la eroare rămâne tot completat.
@@ -193,8 +207,9 @@ export function ProductFormDialog({
       formRef.current?.querySelector<HTMLSelectElement>('select[name="typeId"]')?.value ?? "";
     formRef.current?.requestSubmit();
   }
-  // Cât timp formularul ăsta e deschis, drawerul din care s-a plecat se ascunde.
-  useDrawerStackChild(open);
+  // Modal PESTE documentul din care s-a plecat (inventar, recepție), care
+  // rămâne vizibil în spate.
+  useModalFocus(formRef, open);
 
   function setOpen(next: boolean) {
     if (!controlled) setSelfOpen(next);
@@ -210,19 +225,50 @@ export function ProductFormDialog({
   }
 
   const originalQuantities = getWarehouseQuantities(product, warehouses);
+  const stockDiffs = warehouses.map(
+    (warehouse) => (Number(warehouseQuantities[warehouse.id]) || 0) - (Number(originalQuantities[warehouse.id]) || 0),
+  );
+  const stockChanged = stockDiffs.some((diff) => diff !== 0);
+  const stockDecreased = stockDiffs.some((diff) => diff < 0);
+  const changedWarehouseIds = warehouses.filter((_, index) => stockDiffs[index] !== 0).map((warehouse) => warehouse.id);
+  const wantTargets = stockChanged && stockReason !== "";
+  // Cerute din nou la fiecare schimbare de stoc: între timp poate fi apărut
+  // documentul de azi, creat de piesa salvată înainte.
+  useEffect(() => {
+    if (!wantTargets) return;
+    let live = true;
+    fetch("/api/catalog/stock-targets")
+      .then((response) => (response.ok ? (response.json() as Promise<StockTargets>) : null))
+      .then((targets) => {
+        if (live && targets) setStockTargets(targets);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [wantTargets]);
+  // Un document existent e pe un singur depozit, deci se poate alege doar
+  // când stocul s-a schimbat într-un singur depozit.
+  const targetDocuments =
+    changedWarehouseIds.length === 1
+      ? (stockTargets?.documents ?? []).filter(
+          (document) => document.kind === stockReason && document.warehouseId === changedWarehouseIds[0],
+        )
+      : [];
+  const chosenDocument = targetDocuments.find((document) => document.id === stockDocumentId) ?? null;
   const costValue = Number(cost.replace(",", ".")) || 0;
   const saleValue = Number(salePrice.replace(",", ".")) || 0;
   const effectiveSale = saleValue || costValue * 2;
   const margin = costValue > 0 && effectiveSale > 0 ? Math.round(((effectiveSale - costValue) / effectiveSale) * 100) : null;
-  const hasDetails = Boolean(
-    product?.alternativeCode ||
-      product?.priceEuro ||
-      product?.minStock ||
-      product?.isLocal ||
-      product?.descriptionRu ||
-      product?.notes ||
-      product?.notesRu,
-  );
+  const filledDetails = [
+    product?.alternativeCode,
+    product?.priceEuro,
+    product?.minStock,
+    product?.isLocal,
+    product?.descriptionRu,
+    product?.notes,
+    product?.notesRu,
+  ].filter(Boolean).length;
 
   // În modul controlat nu trece nimeni prin `openDialog`, dar panoul tot trebuie
   // montat (și inițializat) la prima deschidere. Ajustarea stării în timpul
@@ -289,7 +335,7 @@ export function ProductFormDialog({
       {mounted ? (
         <DrawerPortal locked={open}>
           <div
-            className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
+            className={modalBackdropClassName}
             style={open ? undefined : { display: "none" }}
             {...drawerBoundaryProps}
           >
@@ -300,7 +346,7 @@ export function ProductFormDialog({
             onClick={() => setOpen(false)}
           />
           <aside
-            className={drawerPanelClassName}
+            className={modalPanelClassName("lg")}
             onKeyDown={(event) => {
               // Ca în celelalte panouri: Ctrl+Enter salvează, Esc închide.
               if ((event.ctrlKey || event.metaKey) && (event.key === "Enter" || event.key.toLowerCase() === "s")) {
@@ -326,8 +372,8 @@ export function ProductFormDialog({
               }
             }}
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
-              <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-(--c-ink)">
+            <div className={modalHeaderClassName(true)}>
+              <h2 className="flex items-center gap-2.5 text-lg font-semibold text-(--c-ink)">
                 <span className="grid size-8 place-items-center rounded-lg bg-(--c-accent) text-white">
                   <PackageSearch className="size-4" aria-hidden="true" />
                 </span>
@@ -365,7 +411,6 @@ export function ProductFormDialog({
             <form
               ref={formRef}
               onSubmit={onSubmit}
-              className="grid gap-5 px-5 py-4"
               onKeyDown={(event) => handleEnterNavigation(event)}
             >
               {product ? (
@@ -373,7 +418,7 @@ export function ProductFormDialog({
               ) : null}
 
               {lastSaved ? (
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-(--c-green-soft) px-3 py-2 text-sm text-(--c-green)">
+                <div className="mx-5 my-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-(--c-green-soft) px-3 py-2 text-sm text-(--c-green)">
                   <span className="min-w-0 truncate">Salvat: {lastSaved.label}</span>
                   <div className="flex items-center gap-2">
                     <AddToStickersButton
@@ -393,8 +438,8 @@ export function ProductFormDialog({
               ) : null}
 
               {/* Ordinea în care se scrie o piesă: codul, ce e, ce tip. */}
-              <DrawerCard icon={Tag} title="Piesa">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[12rem_minmax(0,1fr)_14rem]">
+              <Section icon={Tag} title="Piesa">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-[9rem_minmax(0,1fr)_11rem]">
                 <Field label="Cod">
                   <ProductCodeField
                     className={inputClassName}
@@ -402,7 +447,8 @@ export function ProductFormDialog({
                     productId={product?.id}
                   />
                 </Field>
-                <Field label="Descriere">
+                {/* Pe telefon: codul și tipul pe un rând, descrierea dedesubt. */}
+                <Field label="Descriere" className="max-sm:order-last max-sm:col-span-2">
                   <textarea
                     className={`${inputClassName} min-h-9 resize-y py-2`}
                     rows={1}
@@ -438,22 +484,14 @@ export function ProductFormDialog({
                   ) : null}
                 </Field>
               </div>
-              </DrawerCard>
+              </Section>
 
-              <DrawerCard
+              <Section
                 icon={Car}
-                title="Se potrivește pe"
-                action={
-                  <button
-                    className="button-secondary inline-flex items-center gap-1.5 rounded-md border border-(--c-line) bg-(--c-surface) px-3 py-2 text-sm font-semibold text-(--c-ink) hover:bg-(--c-hover)"
-                    type="button"
-                    onClick={addFitment}
-                  >
-                    <Plus className="size-4" aria-hidden="true" /> Altă mașină
-                  </button>
-                }
+                title="Mașini"
+                hint={fitments.length === 1 ? "1 mașină" : `${fitments.length} mașini`}
               >
-                <div className="grid gap-1.5">
+                <div className="grid divide-y divide-(--c-line-2)">
                   {fitments.map((fitment, index) => (
                     <FitmentRow
                       key={index}
@@ -466,11 +504,27 @@ export function ProductFormDialog({
                     />
                   ))}
                 </div>
-              </DrawerCard>
+                <button
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-md text-sm font-semibold text-(--c-accent) hover:underline"
+                  type="button"
+                  onClick={addFitment}
+                >
+                  <Plus className="size-4" aria-hidden="true" /> Altă mașină
+                </button>
+              </Section>
 
-              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-              <DrawerCard icon={Banknote} title="Preț">
-              <div className="grid gap-3 sm:grid-cols-2">
+              <Section
+                icon={Banknote}
+                title="Preț"
+                hint={
+                  margin === null ? undefined : margin < 0 ? (
+                    <span className="font-medium text-(--c-red)">sub cost</span>
+                  ) : (
+                    `marjă ${margin}%`
+                  )
+                }
+              >
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <Field label="Cost (lei)">
                   <input
                     className={inputClassName}
@@ -480,35 +534,26 @@ export function ProductFormDialog({
                     onChange={(event) => setCost(event.currentTarget.value)}
                   />
                 </Field>
-                <Field label="Preț vânzare (lei)">
+                <Field label="Vânzare (lei)">
                   <input
                     className={inputClassName}
                     name="salePriceLei"
                     defaultValue={product?.salePriceLei ?? ""}
                     inputMode="decimal"
                     // Gol = 2× cost: arătăm direct cât va fi.
-                    placeholder={costValue > 0 ? `${formatLei(costValue * 2)} (automat)` : "automat: 2× cost"}
+                    placeholder={costValue > 0 ? `${formatLei(costValue * 2)} (automat)` : "2× cost"}
                     onChange={(event) => setSalePrice(event.currentTarget.value)}
                   />
-                  {margin !== null ? (
-                    <span className={`text-xs font-normal ${margin < 0 ? "font-medium text-(--c-red)" : "text-(--c-muted-2)"}`}>
-                      {margin < 0 ? "sub cost" : `marjă ${margin}%`}
-                    </span>
-                  ) : null}
                 </Field>
               </div>
-              </DrawerCard>
+              </Section>
 
-              <DrawerCard
+              <Section
                 icon={Warehouse}
-                title="Stoc pe depozite"
-                action={
-                  <p className="text-sm text-(--c-muted)">
-                    Total <span className="font-semibold tabular-nums text-(--c-ink)">{calculateTotal(warehouseQuantities)}</span> buc.
-                  </p>
-                }
+                title="Stoc"
+                hint={`total ${calculateTotal(warehouseQuantities)} buc.`}
               >
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {warehouses.map((warehouse) => (
                     <div key={warehouse.id} className="grid gap-1.5">
                       <input name="warehouseId" type="hidden" value={warehouse.id} readOnly />
@@ -538,76 +583,169 @@ export function ProductFormDialog({
                     </div>
                   ))}
                 </div>
-              </DrawerCard>
-              </div>
+                {/* Stocul schimbat din fișă intră într-un document: inventar sau recepție. */}
+                {stockChanged ? (
+                  <div className="mt-3 grid gap-1.5">
+                    <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="De unde vine schimbarea de stoc">
+                      {STOCK_REASONS.map(({ value, label, icon: Icon }) => (
+                        <label
+                          key={value}
+                          className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-semibold focus-within:ring-2 focus-within:ring-(--c-accent)/40 ${
+                            stockReason === value
+                              ? "border-(--c-accent) bg-(--c-accent-soft) text-(--c-accent-strong)"
+                              : "border-(--c-line) text-(--c-ink-2) hover:bg-(--c-hover)"
+                          }`}
+                        >
+                          <input
+                            checked={stockReason === value}
+                            className="sr-only"
+                            name="stockReason"
+                            required
+                            type="radio"
+                            value={value}
+                            onChange={() => {
+                              setStockReason(value);
+                              setStockDocumentId("");
+                            }}
+                          />
+                          <Icon className="size-4" aria-hidden="true" />
+                          {label}
+                        </label>
+                      ))}
+                    </div>
+                    {stockReason && !(stockReason === "receipt" && stockDecreased) ? (
+                      <div className="mt-1.5 grid gap-3 sm:grid-cols-2">
+                        <Field label="În documentul">
+                          <select
+                            className={inputClassName}
+                            name="stockDocumentId"
+                            value={chosenDocument?.id ?? ""}
+                            onChange={(event) => setStockDocumentId(event.currentTarget.value)}
+                          >
+                            <option value="">{stockReason === "inventory" ? "Inventarul de azi din fișe" : "Recepția de azi din fișe"}</option>
+                            {targetDocuments.map((document) => (
+                              <option key={document.id} value={document.id}>
+                                {targetDocumentLabel(document)}
+                              </option>
+                            ))}
+                          </select>
+                        </Field>
+                        {stockReason === "receipt" && !chosenDocument ? (
+                          <Field label="Furnizor">
+                            <select
+                              className={inputClassName}
+                              name="stockPartnerId"
+                              value={stockTargets?.suppliers.some((supplier) => supplier.id === stockPartnerId) ? stockPartnerId : ""}
+                              onChange={(event) => setStockPartnerId(event.currentTarget.value)}
+                            >
+                              <option value="">Fără furnizor</option>
+                              {(stockTargets?.suppliers ?? []).map((supplier) => (
+                                <option key={supplier.id} value={supplier.id}>
+                                  {supplier.name}
+                                </option>
+                              ))}
+                            </select>
+                          </Field>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    <p
+                      className={`text-xs ${
+                        !stockReason ? "font-medium text-(--c-amber)" : stockReason === "receipt" && stockDecreased ? "font-medium text-(--c-red)" : "text-(--c-muted-2)"
+                      }`}
+                    >
+                      {!stockReason
+                        ? "Stocul s-a schimbat: alege dacă e inventar sau marfă adusă."
+                        : stockReason === "inventory"
+                          ? "Intră ca diferență față de sistem."
+                          : stockDecreased
+                            ? "La marfă adusă stocul doar crește. Pentru scădere alege Inventar."
+                            : costValue > 0
+                              ? `Intră la ${formatLei(costValue)} lei bucata.`
+                              : "Intră fără cost: completează costul mai sus."}
+                    </p>
+                  </div>
+                ) : null}
+              </Section>
 
-              {/* Ce se completează rar stă strâns; se deschide singur când produsul
-                  are deja ceva scris aici. */}
-              <details className="group rounded-lg border border-(--c-line) bg-(--c-surface)" open={hasDetails || undefined}>
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-semibold text-(--c-ink) [&::-webkit-details-marker]:hidden">
-                  <span>
-                    Mai multe detalii
-                    <span className="ml-2 font-normal text-(--c-muted-2)">cod alternativ, preț EUR, stoc minim, site</span>
+              {/* Ce se completează rar stă strâns; titlul spune câte câmpuri au
+                  deja ceva scris, ca nimic să nu rămână ascuns fără să știi. */}
+              <details className="group" data-modal-section>
+                <summary className={`${modalSectionGridClassName} cursor-pointer list-none py-4 hover:bg-(--c-hover) [&::-webkit-details-marker]:hidden`}>
+                  <SectionTitle
+                    icon={SlidersHorizontal}
+                    title="Mai multe"
+                    hint={filledDetails > 0 ? `${filledDetails} completate` : undefined}
+                  />
+                  <span className="flex items-center justify-between gap-3 text-sm text-(--c-muted-2) lg:pt-1.5">
+                    <span className="max-sm:hidden">cod alternativ, preț EUR, stoc minim, texte pentru site</span>
+                    <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
                   </span>
-                  <ChevronDown className="size-4 text-(--c-muted-2) transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
-                <div className="grid gap-3 border-t border-(--c-line-2) p-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <Field label="Cod alternativ">
-                    <input
-                      className={inputClassName}
-                      name="alternativeCode"
-                      defaultValue={product?.alternativeCode ?? ""}
-                      placeholder="ex. cod furnizor"
-                    />
-                  </Field>
-                  <Field label="Preț EUR">
-                    <input
-                      className={inputClassName}
-                      name="priceEuro"
-                      defaultValue={product?.priceEuro ?? ""}
-                      inputMode="decimal"
-                    />
-                  </Field>
-                  <Field label="Stoc minim">
-                    <input
-                      className={inputClassName}
-                      name="minStock"
-                      defaultValue={product?.minStock ?? ""}
-                      inputMode="numeric"
-                      placeholder="3"
-                    />
-                  </Field>
-                  <label className="flex items-center gap-2 self-end pb-2 text-sm text-(--c-ink-2)">
-                    <input name="isLocal" type="checkbox" defaultChecked={product?.isLocal ?? false} />
-                    Fabricată local
-                  </label>
-                  <Field className="sm:col-span-2" label="Descriere în rusă">
-                    <textarea
-                      className={`${inputClassName} min-h-14 resize-y py-2`}
-                      name="descriptionRu"
-                      defaultValue={product?.descriptionRu ?? ""}
-                      placeholder="ex. Левый порог для 4/5 дверей"
-                    />
-                  </Field>
-                  {/*
-                    Câmpul se numea „Notițe" și suna a notă internă, dar se publică
-                    pe site-ul public, în fișa piesei. Eticheta o spune acum.
-                  */}
-                  <Field label="Mențiune publică (apare pe site)">
-                    <textarea
-                      className={`${inputClassName} min-h-14 resize-y py-2`}
-                      name="notes"
-                      defaultValue={product?.notes ?? ""}
-                      placeholder="Nu scrie aici note interne."
-                    />
-                  </Field>
-                  <Field label="Mențiune publică în rusă">
-                    <textarea
-                      className={`${inputClassName} min-h-14 resize-y py-2`}
-                      name="notesRu"
-                      defaultValue={product?.notesRu ?? ""}
-                    />
-                  </Field>
+                <div className={`${modalSectionGridClassName} pt-0`}>
+                  <div className="grid gap-3 lg:col-start-2">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                      <Field label="Cod alternativ">
+                        <input
+                          className={inputClassName}
+                          name="alternativeCode"
+                          defaultValue={product?.alternativeCode ?? ""}
+                          placeholder="cod furnizor"
+                        />
+                      </Field>
+                      <Field label="Preț EUR">
+                        <input
+                          className={inputClassName}
+                          name="priceEuro"
+                          defaultValue={product?.priceEuro ?? ""}
+                          inputMode="decimal"
+                        />
+                      </Field>
+                      <Field label="Stoc minim">
+                        <input
+                          className={inputClassName}
+                          name="minStock"
+                          defaultValue={product?.minStock ?? ""}
+                          inputMode="numeric"
+                          placeholder="3"
+                        />
+                      </Field>
+                      <label className="flex items-center gap-2 self-end pb-2 text-sm text-(--c-ink-2)">
+                        <input name="isLocal" type="checkbox" defaultChecked={product?.isLocal ?? false} />
+                        Fabricată local
+                      </label>
+                    </div>
+                    <Field label="Descriere în rusă">
+                      <textarea
+                        className={`${inputClassName} min-h-9 resize-y py-2`}
+                        rows={1}
+                        name="descriptionRu"
+                        defaultValue={product?.descriptionRu ?? ""}
+                        placeholder="ex. Левый порог для 4/5 дверей"
+                      />
+                    </Field>
+                    {/*
+                      Câmpul se numea „Notițe" și suna a notă internă, dar se publică
+                      pe site-ul public, în fișa piesei. Eticheta o spune acum.
+                    */}
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Field label="Mențiune pe site">
+                        <textarea
+                          className={`${inputClassName} min-h-14 resize-y py-2`}
+                          name="notes"
+                          defaultValue={product?.notes ?? ""}
+                          placeholder="Public. Nu scrie note interne."
+                        />
+                      </Field>
+                      <Field label="Mențiune pe site, în rusă">
+                        <textarea
+                          className={`${inputClassName} min-h-14 resize-y py-2`}
+                          name="notesRu"
+                          defaultValue={product?.notesRu ?? ""}
+                        />
+                      </Field>
+                    </div>
+                  </div>
                 </div>
               </details>
             </form>
@@ -643,7 +781,7 @@ function FitmentRow({
   onRemove?: () => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-2 rounded-lg border border-(--c-line-2) bg-(--c-surface-2) px-2.5 py-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6.5rem_6.5rem_8.5rem_2.25rem] lg:items-start">
+    <div className="grid grid-cols-2 gap-2 py-3 first:pt-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_5.5rem_5.5rem_auto_2.25rem] sm:items-start">
       <input
         name={primary ? "yearOpenEnded" : "extraYearOpenEnded"}
         type="hidden"
@@ -651,7 +789,7 @@ function FitmentRow({
         readOnly
       />
       {/* Pe telefon: brandul și modelul pe toată lățimea, anii unul lângă altul. */}
-      <Field label="Brand" className="max-lg:col-span-2">
+      <Field label="Brand" className="max-sm:col-span-2">
         <BrandSelect
           brands={brands}
           name={primary ? "brandId" : undefined}
@@ -660,7 +798,7 @@ function FitmentRow({
           onChange={(brandId) => onChange({ brandId, modelId: "" })}
         />
       </Field>
-      <Field label="Model" className="max-lg:col-span-2">
+      <Field label="Model" className="max-sm:col-span-2">
         <ModelSelect
           brands={brands}
           defaultBrandId={value.brandId}
@@ -693,7 +831,7 @@ function FitmentRow({
           onChange={(event) => onChange({ yearEnd: event.target.value })}
         />
       </Field>
-      <div className="flex items-center gap-3 lg:mt-8">
+      <div className="flex items-center gap-3 sm:mt-7">
         <label className="flex items-center gap-1.5 whitespace-nowrap text-sm text-(--c-ink-2)">
           <input
             checked={value.yearOpenEnded}
@@ -711,7 +849,7 @@ function FitmentRow({
       {onRemove ? (
         <button
           aria-label="Șterge compatibilitatea"
-          className="button-danger grid size-9 place-items-center justify-self-end rounded-md border border-(--c-line) bg-(--c-surface) text-(--c-red) hover:border-(--c-red) hover:bg-(--c-red-soft) lg:mt-6 lg:justify-self-auto"
+          className="button-danger grid size-9 place-items-center justify-self-end rounded-md border border-(--c-line) bg-(--c-surface) text-(--c-red) hover:border-(--c-red) hover:bg-(--c-red-soft) sm:mt-6 sm:justify-self-auto"
           title="Șterge mașina"
           type="button"
           onClick={onRemove}
@@ -757,6 +895,17 @@ function Field({
       {children}
     </label>
   );
+}
+
+const STOCK_REASONS: { value: StockReason; label: string; icon: typeof ClipboardCheck }[] = [
+  { value: "inventory", label: "Inventar", icon: ClipboardCheck },
+  { value: "receipt", label: "Marfă adusă", icon: PackagePlus },
+];
+
+function targetDocumentLabel(document: StockTargets["documents"][number]) {
+  const [, month, day] = document.date.split("-");
+  const name = document.kind === "inventory" ? "Inventar" : "Recepție";
+  return `${name} #${document.number}, ${day}.${month}${document.partnerName ? `, ${document.partnerName}` : ""}`;
 }
 
 /** Opțiunea „+ Tip nou…" din lista de tipuri; serverul folosește atunci `newTypeName`. */

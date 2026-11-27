@@ -5,7 +5,7 @@ import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { useActionToast } from "@/app/components/action-toast";
-import { drawerPanelClassName } from "@/app/components/operation-drawer";
+import { modalBackdropClassName, modalHeaderClassName, modalPanelClassName } from "@/app/components/operation-drawer";
 import {
   changeOwnPasswordAction,
   type PasswordChangeState,
@@ -39,13 +39,11 @@ function PasswordDrawer({ onClose }: { onClose: () => void }) {
   useActionToast(state, { success: false });
   return (
     <DrawerPortal>
-      <div className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30">
+      <div className={modalBackdropClassName}>
         <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={onClose} />
-        <aside className={drawerPanelClassName}>
-          <div className="flex items-start justify-between border-b border-(--c-line) px-6 py-5">
-            <div>
-              <h2 className="mt-1 text-lg font-semibold">Schimbă parola</h2>
-            </div>
+        <aside className={modalPanelClassName("md")}>
+          <div className={modalHeaderClassName(true)}>
+            <h2 className="text-lg font-semibold text-(--c-ink)">Schimbă parola</h2>
             <CloseIconButton onClick={onClose} />
           </div>
           {state.ok ? (

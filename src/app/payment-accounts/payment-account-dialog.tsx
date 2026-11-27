@@ -232,13 +232,13 @@ export function PaymentAccountDialog({
                     </button>
                   }
                 >
-                  <div className="grid gap-1.5">
+                  <div className="grid">
                     {lines.map((line, index) => {
                       const calculated = totals.lines[index];
                       return (
                         <div
                           key={line.id}
-                          className="motion-line-item grid gap-2 rounded-lg border border-(--c-line-2) bg-(--c-surface-2) px-2.5 py-2 md:grid-cols-[minmax(0,1fr)_5rem_8rem_8rem_2.25rem] md:items-start"
+                          className="motion-line-item grid gap-2 border-t border-(--c-line-2) py-2.5 md:grid-cols-[minmax(0,1fr)_5rem_8rem_8rem_2.25rem] md:items-start"
                         >
                           <div>
                             <p className="line-label mb-1 text-[13px] font-medium leading-5 text-(--c-muted)">Produs</p>
