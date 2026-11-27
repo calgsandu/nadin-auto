@@ -11,23 +11,19 @@ import { ChevronDown, SlidersHorizontal } from "lucide-react";
  */
 export function MobileFilters({
   active = 0,
-  everywhere = false,
   children,
 }: {
   active?: number;
-  /** true = strânse sub buton și pe ecran mare (la produse ajunge căutarea). */
-  everywhere?: boolean;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const collapsedFrom = everywhere ? "" : "sm:";
   return (
     <>
       <button
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium ${everywhere ? "" : "sm:hidden"} ${
+        className={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium sm:hidden ${
           active > 0 ? "border-(--c-accent-line) bg-(--c-accent-soft) text-(--c-accent-strong)" : "border-(--c-line) bg-(--c-surface) text-(--c-ink-2)"
         }`}
       >
@@ -41,15 +37,13 @@ export function MobileFilters({
         <ChevronDown className={`size-4 transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
       <div
-        className={`grid w-full transition-[grid-template-rows,opacity,visibility] duration-200 ease-out ${
-          collapsedFrom && "sm:contents sm:visible sm:opacity-100"
-        } ${
+        className={`grid w-full transition-[grid-template-rows,opacity,visibility] duration-200 ease-out sm:contents sm:visible sm:opacity-100 ${
           open
             ? "visible grid-rows-[1fr] opacity-100"
             : "invisible grid-rows-[0fr] opacity-0"
         }`}
       >
-        <div className={`flex min-h-0 flex-wrap items-center gap-2 overflow-hidden ${collapsedFrom && "sm:contents"}`}>{children}</div>
+        <div className="flex min-h-0 flex-wrap items-center gap-2 overflow-hidden sm:contents">{children}</div>
       </div>
     </>
   );

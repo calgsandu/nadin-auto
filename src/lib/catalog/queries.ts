@@ -17,7 +17,6 @@ export type CatalogSearchParams = {
   /** "1" = doar produsele cu stoc; "ok" = peste pragul minim; "mic" = aproape terminate (de comandat); "0" = fără stoc. */
   stoc?: string;
   /** "0" = fără preț de vânzare (de completat). */
-  pret?: string;
   page?: string;
 };
 
@@ -58,7 +57,6 @@ export async function getCatalogData(
     });
   }
   if (params.stoc === "0") stockFilter.push({ OR: [{ stock: null }, { stock: { lte: 0 } }] });
-  if (params.pret === "0") stockFilter.push({ salePriceLei: null });
   const withStock = (base: Prisma.ProductWhereInput): Prisma.ProductWhereInput =>
     stockFilter.length > 0 ? { AND: [base, ...stockFilter] } : base;
   const where = withStock(buildProductWhere(params, matchedIds));
@@ -161,7 +159,6 @@ export async function getCatalogData(
       type: params.type,
       year: params.year,
       stoc: params.stoc,
-      pret: params.pret,
     },
     brands,
     models,

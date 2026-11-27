@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
-import { Boxes, CalendarDays, Car, CircleDollarSign, Layers, LoaderCircle, Search, Tag, X } from "lucide-react";
+import { Boxes, CalendarDays, Car, Layers, LoaderCircle, Search, Tag, X } from "lucide-react";
 import type { Brand, CarModel, ProductType, VehicleFitment } from "@/generated/prisma/client";
 import { formatCompatibilityYears } from "@/lib/catalog/compatibility-display";
 import { crmCatalogFilterHref } from "@/lib/crm/urls";
@@ -78,7 +78,7 @@ export function CatalogFilters({
     router.push(crmCatalogFilterHref(next));
   }
 
-  const activeFilters = ["brand", "model", "fitment", "type", "year", "stoc", "pret"].filter((key) => searchParams.get(key)).length;
+  const activeFilters = ["brand", "model", "fitment", "type", "year", "stoc"].filter((key) => searchParams.get(key)).length;
 
   const pill = (active: boolean) =>
     `field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
@@ -117,7 +117,7 @@ export function CatalogFilters({
           Ctrl K
         </kbd>
       </div>
-      <MobileFilters active={activeFilters} everywhere>
+      <MobileFilters active={activeFilters}>
       <label className={`${pill(Boolean(searchParams.get("brand")))} catalog-car-select xl:hidden`}>
         <Tag className="size-4 shrink-0 opacity-70" aria-hidden="true" />
         <span className="sr-only">Brand</span>
@@ -209,16 +209,6 @@ export function CatalogFilters({
           <option value="0">Fără stoc</option>
         </select>
       </label>
-      {/* Piesele fără preț de vânzare: la tejghea apar cu „—", deci se completează pe rând. */}
-      <button
-        type="button"
-        aria-pressed={searchParams.get("pret") === "0"}
-        className={`${pill(searchParams.get("pret") === "0")} font-medium`}
-        onClick={() => updateParam("pret", searchParams.get("pret") === "0" ? "" : "0")}
-      >
-        <CircleDollarSign className="size-4 shrink-0 opacity-70" aria-hidden="true" />
-        Fără preț
-      </button>
       </MobileFilters>
       {searchParams.toString() ? (
         <button

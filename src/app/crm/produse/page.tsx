@@ -47,7 +47,7 @@ export default async function ProductsPage({
   });
   // Fără `q`: căutarea filtrează pe măsură ce scrii, iar o cheie nouă ar
   // remonta câmpul (pierde focusul) și ar arăta scheletul la fiecare literă.
-  const key = [params.brand, params.model, params.fitment, params.type, params.year, params.stoc, params.pret, params.page].join(":");
+  const key = [params.brand, params.model, params.fitment, params.type, params.year, params.stoc, params.page].join(":");
 
   return (
     <>
