@@ -276,10 +276,11 @@ export function RecentDocumentsTable({
                   ca coloane separate împingeau Acțiunile în afara ecranului pe laptop. */}
               <TableHead>Document</TableHead>
               <TableHead secondary>Depozit</TableHead>
-              <TableHead className="min-w-[16rem]">Produs</TableHead>
-              <TableHead align="right" className="max-lg:hidden">Total</TableHead>
-              {hasSales ? <TableHead secondary>Plată</TableHead> : null}
-              <TableHead align="right">
+              <TableHead className="min-w-[16rem] lg:w-full">Produs</TableHead>
+              <TableHead align="center" className="max-lg:hidden lg:min-w-32">Total</TableHead>
+              {hasSales ? <TableHead align="center" secondary className="lg:min-w-36">Plată</TableHead> : null}
+              {/* Spațiu clar între cifre și butoanele din colț. */}
+              <TableHead align="right" className="lg:min-w-44">
                 <span className="sr-only">Acțiuni</span>
               </TableHead>
             </tr>
@@ -294,7 +295,7 @@ export function RecentDocumentsTable({
                   <span className="block text-xs text-(--c-muted)">{formatDate(document.documentDate)}</span>
                   <span className="mt-1 block font-semibold tabular-nums lg:hidden">{formatMoney(docTotal)} lei</span>
                 </TableCell>
-                <TableCell secondary>{document.warehouse.name}</TableCell>
+                <TableCell secondary className="whitespace-nowrap">{document.warehouse.name}</TableCell>
                 <TableCell>
                   {document.type === "SALE" ? (
                     <SaleLines lines={document.lines} />
@@ -312,14 +313,14 @@ export function RecentDocumentsTable({
                     </div>
                   )}
                 </TableCell>
-                <TableCell align="right" className="whitespace-nowrap max-lg:hidden">
+                <TableCell align="center" className="whitespace-nowrap max-lg:hidden">
                   <span className="block tabular-nums font-semibold">{formatMoney(docTotal)} lei</span>
                   <span className="block text-xs text-(--c-muted)">
                     {formatNumber(document.lines.reduce((sum, line) => sum + line.quantity, 0))} buc.
                     {COMPANY.vatPayer ? ` · TVA ${formatMoney(docTotal / 6)}` : null}
                   </span>
                 </TableCell>
-                {hasSales ? <TableCell secondary>
+                {hasSales ? <TableCell align="center" secondary>
                   {document.type === "SALE" ? (
                     canModify ? (
                       <SalePaymentMethodControl documentId={document.id} value={document.paymentMethod} />

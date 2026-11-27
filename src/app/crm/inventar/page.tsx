@@ -115,9 +115,9 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
             <thead className="border-b border-(--c-line) bg-(--c-surface-2)">
               <tr>
                 <TableHead>Cod</TableHead>
-                <TableHead>Produs</TableHead>
-                <TableHead align="right">Preț vânzare</TableHead>
-                <TableHead align="right">În sistem</TableHead>
+                <TableHead className="w-full">Produs</TableHead>
+                <TableHead align="center" className="min-w-32">Preț vânzare</TableHead>
+                <TableHead align="center" className="min-w-28">În sistem</TableHead>
               </tr>
             </thead>
             <tbody>
@@ -131,10 +131,10 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
                       {row.product.description}
                       <VehicleSubline product={row.product} />
                     </TableCell>
-                    <TableCell align="right" className="tabular-nums">
+                    <TableCell align="center" className="tabular-nums">
                       {row.product.salePriceLei != null ? `${formatMoney(row.product.salePriceLei)} lei` : "—"}
                     </TableCell>
-                    <TableCell align="right" className="tabular-nums font-semibold">
+                    <TableCell align="center" className="tabular-nums font-semibold">
                       {formatNumber(row.quantity)}
                     </TableCell>
                   </tr>
@@ -219,12 +219,12 @@ function InventoryOperationsTable({
             <tr>
               <TableHead className="max-sm:hidden">Data</TableHead>
               <TableHead>Document</TableHead>
-              <TableHead align="right" secondary>Poziții</TableHead>
-              <TableHead align="right" secondary>Plus</TableHead>
-              <TableHead align="right" secondary>Minus</TableHead>
-              <TableHead align="right">Net</TableHead>
-              <TableHead secondary>Notițe</TableHead>
-              <TableHead align="right">Acțiuni</TableHead>
+              <TableHead align="center" secondary className="lg:min-w-24">Poziții</TableHead>
+              <TableHead align="center" secondary className="lg:min-w-24">Plus</TableHead>
+              <TableHead align="center" secondary className="lg:min-w-24">Minus</TableHead>
+              <TableHead align="center" className="lg:min-w-24">Net</TableHead>
+              <TableHead secondary className="lg:w-full">Notițe</TableHead>
+              <TableHead align="right" className="lg:min-w-44">Acțiuni</TableHead>
             </tr>
           </thead>
           <tbody>
@@ -240,10 +240,10 @@ function InventoryOperationsTable({
                       Inventar #{operation.number}
                       <span className="block text-xs font-normal text-(--c-muted) sm:hidden">{formatDate(operation.documentDate)}</span>
                     </TableCell>
-                    <TableCell align="right" secondary className="tabular-nums">{formatNumber(operation.lines.length)}</TableCell>
-                    <TableCell align="right" secondary className="tabular-nums text-(--c-green)">{plus > 0 ? `+${plus}` : "—"}</TableCell>
-                    <TableCell align="right" secondary className="tabular-nums text-(--c-red)">{minus < 0 ? minus : "—"}</TableCell>
-                    <TableCell align="right" className="tabular-nums font-semibold">{signedNumber(plus + minus)}</TableCell>
+                    <TableCell align="center" secondary className="tabular-nums">{formatNumber(operation.lines.length)}</TableCell>
+                    <TableCell align="center" secondary className="tabular-nums text-(--c-green)">{plus > 0 ? `+${plus}` : "—"}</TableCell>
+                    <TableCell align="center" secondary className="tabular-nums text-(--c-red)">{minus < 0 ? minus : "—"}</TableCell>
+                    <TableCell align="center" className="tabular-nums font-semibold">{signedNumber(plus + minus)}</TableCell>
                     <TableCell secondary className="text-(--c-muted)">
                       {operation.notes?.replace(/^Inventar:?\s*/, "") || "—"}
                     </TableCell>
