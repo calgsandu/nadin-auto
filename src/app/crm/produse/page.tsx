@@ -221,16 +221,17 @@ function ProductWorkspace({
                   ) : null}
                   <TableHead className="max-lg:hidden">Cod</TableHead>
                   <TableHead className="max-lg:hidden">Mașină și ani</TableHead>
-                  <TableHead className="lg:min-w-[12rem]">
+                  {/* Piesa ia lățimea rămasă; cifrele vin la dreapta ei. */}
+                  <TableHead className="lg:w-full lg:min-w-[12rem]">
                     Piesă
                   </TableHead>
                   <TableHead align="right" className="max-lg:hidden">Stoc</TableHead>
                   {canModify ? <TableHead align="right" secondary>Cost</TableHead> : null}
                   <TableHead align="right" className="max-lg:hidden">Preț</TableHead>
                   {canModify ? (
-                    // Coloana de acțiuni ia lățimea rămasă: datele stau strânse în
-                    // stânga, butoanele rămân singure în colțul din dreapta.
-                    <TableHead align="right" className="max-lg:hidden lg:w-full">
+                    // Coloană lată pentru butoane: un spațiu clar între preț și
+                    // acțiuni, ca butoanele să stea separat în colț.
+                    <TableHead align="right" className="max-lg:hidden lg:min-w-44">
                       <span className="sr-only">Acțiuni</span>
                     </TableHead>
                   ) : null}
@@ -424,7 +425,7 @@ function ProductRow({
         {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-(--c-line-strong)">—</span>}
       </TableCell>
       {canModify ? (
-        <TableCell align="right" className="max-lg:hidden lg:w-full">
+        <TableCell align="right" className="max-lg:hidden lg:min-w-44">
           <div className="flex justify-end gap-1.5">
             <ProductFormDialog
               brands={catalog.brands}
