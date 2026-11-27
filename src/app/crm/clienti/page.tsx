@@ -3,7 +3,6 @@ import { ShoppingBag, Users, Wallet, X } from "lucide-react";
 import Link from "next/link";
 import { PartnerFormDialog, type PartnerFormValue } from "@/app/partners/partner-form-dialog";
 import { PartnerDeleteButton } from "@/app/partners/partner-delete-button";
-import { RowMenu } from "@/app/components/row-menu";
 import { PartnerPaymentDialog } from "@/app/partners/payment-dialog";
 import {
   getCustomerDetail,
@@ -144,7 +143,7 @@ async function Loader({
                           partnerName={customer.name}
                           balanceLei={customer.debtLei}
                         />
-                        <RowMenu label={customer.name}>
+                        <div className="flex justify-end gap-1.5">
                           <PartnerFormDialog
                             partner={toPartnerFormValue(customer)}
                             triggerKind="row"
@@ -154,7 +153,7 @@ async function Loader({
                             partnerId={customer.id}
                             partnerName={customer.name}
                           />
-                        </RowMenu>
+                        </div>
                       </div>
                     </TableCell>
                   ) : null}

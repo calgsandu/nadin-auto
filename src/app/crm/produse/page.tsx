@@ -6,7 +6,6 @@ import { CopyCode } from "@/app/components/copy-code";
 import { LocalBadge } from "@/app/components/local-badge";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
 import { ProductDeleteButton } from "@/app/catalog/product-delete-button";
-import { RowMenu } from "@/app/components/row-menu";
 import { ProductFormDialog, type ProductFormValue } from "@/app/catalog/product-form-dialog";
 import { LabelPicker } from "@/app/catalog/label-picker";
 import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
@@ -440,9 +439,9 @@ function ProductRow({
               types={catalog.types}
               warehouses={catalog.warehouses}
             />
-            <RowMenu label={product.description}>
+            <div className="flex justify-end gap-1.5">
               <ProductDeleteButton productId={product.id} label={product.description} />
-            </RowMenu>
+            </div>
           </div>
         </TableCell>
       ) : null}

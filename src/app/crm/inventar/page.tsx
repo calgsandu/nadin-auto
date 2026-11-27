@@ -178,40 +178,40 @@ function InventoryOperationsTable({
 
   return (
     <div className="grid gap-3">
-      <form action="/crm/inventar" method="get" className="flex flex-wrap items-center gap-2">
-        <input type="hidden" name="wh" value={selected?.id ?? ""} />
-        <MobileFilters active={[filters.from, filters.to].filter(Boolean).length}>
-        <FilterField icon={<CalendarDays />} label="De la" active={Boolean(filters.from)}>
-          <input className={filterControlCls} type="date" name="from" defaultValue={filters.from} />
-        </FilterField>
-        <span className="text-(--c-faint)" aria-hidden="true">–</span>
-        <FilterField icon={<CalendarDays />} label="Până la" active={Boolean(filters.to)}>
-          <input className={filterControlCls} type="date" name="to" defaultValue={filters.to} />
-        </FilterField>
-        <FilterSubmit />
-        {filters.from || filters.to ? <FilterReset href={crmInventoryHref({ wh: selected?.id })} /> : null}
-        {canModify && selected ? (
-          <div className="ml-auto flex gap-2">
-            <a
-              href={`/api/export/inventory?${exportQuery}`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
-            >
-              <Download className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (Excel)
-            </a>
-            <a
-              href={`/api/export/inventory?${exportQuery}&format=pdf`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
-            >
-              <FileText className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (PDF)
-            </a>
-          </div>
-        ) : null}
-        </MobileFilters>
-      </form>
-
       <div className="overflow-hidden crm-card">
-        <div className="border-b border-(--c-line) px-4 py-2.5">
+        {/* Titlul, perioada și exporturile pe un singur rând, în capul tabelului. */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-(--c-line) px-4 py-2">
           <h2 className="text-sm font-semibold text-(--c-ink)">Inventare efectuate</h2>
+          <form action="/crm/inventar" method="get" className="flex flex-1 flex-wrap items-center gap-2">
+            <input type="hidden" name="wh" value={selected?.id ?? ""} />
+            <MobileFilters active={[filters.from, filters.to].filter(Boolean).length}>
+            <FilterField icon={<CalendarDays />} label="De la" active={Boolean(filters.from)}>
+              <input className={filterControlCls} type="date" name="from" defaultValue={filters.from} />
+            </FilterField>
+            <span className="text-(--c-faint)" aria-hidden="true">–</span>
+            <FilterField icon={<CalendarDays />} label="Până la" active={Boolean(filters.to)}>
+              <input className={filterControlCls} type="date" name="to" defaultValue={filters.to} />
+            </FilterField>
+            <FilterSubmit />
+            {filters.from || filters.to ? <FilterReset href={crmInventoryHref({ wh: selected?.id })} /> : null}
+            {canModify && selected ? (
+              <div className="ml-auto flex gap-2">
+                <a
+                  href={`/api/export/inventory?${exportQuery}`}
+                  className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
+                >
+                  <Download className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (Excel)
+                </a>
+                <a
+                  href={`/api/export/inventory?${exportQuery}&format=pdf`}
+                  className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
+                >
+                  <FileText className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (PDF)
+                </a>
+              </div>
+            ) : null}
+            </MobileFilters>
+          </form>
         </div>
         <div className="overflow-x-auto">
         <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[860px]">

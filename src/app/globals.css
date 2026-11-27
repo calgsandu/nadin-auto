@@ -142,16 +142,16 @@
 }
 
 /* Rădăcina în rem strânge tot CRM-ul proporțional (text, câmpuri, spații).
-   Telefonul/tableta: 15px, țintele de atingere rămân ≥30px. Pe desktop scade
-   lin cu lățimea ȘI înălțimea ferestrei: 14.5px pe monitor mare, ~12.8px pe
-   1440×900, 12px (minim) pe 1366×768. `text-xs` nu coboară sub 10.5px. */
+   Telefonul/tableta: 14px, țintele de atingere rămân ≥28px. Pe desktop scade
+   lin cu lățimea ȘI înălțimea ferestrei: 13.5px pe monitor mare, ~12px pe
+   laptop (minim). `text-xs` nu coboară sub 10.5px. */
 :root:has(.crm-main) {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 @media (min-width: 1024px) {
   :root:has(.crm-main) {
-    font-size: clamp(12px, min(0.8vw + 1.5px, 0.9vh + 5.8px), 14.5px);
+    font-size: clamp(12px, min(0.75vw + 1.2px, 0.85vh + 5.4px), 13.5px);
     --text-xs: max(0.8125rem, 10.5px);
     --text-xs--line-height: 1.35;
   }
@@ -164,15 +164,9 @@
   background: var(--c-surface);
 }
 
-/* Linia din blocul negru. Nelayerizat: altfel `* { border-color }` din UI-ul
-   Neon Auth (vezi `--border`) o face hairline deschis, adică albă pe negru. */
 /* Pe blocul negru textul secundar e gri deschis pe ambele teme. */
 .crm-hero {
   --c-faint: #a8a29e;
-}
-
-.crm-hero-rule {
-  border-color: rgb(255 255 255 / 10%);
 }
 
 /* Butoanele CRM-ului sunt pastile, ca navigarea. CSS nelayerizat: bate
@@ -731,16 +725,21 @@ details > summary svg {
   position: relative;
 }
 
-/* Produse: rânduri joase pe desktop, ca pe un ecran să încapă ~50% mai multe
-   piese. Butoanele de rând scad la 28px (doar aici, nu în restul CRM-ului). */
+/* Rânduri joase pe desktop în toate tabelele CRM; Produse (`-compact`) și
+   mai joase. Butoanele de rând (pătratele de 32px) scad la 26px. */
 @media (min-width: 1024px) {
-  .crm-table-compact th,
-  .crm-table-compact td {
-    padding-block: 0.375rem;
+  .crm-table th,
+  .crm-table td {
+    padding-block: 0.3125rem;
   }
 
-  .crm-table-compact td :is(button, a).size-8 {
-    width: 1.75rem;
-    height: 1.75rem;
+  .crm-table-compact th,
+  .crm-table-compact td {
+    padding-block: 0.1875rem;
+  }
+
+  .crm-table td :is(button, a).size-8 {
+    width: 1.625rem;
+    height: 1.625rem;
   }
 }

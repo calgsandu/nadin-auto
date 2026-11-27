@@ -7,7 +7,6 @@ import { getCatalogAdminData, type CatalogAdminData } from "@/lib/admin/queries"
 import { canWriteCatalog } from "@/lib/roles";
 import { CrmHeader } from "../_components/section-header";
 import { requireCrmSection } from "../_components/guard";
-import { RowMenu } from "@/app/components/row-menu";
 import { AdminSection, RowActions, TableCell, WorkspaceSkeleton, adminRowCls } from "../_components/ui";
 import { formatNumber } from "../_components/format";
 
@@ -54,9 +53,9 @@ async function Loader({
             <TableCell align="right">
               <RowActions>
                 <BrandDialog entity={{ id: b.id, name: b.name }} triggerKind="row" triggerLabel="Editează" />
-                <RowMenu label={`brandul „${b.name}”`}>
+                <div className="flex justify-end gap-1.5">
                   <AdminDeleteButton action={deleteBrandAction} id={b.id} confirmLabel={`brandul „${b.name}”`} />
-                </RowMenu>
+                </div>
               </RowActions>
             </TableCell>
           ) : null}

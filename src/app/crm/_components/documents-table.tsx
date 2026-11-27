@@ -7,7 +7,6 @@ import type { SalePaymentMethodStatus } from "@/lib/operations/sale-payment-meth
 import { SalePaymentMethodBadge, SalePaymentMethodControl } from "@/app/operations/sale-payment-method-control";
 import { DocumentDetailsButton, type DocumentDetailsValue } from "@/app/operations/document-details";
 import { DocumentRowActions } from "@/app/operations/document-row-actions";
-import { RowMenu } from "@/app/components/row-menu";
 import { lineDescription } from "@/lib/operations/line-display";
 import type { SupplierOption, WarehouseOption } from "@/app/operations/stock-document-dialog";
 import { TableCell, TableHead, VehicleSubline } from "./ui";
@@ -333,7 +332,7 @@ export function RecentDocumentsTable({
                   <div className="flex justify-end gap-1.5">
                     <DocumentDetailsButton details={toDocumentDetails(document, canModify)} />
                     {canModify ? (
-                      <RowMenu label={`${formatDocumentType(document)} #${document.number}`}>
+                      <div className="flex justify-end gap-1.5">
                         <DocumentRowActions
                           id={document.id}
                           title={`${formatDocumentType(document)} #${document.number}`}
@@ -348,7 +347,7 @@ export function RecentDocumentsTable({
                           lines={toDocLines(document)}
                           isTransfer={Boolean(document.transferGroupId)}
                         />
-                      </RowMenu>
+                      </div>
                     ) : null}
                   </div>
                 </TableCell>

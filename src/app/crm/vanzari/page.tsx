@@ -39,43 +39,67 @@ export default async function SalesPage({
 
   return (
     <>
-      <CrmHeader section="vanzari" role={appUser.role} />
+      {/* Ziua și butoanele stau în antet, pe rândul titlului: un rând mai puțin. */}
+      <CrmHeader section="vanzari" role={appUser.role}>
+        <Suspense fallback={null}>
+          <SalesActions
+            operationsPromise={operationsPromise}
+            salesDayPromise={salesDayPromise}
+            canModify={canModify}
+            canSell={canSell}
+          />
+        </Suspense>
+      </CrmHeader>
       <Suspense key={`${day ?? "azi"}:${filter}`} fallback={<WorkspaceSkeleton cards={3} rows={5} />}>
         <Loader
           filter={filter}
-          operationsPromise={operationsPromise}
           salesDayPromise={salesDayPromise}
           canModify={canModify}
-          canSell={canSell}
         />
       </Suspense>
     </>
   );
 }
 
-async function Loader({
-  filter,
+async function SalesActions({
   operationsPromise,
   salesDayPromise,
   canModify,
   canSell,
 }: {
-  filter: SaleFilterId;
   operationsPromise: Promise<OperationsData>;
   salesDayPromise: Promise<SalesDayData>;
   canModify: boolean;
   canSell: boolean;
 }) {
-  const [operations, salesDay] = await Promise.all([operationsPromise, salesDayPromise]);
+  const [operations, { dayKey }] = await Promise.all([operationsPromise, salesDayPromise]);
   return (
-    <SalesWorkspace
-      filter={filter}
-      canModify={canModify}
-      canSell={canSell}
-      operations={operations}
-      salesDay={salesDay}
-    />
+    <>
+      <SalesDayNav dayKey={dayKey} />
+      {canModify ? <SalesRegisterExport /> : null}
+      {canSell ? (
+        <StockSaleDialog
+          openFromUrl
+          warehouses={toWarehouseOptions(operations.warehouses)}
+          customers={toCustomerOptions(operations.customers)}
+          suppliers={toSupplierOptions(operations.suppliers)}
+        />
+      ) : null}
+    </>
   );
+}
+
+async function Loader({
+  filter,
+  salesDayPromise,
+  canModify,
+}: {
+  filter: SaleFilterId;
+  salesDayPromise: Promise<SalesDayData>;
+  canModify: boolean;
+}) {
+  const salesDay = await salesDayPromise;
+  return <SalesWorkspace filter={filter} canModify={canModify} salesDay={salesDay} />;
 }
 
 const salesDayLabelFormat = new Intl.DateTimeFormat("ro-MD", {
@@ -111,14 +135,10 @@ const paymentSegments = [
 function SalesWorkspace({
   filter,
   canModify,
-  canSell,
-  operations,
   salesDay,
 }: {
   filter: SaleFilterId;
   canModify: boolean;
-  canSell: boolean;
-  operations: OperationsData;
   salesDay: SalesDayData;
 }) {
   const { dayKey, sales, monthCount, monthLei } = salesDay;
@@ -137,21 +157,7 @@ function SalesWorkspace({
   const activeFilter = saleFilters.find((item) => item.id === filter) ?? saleFilters[0];
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <SalesDayNav dayKey={dayKey} />
-        <div className="flex flex-wrap items-center gap-2">
-          {canModify ? <SalesRegisterExport /> : null}
-          {canSell ? (
-            <StockSaleDialog
-              openFromUrl
-              warehouses={toWarehouseOptions(operations.warehouses)}
-              customers={toCustomerOptions(operations.customers)}
-              suppliers={toSupplierOptions(operations.suppliers)}
-            />
-          ) : null}
-        </div>
-      </div>
+    <section className="motion-page grid grid-cols-1 gap-3 p-4 lg:px-6 lg:py-2">
 
       <HeroPanel
         label={isToday ? "Vânzări azi" : `Vânzări, ${salesDayLabelFormat.format(selectedDate)}`}

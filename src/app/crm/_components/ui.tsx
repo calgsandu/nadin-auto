@@ -412,8 +412,6 @@ const cardTones: Record<PastelTone, string> = {
   gray: "bg-(--c-surface)",
 };
 
-const statCols: Record<number, string> = { 1: "lg:grid-cols-1", 2: "lg:grid-cols-2", 3: "lg:grid-cols-3", 4: "lg:grid-cols-4" };
-
 export type HeroSegment = { label: string; value: string; amount: number; tone: PastelTone; note?: ReactNode };
 export type HeroStat = { label: string; value: string; hint?: ReactNode; icon?: LucideIcon; tone?: PastelTone };
 
@@ -439,47 +437,49 @@ export function HeroPanel({
 }) {
   const total = segments.reduce((sum, segment) => sum + Math.max(segment.amount, 0), 0);
   return (
-    <section className="crm-hero motion-page rounded-[1.25rem] bg-(--c-hero) p-4 text-white lg:px-5 lg:py-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm text-(--c-faint)">{label}</p>
-          <p className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-[1.875rem] font-normal leading-none tracking-tight tabular-nums lg:text-[2.25rem]">{value}</span>
+    <section className="crm-hero motion-page rounded-2xl bg-(--c-hero) px-4 py-3 text-white lg:px-5">
+      {/* Un singur rând pe desktop: cifra principală, apoi cifrele de lângă ea. */}
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div className="mr-auto min-w-0">
+          <p className="text-xs text-(--c-faint)">{label}</p>
+          <p className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <span className="text-[1.625rem] font-normal leading-tight tracking-tight tabular-nums lg:text-[1.875rem]">{value}</span>
             {note ? <span className="text-sm text-(--c-faint)">{note}</span> : null}
           </p>
         </div>
+        {stats.length > 0 ? (
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 max-sm:w-full sm:flex sm:flex-wrap sm:gap-x-8">
+            {stats.map(({ label: statLabel, value: statValue, hint, icon: Icon, tone = "gray" }) => (
+              <div key={statLabel} className="flex min-w-0 items-center gap-2.5">
+                {Icon ? (
+                  <span className={`grid size-7 shrink-0 place-items-center rounded-full text-(--c-ink) max-sm:hidden ${tone === "gray" ? "bg-(--c-surface)" : `crm-on-light ${cardTones[tone]}`}`}>
+                    <Icon className="size-3.5" aria-hidden="true" />
+                  </span>
+                ) : null}
+                <div className="min-w-0">
+                  <p className="truncate text-xs text-(--c-faint)">{statLabel}</p>
+                  <p className="font-medium leading-tight tabular-nums">
+                    {statValue}
+                    {hint ? <span className="ml-1.5 text-xs font-normal text-(--c-faint) max-sm:hidden">{hint}</span> : null}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
         {corner}
       </div>
 
       {segments.length > 0 && total > 0 ? (
-        <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: segments.map((s) => `minmax(0, ${Math.max(s.amount, total * 0.08)}fr)`).join(" ") }}>
+        <div className="mt-2.5 grid gap-3" style={{ gridTemplateColumns: segments.map((s) => `minmax(0, ${Math.max(s.amount, total * 0.08)}fr)`).join(" ") }}>
           {segments.map((segment) => (
             <div key={segment.label} className="min-w-0">
-              <div className={`h-1.5 rounded-full ${barTones[segment.tone]}`} />
-              <p className="mt-2 truncate text-sm">
+              <div className={`h-1 rounded-full ${barTones[segment.tone]}`} />
+              <p className="mt-1 truncate text-xs">
                 <span className="text-(--c-faint)">{segment.label}</span>{" "}
                 <span className="font-medium tabular-nums">{segment.value}</span>
+                {segment.note ? <span className="ml-1.5 text-(--c-faint)">{segment.note}</span> : null}
               </p>
-              {segment.note ? <p className="mt-0.5 truncate text-xs text-(--c-faint)">{segment.note}</p> : null}
-            </div>
-          ))}
-        </div>
-      ) : null}
-
-      {stats.length > 0 ? (
-        <div className={`crm-hero-rule grid grid-cols-2 gap-4 border-t pt-3.5 ${statCols[Math.min(stats.length, 4)]} ${segments.length > 0 ? "mt-4" : "mt-3.5"}`}>
-          {stats.map(({ label: statLabel, value: statValue, hint, icon: Icon, tone = "gray" }) => (
-            <div key={statLabel} className="flex min-w-0 items-start gap-3">
-              {Icon ? (
-                <span className={`grid size-9 shrink-0 place-items-center rounded-full text-(--c-ink) max-sm:hidden ${tone === "gray" ? "bg-(--c-surface)" : `crm-on-light ${cardTones[tone]}`}`}>
-                  <Icon className="size-4" aria-hidden="true" />
-                </span>
-              ) : null}
-              <div className="min-w-0">
-                <p className="truncate text-xs text-(--c-faint)">{statLabel}</p>
-                <p className="text-lg font-medium leading-tight tabular-nums">{statValue}</p>
-                {hint ? <p className="mt-0.5 truncate text-xs text-(--c-faint) max-sm:hidden">{hint}</p> : null}
-              </div>
             </div>
           ))}
         </div>
