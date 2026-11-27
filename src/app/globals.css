@@ -736,6 +736,7 @@ details > summary svg {
   .crm-table-compact th,
   .crm-table-compact td {
     padding-block: 0.1875rem;
+    padding-inline: 0.625rem;
   }
 
   .crm-table td :is(button, a).size-8 {

@@ -220,10 +220,11 @@ function ProductWorkspace({
                     </TableHead>
                   ) : null}
                   <TableHead className="max-lg:hidden">Cod</TableHead>
-                  <TableHead className="lg:min-w-[12rem]">
+                  <TableHead className="max-lg:hidden">Mașină și ani</TableHead>
+                  {/* Piesa ia lățimea rămasă: celelalte coloane stau strânse pe conținut. */}
+                  <TableHead className="lg:w-full lg:min-w-[12rem]">
                     Piesă
                   </TableHead>
-                  <TableHead className="max-lg:hidden">Mașină și ani</TableHead>
                   <TableHead align="right" className="max-lg:hidden">Stoc</TableHead>
                   {canModify ? <TableHead align="right" secondary>Cost</TableHead> : null}
                   <TableHead align="right" className="max-lg:hidden">Preț</TableHead>
@@ -330,17 +331,11 @@ function ProductRow({
   );
   // TOATE mașinile, fiecare pe rândul ei — un „+1" ascundea gemenii
   // (Sprinter ↔ Crafter) și părea că s-au șters. Cea căutată vine prima.
-  // Ce e ales în stânga nu se mai repetă pe fiecare rând: cu marca aleasă
-  // dispare marca, cu modelul ales rămân doar anii.
-  const filteredBrand = catalog.brands.find((brand) => brand.id === catalog.params.brand)?.name;
-  const filteredModel = catalog.models.find((model) => model.id === catalog.params.model)?.name;
-  const prefix = filteredBrand && filteredModel ? `${filteredBrand} ${filteredModel}` : filteredBrand;
-  const cars = matchingFirst(compatibilities, catalog.params.q).map((compatibility) => ({
-    ...compatibility,
-    // Logo-ul doar cât marca nu e deja aleasă în stânga.
-    brand: filteredBrand ? null : (carBrand(compatibility.title, catalog.brands) ?? null),
-    title: withBrandLabel(withoutPrefix(compatibility.title, prefix), filteredBrand ? undefined : carBrand(compatibility.title, catalog.brands)),
-  }));
+  // Marca și modelul rămân scrise și după filtrare: cu ele se citește rândul.
+  const cars = matchingFirst(compatibilities, catalog.params.q).map((compatibility) => {
+    const brand = carBrand(compatibility.title, catalog.brands);
+    return { ...compatibility, brand: brand ?? null, title: withBrandLabel(compatibility.title, brand) };
+  });
 
   return (
     <tr className="motion-table-row border-t border-(--c-line-2) hover:bg-(--c-surface-2)">
@@ -370,6 +365,9 @@ function ProductRow({
         {product.alternativeCode ? (
           <p className="mt-0.5 font-mono text-xs text-(--c-faint)">{product.alternativeCode}</p>
         ) : null}
+      </TableCell>
+      <TableCell className="whitespace-nowrap max-lg:hidden">
+        <CarLines lines={cars} />
       </TableCell>
       <TableCell>
         {/* Pe telefon: codul, cu prețul și stocul pe același rând; dedesubt
@@ -412,9 +410,6 @@ function ProductRow({
         <div className="mt-0.5 lg:hidden">
           <CarLines lines={cars} compact />
         </div>
-      </TableCell>
-      <TableCell className="max-lg:hidden">
-        <CarLines lines={cars} />
       </TableCell>
       <TableCell align="right" className="max-lg:hidden">
         <StockCount stock={product.stock} minStock={product.minStock} />
@@ -479,18 +474,6 @@ function CarLines({
       ))}
     </ul>
   );
-}
-
-/**
- * „MERCEDES-BENZ SPRINTER 906" → „SPRINTER 906" cu marca aleasă sus; cu și
- * modelul ales, titlul rămâne gol și se văd doar anii.
- */
-function withoutPrefix(title: string, prefix: string | undefined) {
-  if (!prefix) return title;
-  const lower = title.toLocaleLowerCase("ro");
-  const wanted = prefix.toLocaleLowerCase("ro");
-  if (lower === wanted) return "";
-  return lower.startsWith(`${wanted} `) ? title.slice(wanted.length + 1) : title;
 }
 
 /** Mașinile care se potrivesc cu căutarea întâi (caut „crafter" → Crafter sus). */
