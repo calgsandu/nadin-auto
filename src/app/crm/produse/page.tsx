@@ -219,8 +219,8 @@ function ProductWorkspace({
                       <span className="sr-only">Selectează pentru sticker</span>
                     </TableHead>
                   ) : null}
-                  <TableHead className="max-lg:hidden">Cod</TableHead>
-                  <TableHead className="max-lg:hidden">Mașină și ani</TableHead>
+                  <TableHead className="max-lg:hidden lg:min-w-36">Cod</TableHead>
+                  <TableHead className="max-lg:hidden lg:min-w-64">Mașină și ani</TableHead>
                   {/* Piesa ia lățimea rămasă; cifrele vin la dreapta ei. */}
                   <TableHead className="lg:w-full lg:min-w-[12rem]">
                     Piesă
