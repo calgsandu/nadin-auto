@@ -85,7 +85,7 @@ export function DailyMetric({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="min-w-0 bg-(--c-surface) px-5 py-4 max-sm:px-3 max-sm:py-2.5">
+    <div className="min-w-0 bg-(--c-surface) px-4 py-3 max-sm:px-3 max-sm:py-2.5">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-(--c-muted-2) max-sm:truncate max-sm:text-xs">{label}</p>
         {Icon ? (
@@ -94,7 +94,7 @@ export function DailyMetric({
           </span>
         ) : null}
       </div>
-      <p className="mt-1 text-[1.75rem] font-medium leading-tight tracking-tight tabular-nums text-(--c-ink) max-sm:mt-0.5 max-sm:text-lg">
+      <p className="mt-0.5 text-[1.5rem] font-medium leading-tight tracking-tight tabular-nums text-(--c-ink) max-sm:mt-0.5 max-sm:text-lg">
         {value}
       </p>
       {hint ? <p className="mt-1 text-xs text-(--c-muted-2) max-sm:hidden">{hint}</p> : null}
@@ -134,7 +134,7 @@ export function AdminSection({
   minWidth?: string;
 }) {
   return (
-    <section className="motion-page p-4 lg:px-6 lg:py-5">
+    <section className="motion-page p-4 lg:px-6 lg:py-3">
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table
@@ -159,7 +159,7 @@ export function AdminSection({
           </table>
         </div>
         {isEmpty ? (
-          <div className="px-4 py-14 text-center text-sm text-(--c-muted-2)">{empty}</div>
+          <div className="px-4 py-10 text-center text-sm text-(--c-muted-2)">{empty}</div>
         ) : null}
       </div>
     </section>
@@ -195,7 +195,7 @@ export function WorkspaceSkeleton({
     <section
       aria-label="Se încarcă datele"
       aria-live="polite"
-      className="grid gap-4 p-4 lg:px-6 lg:py-5"
+      className="grid gap-4 p-4 lg:px-6 lg:py-3"
     >
       {cards > 0 ? (
         <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
@@ -439,12 +439,12 @@ export function HeroPanel({
 }) {
   const total = segments.reduce((sum, segment) => sum + Math.max(segment.amount, 0), 0);
   return (
-    <section className="crm-hero motion-page rounded-[1.25rem] bg-(--c-hero) p-5 text-white lg:p-6">
+    <section className="crm-hero motion-page rounded-[1.25rem] bg-(--c-hero) p-4 text-white lg:px-5 lg:py-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm text-(--c-faint)">{label}</p>
           <p className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-[2.25rem] font-normal leading-none tracking-tight tabular-nums lg:text-[2.75rem]">{value}</span>
+            <span className="text-[1.875rem] font-normal leading-none tracking-tight tabular-nums lg:text-[2.25rem]">{value}</span>
             {note ? <span className="text-sm text-(--c-faint)">{note}</span> : null}
           </p>
         </div>
@@ -452,7 +452,7 @@ export function HeroPanel({
       </div>
 
       {segments.length > 0 && total > 0 ? (
-        <div className="mt-6 grid gap-3" style={{ gridTemplateColumns: segments.map((s) => `minmax(0, ${Math.max(s.amount, total * 0.08)}fr)`).join(" ") }}>
+        <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: segments.map((s) => `minmax(0, ${Math.max(s.amount, total * 0.08)}fr)`).join(" ") }}>
           {segments.map((segment) => (
             <div key={segment.label} className="min-w-0">
               <div className={`h-1.5 rounded-full ${barTones[segment.tone]}`} />
@@ -467,7 +467,7 @@ export function HeroPanel({
       ) : null}
 
       {stats.length > 0 ? (
-        <div className={`crm-hero-rule grid grid-cols-2 gap-4 border-t pt-5 ${statCols[Math.min(stats.length, 4)]} ${segments.length > 0 ? "mt-6" : "mt-5"}`}>
+        <div className={`crm-hero-rule grid grid-cols-2 gap-4 border-t pt-3.5 ${statCols[Math.min(stats.length, 4)]} ${segments.length > 0 ? "mt-4" : "mt-3.5"}`}>
           {stats.map(({ label: statLabel, value: statValue, hint, icon: Icon, tone = "gray" }) => (
             <div key={statLabel} className="flex min-w-0 items-start gap-3">
               {Icon ? (
@@ -523,7 +523,7 @@ export function PastelCard({
         </div>
       </div>
       <p className="mt-4 flex items-baseline gap-2">
-        <span className="text-[1.75rem] font-normal leading-none tracking-tight tabular-nums text-(--c-ink)">{value}</span>
+        <span className="text-[1.5rem] font-normal leading-none tracking-tight tabular-nums text-(--c-ink)">{value}</span>
         {of ? <span className="text-sm text-(--c-muted)">{of}</span> : null}
       </p>
       {progress !== undefined ? (

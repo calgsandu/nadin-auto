@@ -44,7 +44,7 @@ function UnavailableRestockWorkspace({
   operations: OperationsData;
 }) {
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       <div className="stat-strip grid sm:grid-cols-2">
         <DailyMetric icon={PackageX} label="Poziții fără stoc" value={formatNumber(operations.restockUnavailable.length)} />
         <DailyMetric icon={Boxes}

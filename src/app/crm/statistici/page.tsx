@@ -60,7 +60,7 @@ function StatsWorkspace({
   canModify: boolean;
 }) {
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       <HeroPanel
         label="Venit în ultimele 30 de zile"
         value={`${formatMoney(data.last30.revenueLei)} lei`}

@@ -137,7 +137,7 @@ function SalesWorkspace({
   const activeFilter = saleFilters.find((item) => item.id === filter) ?? saleFilters[0];
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SalesDayNav dayKey={dayKey} />
         <div className="flex flex-wrap items-center gap-2">

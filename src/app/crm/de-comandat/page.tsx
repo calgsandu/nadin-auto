@@ -48,7 +48,7 @@ async function Groups({ groupsPromise }: { groupsPromise: Promise<ReorderGroup[]
   const groups = await groupsPromise;
   if (groups.length === 0) {
     return (
-      <section className="motion-page p-4 lg:px-6 lg:py-5">
+      <section className="motion-page p-4 lg:px-6 lg:py-3">
         <div className="crm-card px-4 py-12 text-center text-sm text-(--c-muted)">
           Nimic de comandat. Piesele vândute care se termină apar aici singure.
         </div>
@@ -56,7 +56,7 @@ async function Groups({ groupsPromise }: { groupsPromise: Promise<ReorderGroup[]
     );
   }
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       {groups.map((group) => (
         <div key={group.supplier?.id ?? "fara"} className="overflow-hidden crm-card">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-(--c-line) px-4 py-3">

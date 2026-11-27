@@ -28,7 +28,7 @@ export function PaymentAccountsWorkspace({
   const toDeliver = live.filter((account) => account.paidAt && !account.fulfilledAt);
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       {live.length > 0 ? (
         <HeroPanel
           label="Neachitate"

@@ -141,14 +141,18 @@
   font-family: var(--font-crm), var(--font-app), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Rădăcina în rem strânge sau lărgește tot CRM-ul proporțional. Telefonul
-   rămâne pe 16px: acolo contează țintele de atingere. Pe laptop scade lin cu
-   lățimea ȘI cu înălțimea ferestrei (laptopurile vechi au ~650px utili în
-   înălțime): 16px pe monitor mare, ~13px pe 1366×768, minim 12px. */
+/* Rădăcina în rem strânge tot CRM-ul proporțional (text, câmpuri, spații).
+   Telefonul/tableta: 15px, țintele de atingere rămân ≥30px. Pe desktop scade
+   lin cu lățimea ȘI înălțimea ferestrei: 14.5px pe monitor mare, ~12.8px pe
+   1440×900, 12px (minim) pe 1366×768. `text-xs` nu coboară sub 10.5px. */
+:root:has(.crm-main) {
+  font-size: 15px;
+}
+
 @media (min-width: 1024px) {
   :root:has(.crm-main) {
-    font-size: clamp(12px, min(0.875vw + 1.3px, 0.97vh + 6.3px), 16px);
-    --text-xs: 0.8125rem;
+    font-size: clamp(12px, min(0.8vw + 1.5px, 0.9vh + 5.8px), 14.5px);
+    --text-xs: max(0.8125rem, 10.5px);
     --text-xs--line-height: 1.35;
   }
 }
@@ -179,11 +183,11 @@
 }
 
 .crm-table th {
-  padding-block: 0.75rem;
+  padding-block: 0.5rem;
 }
 
 .crm-table td {
-  padding-block: 0.75rem;
+  padding-block: 0.5rem;
 }
 
 body {

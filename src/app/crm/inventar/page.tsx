@@ -55,7 +55,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
   const warehouseOptions = data.warehouses.map((w) => ({ id: w.id, name: w.name }));
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       {/* Depozitul, sumarul lui și acțiunea pe un singur rând — înainte erau trei
           rânduri (pastile, două carduri mari, butonul singur în dreapta). */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">

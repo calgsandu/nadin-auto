@@ -249,7 +249,7 @@ function ProductWorkspace({
             </table>
           </div>
           {catalog.products.length === 0 ? (
-            <div className="px-4 py-14 text-center text-sm text-(--c-muted)">
+            <div className="px-4 py-10 text-center text-sm text-(--c-muted)">
               Nu am găsit nimic.{" "}
               <Link className="font-medium text-(--c-accent) hover:underline" href={crmSectionHref("produse")}>
                 Resetează filtrele

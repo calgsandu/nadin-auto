@@ -70,7 +70,7 @@ async function Loader({
   const open = openId ? data.customers.find((one) => one.id === openId) ?? null : null;
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       <ClientsOverview customers={data.customers} />
 
       {open && detail ? (

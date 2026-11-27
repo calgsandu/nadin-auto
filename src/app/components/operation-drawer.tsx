@@ -71,7 +71,7 @@ export function useModalFocus(ref: RefObject<HTMLElement | null>, open: boolean)
   }, [open, ref]);
 }
 
-export const modalSectionGridClassName = "grid gap-2.5 px-4 py-4 sm:gap-3 sm:px-5 sm:py-5 lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-6";
+export const modalSectionGridClassName = "grid gap-2.5 px-4 py-3 sm:gap-3 sm:px-5 sm:py-4 lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-5";
 /** Rândul unei secțiuni de modal (titlu în stânga, câmpuri în dreapta), și pentru `<summary>`. */
 export const modalSectionClassName = `${modalSectionGridClassName} border-b border-(--c-line) last:border-b-0`;
 
@@ -456,7 +456,7 @@ export function DrawerTotal({ total, vat }: { total: string; vat: string }) {
   return (
     <div className="self-start rounded-xl bg-(--c-accent) px-4 py-3.5 text-right text-white shadow-sm">
       <p className="text-sm text-white/70">Total</p>
-      <p className="text-[1.75rem] font-semibold leading-tight tracking-tight tabular-nums">{total} lei</p>
+      <p className="text-[1.5rem] font-semibold leading-tight tracking-tight tabular-nums">{total} lei</p>
       <p className="text-xs text-white/60">din care TVA {vat} lei</p>
     </div>
   );
@@ -696,7 +696,7 @@ export function handleEnterNavigation(
  */
 export const drawerPanelClassName =
   "motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-(--c-surface-2) shadow-xl md:max-w-[90vw]";
-export const drawerFormClassName = "grid gap-4 px-5 py-4";
+export const drawerFormClassName = "grid gap-3 px-5 py-3.5";
 export const drawerInputClassName =
   "field-control h-9 w-full rounded-md border border-(--c-line) bg-(--c-surface) px-2.5 text-sm outline-none placeholder:text-(--c-muted-2)";
 export const drawerSecondaryButton =
