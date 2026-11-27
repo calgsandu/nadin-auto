@@ -725,8 +725,8 @@ details > summary svg {
   position: relative;
 }
 
-/* Rânduri joase pe desktop în toate tabelele CRM; Produse (`-compact`) și
-   mai joase. Butoanele de rând (pătratele de 32px) scad la 26px. */
+/* Rânduri joase pe desktop în toate tabelele CRM; Produse (`-compact`) are
+   puțin mai mult aer, ca rândurile lungi să se citească ușor. Butoanele de rând (pătratele de 32px) scad la 26px. */
 @media (min-width: 1024px) {
   .crm-table th,
   .crm-table td {
@@ -735,8 +735,8 @@ details > summary svg {
 
   .crm-table-compact th,
   .crm-table-compact td {
-    padding-block: 0.1875rem;
-    padding-inline: 0.625rem;
+    padding-block: 0.4375rem;
+    padding-inline: 0.875rem;
   }
 
   .crm-table td :is(button, a).size-8 {
