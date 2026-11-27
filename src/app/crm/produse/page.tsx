@@ -220,7 +220,8 @@ function ProductWorkspace({
                     </TableHead>
                   ) : null}
                   <TableHead className="max-lg:hidden lg:min-w-36">Cod</TableHead>
-                  <TableHead className="max-lg:hidden lg:min-w-64">Mașină și ani</TableHead>
+                  <TableHead className="max-lg:hidden lg:min-w-56">Mașină</TableHead>
+                  <TableHead className="max-lg:hidden lg:min-w-28">Ani</TableHead>
                   {/* Piesa ia lățimea rămasă; cifrele vin la dreapta ei. */}
                   <TableHead className="lg:w-full lg:min-w-[12rem]">
                     Piesă
@@ -369,7 +370,11 @@ function ProductRow({
         ) : null}
       </TableCell>
       <TableCell className="whitespace-nowrap max-lg:hidden">
-        <CarLines lines={cars} />
+        <CarLines lines={cars} part="car" />
+      </TableCell>
+      {/* Anii în coloana lor, rând la rând cu mașina din stânga. */}
+      <TableCell className="whitespace-nowrap max-lg:hidden">
+        <CarLines lines={cars} part="years" />
       </TableCell>
       <TableCell className="lg:whitespace-nowrap">
         {/* Pe telefon: codul, cu prețul și stocul pe același rând; dedesubt
@@ -456,22 +461,28 @@ function Lei({ value }: { value: Parameters<typeof formatMoney>[0] }) {
   );
 }
 
-/** Mașina și anii, câte una pe rând, cu logo-ul mărcii în față. */
+/**
+ * Mașina și anii, câte una pe rând, cu logo-ul mărcii în față. Pe desktop
+ * mașina și anii stau în coloane separate (`part`); rândurile au aceeași
+ * înălțime, deci anii rămân în dreptul mașinii lor.
+ */
 function CarLines({
   lines,
   compact = false,
+  part,
 }: {
   lines: { title: string; years: string; brand: string | null }[];
   compact?: boolean;
+  part?: "car" | "years";
 }) {
   if (lines.length === 0) return <span className="text-(--c-line-strong)">—</span>;
   return (
     <ul className="space-y-1 text-sm">
       {lines.map((line, index) => (
-        <li key={`${line.title}:${line.years}:${index}`} className={`flex items-center gap-2 ${compact ? "min-w-0 flex-wrap" : ""}`}>
-          {line.brand ? <BrandLogo name={line.brand} className="size-5" /> : null}
-          {line.title ? <span className={`${compact ? "min-w-0 break-words" : "whitespace-nowrap"} text-(--c-ink-2)`}>{line.title}</span> : null}
-          <span className="whitespace-nowrap tabular-nums text-(--c-faint)">{line.years}</span>
+        <li key={`${line.title}:${line.years}:${index}`} className={`flex min-h-5 items-center gap-2 ${compact ? "min-w-0 flex-wrap" : ""}`}>
+          {part !== "years" && line.brand ? <BrandLogo name={line.brand} className="size-5" /> : null}
+          {part !== "years" && line.title ? <span className={`${compact ? "min-w-0 break-words" : "whitespace-nowrap"} text-(--c-ink-2)`}>{line.title}</span> : null}
+          {part !== "car" ? <span className="whitespace-nowrap tabular-nums text-(--c-muted-2)">{line.years}</span> : null}
         </li>
       ))}
     </ul>
