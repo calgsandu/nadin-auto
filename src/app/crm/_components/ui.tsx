@@ -13,6 +13,7 @@ export const adminRowCls =
  * accesorii le face citibile fără a schimba structura tabelului.
  */
 const secondaryCls = "hidden lg:table-cell";
+const alignCls = { left: "text-left", center: "text-center", right: "text-right" } as const;
 
 export function TableHead({
   align = "left",
@@ -20,7 +21,7 @@ export function TableHead({
   children,
   className = "",
 }: {
-  align?: "left" | "right";
+  align?: "left" | "center" | "right";
   secondary?: boolean;
   children: ReactNode;
   className?: string;
@@ -28,7 +29,7 @@ export function TableHead({
   return (
     <th
       className={`whitespace-nowrap px-4 py-2 text-[0.8125rem] font-medium text-(--c-muted-2) ${
-        align === "right" ? "text-right" : "text-left"
+        alignCls[align]
       } ${secondary ? secondaryCls : ""} ${className}`}
     >
       {children}
@@ -42,14 +43,14 @@ export function TableCell({
   children,
   className = "",
 }: {
-  align?: "left" | "right";
+  align?: "left" | "center" | "right";
   secondary?: boolean;
   children: ReactNode;
   className?: string;
 }) {
   return (
     <td
-      className={`px-4 py-2 ${align === "right" ? "text-right" : "text-left"} ${
+      className={`px-4 py-2 ${alignCls[align]} ${
         secondary ? secondaryCls : ""
       } ${className}`}
     >

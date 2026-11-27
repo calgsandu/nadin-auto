@@ -225,9 +225,9 @@ function ProductWorkspace({
                   <TableHead className="lg:w-full lg:min-w-[12rem]">
                     Piesă
                   </TableHead>
-                  <TableHead align="right" className="max-lg:hidden">Stoc</TableHead>
-                  {canModify ? <TableHead align="right" secondary>Cost</TableHead> : null}
-                  <TableHead align="right" className="max-lg:hidden">Preț</TableHead>
+                  <TableHead align="center" className="max-lg:hidden lg:min-w-24">Stoc</TableHead>
+                  {canModify ? <TableHead align="center" secondary className="lg:min-w-28">Cost</TableHead> : null}
+                  <TableHead align="center" className="max-lg:hidden lg:min-w-28">Preț</TableHead>
                   {canModify ? (
                     // Coloană lată pentru butoane: un spațiu clar între preț și
                     // acțiuni, ca butoanele să stea separat în colț.
@@ -413,15 +413,15 @@ function ProductRow({
           <CarLines lines={cars} compact />
         </div>
       </TableCell>
-      <TableCell align="right" className="max-lg:hidden">
+      <TableCell align="center" className="max-lg:hidden">
         <StockCount stock={product.stock} minStock={product.minStock} />
       </TableCell>
       {canModify ? (
-        <TableCell align="right" secondary className="whitespace-nowrap tabular-nums text-(--c-muted-2)">
+        <TableCell align="center" secondary className="whitespace-nowrap tabular-nums text-(--c-muted-2)">
           {product.costLei != null ? <Lei value={product.costLei} /> : <span className="text-(--c-line-strong)">—</span>}
         </TableCell>
       ) : null}
-      <TableCell align="right" className="whitespace-nowrap text-[0.9375rem] font-semibold tabular-nums text-(--c-ink) max-lg:hidden">
+      <TableCell align="center" className="whitespace-nowrap text-[0.9375rem] font-semibold tabular-nums text-(--c-ink) max-lg:hidden">
         {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-(--c-line-strong)">—</span>}
       </TableCell>
       {canModify ? (
