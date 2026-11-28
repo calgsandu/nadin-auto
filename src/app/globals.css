@@ -546,6 +546,15 @@ details > summary svg {
   .motion-line-item ~ .motion-line-item:not(.line-keep-labels) .line-offset {
     margin-top: 0;
   }
+
+  /* Rândurile de produse = tabel dens: câmpuri și coș de 2rem, nu 2.25rem. */
+  .motion-line-item :is(.field-control, .button-danger) {
+    height: 2rem;
+  }
+
+  .motion-line-item .button-danger {
+    width: 2rem;
+  }
 }
 
 /*

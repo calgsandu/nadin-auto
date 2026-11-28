@@ -706,4 +706,4 @@ export const drawerDangerButton =
 /** Marchează un rând de produs, ca navigarea cu Enter să știe unde se află. */
 const DRAWER_LINE_MARKER = "motion-line-item";
 export const drawerLineClassName =
-  `${DRAWER_LINE_MARKER} grid gap-2 border-t border-(--c-line-2) py-2.5 md:items-start`;
+  `${DRAWER_LINE_MARKER} grid gap-2 border-t border-(--c-line-2) py-2.5 md:items-start md:py-1`;

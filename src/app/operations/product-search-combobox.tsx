@@ -424,7 +424,7 @@ function ProductCard({ label, onEdit }: { label: string; onEdit: () => void }) {
 
   return (
     <div
-      className="min-h-9 cursor-text rounded-md px-2.5 py-2 text-sm leading-5 hover:bg-(--c-hover)"
+      className="min-h-9 cursor-text rounded-md px-2.5 py-2 text-sm leading-5 md:min-h-8 md:py-1.5 hover:bg-(--c-hover)"
       role="button"
       tabIndex={0}
       title="Dublu-click ca să schimbi produsul"
