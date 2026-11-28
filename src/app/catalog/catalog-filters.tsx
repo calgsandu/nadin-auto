@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
-import { Boxes, CalendarDays, Car, CircleDollarSign, Layers, LoaderCircle, Search, Tag, X } from "lucide-react";
+import { Boxes, CalendarDays, Car, Layers, LoaderCircle, Search, Tag, X } from "lucide-react";
 import type { Brand, CarModel, ProductType, VehicleFitment } from "@/generated/prisma/client";
 import { formatCompatibilityYears } from "@/lib/catalog/compatibility-display";
 import { crmCatalogFilterHref } from "@/lib/crm/urls";
@@ -78,7 +78,7 @@ export function CatalogFilters({
     router.push(crmCatalogFilterHref(next));
   }
 
-  const activeFilters = ["brand", "model", "fitment", "type", "year", "stoc", "pret"].filter((key) => searchParams.get(key)).length;
+  const activeFilters = ["brand", "model", "fitment", "type", "year", "stoc"].filter((key) => searchParams.get(key)).length;
 
   const pill = (active: boolean) =>
     `field-control inline-flex h-9 items-center gap-2 rounded-lg border px-2.5 text-sm ${
@@ -88,7 +88,7 @@ export function CatalogFilters({
 
   return (
     <section className="flex flex-wrap items-center gap-2 p-3">
-      <div className="relative min-w-0 flex-1 sm:w-60 sm:flex-none">
+      <div className="relative min-w-0 flex-1 sm:max-w-sm">
         <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
           {searching ? (
             <LoaderCircle className="size-4 animate-spin text-(--c-accent)" aria-hidden="true" />
@@ -209,16 +209,6 @@ export function CatalogFilters({
           <option value="0">Fără stoc</option>
         </select>
       </label>
-      {/* Piesele fără preț de vânzare: la tejghea apar cu „—", deci se completează pe rând. */}
-      <button
-        type="button"
-        aria-pressed={searchParams.get("pret") === "0"}
-        className={`${pill(searchParams.get("pret") === "0")} font-medium`}
-        onClick={() => updateParam("pret", searchParams.get("pret") === "0" ? "" : "0")}
-      >
-        <CircleDollarSign className="size-4 shrink-0 opacity-70" aria-hidden="true" />
-        Fără preț
-      </button>
       </MobileFilters>
       {searchParams.toString() ? (
         <button

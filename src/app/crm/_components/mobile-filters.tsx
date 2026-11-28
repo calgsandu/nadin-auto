@@ -9,7 +9,13 @@ import { ChevronDown, SlidersHorizontal } from "lucide-react";
  * sus se văd ca înainte, pe rând. Ascunse, câmpurile rămân în formular, deci
  * „Aplică" le trimite oricum.
  */
-export function MobileFilters({ active = 0, children }: { active?: number; children: ReactNode }) {
+export function MobileFilters({
+  active = 0,
+  children,
+}: {
+  active?: number;
+  children: ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <>

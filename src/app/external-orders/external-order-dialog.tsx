@@ -101,12 +101,12 @@ export function ExternalOrderDialog({
           open={open}
           pending={pending}
           submitLabel={order ? "Salvează" : "Creează comanda"}
+          modal="lg"
           onClose={() => setOpen(false)}
         >
               <form onSubmit={onSubmit} className={drawerFormClassName} onKeyDown={(event) => handleEnterNavigation(event)}>
                 {order ? <input name="orderId" type="hidden" value={order.id} /> : null}
 
-                <div className="grid gap-4 lg:grid-cols-2">
                   <DrawerCard icon={UserRound} title="Clientul">
                     <div className="grid gap-3 sm:grid-cols-2">
                       <Field label="Nume">
@@ -163,7 +163,6 @@ export function ExternalOrderDialog({
                       </Field>
                     </div>
                   </DrawerCard>
-                </div>
 
                 <DrawerCard
                   icon={Banknote}

@@ -31,7 +31,7 @@ async function Loader({ dataPromise }: { dataPromise: Promise<VatReportData> }) 
 function VatWorkspace({ data }: { data: VatReportData }) {
   if (!data.vatPayer) {
     return (
-      <section className="motion-page p-4 lg:px-6 lg:py-5">
+      <section className="motion-page p-4 lg:px-6 lg:py-3">
         <div className="crm-card px-4 py-10 text-center text-sm text-(--c-muted)">
           Firma este configurată ca neplătitoare de TVA
           (<code className="font-medium">COMPANY.vatPayer = false</code>), deci
@@ -42,7 +42,7 @@ function VatWorkspace({ data }: { data: VatReportData }) {
   }
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       <div className="stat-strip grid grid-cols-2 lg:grid-cols-4">
         <DailyMetric icon={ShoppingCart}
           label={`Vânzări (${data.months.length} luni)`}

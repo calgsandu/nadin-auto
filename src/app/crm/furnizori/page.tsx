@@ -52,7 +52,7 @@ function PartnersWorkspace({
   partners: PartnerRow[];
 }) {
   return (
-    <section className="motion-page p-4 lg:px-6 lg:py-5">
+    <section className="motion-page p-4 lg:px-6 lg:py-3">
       <div className="overflow-hidden crm-card">
         <div className="overflow-x-auto">
           <table className="crm-table w-full min-w-[760px] border-collapse text-left text-sm">

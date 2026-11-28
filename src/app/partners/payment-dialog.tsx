@@ -78,6 +78,7 @@ export function PartnerPaymentDialog({
           pending={pending}
           submitLabel="Salvează încasarea"
           draft={draft.banner}
+          modal="md"
           onClose={() => setOpen(false)}
         >
           <form ref={attachForm} onSubmit={onSubmit} className={drawerFormClassName}>

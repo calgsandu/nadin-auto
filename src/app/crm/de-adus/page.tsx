@@ -51,7 +51,7 @@ function RestockWorkspace({
   prefill: RestockTransferPrefill | null;
 }) {
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       {canModify ? (
         <div className="flex justify-end">
           {/* Cu poziții de adus, transferul pleacă gata completat spre 110A. */}

@@ -1,15 +1,17 @@
 "use client";
 
-import { useActionState, useState, type ReactNode } from "react";
+import { useActionState, useRef, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { Pencil, Plus } from "lucide-react";
 import { DrawerPortal } from "@/app/components/drawer-portal";
 import { CloseIconButton, IconLabel, rowIconButtonCls, SaveButton } from "@/app/components/icon-buttons";
 import {
   drawerBoundaryProps,
-  drawerPanelClassName,
+  modalBackdropClassName,
+  modalHeaderClassName,
+  modalPanelClassName,
   useDrawerAction,
-  useDrawerStackChild,
+  useModalFocus,
 } from "@/app/components/operation-drawer";
 import { useOptimisticOptions } from "@/app/components/use-optimistic-options";
 import { ActionFeedback } from "@/app/components/action-feedback";
@@ -103,8 +105,9 @@ function Drawer({
     setMounted(false);
     if (saved.created) onCreated?.(saved.created);
   });
-  // Cât timp panoul ăsta e deschis, cel din care s-a plecat se ascunde.
-  useDrawerStackChild(open);
+  // Modal peste formularul din care s-a plecat (ex. „Brand nou" din fișa de produs).
+  const panelRef = useRef<HTMLElement>(null);
+  useModalFocus(panelRef, open);
 
   // Latch: o dată deschis, panoul rămâne montat (ciorna nu se pierde la închidere).
   if (open && !mounted) setMounted(true);
@@ -113,23 +116,22 @@ function Drawer({
   return (
     <DrawerPortal locked={open}>
     <div
-      className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
+      className={modalBackdropClassName}
       style={open ? undefined : { display: "none" }}
       {...drawerBoundaryProps}
     >
       <button className="absolute inset-0 cursor-default" type="button" aria-label="Închide" onClick={() => setOpen(false)} />
       <aside
-        className={drawerPanelClassName}
+        ref={panelRef}
+        className={modalPanelClassName("sm")}
         onKeyDown={(event) => {
           if (event.key !== "Escape") return;
           event.stopPropagation();
           setOpen(false);
         }}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight text-(--c-ink)">{title}</h2>
-          </div>
+        <div className={modalHeaderClassName(true)}>
+          <h2 className="text-lg font-semibold text-(--c-ink)">{title}</h2>
           <CloseIconButton onClick={() => setOpen(false)} />
         </div>
         <form onSubmit={onSubmit} className="grid gap-4 px-5 py-4 lg:grid-cols-2">

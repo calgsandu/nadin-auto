@@ -141,25 +141,19 @@
   font-family: var(--font-crm), var(--font-app), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Rădăcina în rem strânge sau lărgește tot CRM-ul proporțional. Telefonul
-   rămâne pe 16px: acolo contează țintele de atingere. */
+/* Rădăcina în rem strânge tot CRM-ul proporțional (text, câmpuri, spații).
+   Telefonul/tableta: 14px, țintele de atingere rămân ≥28px. Pe desktop scade
+   lin cu lățimea ȘI înălțimea ferestrei: 13.5px pe monitor mare, ~12px pe
+   laptop (minim). `text-xs` nu coboară sub 10.5px. */
+:root:has(.crm-main) {
+  font-size: 14px;
+}
+
 @media (min-width: 1024px) {
   :root:has(.crm-main) {
-    font-size: 14px;
-    --text-xs: 0.8125rem;
+    font-size: clamp(12px, min(0.75vw + 1.2px, 0.85vh + 5.4px), 13.5px);
+    --text-xs: max(0.8125rem, 10.5px);
     --text-xs--line-height: 1.35;
-  }
-}
-
-@media (min-width: 1280px) {
-  :root:has(.crm-main) {
-    font-size: 15px;
-  }
-}
-
-@media (min-width: 1680px) {
-  :root:has(.crm-main) {
-    font-size: 16px;
   }
 }
 
@@ -170,15 +164,9 @@
   background: var(--c-surface);
 }
 
-/* Linia din blocul negru. Nelayerizat: altfel `* { border-color }` din UI-ul
-   Neon Auth (vezi `--border`) o face hairline deschis, adică albă pe negru. */
 /* Pe blocul negru textul secundar e gri deschis pe ambele teme. */
 .crm-hero {
   --c-faint: #a8a29e;
-}
-
-.crm-hero-rule {
-  border-color: rgb(255 255 255 / 10%);
 }
 
 /* Butoanele CRM-ului sunt pastile, ca navigarea. CSS nelayerizat: bate
@@ -189,11 +177,11 @@
 }
 
 .crm-table th {
-  padding-block: 0.75rem;
+  padding-block: 0.5rem;
 }
 
 .crm-table td {
-  padding-block: 0.75rem;
+  padding-block: 0.5rem;
 }
 
 body {
@@ -288,6 +276,31 @@ a {
   will-change: transform;
 }
 
+.motion-modal-backdrop {
+  animation: fade-in var(--duration-base) ease-out both;
+}
+
+/* Formularul unui modal cu secțiuni: secțiunile merg de la margine la margine,
+   restul (notițe, mesaje) păstrează marginile obișnuite. */
+.drawer-modal form:has(> [data-modal-section]) {
+  gap: 0;
+  padding: 0;
+}
+
+.drawer-modal form:has(> [data-modal-section]) > :not([data-modal-section]) {
+  margin: 1rem;
+}
+
+@media (min-width: 640px) {
+  .drawer-modal form:has(> [data-modal-section]) > :not([data-modal-section]) {
+    margin: 1rem 1.25rem;
+  }
+}
+
+.motion-modal-panel {
+  animation: modal-enter var(--duration-drawer) var(--ease-drawer) both;
+}
+
 .motion-line-item {
   animation: line-enter 190ms var(--ease-out-soft) both;
   position: relative;
@@ -367,10 +380,6 @@ details > summary svg {
     border-color: var(--c-line-strong);
   }
 
-  .motion-line-item:hover {
-    border-color: var(--c-line-strong);
-    background-color: var(--c-surface);
-  }
 }
 
 @keyframes content-enter {
@@ -404,6 +413,24 @@ details > summary svg {
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -518,6 +545,15 @@ details > summary svg {
 
   .motion-line-item ~ .motion-line-item:not(.line-keep-labels) .line-offset {
     margin-top: 0;
+  }
+
+  /* Rândurile de produse = tabel dens: câmpuri și coș de 2rem, nu 2.25rem. */
+  .motion-line-item :is(.field-control, .button-danger) {
+    height: 2rem;
+  }
+
+  .motion-line-item .button-danger {
+    width: 2rem;
   }
 }
 
@@ -698,16 +734,22 @@ details > summary svg {
   position: relative;
 }
 
-/* Produse: rânduri joase pe desktop, ca pe un ecran să încapă ~50% mai multe
-   piese. Butoanele de rând scad la 28px (doar aici, nu în restul CRM-ului). */
+/* Rânduri joase pe desktop în toate tabelele CRM; Produse (`-compact`) are
+   rândurile și mai joase, dar coloanele mai distanțate. Butoanele de rând (pătratele de 32px) scad la 26px. */
 @media (min-width: 1024px) {
-  .crm-table-compact th,
-  .crm-table-compact td {
-    padding-block: 0.375rem;
+  .crm-table th,
+  .crm-table td {
+    padding-block: 0.3125rem;
   }
 
-  .crm-table-compact td :is(button, a).size-8 {
-    width: 1.75rem;
-    height: 1.75rem;
+  .crm-table-compact th,
+  .crm-table-compact td {
+    padding-block: 0.1875rem;
+    padding-inline: 1.25rem;
+  }
+
+  .crm-table td :is(button, a).size-8 {
+    width: 1.625rem;
+    height: 1.625rem;
   }
 }

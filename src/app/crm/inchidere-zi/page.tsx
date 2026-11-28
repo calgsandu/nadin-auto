@@ -48,7 +48,7 @@ function DayCloseWorkspace({ data }: { data: DayCloseData }) {
   const exportQuery = `from=${data.dayKey}&to=${data.dayKey}`;
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SalesDayNav dayKey={data.dayKey} basePath="/crm/inchidere-zi" />
         <div className="flex flex-wrap gap-2">

@@ -6,10 +6,8 @@ import { CopyCode } from "@/app/components/copy-code";
 import { LocalBadge } from "@/app/components/local-badge";
 import { CatalogFilters } from "@/app/catalog/catalog-filters";
 import { ProductDeleteButton } from "@/app/catalog/product-delete-button";
-import { RowMenu } from "@/app/components/row-menu";
 import { ProductFormDialog, type ProductFormValue } from "@/app/catalog/product-form-dialog";
 import { LabelPicker } from "@/app/catalog/label-picker";
-import { AddToStickersButton } from "@/app/catalog/add-to-stickers";
 import { buildCompatibilityLines } from "@/lib/catalog/compatibility-display";
 import { normalizeText, searchTerms } from "@/lib/catalog/search-text";
 import { getCatalogData, type CatalogSearchParams } from "@/lib/catalog/queries";
@@ -48,7 +46,7 @@ export default async function ProductsPage({
   });
   // Fără `q`: căutarea filtrează pe măsură ce scrii, iar o cheie nouă ar
   // remonta câmpul (pierde focusul) și ar arăta scheletul la fiecare literă.
-  const key = [params.brand, params.model, params.fitment, params.type, params.year, params.stoc, params.pret, params.page].join(":");
+  const key = [params.brand, params.model, params.fitment, params.type, params.year, params.stoc, params.page].join(":");
 
   return (
     <>
@@ -221,16 +219,20 @@ function ProductWorkspace({
                       <span className="sr-only">Selectează pentru sticker</span>
                     </TableHead>
                   ) : null}
-                  <TableHead className="max-lg:hidden">Cod</TableHead>
-                  <TableHead className="lg:min-w-[12rem]">
+                  <TableHead className="max-lg:hidden lg:min-w-36">Cod</TableHead>
+                  <TableHead className="max-lg:hidden lg:min-w-56">Mașină</TableHead>
+                  <TableHead className="max-lg:hidden lg:min-w-28">Ani</TableHead>
+                  {/* Piesa ia lățimea rămasă; cifrele vin la dreapta ei. */}
+                  <TableHead className="lg:w-full lg:min-w-[12rem]">
                     Piesă
                   </TableHead>
-                  <TableHead className="max-lg:hidden">Mașină și ani</TableHead>
-                  <TableHead align="right" className="max-lg:hidden">Stoc</TableHead>
-                  {canModify ? <TableHead align="right" secondary>Cost</TableHead> : null}
-                  <TableHead align="right" className="max-lg:hidden">Preț</TableHead>
+                  <TableHead align="center" className="max-lg:hidden lg:min-w-24">Stoc</TableHead>
+                  {canModify ? <TableHead align="center" secondary className="lg:min-w-28">Cost</TableHead> : null}
+                  <TableHead align="center" className="max-lg:hidden lg:min-w-28">Preț</TableHead>
                   {canModify ? (
-                    <TableHead align="right" className="max-lg:hidden">
+                    // Coloană lată pentru butoane: un spațiu clar între preț și
+                    // acțiuni, ca butoanele să stea separat în colț.
+                    <TableHead align="right" className="max-lg:hidden lg:min-w-44">
                       <span className="sr-only">Acțiuni</span>
                     </TableHead>
                   ) : null}
@@ -250,7 +252,7 @@ function ProductWorkspace({
             </table>
           </div>
           {catalog.products.length === 0 ? (
-            <div className="px-4 py-14 text-center text-sm text-(--c-muted)">
+            <div className="px-4 py-10 text-center text-sm text-(--c-muted)">
               Nu am găsit nimic.{" "}
               <Link className="font-medium text-(--c-accent) hover:underline" href={crmSectionHref("produse")}>
                 Resetează filtrele
@@ -332,17 +334,11 @@ function ProductRow({
   );
   // TOATE mașinile, fiecare pe rândul ei — un „+1" ascundea gemenii
   // (Sprinter ↔ Crafter) și părea că s-au șters. Cea căutată vine prima.
-  // Ce e ales în stânga nu se mai repetă pe fiecare rând: cu marca aleasă
-  // dispare marca, cu modelul ales rămân doar anii.
-  const filteredBrand = catalog.brands.find((brand) => brand.id === catalog.params.brand)?.name;
-  const filteredModel = catalog.models.find((model) => model.id === catalog.params.model)?.name;
-  const prefix = filteredBrand && filteredModel ? `${filteredBrand} ${filteredModel}` : filteredBrand;
-  const cars = matchingFirst(compatibilities, catalog.params.q).map((compatibility) => ({
-    ...compatibility,
-    // Logo-ul doar cât marca nu e deja aleasă în stânga.
-    brand: filteredBrand ? null : (carBrand(compatibility.title, catalog.brands) ?? null),
-    title: withBrandLabel(withoutPrefix(compatibility.title, prefix), filteredBrand ? undefined : carBrand(compatibility.title, catalog.brands)),
-  }));
+  // Marca și modelul rămân scrise și după filtrare: cu ele se citește rândul.
+  const cars = matchingFirst(compatibilities, catalog.params.q).map((compatibility) => {
+    const brand = carBrand(compatibility.title, catalog.brands);
+    return { ...compatibility, brand: brand ?? null, title: withBrandLabel(compatibility.title, brand) };
+  });
 
   return (
     <tr className="motion-table-row border-t border-(--c-line-2) hover:bg-(--c-surface-2)">
@@ -373,7 +369,14 @@ function ProductRow({
           <p className="mt-0.5 font-mono text-xs text-(--c-faint)">{product.alternativeCode}</p>
         ) : null}
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-nowrap max-lg:hidden">
+        <CarLines lines={cars} part="car" />
+      </TableCell>
+      {/* Anii în coloana lor, rând la rând cu mașina din stânga. */}
+      <TableCell className="whitespace-nowrap max-lg:hidden">
+        <CarLines lines={cars} part="years" />
+      </TableCell>
+      <TableCell className="lg:whitespace-nowrap">
         {/* Pe telefon: codul, cu prețul și stocul pe același rând; dedesubt
             denumirea și mașinile. Un rând în minus = mai multe piese pe ecran. */}
         <div className="mb-0.5 flex items-center justify-between gap-3 lg:hidden">
@@ -415,22 +418,19 @@ function ProductRow({
           <CarLines lines={cars} compact />
         </div>
       </TableCell>
-      <TableCell className="max-lg:hidden">
-        <CarLines lines={cars} />
-      </TableCell>
-      <TableCell align="right" className="max-lg:hidden">
+      <TableCell align="center" className="max-lg:hidden">
         <StockCount stock={product.stock} minStock={product.minStock} />
       </TableCell>
       {canModify ? (
-        <TableCell align="right" secondary className="whitespace-nowrap tabular-nums text-(--c-muted-2)">
+        <TableCell align="center" secondary className="whitespace-nowrap tabular-nums text-(--c-muted-2)">
           {product.costLei != null ? <Lei value={product.costLei} /> : <span className="text-(--c-line-strong)">—</span>}
         </TableCell>
       ) : null}
-      <TableCell align="right" className="whitespace-nowrap text-[0.9375rem] font-semibold tabular-nums text-(--c-ink) max-lg:hidden">
+      <TableCell align="center" className="whitespace-nowrap text-[0.9375rem] font-semibold tabular-nums text-(--c-ink) max-lg:hidden">
         {product.salePriceLei != null ? <Lei value={product.salePriceLei} /> : <span className="font-normal text-(--c-line-strong)">—</span>}
       </TableCell>
       {canModify ? (
-        <TableCell align="right" className="max-lg:hidden">
+        <TableCell align="right" className="max-lg:hidden lg:min-w-44">
           <div className="flex justify-end gap-1.5">
             <ProductFormDialog
               brands={catalog.brands}
@@ -441,10 +441,9 @@ function ProductRow({
               types={catalog.types}
               warehouses={catalog.warehouses}
             />
-            <RowMenu label={product.description}>
-              <AddToStickersButton items={[{ id: product.id, count: 1 }]} />
+            <div className="flex justify-end gap-1.5">
               <ProductDeleteButton productId={product.id} label={product.description} />
-            </RowMenu>
+            </div>
           </div>
         </TableCell>
       ) : null}
@@ -462,38 +461,32 @@ function Lei({ value }: { value: Parameters<typeof formatMoney>[0] }) {
   );
 }
 
-/** Mașina și anii, câte una pe rând, cu logo-ul mărcii în față. */
+/**
+ * Mașina și anii, câte una pe rând, cu logo-ul mărcii în față. Pe desktop
+ * mașina și anii stau în coloane separate (`part`); rândurile au aceeași
+ * înălțime, deci anii rămân în dreptul mașinii lor.
+ */
 function CarLines({
   lines,
   compact = false,
+  part,
 }: {
   lines: { title: string; years: string; brand: string | null }[];
   compact?: boolean;
+  part?: "car" | "years";
 }) {
   if (lines.length === 0) return <span className="text-(--c-line-strong)">—</span>;
   return (
     <ul className="space-y-1 text-sm">
       {lines.map((line, index) => (
-        <li key={`${line.title}:${line.years}:${index}`} className={`flex items-center gap-2 ${compact ? "min-w-0 flex-wrap" : ""}`}>
-          {line.brand ? <BrandLogo name={line.brand} className="size-5" /> : null}
-          {line.title ? <span className={`${compact ? "min-w-0 break-words" : "whitespace-nowrap"} text-(--c-ink-2)`}>{line.title}</span> : null}
-          <span className="whitespace-nowrap tabular-nums text-(--c-faint)">{line.years}</span>
+        <li key={`${line.title}:${line.years}:${index}`} className={`flex min-h-5 items-center gap-2 ${compact ? "min-w-0 flex-wrap" : ""}`}>
+          {part !== "years" && line.brand ? <BrandLogo name={line.brand} className="size-5" /> : null}
+          {part !== "years" && line.title ? <span className={`${compact ? "min-w-0 break-words" : "whitespace-nowrap"} text-(--c-ink-2)`}>{line.title}</span> : null}
+          {part !== "car" ? <span className="whitespace-nowrap tabular-nums text-(--c-muted-2)">{line.years}</span> : null}
         </li>
       ))}
     </ul>
   );
-}
-
-/**
- * „MERCEDES-BENZ SPRINTER 906" → „SPRINTER 906" cu marca aleasă sus; cu și
- * modelul ales, titlul rămâne gol și se văd doar anii.
- */
-function withoutPrefix(title: string, prefix: string | undefined) {
-  if (!prefix) return title;
-  const lower = title.toLocaleLowerCase("ro");
-  const wanted = prefix.toLocaleLowerCase("ro");
-  if (lower === wanted) return "";
-  return lower.startsWith(`${wanted} `) ? title.slice(wanted.length + 1) : title;
 }
 
 /** Mașinile care se potrivesc cu căutarea întâi (caut „crafter" → Crafter sus). */

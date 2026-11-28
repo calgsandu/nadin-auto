@@ -76,7 +76,7 @@ function DocumentsWorkspace({ data, canModify }: { data: DocumentsData; canModif
   const end = Math.min(page * pageSize, total);
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       <form action="/crm/documente" method="get" className="flex flex-wrap items-center gap-2">
         <MobileFilters active={[filters.dtype, filters.partner, filters.from, filters.to].filter(Boolean).length}>
         <FilterField icon={<FileText />} label="Tip" active={Boolean(filters.dtype)}>

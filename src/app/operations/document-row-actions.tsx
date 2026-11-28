@@ -340,9 +340,6 @@ function EditPanel({
         <DrawerSection
           title={isInventory ? "Poziții ajustate" : "Produse"}
           icon={isInventory ? ClipboardCheck : Package}
-          description={
-            isInventory ? "Diferența față de stocul din sistem: plus fără semn, minus cu „-”." : undefined
-          }
           action={
             <div className="flex flex-wrap items-center gap-2">
               <AddedLinesFilter value={filter} onChange={setFilter} />
@@ -426,7 +423,7 @@ const EditLineRow = memo(function EditLineRow({
     >
       <div>
         <p className={`line-label mb-1 text-xs font-semibold leading-5 ${isExternal ? "text-(--c-accent-strong)" : "text-(--c-muted)"}`}>
-          {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : `Produs ${index + 1}`}
+          {isExternal ? `Piesă externă ${index + 1} (nu intră în stoc)` : "Produs"}
         </p>
         {isExternal ? (
           <>
@@ -474,7 +471,7 @@ const EditLineRow = memo(function EditLineRow({
           </>
         )}
       </div>
-      <DrawerField label={isInventory ? "Diferență (buc)" : "Cantitate"}>
+      <DrawerField label={isInventory ? "Diferență ±buc" : "Cantitate"}>
         <input
           className={drawerInputClassName}
           name="lineQuantity"

@@ -55,7 +55,7 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
   const warehouseOptions = data.warehouses.map((w) => ({ id: w.id, name: w.name }));
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       {/* Depozitul, sumarul lui și acțiunea pe un singur rând — înainte erau trei
           rânduri (pastile, două carduri mari, butonul singur în dreapta). */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -115,9 +115,9 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
             <thead className="border-b border-(--c-line) bg-(--c-surface-2)">
               <tr>
                 <TableHead>Cod</TableHead>
-                <TableHead>Produs</TableHead>
-                <TableHead align="right">Preț vânzare</TableHead>
-                <TableHead align="right">În sistem</TableHead>
+                <TableHead className="w-full">Produs</TableHead>
+                <TableHead align="center" className="min-w-32">Preț vânzare</TableHead>
+                <TableHead align="center" className="min-w-28">În sistem</TableHead>
               </tr>
             </thead>
             <tbody>
@@ -131,10 +131,10 @@ function InventoryWorkspace({ data, canModify }: { data: InventoryData; canModif
                       {row.product.description}
                       <VehicleSubline product={row.product} />
                     </TableCell>
-                    <TableCell align="right" className="tabular-nums">
+                    <TableCell align="center" className="tabular-nums">
                       {row.product.salePriceLei != null ? `${formatMoney(row.product.salePriceLei)} lei` : "—"}
                     </TableCell>
-                    <TableCell align="right" className="tabular-nums font-semibold">
+                    <TableCell align="center" className="tabular-nums font-semibold">
                       {formatNumber(row.quantity)}
                     </TableCell>
                   </tr>
@@ -178,40 +178,40 @@ function InventoryOperationsTable({
 
   return (
     <div className="grid gap-3">
-      <form action="/crm/inventar" method="get" className="flex flex-wrap items-center gap-2">
-        <input type="hidden" name="wh" value={selected?.id ?? ""} />
-        <MobileFilters active={[filters.from, filters.to].filter(Boolean).length}>
-        <FilterField icon={<CalendarDays />} label="De la" active={Boolean(filters.from)}>
-          <input className={filterControlCls} type="date" name="from" defaultValue={filters.from} />
-        </FilterField>
-        <span className="text-(--c-faint)" aria-hidden="true">–</span>
-        <FilterField icon={<CalendarDays />} label="Până la" active={Boolean(filters.to)}>
-          <input className={filterControlCls} type="date" name="to" defaultValue={filters.to} />
-        </FilterField>
-        <FilterSubmit />
-        {filters.from || filters.to ? <FilterReset href={crmInventoryHref({ wh: selected?.id })} /> : null}
-        {canModify && selected ? (
-          <div className="ml-auto flex gap-2">
-            <a
-              href={`/api/export/inventory?${exportQuery}`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
-            >
-              <Download className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (Excel)
-            </a>
-            <a
-              href={`/api/export/inventory?${exportQuery}&format=pdf`}
-              className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
-            >
-              <FileText className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (PDF)
-            </a>
-          </div>
-        ) : null}
-        </MobileFilters>
-      </form>
-
       <div className="overflow-hidden crm-card">
-        <div className="border-b border-(--c-line) px-4 py-2.5">
+        {/* Titlul, perioada și exporturile pe un singur rând, în capul tabelului. */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-(--c-line) px-4 py-2">
           <h2 className="text-sm font-semibold text-(--c-ink)">Inventare efectuate</h2>
+          <form action="/crm/inventar" method="get" className="flex flex-1 flex-wrap items-center gap-2">
+            <input type="hidden" name="wh" value={selected?.id ?? ""} />
+            <MobileFilters active={[filters.from, filters.to].filter(Boolean).length}>
+            <FilterField icon={<CalendarDays />} label="De la" active={Boolean(filters.from)}>
+              <input className={filterControlCls} type="date" name="from" defaultValue={filters.from} />
+            </FilterField>
+            <span className="text-(--c-faint)" aria-hidden="true">–</span>
+            <FilterField icon={<CalendarDays />} label="Până la" active={Boolean(filters.to)}>
+              <input className={filterControlCls} type="date" name="to" defaultValue={filters.to} />
+            </FilterField>
+            <FilterSubmit />
+            {filters.from || filters.to ? <FilterReset href={crmInventoryHref({ wh: selected?.id })} /> : null}
+            {canModify && selected ? (
+              <div className="ml-auto flex gap-2">
+                <a
+                  href={`/api/export/inventory?${exportQuery}`}
+                  className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
+                >
+                  <Download className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (Excel)
+                </a>
+                <a
+                  href={`/api/export/inventory?${exportQuery}&format=pdf`}
+                  className="button-secondary inline-flex h-9 items-center gap-1.5 rounded-lg border border-(--c-line) bg-(--c-surface) px-3 text-sm font-medium text-(--c-ink) hover:bg-(--c-hover)"
+                >
+                  <FileText className="size-4 text-(--c-muted-2)" aria-hidden="true" /> Toate (PDF)
+                </a>
+              </div>
+            ) : null}
+            </MobileFilters>
+          </form>
         </div>
         <div className="overflow-x-auto">
         <table className="crm-table w-full border-collapse text-left text-sm sm:min-w-[860px]">
@@ -219,12 +219,12 @@ function InventoryOperationsTable({
             <tr>
               <TableHead className="max-sm:hidden">Data</TableHead>
               <TableHead>Document</TableHead>
-              <TableHead align="right" secondary>Poziții</TableHead>
-              <TableHead align="right" secondary>Plus</TableHead>
-              <TableHead align="right" secondary>Minus</TableHead>
-              <TableHead align="right">Net</TableHead>
-              <TableHead secondary>Notițe</TableHead>
-              <TableHead align="right">Acțiuni</TableHead>
+              <TableHead align="center" secondary className="lg:min-w-24">Poziții</TableHead>
+              <TableHead align="center" secondary className="lg:min-w-24">Plus</TableHead>
+              <TableHead align="center" secondary className="lg:min-w-24">Minus</TableHead>
+              <TableHead align="center" className="lg:min-w-24">Net</TableHead>
+              <TableHead secondary className="lg:w-full">Notițe</TableHead>
+              <TableHead align="right" className="lg:min-w-44">Acțiuni</TableHead>
             </tr>
           </thead>
           <tbody>
@@ -240,10 +240,10 @@ function InventoryOperationsTable({
                       Inventar #{operation.number}
                       <span className="block text-xs font-normal text-(--c-muted) sm:hidden">{formatDate(operation.documentDate)}</span>
                     </TableCell>
-                    <TableCell align="right" secondary className="tabular-nums">{formatNumber(operation.lines.length)}</TableCell>
-                    <TableCell align="right" secondary className="tabular-nums text-(--c-green)">{plus > 0 ? `+${plus}` : "—"}</TableCell>
-                    <TableCell align="right" secondary className="tabular-nums text-(--c-red)">{minus < 0 ? minus : "—"}</TableCell>
-                    <TableCell align="right" className="tabular-nums font-semibold">{signedNumber(plus + minus)}</TableCell>
+                    <TableCell align="center" secondary className="tabular-nums">{formatNumber(operation.lines.length)}</TableCell>
+                    <TableCell align="center" secondary className="tabular-nums text-(--c-green)">{plus > 0 ? `+${plus}` : "—"}</TableCell>
+                    <TableCell align="center" secondary className="tabular-nums text-(--c-red)">{minus < 0 ? minus : "—"}</TableCell>
+                    <TableCell align="center" className="tabular-nums font-semibold">{signedNumber(plus + minus)}</TableCell>
                     <TableCell secondary className="text-(--c-muted)">
                       {operation.notes?.replace(/^Inventar:?\s*/, "") || "—"}
                     </TableCell>

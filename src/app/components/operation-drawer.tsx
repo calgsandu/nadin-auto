@@ -11,6 +11,7 @@ import {
   useState,
   useTransition,
   type ReactNode,
+  type RefObject,
 } from "react";
 import { useFormStatus } from "react-dom";
 import type { LucideIcon } from "lucide-react";
@@ -20,27 +21,103 @@ import { useActionToast } from "@/app/components/action-toast";
 import type { DrawerDraftBanner } from "@/app/components/use-drawer-draft";
 
 /**
- * Stiva de drawere. Un dialog poate deschide alt dialog (creezi produsul lipsă
- * fără să abandonezi vânzarea), dar NU unul peste altul: cât timp copilul e
- * deschis, părintele se ascunde — rămâne montat, deci ciorna e intactă.
- *
- * Așa dispar dintr-un foc z-index-ul, Escape-ul care ar închide două panouri
- * și panoul-peste-panou de pe telefon.
+ * Formularele mici (partener, încasare, brand, parolă) se deschid ca modal
+ * centrat, nu ca panou pe tot ecranul. În modal, `DrawerCard` devine secțiune
+ * plată cu iconița și titlul în stânga — același stil ca fișa de produs.
  */
-const DrawerStackContext = createContext<{ open: () => void; close: () => void } | null>(null);
+const DrawerModalContext = createContext(false);
+
+export function DrawerModalScope({ children }: { children: ReactNode }) {
+  return <DrawerModalContext.Provider value>{children}</DrawerModalContext.Provider>;
+}
+
+export type ModalWidth = "sm" | "md" | "lg";
+const MODAL_WIDTH: Record<ModalWidth, string> = {
+  sm: "sm:max-w-xl",
+  md: "sm:max-w-3xl",
+  lg: "sm:max-w-5xl",
+};
+
+export const modalBackdropClassName =
+  "motion-modal-backdrop fixed inset-0 z-50 grid place-items-center bg-black/60 sm:p-6";
+
+/** Pe telefon ecran întreg; de la `sm` în sus, cutie centrată cu scroll propriu. */
+export function modalPanelClassName(width: ModalWidth = "md") {
+  return `drawer-modal motion-modal-panel relative flex h-full w-full flex-col overflow-y-auto bg-(--c-surface) sm:h-auto sm:max-h-[calc(100dvh-3rem)] sm:rounded-2xl sm:border sm:border-(--c-line) sm:shadow-[0_24px_60px_-20px_rgb(0_0_0/0.45)] ${MODAL_WIDTH[width]}`;
+}
+
+/** Antetul lipit sus: titlu în stânga, salvare/închidere în dreapta. */
+export function modalHeaderClassName(modal: boolean) {
+  return `sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) px-4 py-2.5 sm:px-5 sm:py-3 ${
+    modal ? "bg-(--c-surface)" : "bg-(--c-surface-2)"
+  }`;
+}
 
 /**
- * Ține ascuns drawerul-părinte cât timp `open` e adevărat. Fără părinte
- * (dialogul e deschis dintr-o pagină) nu face nimic.
+ * Modalul stă PESTE ce era deschis (vânzarea din care creezi un client), deci
+ * focusul trebuie mutat în el: rămas în spate, Esc ar închide documentul.
  */
-export function useDrawerStackChild(open: boolean) {
-  const stack = useContext(DrawerStackContext);
-
+export function useModalFocus(ref: RefObject<HTMLElement | null>, open: boolean) {
   useEffect(() => {
-    if (!open || !stack) return;
-    stack.open();
-    return stack.close;
-  }, [open, stack]);
+    if (!open) return;
+    const frame = requestAnimationFrame(() => {
+      const root = ref.current;
+      if (!root || root.contains(document.activeElement)) return;
+      root
+        .querySelector<HTMLElement>('input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea')
+        ?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [open, ref]);
+}
+
+export const modalSectionGridClassName = "grid gap-2.5 px-4 py-3 sm:gap-3 sm:px-5 sm:py-4 lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-5";
+/** Rândul unei secțiuni de modal (titlu în stânga, câmpuri în dreapta), și pentru `<summary>`. */
+export const modalSectionClassName = `${modalSectionGridClassName} border-b border-(--c-line) last:border-b-0`;
+
+/**
+ * O parte a unui modal: iconița + titlul într-o coloană în stânga, câmpurile
+ * în dreapta. `hint` = rezumatul viu (marja, totalul, câte mașini).
+ */
+export function ModalSection({
+  icon,
+  title,
+  hint,
+  action,
+  lines = false,
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  hint?: ReactNode;
+  action?: ReactNode;
+  lines?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <section data-modal-section data-drawer-lines={lines ? "" : undefined} className={modalSectionClassName}>
+      <div>
+        <ModalSectionTitle icon={icon} title={title} hint={hint} />
+        {action ? <div className="mt-2 lg:ml-[2.625rem]">{action}</div> : null}
+      </div>
+      <div className="min-w-0">{children}</div>
+    </section>
+  );
+}
+
+export function ModalSectionTitle({ icon: Icon, title, hint }: { icon: LucideIcon; title: string; hint?: ReactNode }) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-(--c-accent-soft) text-(--c-accent)">
+        <Icon className="size-4" aria-hidden="true" />
+      </span>
+      {/* Pe telefon rezumatul stă pe același rând cu titlul: un rând mai puțin. */}
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 lg:block">
+        <h3 className="py-1.5 font-semibold leading-5 text-(--c-ink)">{title}</h3>
+        {hint ? <p className="text-sm tabular-nums text-(--c-muted-2) lg:-mt-1">{hint}</p> : null}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -100,6 +177,7 @@ export function OperationDrawer({
   submitLabel,
   pending,
   draft,
+  modal,
 }: {
   title: string;
   /** Iconița operațiunii, lângă titlu (aceeași ca pe butonul care o deschide). */
@@ -113,28 +191,21 @@ export function OperationDrawer({
   pending?: boolean;
   /** Starea ciornei locale — vezi `useDrawerDraft`. */
   draft?: DrawerDraftBanner;
+  /** Dat = formular mic, deschis ca modal centrat de lățimea asta. */
+  modal?: ModalWidth;
 }) {
   const panelRef = useRef<HTMLElement>(null);
   const dirtyRef = useRef(false);
-  // Câte dialoguri-copil sunt deschise peste panoul ăsta. >0 = ne dăm la o parte.
-  const [childCount, setChildCount] = useState(0);
-  const stack = useMemo(
-    () => ({
-      open: () => setChildCount((count) => count + 1),
-      close: () => setChildCount((count) => Math.max(0, count - 1)),
-    }),
-    [],
-  );
-  const visible = open && childCount === 0;
+  // Dialogurile-copil (client nou, produs nou) sunt modale PESTE panou, deci
+  // panoul rămâne vizibil în spate cât sunt deschise.
+  const visible = open;
 
   // Operatorul intră direct în căutarea de produs, fără drum cu mouse-ul.
-  // Depinde de `open`, nu de `visible`: la întoarcerea dintr-un dialog-copil
-  // rândul are deja produsul ales, deci câmpul de căutare e ascuns sub fișă și
-  // focusul lui ar fi fost pus pe un element invizibil.
   useEffect(() => {
     if (!open) return;
     panelRef.current?.querySelector<HTMLInputElement>('input[role="combobox"]')?.focus();
   }, [open]);
+  useModalFocus(panelRef, open && Boolean(modal));
 
   // Ciorna nesalvată nu se pierde nici la refresh/închidere de tab fără avertisment.
   useEffect(() => {
@@ -148,7 +219,7 @@ export function OperationDrawer({
   return (
     <DrawerPortal locked={visible}>
       <div
-        className="motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"
+        className={modal ? modalBackdropClassName : "motion-drawer-backdrop fixed inset-0 z-50 flex justify-end bg-black/30"}
         style={visible ? undefined : { display: "none" }}
         {...drawerBoundaryProps}
         onInput={(event) => {
@@ -196,9 +267,9 @@ export function OperationDrawer({
               target.blur();
             }
           }}
-          className={drawerPanelClassName}
+          className={modal ? modalPanelClassName(modal) : drawerPanelClassName}
         >
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-(--c-line) bg-(--c-surface-2) px-5 py-3">
+          <div className={modalHeaderClassName(Boolean(modal))}>
             <div>
               <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-(--c-ink)">
                 {Icon ? (
@@ -227,7 +298,7 @@ export function OperationDrawer({
             </div>
           </div>
           <DraftBanner draft={draft} />
-          <DrawerStackContext.Provider value={stack}>{children}</DrawerStackContext.Provider>
+          <DrawerModalContext.Provider value={Boolean(modal)}>{children}</DrawerModalContext.Provider>
         </aside>
       </div>
     </DrawerPortal>
@@ -361,6 +432,14 @@ export function DrawerCard({
   className?: string;
   children: ReactNode;
 }) {
+  const modal = useContext(DrawerModalContext);
+  if (modal) {
+    return (
+      <ModalSection icon={icon} title={title} action={action} lines={lines}>
+        {children}
+      </ModalSection>
+    );
+  }
   return (
     <section
       data-drawer-lines={lines ? "" : undefined}
@@ -377,7 +456,7 @@ export function DrawerTotal({ total, vat }: { total: string; vat: string }) {
   return (
     <div className="self-start rounded-xl bg-(--c-accent) px-4 py-3.5 text-right text-white shadow-sm">
       <p className="text-sm text-white/70">Total</p>
-      <p className="text-[1.75rem] font-semibold leading-tight tracking-tight tabular-nums">{total} lei</p>
+      <p className="text-[1.5rem] font-semibold leading-tight tracking-tight tabular-nums">{total} lei</p>
       <p className="text-xs text-white/60">din care TVA {vat} lei</p>
     </div>
   );
@@ -408,7 +487,7 @@ export function DrawerSection({
         </div>
       )}
       {description ? <p className="-mt-1 text-sm text-(--c-muted)">{description}</p> : null}
-      <div className="grid gap-1.5">{children}</div>
+      <div className="grid">{children}</div>
     </section>
   );
 }
@@ -617,14 +696,14 @@ export function handleEnterNavigation(
  */
 export const drawerPanelClassName =
   "motion-drawer-panel relative flex h-full w-full flex-col overflow-y-auto bg-(--c-surface-2) shadow-xl md:max-w-[90vw]";
-export const drawerFormClassName = "grid gap-4 px-5 py-4";
+export const drawerFormClassName = "grid gap-3 px-5 py-3.5";
 export const drawerInputClassName =
   "field-control h-9 w-full rounded-md border border-(--c-line) bg-(--c-surface) px-2.5 text-sm outline-none placeholder:text-(--c-muted-2)";
 export const drawerSecondaryButton =
   "button-secondary flex items-center gap-2 rounded-md border border-(--c-line) bg-(--c-surface) px-3 py-2 text-sm font-semibold text-(--c-ink) hover:bg-(--c-surface-2)";
 export const drawerDangerButton =
-  "button-danger line-offset mt-6 grid size-9 place-items-center rounded-md border border-(--c-line) bg-(--c-surface) text-(--c-red) hover:border-(--c-red) hover:bg-(--c-red-soft) disabled:cursor-not-allowed disabled:opacity-35";
+  "button-danger line-offset mt-6 grid size-9 place-items-center rounded-md text-(--c-muted-2) hover:bg-(--c-red-soft) hover:text-(--c-red) disabled:cursor-not-allowed disabled:opacity-35";
 /** Marchează un rând de produs, ca navigarea cu Enter să știe unde se află. */
 const DRAWER_LINE_MARKER = "motion-line-item";
 export const drawerLineClassName =
-  `${DRAWER_LINE_MARKER} grid gap-2 rounded-md border border-(--c-line-2) bg-(--c-surface) px-2.5 py-2 md:items-start`;
+  `${DRAWER_LINE_MARKER} grid gap-2 border-t border-(--c-line-2) py-2.5 md:items-start md:py-1`;

@@ -39,7 +39,7 @@ async function Loader({
 
 function ReportsWorkspace({ data, canBackup }: { data: ReportsData; canBackup: boolean }) {
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       {canBackup ? (
         <div className="flex justify-end">
           <a

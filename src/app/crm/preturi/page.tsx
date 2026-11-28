@@ -49,7 +49,7 @@ function PriceHistoryWorkspace({ data }: { data: PriceHistoryData }) {
   const end = Math.min(data.page * data.pageSize, data.total);
 
   return (
-    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-5">
+    <section className="motion-page grid grid-cols-1 gap-4 p-4 lg:px-6 lg:py-3">
       <form action="/crm/preturi" method="get" className="flex flex-wrap items-center gap-2">
         <label className="relative w-full sm:w-72">
           <Search
